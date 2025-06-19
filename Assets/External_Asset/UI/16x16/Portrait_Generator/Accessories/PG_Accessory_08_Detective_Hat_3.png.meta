@@ -1,0 +1,867 @@
+fileFormatVersion: 2
+guid: acd0ddfd8a1eb994d99b3948833922cb
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2682512832101239608
+    second: PG_Accessory_08_Detective_Hat_3_0
+  - first:
+      213: -5488624443531634240
+    second: PG_Accessory_08_Detective_Hat_3_1
+  - first:
+      213: -3205364556696512799
+    second: PG_Accessory_08_Detective_Hat_3_2
+  - first:
+      213: 785116674663377425
+    second: PG_Accessory_08_Detective_Hat_3_3
+  - first:
+      213: 6673267039895424487
+    second: PG_Accessory_08_Detective_Hat_3_4
+  - first:
+      213: -7936327079290347802
+    second: PG_Accessory_08_Detective_Hat_3_5
+  - first:
+      213: 7051586057743096514
+    second: PG_Accessory_08_Detective_Hat_3_6
+  - first:
+      213: 4862053541081564055
+    second: PG_Accessory_08_Detective_Hat_3_7
+  - first:
+      213: -7331854414078519095
+    second: PG_Accessory_08_Detective_Hat_3_8
+  - first:
+      213: -4945966391095299094
+    second: PG_Accessory_08_Detective_Hat_3_9
+  - first:
+      213: -4269567576643278186
+    second: PG_Accessory_08_Detective_Hat_3_10
+  - first:
+      213: -7290341576538244078
+    second: PG_Accessory_08_Detective_Hat_3_11
+  - first:
+      213: 9118085371920572034
+    second: PG_Accessory_08_Detective_Hat_3_12
+  - first:
+      213: 5638786962905082860
+    second: PG_Accessory_08_Detective_Hat_3_13
+  - first:
+      213: 8037217926379602542
+    second: PG_Accessory_08_Detective_Hat_3_14
+  - first:
+      213: 3659584279659811045
+    second: PG_Accessory_08_Detective_Hat_3_15
+  - first:
+      213: -6129891770743317173
+    second: PG_Accessory_08_Detective_Hat_3_16
+  - first:
+      213: 7427251285670679665
+    second: PG_Accessory_08_Detective_Hat_3_17
+  - first:
+      213: -3900364019892975299
+    second: PG_Accessory_08_Detective_Hat_3_18
+  - first:
+      213: -7955502970094203144
+    second: PG_Accessory_08_Detective_Hat_3_19
+  - first:
+      213: 4435567901231204495
+    second: PG_Accessory_08_Detective_Hat_3_20
+  - first:
+      213: 3254544071135211162
+    second: PG_Accessory_08_Detective_Hat_3_21
+  - first:
+      213: -3391895190213716783
+    second: PG_Accessory_08_Detective_Hat_3_22
+  - first:
+      213: 5069180480394226836
+    second: PG_Accessory_08_Detective_Hat_3_23
+  - first:
+      213: -802027890119688542
+    second: PG_Accessory_08_Detective_Hat_3_24
+  - first:
+      213: 3664602879983006079
+    second: PG_Accessory_08_Detective_Hat_3_25
+  - first:
+      213: -3431499869334253907
+    second: PG_Accessory_08_Detective_Hat_3_26
+  - first:
+      213: -6819199413937935820
+    second: PG_Accessory_08_Detective_Hat_3_27
+  - first:
+      213: -3969628371565135578
+    second: PG_Accessory_08_Detective_Hat_3_28
+  - first:
+      213: 4616489632895507354
+    second: PG_Accessory_08_Detective_Hat_3_29
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_0
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 78
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83b42de45333a3520800000000000000
+      internalID: 2682512832101239608
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_1
+      rect:
+        serializedVersion: 2
+        x: 35
+        y: 78
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c955c9062d74d3b0800000000000000
+      internalID: -5488624443531634240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_2
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 77
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e61a7e1be14483d0800000000000000
+      internalID: -3205364556696512799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_3
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 78
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 11aeb84b47b45ea00800000000000000
+      internalID: 785116674663377425
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_4
+      rect:
+        serializedVersion: 2
+        x: 131
+        y: 78
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ed0a4c24053c9c50800000000000000
+      internalID: 6673267039895424487
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_5
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 78
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6eed591e1908cd190800000000000000
+      internalID: -7936327079290347802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_6
+      rect:
+        serializedVersion: 2
+        x: 195
+        y: 78
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2cadfda98244cd160800000000000000
+      internalID: 7051586057743096514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_7
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 78
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 793c8137feb797340800000000000000
+      internalID: 4862053541081564055
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_8
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 78
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c858f79145004a90800000000000000
+      internalID: -7331854414078519095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_9
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 78
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae37ebba5c56c5bb0800000000000000
+      internalID: -4945966391095299094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_10
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 46
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69ae6a109e27fb4c0800000000000000
+      internalID: -4269567576643278186
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_11
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 47
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21c3d2746f083da90800000000000000
+      internalID: -7290341576538244078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_12
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 48
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28ed2090652f98e70800000000000000
+      internalID: 9118085371920572034
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_13
+      rect:
+        serializedVersion: 2
+        x: 100
+        y: 45
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cebaf000edef04e40800000000000000
+      internalID: 5638786962905082860
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_14
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 43
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e62024cfe1fe98f60800000000000000
+      internalID: 8037217926379602542
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_15
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 45
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e01ab6538479c230800000000000000
+      internalID: 3659584279659811045
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_16
+      rect:
+        serializedVersion: 2
+        x: 195
+        y: 45
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4d114d79ef3eeaa0800000000000000
+      internalID: -6129891770743317173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_17
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 46
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 174d6fb61b5e21760800000000000000
+      internalID: 7427251285670679665
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_18
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 46
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d398093c69f1fd9c0800000000000000
+      internalID: -3900364019892975299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_19
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 46
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fe48f1e230689190800000000000000
+      internalID: -7955502970094203144
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_20
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 14
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f88c20a618d4e8d30800000000000000
+      internalID: 4435567901231204495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_21
+      rect:
+        serializedVersion: 2
+        x: 35
+        y: 14
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9e2ed1e6967a2d20800000000000000
+      internalID: 3254544071135211162
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_22
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 14
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d494f7ab419de0d0800000000000000
+      internalID: -3391895190213716783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_23
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 14
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49ced3c0ac8595640800000000000000
+      internalID: 5069180480394226836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_24
+      rect:
+        serializedVersion: 2
+        x: 130
+        y: 14
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2aeb57d12ef9ed4f0800000000000000
+      internalID: -802027890119688542
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_25
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 14
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f71b24847e84bd230800000000000000
+      internalID: 3664602879983006079
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_26
+      rect:
+        serializedVersion: 2
+        x: 197
+        y: 14
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dae4889bc0dd060d0800000000000000
+      internalID: -3431499869334253907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_27
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 14
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43a6daf33465d51a0800000000000000
+      internalID: -6819199413937935820
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_28
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 14
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6293c8e270c09e8c0800000000000000
+      internalID: -3969628371565135578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_08_Detective_Hat_3_29
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 14
+        width: 22
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9b9206acd0111040800000000000000
+      internalID: 4616489632895507354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,867 @@
+fileFormatVersion: 2
+guid: 85a4382465a832c47ab2d84aa86e7058
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 6043539735048487409
+    second: PG_Accessory_09_Zombie_Brain_3_0
+  - first:
+      213: 5457517083548129318
+    second: PG_Accessory_09_Zombie_Brain_3_1
+  - first:
+      213: 4667332545242303751
+    second: PG_Accessory_09_Zombie_Brain_3_2
+  - first:
+      213: -5279485730581727601
+    second: PG_Accessory_09_Zombie_Brain_3_3
+  - first:
+      213: -5179175892891973132
+    second: PG_Accessory_09_Zombie_Brain_3_4
+  - first:
+      213: -4761429930834570283
+    second: PG_Accessory_09_Zombie_Brain_3_5
+  - first:
+      213: 6382495081789661593
+    second: PG_Accessory_09_Zombie_Brain_3_6
+  - first:
+      213: -4579057902254612233
+    second: PG_Accessory_09_Zombie_Brain_3_7
+  - first:
+      213: -4274552030689598410
+    second: PG_Accessory_09_Zombie_Brain_3_8
+  - first:
+      213: -7985452750873442831
+    second: PG_Accessory_09_Zombie_Brain_3_9
+  - first:
+      213: -5740942274142257310
+    second: PG_Accessory_09_Zombie_Brain_3_10
+  - first:
+      213: 6231162958532412022
+    second: PG_Accessory_09_Zombie_Brain_3_11
+  - first:
+      213: 6311419159074277600
+    second: PG_Accessory_09_Zombie_Brain_3_12
+  - first:
+      213: 7367590517186638270
+    second: PG_Accessory_09_Zombie_Brain_3_13
+  - first:
+      213: 7616130564563491036
+    second: PG_Accessory_09_Zombie_Brain_3_14
+  - first:
+      213: 6632755172406121078
+    second: PG_Accessory_09_Zombie_Brain_3_15
+  - first:
+      213: -6605364925434040292
+    second: PG_Accessory_09_Zombie_Brain_3_16
+  - first:
+      213: -743760567075234252
+    second: PG_Accessory_09_Zombie_Brain_3_17
+  - first:
+      213: -7681659198367191759
+    second: PG_Accessory_09_Zombie_Brain_3_18
+  - first:
+      213: -3195870928174096240
+    second: PG_Accessory_09_Zombie_Brain_3_19
+  - first:
+      213: 2045681878384235508
+    second: PG_Accessory_09_Zombie_Brain_3_20
+  - first:
+      213: 7960463101084415687
+    second: PG_Accessory_09_Zombie_Brain_3_21
+  - first:
+      213: 2187154679382561604
+    second: PG_Accessory_09_Zombie_Brain_3_22
+  - first:
+      213: -5212656183005055238
+    second: PG_Accessory_09_Zombie_Brain_3_23
+  - first:
+      213: -8404250956835018793
+    second: PG_Accessory_09_Zombie_Brain_3_24
+  - first:
+      213: 3773980949762241114
+    second: PG_Accessory_09_Zombie_Brain_3_25
+  - first:
+      213: -7973193323532783167
+    second: PG_Accessory_09_Zombie_Brain_3_26
+  - first:
+      213: 5790316797106138402
+    second: PG_Accessory_09_Zombie_Brain_3_27
+  - first:
+      213: 584990991903558401
+    second: PG_Accessory_09_Zombie_Brain_3_28
+  - first:
+      213: 435294954543838450
+    second: PG_Accessory_09_Zombie_Brain_3_29
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_0
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 76
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f106857e57fed350800000000000000
+      internalID: 6043539735048487409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_1
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 76
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62813805fdefcbb40800000000000000
+      internalID: 5457517083548129318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_2
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 76
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70d89c7a832b5c040800000000000000
+      internalID: 4667332545242303751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_3
+      rect:
+        serializedVersion: 2
+        x: 103
+        y: 76
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f86beef23bf7bb6b0800000000000000
+      internalID: -5279485730581727601
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_4
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 76
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4f948e247fedf18b0800000000000000
+      internalID: -5179175892891973132
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_5
+      rect:
+        serializedVersion: 2
+        x: 167
+        y: 76
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d351bd74b00cedb0800000000000000
+      internalID: -4761429930834570283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_6
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 76
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99120c2067d239850800000000000000
+      internalID: 6382495081789661593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_7
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 76
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f02b2a491be370c0800000000000000
+      internalID: -4579057902254612233
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_8
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 76
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63462dc539dbda4c0800000000000000
+      internalID: -4274552030689598410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_9
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 76
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f5c5852809fd2190800000000000000
+      internalID: -7985452750873442831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_10
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 44
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26f3ab12b631450b0800000000000000
+      internalID: -5740942274142257310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_11
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 46
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67285e852b9897650800000000000000
+      internalID: 6231162958532412022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_12
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 47
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e8873d294aa69750800000000000000
+      internalID: 6311419159074277600
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_13
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 44
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb1327b4a80fe3660800000000000000
+      internalID: 7367590517186638270
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_14
+      rect:
+        serializedVersion: 2
+        x: 136
+        y: 42
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd85dcf756ee1b960800000000000000
+      internalID: 7616130564563491036
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_15
+      rect:
+        serializedVersion: 2
+        x: 168
+        y: 43
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 672d66dffa74c0c50800000000000000
+      internalID: 6632755172406121078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_16
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 43
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c10fda7d8970554a0800000000000000
+      internalID: -6605364925434040292
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_17
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 44
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43e998174b1ada5f0800000000000000
+      internalID: -743760567075234252
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_18
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 44
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13d26b388a3456590800000000000000
+      internalID: -7681659198367191759
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_19
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 44
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0906f22c25cf5a3d0800000000000000
+      internalID: -3195870928174096240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_20
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 12
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4f3db8474d8b36c10800000000000000
+      internalID: 2045681878384235508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_21
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 12
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c6bdbb930f397e60800000000000000
+      internalID: 7960463101084415687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_22
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 12
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4435e65c7955a5e10800000000000000
+      internalID: 2187154679382561604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_23
+      rect:
+        serializedVersion: 2
+        x: 103
+        y: 12
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af67db3c1dce8a7b0800000000000000
+      internalID: -5212656183005055238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_24
+      rect:
+        serializedVersion: 2
+        x: 134
+        y: 14
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d7ac9a484a1e5b80800000000000000
+      internalID: -8404250956835018793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_25
+      rect:
+        serializedVersion: 2
+        x: 167
+        y: 12
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a527babadafdf5430800000000000000
+      internalID: 3773980949762241114
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_26
+      rect:
+        serializedVersion: 2
+        x: 201
+        y: 12
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c1ff418ae6895190800000000000000
+      internalID: -7973193323532783167
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_27
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 12
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22d2d74d2765b5050800000000000000
+      internalID: 5790316797106138402
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_28
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 12
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10b073d253e4e1800800000000000000
+      internalID: 584990991903558401
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_09_Zombie_Brain_3_29
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 12
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f4fa12747a7a0600800000000000000
+      internalID: 435294954543838450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

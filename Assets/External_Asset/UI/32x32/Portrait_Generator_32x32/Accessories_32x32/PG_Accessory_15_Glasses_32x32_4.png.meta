@@ -1,0 +1,867 @@
+fileFormatVersion: 2
+guid: fdeda0b595534154ba5a7c63d4f59bd3
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5849515028313581183
+    second: PG_Accessory_15_Glasses_32x32_4_0
+  - first:
+      213: 7425613930468633716
+    second: PG_Accessory_15_Glasses_32x32_4_1
+  - first:
+      213: -8132779183332703603
+    second: PG_Accessory_15_Glasses_32x32_4_2
+  - first:
+      213: -1643309332903630518
+    second: PG_Accessory_15_Glasses_32x32_4_3
+  - first:
+      213: -6800818261386283608
+    second: PG_Accessory_15_Glasses_32x32_4_4
+  - first:
+      213: -7200095653718119357
+    second: PG_Accessory_15_Glasses_32x32_4_5
+  - first:
+      213: 1495472645051533268
+    second: PG_Accessory_15_Glasses_32x32_4_6
+  - first:
+      213: -4424050354678413130
+    second: PG_Accessory_15_Glasses_32x32_4_7
+  - first:
+      213: 4701687821637060584
+    second: PG_Accessory_15_Glasses_32x32_4_8
+  - first:
+      213: -6697736596199335568
+    second: PG_Accessory_15_Glasses_32x32_4_9
+  - first:
+      213: 5405594612222608887
+    second: PG_Accessory_15_Glasses_32x32_4_10
+  - first:
+      213: -2872156658690698842
+    second: PG_Accessory_15_Glasses_32x32_4_11
+  - first:
+      213: 4257986873434151336
+    second: PG_Accessory_15_Glasses_32x32_4_12
+  - first:
+      213: 7562112840849427969
+    second: PG_Accessory_15_Glasses_32x32_4_13
+  - first:
+      213: 7788051700955752159
+    second: PG_Accessory_15_Glasses_32x32_4_14
+  - first:
+      213: 1551173471779388489
+    second: PG_Accessory_15_Glasses_32x32_4_15
+  - first:
+      213: -6255719777964954819
+    second: PG_Accessory_15_Glasses_32x32_4_16
+  - first:
+      213: -2063073745017081078
+    second: PG_Accessory_15_Glasses_32x32_4_17
+  - first:
+      213: -4360534378616000392
+    second: PG_Accessory_15_Glasses_32x32_4_18
+  - first:
+      213: 7601261788587583507
+    second: PG_Accessory_15_Glasses_32x32_4_19
+  - first:
+      213: 8020314264694018534
+    second: PG_Accessory_15_Glasses_32x32_4_20
+  - first:
+      213: 2863027933182753542
+    second: PG_Accessory_15_Glasses_32x32_4_21
+  - first:
+      213: -6314301071479782083
+    second: PG_Accessory_15_Glasses_32x32_4_22
+  - first:
+      213: -5748642205054104796
+    second: PG_Accessory_15_Glasses_32x32_4_23
+  - first:
+      213: -8779928028797867675
+    second: PG_Accessory_15_Glasses_32x32_4_24
+  - first:
+      213: -4824646759054797443
+    second: PG_Accessory_15_Glasses_32x32_4_25
+  - first:
+      213: 1664327801843530319
+    second: PG_Accessory_15_Glasses_32x32_4_26
+  - first:
+      213: 4394949516834137469
+    second: PG_Accessory_15_Glasses_32x32_4_27
+  - first:
+      213: 1509196314356203605
+    second: PG_Accessory_15_Glasses_32x32_4_28
+  - first:
+      213: -739028416459471947
+    second: PG_Accessory_15_Glasses_32x32_4_29
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_0
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 151
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1895f05e21952dea0800000000000000
+      internalID: -5849515028313581183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_1
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 151
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47c66c4f6841d0760800000000000000
+      internalID: 7425613930468633716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_2
+      rect:
+        serializedVersion: 2
+        x: 147
+        y: 149
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8243cc0c60922f80800000000000000
+      internalID: -8132779183332703603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_3
+      rect:
+        serializedVersion: 2
+        x: 211
+        y: 151
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a49e13c4edac139e0800000000000000
+      internalID: -1643309332903630518
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_4
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 151
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a5b414d2d3ae91a0800000000000000
+      internalID: -6800818261386283608
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_5
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 151
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34c2c43962f141c90800000000000000
+      internalID: -7200095653718119357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_6
+      rect:
+        serializedVersion: 2
+        x: 403
+        y: 151
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d74c93827cf0c410800000000000000
+      internalID: 1495472645051533268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_7
+      rect:
+        serializedVersion: 2
+        x: 467
+        y: 151
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b8c3fc54ad9a92c0800000000000000
+      internalID: -4424050354678413130
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_8
+      rect:
+        serializedVersion: 2
+        x: 531
+        y: 151
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e70575c920cf3140800000000000000
+      internalID: 4701687821637060584
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_9
+      rect:
+        serializedVersion: 2
+        x: 595
+        y: 151
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07997684d0cdc03a0800000000000000
+      internalID: -6697736596199335568
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_10
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 87
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f54b45e8a7840b40800000000000000
+      internalID: 5405594612222608887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_11
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 91
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a1d77b7cbc0428d0800000000000000
+      internalID: -2872156658690698842
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_12
+      rect:
+        serializedVersion: 2
+        x: 147
+        y: 93
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a991596088671b30800000000000000
+      internalID: 4257986873434151336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_13
+      rect:
+        serializedVersion: 2
+        x: 213
+        y: 85
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10e004e109502f860800000000000000
+      internalID: 7562112840849427969
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_14
+      rect:
+        serializedVersion: 2
+        x: 277
+        y: 81
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd628d752c7b41c60800000000000000
+      internalID: 7788051700955752159
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_15
+      rect:
+        serializedVersion: 2
+        x: 341
+        y: 85
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94c7b6add00e68510800000000000000
+      internalID: 1551173471779388489
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_16
+      rect:
+        serializedVersion: 2
+        x: 403
+        y: 85
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3b630491083f29a0800000000000000
+      internalID: -6255719777964954819
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_17
+      rect:
+        serializedVersion: 2
+        x: 467
+        y: 87
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0372da0c5d7e53e0800000000000000
+      internalID: -2063073745017081078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_18
+      rect:
+        serializedVersion: 2
+        x: 531
+        y: 87
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 870f6b3f5154c73c0800000000000000
+      internalID: -4360534378616000392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_19
+      rect:
+        serializedVersion: 2
+        x: 595
+        y: 87
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3186381d25b1d7960800000000000000
+      internalID: 7601261788587583507
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_20
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 23
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e1d51e8451ed4f60800000000000000
+      internalID: 8020314264694018534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_21
+      rect:
+        serializedVersion: 2
+        x: 85
+        y: 23
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60bf06b7cb48bb720800000000000000
+      internalID: 2863027933182753542
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_22
+      rect:
+        serializedVersion: 2
+        x: 155
+        y: 23
+        width: 20
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d35449d41a81f58a0800000000000000
+      internalID: -6314301071479782083
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_23
+      rect:
+        serializedVersion: 2
+        x: 221
+        y: 23
+        width: 16
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42b8ee24f58b830b0800000000000000
+      internalID: -5748642205054104796
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_24
+      rect:
+        serializedVersion: 2
+        x: 287
+        y: 23
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 569e102d9fd672680800000000000000
+      internalID: -8779928028797867675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_25
+      rect:
+        serializedVersion: 2
+        x: 349
+        y: 23
+        width: 16
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d759ccfa5596b0db0800000000000000
+      internalID: -4824646759054797443
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_26
+      rect:
+        serializedVersion: 2
+        x: 413
+        y: 23
+        width: 20
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4ab0ba5151e81710800000000000000
+      internalID: 1664327801843530319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_27
+      rect:
+        serializedVersion: 2
+        x: 469
+        y: 23
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d756ca4dc4ffdfc30800000000000000
+      internalID: 4394949516834137469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_28
+      rect:
+        serializedVersion: 2
+        x: 531
+        y: 23
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 550c7854d0eb1f410800000000000000
+      internalID: 1509196314356203605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_15_Glasses_32x32_4_29
+      rect:
+        serializedVersion: 2
+        x: 595
+        y: 23
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b3830e12917eb5f0800000000000000
+      internalID: -739028416459471947
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,867 @@
+fileFormatVersion: 2
+guid: f1ab69f386ab059489bbd3bf27627df5
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 494971064086483981
+    second: PG_Accessory_04_Snapback_32x32_2_0
+  - first:
+      213: -6165026285206223015
+    second: PG_Accessory_04_Snapback_32x32_2_1
+  - first:
+      213: 7539576283493266855
+    second: PG_Accessory_04_Snapback_32x32_2_2
+  - first:
+      213: -4405334306637236544
+    second: PG_Accessory_04_Snapback_32x32_2_3
+  - first:
+      213: -4142654050928538553
+    second: PG_Accessory_04_Snapback_32x32_2_4
+  - first:
+      213: 4300550058281428419
+    second: PG_Accessory_04_Snapback_32x32_2_5
+  - first:
+      213: 9334102908136467
+    second: PG_Accessory_04_Snapback_32x32_2_6
+  - first:
+      213: 189716792094369234
+    second: PG_Accessory_04_Snapback_32x32_2_7
+  - first:
+      213: 7331018362461924190
+    second: PG_Accessory_04_Snapback_32x32_2_8
+  - first:
+      213: 4413594742949502379
+    second: PG_Accessory_04_Snapback_32x32_2_9
+  - first:
+      213: 4481861203369079811
+    second: PG_Accessory_04_Snapback_32x32_2_10
+  - first:
+      213: 7471479949923462120
+    second: PG_Accessory_04_Snapback_32x32_2_11
+  - first:
+      213: 1139463792905631240
+    second: PG_Accessory_04_Snapback_32x32_2_12
+  - first:
+      213: 8192225846617694570
+    second: PG_Accessory_04_Snapback_32x32_2_13
+  - first:
+      213: -776699707949623527
+    second: PG_Accessory_04_Snapback_32x32_2_14
+  - first:
+      213: 1156696732633575917
+    second: PG_Accessory_04_Snapback_32x32_2_15
+  - first:
+      213: -5875694860208554867
+    second: PG_Accessory_04_Snapback_32x32_2_16
+  - first:
+      213: 5818575039992983282
+    second: PG_Accessory_04_Snapback_32x32_2_17
+  - first:
+      213: 8680475715799266587
+    second: PG_Accessory_04_Snapback_32x32_2_18
+  - first:
+      213: 8704894548516791863
+    second: PG_Accessory_04_Snapback_32x32_2_19
+  - first:
+      213: -3745875305316345224
+    second: PG_Accessory_04_Snapback_32x32_2_20
+  - first:
+      213: -4637236676860467123
+    second: PG_Accessory_04_Snapback_32x32_2_21
+  - first:
+      213: -491811125531891874
+    second: PG_Accessory_04_Snapback_32x32_2_22
+  - first:
+      213: -4983135084871281221
+    second: PG_Accessory_04_Snapback_32x32_2_23
+  - first:
+      213: 5964130400895252565
+    second: PG_Accessory_04_Snapback_32x32_2_24
+  - first:
+      213: 4875333049813053521
+    second: PG_Accessory_04_Snapback_32x32_2_25
+  - first:
+      213: -724082856660299199
+    second: PG_Accessory_04_Snapback_32x32_2_26
+  - first:
+      213: 3900341203856494770
+    second: PG_Accessory_04_Snapback_32x32_2_27
+  - first:
+      213: 4526849455506886277
+    second: PG_Accessory_04_Snapback_32x32_2_28
+  - first:
+      213: 5628683857355794629
+    second: PG_Accessory_04_Snapback_32x32_2_29
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_0
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 159
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d04d8f07f8d7ed600800000000000000
+      internalID: 494971064086483981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_1
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 159
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 957465fd14d617aa0800000000000000
+      internalID: -6165026285206223015
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_2
+      rect:
+        serializedVersion: 2
+        x: 137
+        y: 157
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a57396fea4f1a860800000000000000
+      internalID: 7539576283493266855
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_3
+      rect:
+        serializedVersion: 2
+        x: 201
+        y: 159
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c6bb00e9cb1dd2c0800000000000000
+      internalID: -4405334306637236544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_4
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 159
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74c4213e6165286c0800000000000000
+      internalID: -4142654050928538553
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_5
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 159
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c566a22e7f9eab30800000000000000
+      internalID: 4300550058281428419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_6
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 159
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31ce2203159212000800000000000000
+      internalID: 9334102908136467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_7
+      rect:
+        serializedVersion: 2
+        x: 457
+        y: 159
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d526b0da6202a200800000000000000
+      internalID: 189716792094369234
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_8
+      rect:
+        serializedVersion: 2
+        x: 521
+        y: 159
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5ba868fb520db560800000000000000
+      internalID: 7331018362461924190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_9
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 159
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bad5904d80d304d30800000000000000
+      internalID: 4413594742949502379
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_10
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 95
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3043b6fb405c23e30800000000000000
+      internalID: 4481861203369079811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_11
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 97
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8eb24a9cd6700b760800000000000000
+      internalID: 7471479949923462120
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_12
+      rect:
+        serializedVersion: 2
+        x: 137
+        y: 97
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8063f82584030df00800000000000000
+      internalID: 1139463792905631240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_13
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 93
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a61eb63d002a0b170800000000000000
+      internalID: 8192225846617694570
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_14
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 89
+        width: 40
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91753821bbb9835f0800000000000000
+      internalID: -776699707949623527
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_15
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 91
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de1ba75cc896d0010800000000000000
+      internalID: 1156696732633575917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_16
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 93
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8c3ea8c7a6557ea0800000000000000
+      internalID: -5875694860208554867
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_17
+      rect:
+        serializedVersion: 2
+        x: 457
+        y: 93
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2fe6cb5bb2bbfb050800000000000000
+      internalID: 5818575039992983282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_18
+      rect:
+        serializedVersion: 2
+        x: 521
+        y: 95
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b15be912cae377870800000000000000
+      internalID: 8680475715799266587
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_19
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 95
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 736e39ba87ffdc870800000000000000
+      internalID: 8704894548516791863
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_20
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 31
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87a16bd914af30cc0800000000000000
+      internalID: -3745875305316345224
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_21
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 31
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d48a150cfc935afb0800000000000000
+      internalID: -4637236676860467123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_22
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 31
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e572616136cbc29f0800000000000000
+      internalID: -491811125531891874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_23
+      rect:
+        serializedVersion: 2
+        x: 201
+        y: 31
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb51676ca0958dab0800000000000000
+      internalID: -4983135084871281221
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_24
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 31
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55838731009d4c250800000000000000
+      internalID: 5964130400895252565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_25
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 31
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15034d30499a8a340800000000000000
+      internalID: 4875333049813053521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_26
+      rect:
+        serializedVersion: 2
+        x: 397
+        y: 31
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14210dc6a7a83f5f0800000000000000
+      internalID: -724082856660299199
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_27
+      rect:
+        serializedVersion: 2
+        x: 457
+        y: 31
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b09fa6f8abc02630800000000000000
+      internalID: 3900341203856494770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_28
+      rect:
+        serializedVersion: 2
+        x: 521
+        y: 31
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58e8823789992de30800000000000000
+      internalID: 4526849455506886277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_04_Snapback_32x32_2_29
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 31
+        width: 40
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c8eaae652a1d1e40800000000000000
+      internalID: 5628683857355794629
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

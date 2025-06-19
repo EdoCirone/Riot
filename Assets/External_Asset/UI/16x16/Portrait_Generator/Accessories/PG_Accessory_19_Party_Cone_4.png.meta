@@ -1,0 +1,867 @@
+fileFormatVersion: 2
+guid: 0a793f0394a4fea4c919c3b73b7787c1
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1679306794925631476
+    second: PG_Accessory_19_Party_Cone_4_0
+  - first:
+      213: 1575898261332426779
+    second: PG_Accessory_19_Party_Cone_4_1
+  - first:
+      213: 1219982197181756183
+    second: PG_Accessory_19_Party_Cone_4_2
+  - first:
+      213: -6378523835636515771
+    second: PG_Accessory_19_Party_Cone_4_3
+  - first:
+      213: 6143696062623020959
+    second: PG_Accessory_19_Party_Cone_4_4
+  - first:
+      213: -7504071549209907094
+    second: PG_Accessory_19_Party_Cone_4_5
+  - first:
+      213: -4509111239429896313
+    second: PG_Accessory_19_Party_Cone_4_6
+  - first:
+      213: -8442226637727234590
+    second: PG_Accessory_19_Party_Cone_4_7
+  - first:
+      213: 3561549722364277220
+    second: PG_Accessory_19_Party_Cone_4_8
+  - first:
+      213: 8323446508705309218
+    second: PG_Accessory_19_Party_Cone_4_9
+  - first:
+      213: 5534573280694857458
+    second: PG_Accessory_19_Party_Cone_4_10
+  - first:
+      213: 49071495767306831
+    second: PG_Accessory_19_Party_Cone_4_11
+  - first:
+      213: 1950447575766843260
+    second: PG_Accessory_19_Party_Cone_4_12
+  - first:
+      213: 2121527553415800291
+    second: PG_Accessory_19_Party_Cone_4_13
+  - first:
+      213: 2235895027761397420
+    second: PG_Accessory_19_Party_Cone_4_14
+  - first:
+      213: -4335421902415117177
+    second: PG_Accessory_19_Party_Cone_4_15
+  - first:
+      213: 6881657981658227830
+    second: PG_Accessory_19_Party_Cone_4_16
+  - first:
+      213: -8597530853690027281
+    second: PG_Accessory_19_Party_Cone_4_17
+  - first:
+      213: 5571926115931011618
+    second: PG_Accessory_19_Party_Cone_4_18
+  - first:
+      213: 8739253719545807667
+    second: PG_Accessory_19_Party_Cone_4_19
+  - first:
+      213: 7208830296798928111
+    second: PG_Accessory_19_Party_Cone_4_20
+  - first:
+      213: 3261479532736377479
+    second: PG_Accessory_19_Party_Cone_4_21
+  - first:
+      213: -3149945865183726084
+    second: PG_Accessory_19_Party_Cone_4_22
+  - first:
+      213: -1573782960398572738
+    second: PG_Accessory_19_Party_Cone_4_23
+  - first:
+      213: -3927765645108736872
+    second: PG_Accessory_19_Party_Cone_4_24
+  - first:
+      213: 8977626690801921751
+    second: PG_Accessory_19_Party_Cone_4_25
+  - first:
+      213: 6647613313354585352
+    second: PG_Accessory_19_Party_Cone_4_26
+  - first:
+      213: 1648136173996747287
+    second: PG_Accessory_19_Party_Cone_4_27
+  - first:
+      213: -8380519120925539868
+    second: PG_Accessory_19_Party_Cone_4_28
+  - first:
+      213: 5164305623844260311
+    second: PG_Accessory_19_Party_Cone_4_29
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_0
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 80
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4f72174f1a81e4710800000000000000
+      internalID: 1679306794925631476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_1
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 80
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1000e48e17bed510800000000000000
+      internalID: 1575898261332426779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_2
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 79
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 713b157385f3ee010800000000000000
+      internalID: 1219982197181756183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_3
+      rect:
+        serializedVersion: 2
+        x: 103
+        y: 80
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54cf589cd5eea77a0800000000000000
+      internalID: -6378523835636515771
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_4
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 80
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f977c9ca40bc24550800000000000000
+      internalID: 6143696062623020959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_5
+      rect:
+        serializedVersion: 2
+        x: 167
+        y: 80
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a607a3c2fae2cd790800000000000000
+      internalID: -7504071549209907094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_6
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 80
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7874f01d73b6c61c0800000000000000
+      internalID: -4509111239429896313
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_7
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 80
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e58de01a9f27da80800000000000000
+      internalID: -8442226637727234590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_8
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 80
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e1f9634a9a2d6130800000000000000
+      internalID: 3561549722364277220
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_9
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 80
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 222685a0082d28370800000000000000
+      internalID: 8323446508705309218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_10
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 48
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2fe6f2b4311cecc40800000000000000
+      internalID: 5534573280694857458
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_11
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 49
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f42bec1f3465ea000800000000000000
+      internalID: 49071495767306831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_12
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 50
+        width: 13
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7fba9a7cb1611b10800000000000000
+      internalID: 1950447575766843260
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_13
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 47
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e56d8ac11e217d10800000000000000
+      internalID: 2121527553415800291
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_14
+      rect:
+        serializedVersion: 2
+        x: 136
+        y: 45
+        width: 13
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: caeb7c47eae770f10800000000000000
+      internalID: 2235895027761397420
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_15
+      rect:
+        serializedVersion: 2
+        x: 168
+        y: 46
+        width: 13
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7844913ffbc75d3c0800000000000000
+      internalID: -4335421902415117177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_16
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 47
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6746876497f808f50800000000000000
+      internalID: 6881657981658227830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_17
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 48
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe258508d3f6fa880800000000000000
+      internalID: -8597530853690027281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_18
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 48
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22a3ac6f745735d40800000000000000
+      internalID: 5571926115931011618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_19
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 48
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3330a8394f0184970800000000000000
+      internalID: 8739253719545807667
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_20
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 16
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fec16cef5f8ea0460800000000000000
+      internalID: 7208830296798928111
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_21
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 16
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78275feda5a134d20800000000000000
+      internalID: 3261479532736377479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_22
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 16
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf5730cbce42944d0800000000000000
+      internalID: -3149945865183726084
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_23
+      rect:
+        serializedVersion: 2
+        x: 107
+        y: 16
+        width: 12
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3361eb5cbcc82ae0800000000000000
+      internalID: -1573782960398572738
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_24
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 16
+        width: 12
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89c8f4ab4f5cd79c0800000000000000
+      internalID: -3927765645108736872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_25
+      rect:
+        serializedVersion: 2
+        x: 171
+        y: 16
+        width: 12
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7de6057e8efe69c70800000000000000
+      internalID: 8977626690801921751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_26
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 16
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80558a28611114c50800000000000000
+      internalID: 6647613313354585352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_27
+      rect:
+        serializedVersion: 2
+        x: 232
+        y: 16
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71a2c883e1b5fd610800000000000000
+      internalID: 1648136173996747287
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_28
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 16
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e14ddbe24a62bb80800000000000000
+      internalID: -8380519120925539868
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_19_Party_Cone_4_29
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 16
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d90acc6a9c4ba740800000000000000
+      internalID: 5164305623844260311
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,867 @@
+fileFormatVersion: 2
+guid: 400163258c218a349ae7fe0b38304d6b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8538563967061660408
+    second: PG_Accessory_10_Bolt_1_0
+  - first:
+      213: 6963212043722610126
+    second: PG_Accessory_10_Bolt_1_1
+  - first:
+      213: 6974789144835705500
+    second: PG_Accessory_10_Bolt_1_2
+  - first:
+      213: -6701646218190226202
+    second: PG_Accessory_10_Bolt_1_3
+  - first:
+      213: 2979222126229986086
+    second: PG_Accessory_10_Bolt_1_4
+  - first:
+      213: -6621430988456946480
+    second: PG_Accessory_10_Bolt_1_5
+  - first:
+      213: 6027134603425787831
+    second: PG_Accessory_10_Bolt_1_6
+  - first:
+      213: -8416944758409195565
+    second: PG_Accessory_10_Bolt_1_7
+  - first:
+      213: -5392434819549082394
+    second: PG_Accessory_10_Bolt_1_8
+  - first:
+      213: 7678773461604501615
+    second: PG_Accessory_10_Bolt_1_9
+  - first:
+      213: -2770330847013989457
+    second: PG_Accessory_10_Bolt_1_10
+  - first:
+      213: 1429354535530204295
+    second: PG_Accessory_10_Bolt_1_11
+  - first:
+      213: -110439350210883330
+    second: PG_Accessory_10_Bolt_1_12
+  - first:
+      213: 6129740039278146888
+    second: PG_Accessory_10_Bolt_1_13
+  - first:
+      213: -5907263152826827348
+    second: PG_Accessory_10_Bolt_1_14
+  - first:
+      213: -4114687156080782764
+    second: PG_Accessory_10_Bolt_1_15
+  - first:
+      213: 1440124267924717897
+    second: PG_Accessory_10_Bolt_1_16
+  - first:
+      213: 6998167515288417685
+    second: PG_Accessory_10_Bolt_1_17
+  - first:
+      213: 2668362188170477145
+    second: PG_Accessory_10_Bolt_1_18
+  - first:
+      213: -423992444416314523
+    second: PG_Accessory_10_Bolt_1_19
+  - first:
+      213: -5746344163694264483
+    second: PG_Accessory_10_Bolt_1_20
+  - first:
+      213: 6955741405617124663
+    second: PG_Accessory_10_Bolt_1_21
+  - first:
+      213: -2842775574271576129
+    second: PG_Accessory_10_Bolt_1_22
+  - first:
+      213: 8552449316022118346
+    second: PG_Accessory_10_Bolt_1_23
+  - first:
+      213: -8897333267373651689
+    second: PG_Accessory_10_Bolt_1_24
+  - first:
+      213: -2745710775638003806
+    second: PG_Accessory_10_Bolt_1_25
+  - first:
+      213: 697017599750301840
+    second: PG_Accessory_10_Bolt_1_26
+  - first:
+      213: 2194473575443071886
+    second: PG_Accessory_10_Bolt_1_27
+  - first:
+      213: 2379952735267085671
+    second: PG_Accessory_10_Bolt_1_28
+  - first:
+      213: -170243115733262791
+    second: PG_Accessory_10_Bolt_1_29
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_0
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 80
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f219a450b21f7670800000000000000
+      internalID: 8538563967061660408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_1
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 80
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec5dec9067c42a060800000000000000
+      internalID: 6963212043722610126
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_2
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 79
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9ace21f5cd6bc060800000000000000
+      internalID: 6974789144835705500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_3
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 80
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ec7e6a7548fef2a0800000000000000
+      internalID: -6701646218190226202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_4
+      rect:
+        serializedVersion: 2
+        x: 134
+        y: 80
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62b1cec3db2585920800000000000000
+      internalID: 2979222126229986086
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_5
+      rect:
+        serializedVersion: 2
+        x: 166
+        y: 80
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d4924c0993fb14a0800000000000000
+      internalID: -6621430988456946480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_6
+      rect:
+        serializedVersion: 2
+        x: 198
+        y: 80
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7bfa8aa1dfea4a350800000000000000
+      internalID: 6027134603425787831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_7
+      rect:
+        serializedVersion: 2
+        x: 230
+        y: 80
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3df0fec4651013b80800000000000000
+      internalID: -8416944758409195565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_8
+      rect:
+        serializedVersion: 2
+        x: 262
+        y: 80
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ec445a1a193a25b0800000000000000
+      internalID: -5392434819549082394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_9
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 80
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6802a987cb709a60800000000000000
+      internalID: 7678773461604501615
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_10
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 48
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa39c61c5cecd89d0800000000000000
+      internalID: -2770330847013989457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_11
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 49
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78c0f54806616d310800000000000000
+      internalID: 1429354535530204295
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_12
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 50
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef094710ff3a77ef0800000000000000
+      internalID: -110439350210883330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_13
+      rect:
+        serializedVersion: 2
+        x: 103
+        y: 48
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 845b9a6c616311550800000000000000
+      internalID: 6129740039278146888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_14
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 47
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cadb005e57f250ea0800000000000000
+      internalID: -5907263152826827348
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_15
+      rect:
+        serializedVersion: 2
+        x: 167
+        y: 47
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 45251f305d1b5e6c0800000000000000
+      internalID: -4114687156080782764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_16
+      rect:
+        serializedVersion: 2
+        x: 198
+        y: 47
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 941821e34695cf310800000000000000
+      internalID: 1440124267924717897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_17
+      rect:
+        serializedVersion: 2
+        x: 230
+        y: 48
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 595b17bf64c7e1160800000000000000
+      internalID: 6998167515288417685
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_18
+      rect:
+        serializedVersion: 2
+        x: 262
+        y: 48
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95e3cf5c54de70520800000000000000
+      internalID: 2668362188170477145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_19
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 48
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 563bd134e1dad1af0800000000000000
+      internalID: -423992444416314523
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_20
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 16
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5f3dd5bd62e040b0800000000000000
+      internalID: -5746344163694264483
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_21
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 16
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 735f84f84f1c78060800000000000000
+      internalID: 6955741405617124663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_22
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 16
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb7b2674dae6c88d0800000000000000
+      internalID: -2842775574271576129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_23
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 16
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac7e701175760b670800000000000000
+      internalID: 8552449316022118346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_24
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 16
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7198ded8882568480800000000000000
+      internalID: -8897333267373651689
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_25
+      rect:
+        serializedVersion: 2
+        x: 170
+        y: 16
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2af6222d89645e9d0800000000000000
+      internalID: -2745710775638003806
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_26
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 16
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 098ef4360dd4ca900800000000000000
+      internalID: 697017599750301840
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_27
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 16
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e83044d0716547e10800000000000000
+      internalID: 2194473575443071886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_28
+      rect:
+        serializedVersion: 2
+        x: 262
+        y: 16
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76d50d7376a470120800000000000000
+      internalID: 2379952735267085671
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_10_Bolt_1_29
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 16
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 93e5349c9cc23adf0800000000000000
+      internalID: -170243115733262791
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

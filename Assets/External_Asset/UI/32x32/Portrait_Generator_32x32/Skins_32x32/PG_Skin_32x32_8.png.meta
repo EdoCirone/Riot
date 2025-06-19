@@ -1,0 +1,867 @@
+fileFormatVersion: 2
+guid: 53094e5982bc90a4691ac2fd394f8fce
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 6429326018366836430
+    second: PG_Skin_32x32_8_0
+  - first:
+      213: -8990233847290902063
+    second: PG_Skin_32x32_8_1
+  - first:
+      213: 7662693313994239240
+    second: PG_Skin_32x32_8_2
+  - first:
+      213: -4836315783015299323
+    second: PG_Skin_32x32_8_3
+  - first:
+      213: 5792856735443688588
+    second: PG_Skin_32x32_8_4
+  - first:
+      213: 2865467851001845105
+    second: PG_Skin_32x32_8_5
+  - first:
+      213: -8195127482483272227
+    second: PG_Skin_32x32_8_6
+  - first:
+      213: 6255732116499077798
+    second: PG_Skin_32x32_8_7
+  - first:
+      213: -2584302162574812726
+    second: PG_Skin_32x32_8_8
+  - first:
+      213: -1113653456072147135
+    second: PG_Skin_32x32_8_9
+  - first:
+      213: 3806452855379588819
+    second: PG_Skin_32x32_8_10
+  - first:
+      213: -3273345251888434678
+    second: PG_Skin_32x32_8_11
+  - first:
+      213: 5685809733223088168
+    second: PG_Skin_32x32_8_12
+  - first:
+      213: 4065353929148088581
+    second: PG_Skin_32x32_8_13
+  - first:
+      213: -4349366901452477965
+    second: PG_Skin_32x32_8_14
+  - first:
+      213: -4592653595282123454
+    second: PG_Skin_32x32_8_15
+  - first:
+      213: -5044380138031660796
+    second: PG_Skin_32x32_8_16
+  - first:
+      213: -2524435299269384253
+    second: PG_Skin_32x32_8_17
+  - first:
+      213: -591093426127419002
+    second: PG_Skin_32x32_8_18
+  - first:
+      213: -2606349596100353396
+    second: PG_Skin_32x32_8_19
+  - first:
+      213: 852964929845282202
+    second: PG_Skin_32x32_8_20
+  - first:
+      213: 8721187127792139679
+    second: PG_Skin_32x32_8_21
+  - first:
+      213: -5174435992229989369
+    second: PG_Skin_32x32_8_22
+  - first:
+      213: -296081414198974971
+    second: PG_Skin_32x32_8_23
+  - first:
+      213: 8505225703763480959
+    second: PG_Skin_32x32_8_24
+  - first:
+      213: -1081338241110694999
+    second: PG_Skin_32x32_8_25
+  - first:
+      213: 2439156064648452090
+    second: PG_Skin_32x32_8_26
+  - first:
+      213: 6939302200094283915
+    second: PG_Skin_32x32_8_27
+  - first:
+      213: -2402347208892930792
+    second: PG_Skin_32x32_8_28
+  - first:
+      213: 6467014449627987058
+    second: PG_Skin_32x32_8_29
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_0
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 145
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ece8eed13fd893950800000000000000
+      internalID: 6429326018366836430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_1
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 145
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d9488cb2f54c3380800000000000000
+      internalID: -8990233847290902063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_2
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 145
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80d236b68fa575a60800000000000000
+      internalID: 7662693313994239240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_3
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 145
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50702c35b64f1ecb0800000000000000
+      internalID: -4836315783015299323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_4
+      rect:
+        serializedVersion: 2
+        x: 271
+        y: 145
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8c99de428c546050800000000000000
+      internalID: 5792856735443688588
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_5
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 145
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 175544e14df24c720800000000000000
+      internalID: 2865467851001845105
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_6
+      rect:
+        serializedVersion: 2
+        x: 399
+        y: 145
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd51b8d69fe054e80800000000000000
+      internalID: -8195127482483272227
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_7
+      rect:
+        serializedVersion: 2
+        x: 463
+        y: 145
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6aa1ee53733d0d650800000000000000
+      internalID: 6255732116499077798
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_8
+      rect:
+        serializedVersion: 2
+        x: 527
+        y: 145
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac9547710e6b22cd0800000000000000
+      internalID: -2584302162574812726
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_9
+      rect:
+        serializedVersion: 2
+        x: 591
+        y: 145
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14ffee305128b80f0800000000000000
+      internalID: -1113653456072147135
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_10
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 81
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d6fb2b54bc33d430800000000000000
+      internalID: 3806452855379588819
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_11
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 83
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a027af916ddb292d0800000000000000
+      internalID: -3273345251888434678
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_12
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 83
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8208831e3dd08ee40800000000000000
+      internalID: 5685809733223088168
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_13
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 81
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5014c110cd90b6830800000000000000
+      internalID: 4065353929148088581
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_14
+      rect:
+        serializedVersion: 2
+        x: 273
+        y: 79
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f96519d8d1f3a3c0800000000000000
+      internalID: -4349366901452477965
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_15
+      rect:
+        serializedVersion: 2
+        x: 337
+        y: 81
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 245d9c453ed9340c0800000000000000
+      internalID: -4592653595282123454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_16
+      rect:
+        serializedVersion: 2
+        x: 399
+        y: 81
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4014690adf2cef9b0800000000000000
+      internalID: -5044380138031660796
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_17
+      rect:
+        serializedVersion: 2
+        x: 463
+        y: 81
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c76798687767fcd0800000000000000
+      internalID: -2524435299269384253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_18
+      rect:
+        serializedVersion: 2
+        x: 527
+        y: 81
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6894b9229a30cc7f0800000000000000
+      internalID: -591093426127419002
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_19
+      rect:
+        serializedVersion: 2
+        x: 591
+        y: 81
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c82a4f3f9d264dbd0800000000000000
+      internalID: -2606349596100353396
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_20
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 17
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a954b41a51756db00800000000000000
+      internalID: 852964929845282202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_21
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 17
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9d72c36c71e70970800000000000000
+      internalID: 8721187127792139679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_22
+      rect:
+        serializedVersion: 2
+        x: 145
+        y: 17
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 704b22261e5b038b0800000000000000
+      internalID: -5174435992229989369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_23
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 17
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5062312c58b14ebf0800000000000000
+      internalID: -296081414198974971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_24
+      rect:
+        serializedVersion: 2
+        x: 269
+        y: 17
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f71185707b1a80670800000000000000
+      internalID: 8505225703763480959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_25
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 17
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a32d8059905ef0f0800000000000000
+      internalID: -1081338241110694999
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_26
+      rect:
+        serializedVersion: 2
+        x: 403
+        y: 17
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af75c11848f99d120800000000000000
+      internalID: 2439156064648452090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_27
+      rect:
+        serializedVersion: 2
+        x: 463
+        y: 17
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b88d4b1c59a5d4060800000000000000
+      internalID: 6939302200094283915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_28
+      rect:
+        serializedVersion: 2
+        x: 527
+        y: 17
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81529c211f529aed0800000000000000
+      internalID: -2402347208892930792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Skin_32x32_8_29
+      rect:
+        serializedVersion: 2
+        x: 591
+        y: 17
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27cf463d0637fb950800000000000000
+      internalID: 6467014449627987058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

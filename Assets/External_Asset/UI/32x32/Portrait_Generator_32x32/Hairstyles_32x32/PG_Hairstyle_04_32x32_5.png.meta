@@ -1,0 +1,867 @@
+fileFormatVersion: 2
+guid: 371bc92641f2ff4489268408d4b5691f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4964639359938835660
+    second: PG_Hairstyle_04_32x32_5_0
+  - first:
+      213: 3217526846619102134
+    second: PG_Hairstyle_04_32x32_5_1
+  - first:
+      213: 6136222531883805028
+    second: PG_Hairstyle_04_32x32_5_2
+  - first:
+      213: 2438429972173152566
+    second: PG_Hairstyle_04_32x32_5_3
+  - first:
+      213: -4651312677562833959
+    second: PG_Hairstyle_04_32x32_5_4
+  - first:
+      213: -2615929020285746663
+    second: PG_Hairstyle_04_32x32_5_5
+  - first:
+      213: 1726759506004854705
+    second: PG_Hairstyle_04_32x32_5_6
+  - first:
+      213: 8586199482962438788
+    second: PG_Hairstyle_04_32x32_5_7
+  - first:
+      213: 6535077938690596832
+    second: PG_Hairstyle_04_32x32_5_8
+  - first:
+      213: 9193889733119709155
+    second: PG_Hairstyle_04_32x32_5_9
+  - first:
+      213: -3052551876342296265
+    second: PG_Hairstyle_04_32x32_5_10
+  - first:
+      213: 5399341471058776394
+    second: PG_Hairstyle_04_32x32_5_11
+  - first:
+      213: 8186750219348192819
+    second: PG_Hairstyle_04_32x32_5_12
+  - first:
+      213: -493694496926589687
+    second: PG_Hairstyle_04_32x32_5_13
+  - first:
+      213: -8480649082183997028
+    second: PG_Hairstyle_04_32x32_5_14
+  - first:
+      213: 523732518008789604
+    second: PG_Hairstyle_04_32x32_5_15
+  - first:
+      213: -8796233105129827420
+    second: PG_Hairstyle_04_32x32_5_16
+  - first:
+      213: -3838658332515176362
+    second: PG_Hairstyle_04_32x32_5_17
+  - first:
+      213: -4877398881549909599
+    second: PG_Hairstyle_04_32x32_5_18
+  - first:
+      213: 4458203113739522216
+    second: PG_Hairstyle_04_32x32_5_19
+  - first:
+      213: 5606299728935602909
+    second: PG_Hairstyle_04_32x32_5_20
+  - first:
+      213: -2211354967848662819
+    second: PG_Hairstyle_04_32x32_5_21
+  - first:
+      213: -5346090953778253115
+    second: PG_Hairstyle_04_32x32_5_22
+  - first:
+      213: 6008351166190750099
+    second: PG_Hairstyle_04_32x32_5_23
+  - first:
+      213: -5915213236091298906
+    second: PG_Hairstyle_04_32x32_5_24
+  - first:
+      213: -2039429472014465982
+    second: PG_Hairstyle_04_32x32_5_25
+  - first:
+      213: 4047316045645788643
+    second: PG_Hairstyle_04_32x32_5_26
+  - first:
+      213: -8263030816373900260
+    second: PG_Hairstyle_04_32x32_5_27
+  - first:
+      213: -2793761877684628034
+    second: PG_Hairstyle_04_32x32_5_28
+  - first:
+      213: 2952894870483832236
+    second: PG_Hairstyle_04_32x32_5_29
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_0
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 143
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc4b31fa131f5e440800000000000000
+      internalID: 4964639359938835660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_1
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 143
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6bba30cae93f6ac20800000000000000
+      internalID: 3217526846619102134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_2
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 143
+        width: 38
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 469aea3b1ed382550800000000000000
+      internalID: 6136222531883805028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_3
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 143
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 631eb0de32b07d120800000000000000
+      internalID: 2438429972173152566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_4
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 143
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d3a89273c7337fb0800000000000000
+      internalID: -4651312677562833959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_5
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 143
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9128b347a6a52bbd0800000000000000
+      internalID: -2615929020285746663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_6
+      rect:
+        serializedVersion: 2
+        x: 395
+        y: 143
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b7c2f73f9ea6f710800000000000000
+      internalID: 1726759506004854705
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_7
+      rect:
+        serializedVersion: 2
+        x: 459
+        y: 143
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48a6e9820fe482770800000000000000
+      internalID: 8586199482962438788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_8
+      rect:
+        serializedVersion: 2
+        x: 523
+        y: 143
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ef152bc2c241ba50800000000000000
+      internalID: 6535077938690596832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_9
+      rect:
+        serializedVersion: 2
+        x: 587
+        y: 143
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ef06be3002479f70800000000000000
+      internalID: 9193889733119709155
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_10
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 79
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7315a28dd3823a5d0800000000000000
+      internalID: -3052551876342296265
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_11
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 81
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a415e7306705eea40800000000000000
+      internalID: 5399341471058776394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_12
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 81
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33ea91103fd2d9170800000000000000
+      internalID: 8186750219348192819
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_13
+      rect:
+        serializedVersion: 2
+        x: 205
+        y: 79
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 90d1023887b0629f0800000000000000
+      internalID: -493694496926589687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_14
+      rect:
+        serializedVersion: 2
+        x: 269
+        y: 77
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c992ea7979eae4a80800000000000000
+      internalID: -8480649082183997028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_15
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 79
+        width: 38
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46a1c3543fba44700800000000000000
+      internalID: 523732518008789604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_16
+      rect:
+        serializedVersion: 2
+        x: 395
+        y: 79
+        width: 38
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a3943768908de580800000000000000
+      internalID: -8796233105129827420
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_17
+      rect:
+        serializedVersion: 2
+        x: 459
+        y: 79
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 650f65ca5985abac0800000000000000
+      internalID: -3838658332515176362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_18
+      rect:
+        serializedVersion: 2
+        x: 523
+        y: 79
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a1845d0f8fff4cb0800000000000000
+      internalID: -4877398881549909599
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_19
+      rect:
+        serializedVersion: 2
+        x: 587
+        y: 79
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a01cf28c18bedd30800000000000000
+      internalID: 4458203113739522216
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_20
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 15
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dda439766e39dcd40800000000000000
+      internalID: 5606299728935602909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_21
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 15
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd8c51d7f50bf41e0800000000000000
+      internalID: -2211354967848662819
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_22
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 15
+        width: 36
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c23e133a9edec5b0800000000000000
+      internalID: -5346090953778253115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_23
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 15
+        width: 34
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3998a925d83f16350800000000000000
+      internalID: 6008351166190750099
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_24
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 15
+        width: 34
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6abd614e6e0f8eda0800000000000000
+      internalID: -5915213236091298906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_25
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 15
+        width: 34
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2448d1853bd72b3e0800000000000000
+      internalID: -2039429472014465982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_26
+      rect:
+        serializedVersion: 2
+        x: 397
+        y: 15
+        width: 36
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e5b47aff74fa2830800000000000000
+      internalID: 4047316045645788643
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_27
+      rect:
+        serializedVersion: 2
+        x: 459
+        y: 15
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1c7ded7041d35d80800000000000000
+      internalID: -8263030816373900260
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_28
+      rect:
+        serializedVersion: 2
+        x: 523
+        y: 15
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb5549dcf509a39d0800000000000000
+      internalID: -2793761877684628034
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Hairstyle_04_32x32_5_29
+      rect:
+        serializedVersion: 2
+        x: 587
+        y: 15
+        width: 38
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cad03465d3acaf820800000000000000
+      internalID: 2952894870483832236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

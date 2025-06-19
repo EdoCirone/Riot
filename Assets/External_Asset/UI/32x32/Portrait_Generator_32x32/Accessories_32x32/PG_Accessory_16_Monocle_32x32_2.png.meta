@@ -1,0 +1,792 @@
+fileFormatVersion: 2
+guid: 5646e14d8f8a9d14b9238bf2b96f30fa
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5223065432639632557
+    second: PG_Accessory_16_Monocle_32x32_2_0
+  - first:
+      213: -2338511258267246664
+    second: PG_Accessory_16_Monocle_32x32_2_1
+  - first:
+      213: 418691773345738498
+    second: PG_Accessory_16_Monocle_32x32_2_2
+  - first:
+      213: 7431194461522030783
+    second: PG_Accessory_16_Monocle_32x32_2_3
+  - first:
+      213: -598233134409277115
+    second: PG_Accessory_16_Monocle_32x32_2_4
+  - first:
+      213: -3514818355758457070
+    second: PG_Accessory_16_Monocle_32x32_2_5
+  - first:
+      213: 1962705945835130047
+    second: PG_Accessory_16_Monocle_32x32_2_6
+  - first:
+      213: -3773350347893279677
+    second: PG_Accessory_16_Monocle_32x32_2_7
+  - first:
+      213: -3702935798235516029
+    second: PG_Accessory_16_Monocle_32x32_2_8
+  - first:
+      213: -669555434810183952
+    second: PG_Accessory_16_Monocle_32x32_2_9
+  - first:
+      213: -7709338129199450198
+    second: PG_Accessory_16_Monocle_32x32_2_10
+  - first:
+      213: -4820335142101940172
+    second: PG_Accessory_16_Monocle_32x32_2_11
+  - first:
+      213: -8160878415742311533
+    second: PG_Accessory_16_Monocle_32x32_2_12
+  - first:
+      213: -1095467932676172519
+    second: PG_Accessory_16_Monocle_32x32_2_13
+  - first:
+      213: -6172188936063961107
+    second: PG_Accessory_16_Monocle_32x32_2_14
+  - first:
+      213: -6733199341342063223
+    second: PG_Accessory_16_Monocle_32x32_2_15
+  - first:
+      213: -3531594797924923487
+    second: PG_Accessory_16_Monocle_32x32_2_16
+  - first:
+      213: 3833024698465824230
+    second: PG_Accessory_16_Monocle_32x32_2_17
+  - first:
+      213: 5851114350791302608
+    second: PG_Accessory_16_Monocle_32x32_2_18
+  - first:
+      213: 2021187525831925755
+    second: PG_Accessory_16_Monocle_32x32_2_19
+  - first:
+      213: -5524420741188876602
+    second: PG_Accessory_16_Monocle_32x32_2_20
+  - first:
+      213: -8448670621201369102
+    second: PG_Accessory_16_Monocle_32x32_2_21
+  - first:
+      213: -3204408463745906416
+    second: PG_Accessory_16_Monocle_32x32_2_22
+  - first:
+      213: -6512478539699416148
+    second: PG_Accessory_16_Monocle_32x32_2_23
+  - first:
+      213: -7247609829243936533
+    second: PG_Accessory_16_Monocle_32x32_2_24
+  - first:
+      213: -252728786322257993
+    second: PG_Accessory_16_Monocle_32x32_2_25
+  - first:
+      213: 4087269686440889620
+    second: PG_Accessory_16_Monocle_32x32_2_26
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_0
+      rect:
+        serializedVersion: 2
+        x: 35
+        y: 145
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35b84e879a1f387b0800000000000000
+      internalID: -5223065432639632557
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_1
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 145
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bf9abb8660fb8fd0800000000000000
+      internalID: -2338511258267246664
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_2
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 143
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20fa6a413fd7fc500800000000000000
+      internalID: 418691773345738498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_3
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 145
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb0fed79df7e02760800000000000000
+      internalID: 7431194461522030783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_4
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 145
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 541aaa24226a2b7f0800000000000000
+      internalID: -598233134409277115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_5
+      rect:
+        serializedVersion: 2
+        x: 355
+        y: 145
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21f9ef6e35bd83fc0800000000000000
+      internalID: -3514818355758457070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_6
+      rect:
+        serializedVersion: 2
+        x: 419
+        y: 145
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbccc0ca8aeec3b10800000000000000
+      internalID: 1962705945835130047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_7
+      rect:
+        serializedVersion: 2
+        x: 483
+        y: 145
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34479b4c9dd52abc0800000000000000
+      internalID: -3773350347893279677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_8
+      rect:
+        serializedVersion: 2
+        x: 547
+        y: 145
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3833810b2878c9cc0800000000000000
+      internalID: -3702935798235516029
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_9
+      rect:
+        serializedVersion: 2
+        x: 611
+        y: 145
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0fee4b621e245b6f0800000000000000
+      internalID: -669555434810183952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_10
+      rect:
+        serializedVersion: 2
+        x: 35
+        y: 81
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa731bb31dde20590800000000000000
+      internalID: -7709338129199450198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_11
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 85
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4388eac3ababa1db0800000000000000
+      internalID: -4820335142101940172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_12
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 87
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 393e68ea15cbebe80800000000000000
+      internalID: -8160878415742311533
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_13
+      rect:
+        serializedVersion: 2
+        x: 229
+        y: 81
+        width: 12
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 915510228bd1cc0f0800000000000000
+      internalID: -1095467932676172519
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_14
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 17
+        width: 16
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de7bf434ddaf75aa0800000000000000
+      internalID: -6172188936063961107
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_15
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 17
+        width: 12
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98589618fdede82a0800000000000000
+      internalID: -6733199341342063223
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_16
+      rect:
+        serializedVersion: 2
+        x: 419
+        y: 77
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a741131e314dfec0800000000000000
+      internalID: -3531594797924923487
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_17
+      rect:
+        serializedVersion: 2
+        x: 483
+        y: 79
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6edaa5fa7a3a13530800000000000000
+      internalID: 3833024698465824230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_18
+      rect:
+        serializedVersion: 2
+        x: 547
+        y: 81
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0dd1b136085533150800000000000000
+      internalID: 5851114350791302608
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_19
+      rect:
+        serializedVersion: 2
+        x: 611
+        y: 81
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bff99a59853bc0c10800000000000000
+      internalID: 2021187525831925755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_20
+      rect:
+        serializedVersion: 2
+        x: 35
+        y: 17
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c603a30b905553b0800000000000000
+      internalID: -5524420741188876602
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_21
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 17
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f7730f35da40ca80800000000000000
+      internalID: -8448670621201369102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_22
+      rect:
+        serializedVersion: 2
+        x: 169
+        y: 17
+        width: 66
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0198b2bda77a783d0800000000000000
+      internalID: -3204408463745906416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_23
+      rect:
+        serializedVersion: 2
+        x: 429
+        y: 17
+        width: 6
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca39cd1d5470f95a0800000000000000
+      internalID: -6512478539699416148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_24
+      rect:
+        serializedVersion: 2
+        x: 485
+        y: 17
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be0294182415b6b90800000000000000
+      internalID: -7247609829243936533
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_25
+      rect:
+        serializedVersion: 2
+        x: 547
+        y: 17
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b70fb202802e7cf0800000000000000
+      internalID: -252728786322257993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PG_Accessory_16_Monocle_32x32_2_26
+      rect:
+        serializedVersion: 2
+        x: 611
+        y: 17
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 41d0881ef16e8b830800000000000000
+      internalID: 4087269686440889620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
