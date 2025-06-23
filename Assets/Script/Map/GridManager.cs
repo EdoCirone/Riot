@@ -8,7 +8,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private int height = 10;
     [SerializeField] private float cellSize = 1f;
 
-    [SerializeField] private Tilemap obstacleTilemap; // ← collegata nell’Inspector
+    [SerializeField] private Tilemap obstacleTilemap;
 
     private Dictionary<Vector2Int, Node> grid = new Dictionary<Vector2Int, Node>();
 
@@ -19,15 +19,17 @@ public class GridManager : MonoBehaviour
 
     private void GenerateGrid()
     {
-        for (int x = 0; x < width; x++)
+        int halfWidth = width / 2;
+        int halfHeight = height / 2;
+
+        for (int x = -halfWidth; x < halfWidth; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (int y = -halfHeight; y < halfHeight; y++)
             {
                 Vector2Int coordinates = new Vector2Int(x, y);
                 Vector3Int tilemapPos = new Vector3Int(x, y, 0);
-                Vector3 worldPos = new Vector3(x * cellSize, y * cellSize, 0);
+                Vector3 worldPos = new Vector3(x * cellSize + cellSize / 2f, y * cellSize + cellSize / 2f, 0);
 
-                // Qui controlliamo se nella tilemap c’è qualcosa
                 bool walkable = obstacleTilemap.GetTile(tilemapPos) == null;
 
                 Node node = new Node(coordinates, worldPos, walkable);
@@ -40,6 +42,38 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        Debug.Log("Griglia generata con ostacoli letti da Tilemap.");
+        Debug.Log("🟩 Griglia centrata generata.");
     }
+
+    public Node GetNodeAt(Vector2Int coords)
+    {
+        grid.TryGetValue(coords, out Node node);
+        return node;
+    }
+
+    public IEnumerable<Node> GetAllNodes() => grid.Values;
+
+    public List<Node> GetNeighbours(Node node)
+    {
+        List<Node> neighbours = new List<Node>();
+        Vector2Int[] directions = {
+            Vector2Int.up, Vector2Int.down,
+            Vector2Int.left, Vector2Int.right
+        };
+
+        foreach (var dir in directions)
+        {
+            Vector2Int checkCoords = node.coordinates + dir;
+            if (grid.TryGetValue(checkCoords, out Node neighbor))
+            {
+                neighbours.Add(neighbor);
+            }
+        }
+
+        return neighbours;
+    }
+
+    public int Width => width;
+    public int Height => height;
+    public float CellSize => cellSize;
 }

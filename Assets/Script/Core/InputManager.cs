@@ -18,12 +18,5 @@ public class InputManager : MonoBehaviour
             GameManager.Instance.ConfirmCorteoComposition();
         }
 
-        for (int i = 1; i <= 8; i++)
-        {
-            if (Input.GetKeyDown(i.ToString()))
-            {
-                CorteoSelector.Instance.SelectSector(i);
-            }
-        }
     }
 }
