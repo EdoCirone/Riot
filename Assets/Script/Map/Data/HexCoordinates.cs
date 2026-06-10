@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
 /// <summary>
+///Ho commentato molto questo script perchè è la prima volta che sviluppo un sistema di coordinate per griglia esagonale.
 /// Coordinate assiali (q, r) per griglia esagonale flat-top.
 /// s è implicito, ricavato dal vincolo q + r + s = 0.
 /// Usata sia come posizione assoluta che come vettore di spostamento.

@@ -17,8 +17,15 @@ public class HexGridRenderer : MonoBehaviour
         foreach (HexCell cell in _grid.GetAllCells())
         {
             HexTypeSO type = cell.Type ?? _defaultHexType;
+
             if (type.Prefab == null) continue;
-            Instantiate(type.Prefab, cell.Coordinates.ToWorldPosition(_grid.CellSize), Quaternion.identity, transform);
+
+            GameObject go = Instantiate(type.Prefab,
+                 _grid.transform.position + cell.Coordinates.ToWorldPosition(_grid.CellSize),
+                 Quaternion.identity, transform);
+
+            SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
+            if (sr != null) sr.color = type.Color;
         }
     }
 }

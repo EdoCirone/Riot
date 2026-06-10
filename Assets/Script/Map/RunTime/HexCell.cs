@@ -1,15 +1,13 @@
 using UnityEngine;
 
-//<summary>
-//RunTime Class per le celle della griglia esagonale
-//Contiene le coordinate assiali e il riferimento al tipo di esagono (HexTypeSO) che definisce le proprietà della cella
-//</summary>
-
 public class HexCell
 {
 
-    private  HexCoordinates _coordinates;
-    private  HexTypeSO _type;
+    private HexCoordinates _coordinates;
+    private HexTypeSO _type;
+    private SpezzoneRuntime _occupiedBy;
+    public SpezzoneRuntime OccupiedBy => _occupiedBy;
+
 
     public HexCoordinates Coordinates => _coordinates;
     public HexTypeSO Type => _type;
@@ -21,5 +19,22 @@ public class HexCell
         _type = type;
     }
 
+    public bool TryOccupy(SpezzoneRuntime spezzone)
+    {
+        if (_occupiedBy == null)
+        {
+            _occupiedBy = spezzone;
+            return true;
+        }
+        else
+        {
+            Debug.Log("try to occupy a not empty cell");
+            return false;
+        }
+    }
 
+    public void Vacate()
+    {
+        _occupiedBy = null;
+    }
 }

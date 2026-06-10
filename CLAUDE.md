@@ -3,7 +3,8 @@
 ## Progetto
 RIOT — gioco strategico a turni 2D in Unity 6000.4.5f1 (URP).
 Il giocatore comanda un corteo politico su una griglia esagonale contro forze di polizia statiche.
-Linguaggio del team: italiano. Commit messages, nomi variabili e commenti in italiano.
+Linguaggio del team: italiano.Commit messages e commenti in italiano
+Nomi variabili e classi in inglese
 
 ## Unity Version
 6000.4.5f1 — non aggiornare mai senza istruzione esplicita.
@@ -47,7 +48,7 @@ Euristica hex: max(abs(dq), abs(dr), abs(dq+dr)) / 2
 ## Unità
 Spezzoni (corteo): Attacco, Difesa, Morale, Reattività
 Reggimenti (polizia): Attacco, Difesa, Reattività, Aggressività
-5 gruppi politici: Pacifisti, Operai, Studenti, Anarchici, Black Bloc
+6 gruppi politici: Pacifisti, Operai, Studenti, Anarchici, Black Bloc, Movimento
 
 ## Sistema a turni
 Fase Decisionale: il giocatore assegna ordini, niente si muove
@@ -55,9 +56,13 @@ Fase Risolutiva: esecuzione in ordine di Reattività, parità va alla polizia
 ZOC: ogni unità controlla le 6 celle adiacenti, chi entra si ferma e attiva scontro
 
 ## Scontro
-Formula: Attacco vs Difesa + 1d6 + modificatori
+Formula: Attacco vs Difesa (deterministico, niente dado)
+Attacco > Difesa → difensore spinto di 1 cella
+Attacco = Difesa → stallo
+Attacco < Difesa → attaccante respinto di 1 cella
 Modificatore Coesione per fascia: >66 = +2 Difesa, 33-66 = +1, <33 = +0
-Spezzone distaccato: -1 Difesa. In Zona Rossa: -2 Difesa
+Spezzone distaccato: -1 Difesa
+Zona Rossa: magnete tattico (non modifica Difesa)
 
 ## V0.1 — scope
 - Griglia esagonale statica hardcoded

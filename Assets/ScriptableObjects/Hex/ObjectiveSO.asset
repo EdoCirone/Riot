@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 03007246037494744837f46d373338a1, type: 3}
-  m_Name: StandardSO
+  m_Name: ObjectiveSO
   m_EditorClassIdentifier: Assembly-CSharp::HexTypeSO
-  _displayType: Standard
-  _id: standard
+  _displayType: ObjectiveType
+  _id: OBType
   _prefab: {fileID: 6036157922968402257, guid: 09c61120e481f254e9982439a97b4d83, type: 3}
-  _color: {r: 0.3962264, g: 0.33081168, b: 0.33081168, a: 1}
+  _color: {r: 0.08116716, g: 1, b: 0, a: 1}
   _isWalkable: 1
-  _isObjective: 0
+  _isObjective: 1
   _isRedZone: 0
   _modifierA: 0
   _modifierB: 0
