@@ -43,11 +43,45 @@ public class TurnManager : MonoBehaviour
 
         if (_map.TryGetCell(pushCoord, out returnCell))
         {
-            return returnCell;
+            if (IsCellAvailable(returnCell))
+            {
+                return returnCell;
+            }
+            else
+            {
+                return FoundNearCellAvailable(defCoord, pushCoord);
+            }
         }
         return null;
 
     }
+
+    private HexCell FoundNearCellAvailable(HexCoordinates startPushCell, HexCoordinates endPushCell)
+    {
+        HexCoordinates[] startCellNeighbors = startPushCell.GetNeighbors();
+        HexCoordinates[] endCellNeighbors = endPushCell.GetNeighbors();
+
+        List<HexCoordinates> common = new List<HexCoordinates>();
+        foreach (var n in startCellNeighbors)
+            foreach (var m in endCellNeighbors)
+                if (n == m) common.Add(n);
+
+        // mischia in ordine casuale
+        if (common.Count > 1 && Random.value > 0.5f)
+        {
+            var tmp = common[0];
+            common[0] = common[1];
+            common[1] = tmp;
+        }
+
+        foreach (var coord in common)
+        {
+            if (_map.TryGetCell(coord, out HexCell cell) && IsCellAvailable(cell))
+                return cell;
+        }
+        return null;
+    }
+
     private bool IsCellAvailable(HexCell cell)
     {
         if (cell == null) return false;
@@ -55,7 +89,7 @@ public class TurnManager : MonoBehaviour
 
         return cell.Type.IsWalkable;
     }
-    
+
     private void AddOrder(MovementOrder order)
     {
         _orders.Add(order);
