@@ -5,7 +5,9 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 {
     [Header("LVL Reference")]
     [SerializeField] private TurnManager _turnManager;
+    [SerializeField] private HexGrid _map;
     [SerializeField] private List<HexCell> _objectiveCells = new List<HexCell>();
+    
     [Header("LVL Settings")]
     [SerializeField] private int _numbersOfTurns = 10;
     [SerializeField] private float _scoreToWin = 500;
@@ -17,12 +19,15 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
     private float _currentScore;
     private int _currentTurn;
+    private HexMapSO _mapSO;
 
+    public HexGrid Map => _map;
     public int CurrentTurn => _currentTurn;
     public float CurrentScore => _currentScore;
 
     private void OnEnable()
     {
+        _mapSO = _map.HexMapData;
         _currentScore = 0;
         _currentTurn = _numbersOfTurns;
         _turnManager.EndTurnEvent.Subscribe(this);

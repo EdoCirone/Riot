@@ -1,20 +1,18 @@
 using UnityEngine;
 
-public class SpezzoneRuntime
+public abstract class AbstractUnitsRunTime 
 {
-    private HexCell _positionCell;
-    private UnitsStatus _status;
+    protected HexCell _positionCell;
+    protected UnitsStatus _status;
 
     public HexCell PositionCell => _positionCell;
     public UnitsStatus Status => _status;
 
-    public SpezzoneRuntime(HexCell pos, UnitsStatus stato)
+    protected AbstractUnitsRunTime (HexCell positionCell, UnitsStatus status)
     {
-        _positionCell = pos;
-        _status = stato;
-        pos.TryOccupy(this);
+        _positionCell = positionCell;
+        _status = status;
     }
-
 
     public bool SetPosition(HexCell arriveCell)
     {

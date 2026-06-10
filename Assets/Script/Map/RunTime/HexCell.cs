@@ -5,8 +5,8 @@ public class HexCell
 
     private HexCoordinates _coordinates;
     private HexTypeSO _type;
-    private SpezzoneRuntime _occupiedBy;
-    public SpezzoneRuntime OccupiedBy => _occupiedBy;
+    private AbstractUnitsRunTime _occupiedBy;
+    public AbstractUnitsRunTime OccupiedBy => _occupiedBy;
 
 
     public HexCoordinates Coordinates => _coordinates;
@@ -19,11 +19,11 @@ public class HexCell
         _type = type;
     }
 
-    public bool TryOccupy(SpezzoneRuntime spezzone)
+    public bool TryOccupy(AbstractUnitsRunTime unit)
     {
         if (_occupiedBy == null)
         {
-            _occupiedBy = spezzone;
+            _occupiedBy = unit;
             return true;
         }
         else
