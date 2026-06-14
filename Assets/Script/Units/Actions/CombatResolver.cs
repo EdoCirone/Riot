@@ -2,7 +2,8 @@ using UnityEngine;
 
 public static class CombatResolver
 {
-    public static CombatResult Resolve(SpezzoneRuntime attaker, SpezzoneRuntime defender)
+
+    public static CombatResult Resolve(AbstractUnitsRunTime attaker, AbstractUnitsRunTime defender)
     {
 
         if (attaker.Atk > defender.Def)

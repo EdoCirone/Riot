@@ -5,8 +5,8 @@ public class TurnManager : MonoBehaviour
 {
 
     [Header("Reference")]
+    [SerializeField] private UnitsRenderer _unitsRenderer;
     [SerializeField] LVLManager _lvlManager;
-
 
     [Header("Events")]
     [SerializeField] GameEventSO _endTurnEvent;
@@ -16,7 +16,8 @@ public class TurnManager : MonoBehaviour
 
 
     private TurnPhases _currentPhase;
-    private List<MovementOrder> _orders = new List<MovementOrder>();
+    private List<MovementOrder> _movOrders = new List<MovementOrder>();
+    private List<AttackOrder> _atkOrders = new List<AttackOrder>();
 
     private HexGrid _map;
     public GameEventSO EndTurnEvent => _endTurnEvent;
@@ -56,6 +57,46 @@ public class TurnManager : MonoBehaviour
 
     }
 
+    private void PushResolution(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
+    {
+        CombatResult result = CombatResolver.Resolve(atk, def);
+        switch (result)
+        {
+            case CombatResult.Win:
+                {
+                    HexCell target = PushHandle(atk.PositionCell.Coordinates, def.PositionCell.Coordinates, result);
+                    if (target != null)
+                    {
+                        def.SetPosition(target);
+                    }
+                    else
+                    {
+                        Debug.Log("Spezzone arrested");
+                    }
+                    break;
+                }
+
+            case CombatResult.Lose:
+                {
+                    HexCell target = PushHandle(def.PositionCell.Coordinates, atk.PositionCell.Coordinates, result);
+                    if (target != null)
+                    {
+                        atk.SetPosition(target);
+                    }
+                    else
+                    {
+                        Debug.Log("Police Disperse");
+                    }
+                    break;
+                }
+
+            case CombatResult.Par:
+                break;
+        }
+        _unitsRenderer.UpdateView(atk);
+        _unitsRenderer.UpdateView(def);
+    }
+
     private HexCell FoundNearCellAvailable(HexCoordinates startPushCell, HexCoordinates endPushCell)
     {
         HexCoordinates[] startCellNeighbors = startPushCell.GetNeighbors();
@@ -90,18 +131,20 @@ public class TurnManager : MonoBehaviour
         return cell.Type.IsWalkable;
     }
 
-    private void AddOrder(MovementOrder order)
-    {
-        _orders.Add(order);
-    }
-
+    public void AddMovementOrder(MovementOrder order) { _movOrders.Add(order); }
+    public void AddAttackOrder(AttackOrder order) { _atkOrders.Add(order); }
     private void ExecuteResolution()
     {
-        foreach (var order in _orders)
+        foreach (var order in _movOrders)
         {
             order.SelectedSpezzone.SetPosition(order.DirectionCell);
         }
-        _orders.Clear();
+        _movOrders.Clear();
+
+        foreach (var order in _atkOrders)
+        {
+            PushResolution(order.Atk, order.Def);
+        }
         _currentPhase = TurnPhases.EndTurn;
     }
 

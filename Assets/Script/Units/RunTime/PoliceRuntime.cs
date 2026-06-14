@@ -4,8 +4,8 @@ public class PoliceRuntime : AbstractUnitsRunTime
 {
     private PoliceSO _police;
 
-    public int Atk => _police.Atk;
-    public int Def => _police.Def;
+    public override int Atk => _police.Atk;
+    public override int Def => _police.Def;
     public int Mov => _police.Mov;
 
 
@@ -15,5 +15,6 @@ public class PoliceRuntime : AbstractUnitsRunTime
         _police = police;
         pos.TryOccupy(this);
     }
+    public override GameObject GraphicsPrefab => _police.GraphicsPrefab;
 
 }

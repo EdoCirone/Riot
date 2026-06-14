@@ -14,6 +14,6 @@ public class SpezzoneSO : ScriptableObject
 
     public int Atk => _atk;
     public int Def => _def;
-
     public int Mov => _mov;
+    public GameObject GraphicsPrefab => _graphicsPrefab;
 }
