@@ -65,6 +65,16 @@ public struct HexCoordinates : System.IEquatable<HexCoordinates>
         return new Vector3(x, y, 0f);
     }
 
+    public static HexCoordinates FromWorldPosition(Vector3 position, float cellSize)
+    {
+        // inverso di ToWorldPosition: world → offset oddq → axial
+        float col = position.x / (cellSize * 1.5f);
+        int q = Mathf.RoundToInt(col);
+        float row = position.y / (cellSize * Mathf.Sqrt(3f)) - 0.5f * (q & 1);
+        int r = Mathf.RoundToInt(row) - (q - (q & 1)) / 2;
+        return new HexCoordinates(q, r);
+    }
+
     public override string ToString() => $"({Q}, {R}, {S})";
 
     public bool Equals(HexCoordinates other) => Q == other.Q && R == other.R;

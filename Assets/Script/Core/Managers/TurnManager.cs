@@ -133,7 +133,7 @@ public class TurnManager : MonoBehaviour
 
     public void AddMovementOrder(MovementOrder order) { _movOrders.Add(order); }
     public void AddAttackOrder(AttackOrder order) { _atkOrders.Add(order); }
-    private void ExecuteResolution()
+    public void ExecuteResolution()
     {
         foreach (var order in _movOrders)
         {
