@@ -64,6 +64,12 @@ public class InputHandler : MonoBehaviour
         {
             if (clickCell.OccupiedBy == null)
             {
+                if (!clickCell.Type.IsWalkable)
+                {
+                    Debug.Log("NotWalkable Cell");
+                    return;
+                }
+
                 int distance = _selectedSpezzone.PositionCell.Coordinates.Distance(clickCell.Coordinates);
                 if (distance > _selectedSpezzone.Mov)
                     Debug.Log("Casella irraggiungibile — troppo distante");

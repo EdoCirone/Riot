@@ -6,6 +6,7 @@ public class TurnManager : MonoBehaviour
 
     [Header("Reference")]
     [SerializeField] LVLManager _lvlManager;
+    [SerializeField] private PoliceAI _policeAI;
 
     [Header("Events")]
     [SerializeField] GameEventSO _endTurnEvent;
@@ -20,7 +21,12 @@ public class TurnManager : MonoBehaviour
 
     private HexGrid _map;
     private UnitsRenderer _unitsRenderer;
+
+    private bool _waitingForPolice = false;
+
     public GameEventSO EndTurnEvent => _endTurnEvent;
+
+
 
     private void Start()
     {
@@ -70,11 +76,13 @@ public class TurnManager : MonoBehaviour
                     HexCell target = PushHandle(atk.PositionCell.Coordinates, def.PositionCell.Coordinates, result);
                     if (target != null)
                     {
+                        Debug.Log($"Spingo def da {def.PositionCell.Coordinates} a {target.Coordinates}");
                         def.SetPosition(target);
                     }
                     else
                     {
-                        Debug.Log("Spezzone arrested");
+                        Debug.Log($"Spezzone arrestato su {def.PositionCell.Coordinates}");
+                        def.Disperse();
                     }
                     break;
                 }
@@ -138,22 +146,41 @@ public class TurnManager : MonoBehaviour
     public void AddAttackOrder(AttackOrder order) { _atkOrders.Add(order); }
     public void ExecuteResolution()
     {
-        Debug.Log($"Eseguo {_movOrders.Count} ordini di movimento");
-
-        foreach (var order in _movOrders)
+        if (!_waitingForPolice)
         {
-            bool moved = order.SelectedSpezzone.SetPosition(order.DirectionCell);
-            Debug.Log($"SetPosition result: {moved}");
-            _unitsRenderer.UpdateView(order.SelectedSpezzone);
+            // corteo Phase
+            foreach (var order in _movOrders)
+            {
+                order.SelectedUnit.SetPosition(order.DirectionCell);
+                _unitsRenderer.UpdateView(order.SelectedUnit);
+            }
+            _movOrders.Clear();
+            foreach (var order in _atkOrders)
+                PushResolution(order.Atk, order.Def);
+            _atkOrders.Clear();
+            _waitingForPolice = true;
+            Debug.Log("--- TURNO POLIZIA ---");
         }
-        _movOrders.Clear();
-
-        foreach (var order in _atkOrders)
+        else
         {
-            PushResolution(order.Atk, order.Def);
+            // police Phase
+            _policeAI.ExecutePoliceActions();
+            foreach (var order in _movOrders)
+            {
+                order.SelectedUnit.SetPosition(order.DirectionCell);
+                _unitsRenderer.UpdateView(order.SelectedUnit);
+            }
+            _movOrders.Clear();
+            foreach (var order in _atkOrders)
+            {
+                Debug.Log($"Eseguo {_atkOrders.Count} attacchi polizia");
+                PushResolution(order.Atk, order.Def);
+            }
+            _atkOrders.Clear();
+            _waitingForPolice = false;
+            _endTurnEvent.Raise();
+            _currentPhase = TurnPhases.Decision;
         }
-        _atkOrders.Clear();
-        _currentPhase = TurnPhases.EndTurn;
     }
 
     private void EndTurn()

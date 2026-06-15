@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class MovementOrder
 {
-    private SpezzoneRuntime _selectedSpezzone;
+    private AbstractUnitsRunTime _selectedUnit;
     private HexCell _directionCell;
 
-    public SpezzoneRuntime SelectedSpezzone => _selectedSpezzone;
+    public AbstractUnitsRunTime SelectedUnit => _selectedUnit;
     public HexCell DirectionCell => _directionCell;
 
-    public MovementOrder(SpezzoneRuntime selectedSpezzone, HexCell directionCell)
+    public MovementOrder(AbstractUnitsRunTime selectedUnit, HexCell directionCell)
     {
-        _selectedSpezzone = selectedSpezzone;
+        _selectedUnit = selectedUnit;
         _directionCell = directionCell;
 
     }

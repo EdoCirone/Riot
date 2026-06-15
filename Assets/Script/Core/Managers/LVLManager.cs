@@ -8,7 +8,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     [SerializeField] private HexGrid _map;
     [SerializeField] private UnitsRenderer _unitsRenderer;
     [SerializeField] private List<HexCell> _objectiveCells = new List<HexCell>();
-    
+
     [Header("LVL Settings")]
     [SerializeField] private int _numbersOfTurns = 10;
     [SerializeField] private float _scoreToWin = 500;
@@ -18,12 +18,18 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     [SerializeField] private GameEventSO _loseEvent;
 
     private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
+    private List<PoliceRuntime> _policeOfLVL = new List<PoliceRuntime>();
     private float _currentScore;
     private int _currentTurn;
     private HexMapSO _mapSO;
 
+    public TurnManager TurnManager => _turnManager;
     public HexGrid Map => _map;
     public UnitsRenderer Renderer => _unitsRenderer;
+
+    public List<SpezzoneRuntime> Spezzoni => _spezzoniOfLVL;
+    public List<PoliceRuntime> Police => _policeOfLVL;
+
     public int CurrentTurn => _currentTurn;
     public float CurrentScore => _currentScore;
 
@@ -44,8 +50,15 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             if (unit == null) continue;
             if (unit is SpezzoneRuntime spezzone)
                 _spezzoniOfLVL.Add(spezzone);
+            else if (unit is PoliceRuntime police)
+            {
+                _policeOfLVL.Add(police);
+            }
+
             _unitsRenderer.SpawnUnits(unit, setup.gameObject);
         }
+
+
     }
 
 
