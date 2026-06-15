@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb30b4bc57812f042a257243055fbe33, type: 3}
+  m_Name: PoliceBasicSO
+  m_EditorClassIdentifier: Assembly-CSharp::PoliceSO
+  _id: PoliceBasic
+  _displayName: PoliceBasic
+  _atk: 6
+  _def: 4
+  _mov: 2
+  _graphicsPrefab: {fileID: 5428298278659759717, guid: bd58c5f9af849ce4ca963c1024d1083b, type: 3}

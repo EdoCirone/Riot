@@ -6,6 +6,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     [Header("LVL Reference")]
     [SerializeField] private TurnManager _turnManager;
     [SerializeField] private HexGrid _map;
+    [SerializeField] private UnitsRenderer _unitsRenderer;
     [SerializeField] private List<HexCell> _objectiveCells = new List<HexCell>();
     
     [Header("LVL Settings")]
@@ -22,6 +23,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     private HexMapSO _mapSO;
 
     public HexGrid Map => _map;
+    public UnitsRenderer Renderer => _unitsRenderer;
     public int CurrentTurn => _currentTurn;
     public float CurrentScore => _currentScore;
 
@@ -33,6 +35,18 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         _turnManager.EndTurnEvent.Subscribe(this);
     }
 
+    private void Start()
+    {
+        UnitsSetup[] allSetups = FindObjectsByType<UnitsSetup>(FindObjectsInactive.Exclude);
+        foreach (var setup in allSetups)
+        {
+            AbstractUnitsRunTime unit = setup.Initialize();
+            if (unit == null) continue;
+            if (unit is SpezzoneRuntime spezzone)
+                _spezzoniOfLVL.Add(spezzone);
+            _unitsRenderer.SpawnUnits(unit, setup.gameObject);
+        }
+    }
 
 
     private void OnDisable()

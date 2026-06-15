@@ -5,11 +5,16 @@ using UnityEngine.InputSystem;
 public class InputHandler : MonoBehaviour
 {
     [Header("Reference")]
-    [SerializeField] private InputSystem_Actions _inputSystem;
     [SerializeField] private TurnManager _turnManager;
     [SerializeField] private HexGrid _grid;
 
+    private InputSystem_Actions _inputSystem;
     private SpezzoneRuntime _selectedSpezzone;
+
+    private void Awake()
+    {
+        _inputSystem = new InputSystem_Actions();
+    }
 
     private void OnEnable()
     {
@@ -28,7 +33,7 @@ public class InputHandler : MonoBehaviour
     private void OnClick(InputAction.CallbackContext ctx)
     {
 
-        Vector2 screenPos = ctx.ReadValue<Vector2>();
+        Vector2 screenPos = _inputSystem.Game.MousePosition.ReadValue<Vector2>();
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 0));
 
         HexCoordinates clickCoordinates = HexCoordinates.FromWorldPosition(worldPos, _grid.CellSize);
@@ -36,14 +41,21 @@ public class InputHandler : MonoBehaviour
         HexCell clickCell;
 
         _grid.TryGetCell(clickCoordinates, out clickCell);
+        if (clickCell == null)
+        {
+            Debug.Log($"No cell at {clickCoordinates}");
+            return;
+        }
 
         if (_selectedSpezzone == null)
         {
             if (clickCell.OccupiedBy is SpezzoneRuntime spezzone)
             {
                 _selectedSpezzone = spezzone;
+                Debug.Log($"Selezionato spezzone su {clickCell.Coordinates}");
             }
-            else 
+
+            else
             {
                 Debug.Log("Select a Spezzone");
             }
@@ -52,8 +64,14 @@ public class InputHandler : MonoBehaviour
         {
             if (clickCell.OccupiedBy == null)
             {
-                _turnManager.AddMovementOrder(new MovementOrder(_selectedSpezzone, clickCell));
-                _selectedSpezzone = null;
+                int distance = _selectedSpezzone.PositionCell.Coordinates.Distance(clickCell.Coordinates);
+                if (distance > _selectedSpezzone.Mov)
+                    Debug.Log("Casella irraggiungibile — troppo distante");
+                else
+                {
+                    _turnManager.AddMovementOrder(new MovementOrder(_selectedSpezzone, clickCell));
+                    _selectedSpezzone = null;
+                }
             }
             else if (clickCell.OccupiedBy is PoliceRuntime police)
             {
@@ -63,9 +81,9 @@ public class InputHandler : MonoBehaviour
                     _selectedSpezzone = null;
                 }
             }
-            else if (clickCell.OccupiedBy is SpezzoneRuntime)
+            else if (clickCell.OccupiedBy is SpezzoneRuntime other)
             {
-                _selectedSpezzone = (SpezzoneRuntime)clickCell.OccupiedBy;
+                _selectedSpezzone = other;
             }
         }
 

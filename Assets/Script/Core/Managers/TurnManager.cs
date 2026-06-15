@@ -5,7 +5,6 @@ public class TurnManager : MonoBehaviour
 {
 
     [Header("Reference")]
-    [SerializeField] private UnitsRenderer _unitsRenderer;
     [SerializeField] LVLManager _lvlManager;
 
     [Header("Events")]
@@ -20,6 +19,7 @@ public class TurnManager : MonoBehaviour
     private List<AttackOrder> _atkOrders = new List<AttackOrder>();
 
     private HexGrid _map;
+    private UnitsRenderer _unitsRenderer;
     public GameEventSO EndTurnEvent => _endTurnEvent;
 
     private void Start()
@@ -29,23 +29,26 @@ public class TurnManager : MonoBehaviour
             Debug.LogWarning("Need LVL Manager in TurnManager");
             return;
         }
+
+        _unitsRenderer = _lvlManager.Renderer;
         _map = _lvlManager.Map;
     }
 
     private HexCell PushHandle(HexCoordinates atkCoord, HexCoordinates defCoord, CombatResult result)
     {
 
-        int resultQ = (atkCoord.Q - defCoord.Q);
-        int resultR = (atkCoord.R - defCoord.R);
-
+        int resultQ = (defCoord.Q - atkCoord.Q);
+        int resultR = (defCoord.R - atkCoord.R);
         HexCoordinates pushCoord = new HexCoordinates(defCoord.Q + resultQ, defCoord.R + resultR);
 
         HexCell returnCell;
+
 
         if (_map.TryGetCell(pushCoord, out returnCell))
         {
             if (IsCellAvailable(returnCell))
             {
+                Debug.Log($"PushHandle: spingo verso {pushCoord}, cella trovata: {returnCell != null}, disponibile: {returnCell != null && IsCellAvailable(returnCell)}");
                 return returnCell;
             }
             else
@@ -135,9 +138,13 @@ public class TurnManager : MonoBehaviour
     public void AddAttackOrder(AttackOrder order) { _atkOrders.Add(order); }
     public void ExecuteResolution()
     {
+        Debug.Log($"Eseguo {_movOrders.Count} ordini di movimento");
+
         foreach (var order in _movOrders)
         {
-            order.SelectedSpezzone.SetPosition(order.DirectionCell);
+            bool moved = order.SelectedSpezzone.SetPosition(order.DirectionCell);
+            Debug.Log($"SetPosition result: {moved}");
+            _unitsRenderer.UpdateView(order.SelectedSpezzone);
         }
         _movOrders.Clear();
 
@@ -145,6 +152,7 @@ public class TurnManager : MonoBehaviour
         {
             PushResolution(order.Atk, order.Def);
         }
+        _atkOrders.Clear();
         _currentPhase = TurnPhases.EndTurn;
     }
 

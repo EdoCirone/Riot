@@ -14,10 +14,9 @@ public class UnitsRenderer : MonoBehaviour
         _unitsDict = new Dictionary<AbstractUnitsRunTime, GameObject>();
     }
 
-    public void SpawnUnits(AbstractUnitsRunTime unit)
+    public void SpawnUnits(AbstractUnitsRunTime unit, GameObject existingGO)
     {
-        GameObject instance = Instantiate(unit.GraphicsPrefab, unit.PositionCell.Coordinates.ToWorldPosition(_grid.CellSize), Quaternion.identity);
-        _unitsDict.Add(unit, instance);
+        _unitsDict.Add(unit, existingGO);
     }
 
     public void UpdateView(AbstractUnitsRunTime unit)
@@ -28,16 +27,16 @@ public class UnitsRenderer : MonoBehaviour
             {
                 go.SetActive(false);
             }
-
         }
-      else if (_unitsDict.TryGetValue(unit, out GameObject go))
+        else if (_unitsDict.TryGetValue(unit, out GameObject go))
         {
-            go.transform.position = unit.PositionCell.Coordinates.ToWorldPosition(_grid.CellSize);
+            Vector3 newPos = unit.PositionCell.Coordinates.ToWorldPosition(_grid.CellSize);
+            Debug.Log($"UpdateView: sposto {unit} a {newPos}");
+            go.transform.position = newPos;
         }
         else
         {
             Debug.Log("try to update a null unit");
         }
-
     }
 }
