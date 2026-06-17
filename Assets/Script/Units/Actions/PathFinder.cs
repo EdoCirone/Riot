@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class PathFinder : MonoBehaviour
+public class PathFinder : MonoBehaviour 
 {
     public List<HexCoordinates> FindPath(HexCoordinates start, HexCoordinates end, HexGrid grid)
     {
@@ -17,6 +17,7 @@ public class PathFinder : MonoBehaviour
         List<HexCoordinates> checkedCell = new List<HexCoordinates>();
 
         foundCell.Add(start);
+        bool pathFound = false;
 
         List<HexCoordinates> path = new List<HexCoordinates>();
         while (foundCell.Count > 0)
@@ -57,14 +58,16 @@ public class PathFinder : MonoBehaviour
                         current = cameFrom[current];
                         path.Add(current);
                     }
-
+                    pathFound = true;
                     break;
                 }
             }
         }
-        path.Add(start);
-        path.Reverse();
-        path.Add(end);
+        if (pathFound)
+        {
+            path.Reverse();
+            path.Add(end);
+        }
         return path;
     }
 

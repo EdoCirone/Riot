@@ -13,18 +13,25 @@ public class UnitsSetup : MonoBehaviour
 
         HexCoordinates coord = HexCoordinates.FromWorldPosition(transform.position, _grid.CellSize);
         Debug.Log($"Setup {gameObject.name}: worldPos={transform.position}, coord={coord}");
+
         HexCell cell;
         bool found = _grid.TryGetCell(coord, out cell);
         Debug.Log($"TryGetCell result: {found}");
 
+        if(cell == null)
+        {
+            Debug.LogWarning($"No cell found at {coord} for {gameObject.name}, cannot initialize {_unit}");
+            return null;
+        }
+
         if (_unit is PoliceSO police)
         {
-            PoliceRuntime policeRuntime = new PoliceRuntime(cell, UnitsStatus.Alive, (PoliceSO) _unit);
+            PoliceRuntime policeRuntime = new PoliceRuntime(cell, UnitsStatus.Alive, police);
             return policeRuntime;
         }
         else if(_unit is SpezzoneSO spezzone)
         {
-            SpezzoneRuntime spezzoneRuntime = new SpezzoneRuntime(cell,UnitsStatus.Alive,(SpezzoneSO) _unit);
+            SpezzoneRuntime spezzoneRuntime = new SpezzoneRuntime(cell,UnitsStatus.Alive, spezzone);
             return spezzoneRuntime;
         }
 

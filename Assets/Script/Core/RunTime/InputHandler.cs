@@ -5,15 +5,24 @@ using UnityEngine.InputSystem;
 public class InputHandler : MonoBehaviour
 {
     [Header("Reference")]
-    [SerializeField] private TurnManager _turnManager;
+    [SerializeField] private LVLManager _lvlManager; 
     [SerializeField] private HexGrid _grid;
 
+    private TurnManager _turnManager;
     private InputSystem_Actions _inputSystem;
     private SpezzoneRuntime _selectedSpezzone;
 
     private void Awake()
     {
         _inputSystem = new InputSystem_Actions();
+
+        if (_lvlManager == null)
+        {
+            Debug.LogWarning("LVL manager not assigned in InputHandler");
+            return;
+        }
+
+        _turnManager = _lvlManager.TurnManager;
     }
 
     private void OnEnable()
@@ -32,7 +41,8 @@ public class InputHandler : MonoBehaviour
 
     private void OnClick(InputAction.CallbackContext ctx)
     {
-
+        if (_lvlManager == null || !_lvlManager.IsGameActive) return;
+        
         Vector2 screenPos = _inputSystem.Game.MousePosition.ReadValue<Vector2>();
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 0));
 
@@ -97,6 +107,7 @@ public class InputHandler : MonoBehaviour
 
     private void OnEndTurn(InputAction.CallbackContext ctx)
     {
+        if (_lvlManager == null || !_lvlManager.IsGameActive) return;
 
         if (_turnManager != null)
         {

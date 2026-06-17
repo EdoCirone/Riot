@@ -7,11 +7,11 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     [SerializeField] private TurnManager _turnManager;
     [SerializeField] private HexGrid _map;
     [SerializeField] private UnitsRenderer _unitsRenderer;
-    [SerializeField] private List<HexCell> _objectiveCells = new List<HexCell>();
 
     [Header("LVL Settings")]
     [SerializeField] private int _numbersOfTurns = 10;
-    [SerializeField] private float _scoreToWin = 500;
+    [SerializeField] private float _scoreToWin = 30;
+    [SerializeField] private float _scoreForOccupation = 10;
 
     [Header("Events")]
     [SerializeField] private GameEventSO _winEvent;
@@ -19,9 +19,11 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
     private List<PoliceRuntime> _policeOfLVL = new List<PoliceRuntime>();
+    private List<HexCell> _objectiveCells = new List<HexCell>();
+    
+    private bool _gameOver = false;
     private float _currentScore;
     private int _currentTurn;
-    private HexMapSO _mapSO;
 
     public TurnManager TurnManager => _turnManager;
     public HexGrid Map => _map;
@@ -30,15 +32,18 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     public List<SpezzoneRuntime> Spezzoni => _spezzoniOfLVL;
     public List<PoliceRuntime> Police => _policeOfLVL;
 
+    public bool IsGameActive => !_gameOver;
     public int CurrentTurn => _currentTurn;
     public float CurrentScore => _currentScore;
 
+
     private void OnEnable()
     {
-        _mapSO = _map.HexMapData;
         _currentScore = 0;
         _currentTurn = _numbersOfTurns;
         _turnManager.EndTurnEvent.Subscribe(this);
+
+        RefreshObjectiveCells();
     }
 
     private void Start()
@@ -58,7 +63,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             _unitsRenderer.SpawnUnits(unit, setup.gameObject);
         }
 
-
     }
 
 
@@ -70,13 +74,12 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     public void OnEventRaised()
     {
         _currentTurn--;
-
         foreach (var cell in _objectiveCells)
         {
-
             if (cell.OccupiedBy != null)
             {
-                _currentScore += 1;
+                _currentScore += _scoreForOccupation;
+                Debug.Log($"guadagni {_scoreForOccupation}, punteggio: {_currentScore}");
             }
         }
 
@@ -84,17 +87,39 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         {
             Debug.Log("LVLOver");
 
-            if (_currentScore > _scoreToWin)
+            if (_currentScore >= _scoreToWin)
             {
 
                 _winEvent.Raise();
+                _gameOver = true;
+                _turnManager.enabled = false;
                 Debug.Log("You Win");
             }
             else
             {
                 _loseEvent.Raise();
+                _gameOver = true;
                 Debug.Log("You Lost");
+                _turnManager.enabled = false;
             }
         }
+    }
+
+    private void RefreshObjectiveCells()
+    {
+        _objectiveCells.Clear();
+        foreach (var cell in _map.GetAllCells())
+        {
+            if (cell.Type != null && cell.Type.IsObjective)
+                _objectiveCells.Add(cell);
+        }
+        Debug.Log($"Trovate {_objectiveCells.Count} celle obiettivo nella mappa.");
+    }
+
+
+    public void RestartLVL()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(
+        UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
 }

@@ -12,6 +12,7 @@ public class PoliceAI : MonoBehaviour
         if (_lvlManager == null)
         {
             Debug.Log("LVL manager not found in PoliceAI");
+            return;
         }
 
         _turnManager = _lvlManager.TurnManager;
@@ -22,6 +23,7 @@ public class PoliceAI : MonoBehaviour
         foreach (var police in _lvlManager.Police)
         {
             SpezzoneRuntime nearestSpezzone = FoundNearestSpezzone(police);
+            if (nearestSpezzone == null) continue;
             int distance = police.PositionCell.Coordinates.Distance(nearestSpezzone.PositionCell.Coordinates);
 
             if (distance == 1)
@@ -31,7 +33,13 @@ public class PoliceAI : MonoBehaviour
             }
             else
             {
-                _turnManager.AddMovementOrder(new MovementOrder(police, FindBestMoveCell( police, nearestSpezzone)));
+                HexCell moveCell = FindBestMoveCell(police, nearestSpezzone);
+                if (moveCell == null)
+                {
+                    Debug.Log($"Police a {police.PositionCell.Coordinates} è circondata, nessuna mossa disponibile");
+                    continue;
+                }
+                _turnManager.AddMovementOrder(new MovementOrder(police, moveCell));
             }
             Debug.Log($"Police a {police.PositionCell.Coordinates}, spezzone a {nearestSpezzone.PositionCell.Coordinates}, distanza: {distance}");
         }
@@ -43,12 +51,12 @@ public class PoliceAI : MonoBehaviour
         int minDistance = int.MaxValue;
         foreach (var spezzone in _lvlManager.Spezzoni)
         {
+            if (spezzone.Status == UnitsStatus.Disperse) continue;   // <-- nuovo
             int distance = police.PositionCell.Coordinates.Distance(spezzone.PositionCell.Coordinates);
             if (distance < minDistance)
             {
                 minDistance = distance;
                 nearest = spezzone;
-
             }
         }
         return nearest;
@@ -63,8 +71,6 @@ public class PoliceAI : MonoBehaviour
         {
             if (!_lvlManager.Map.TryGetCell(neighbor, out HexCell cell)) continue;
 
-            if (cell == null) continue;
-
             if (!cell.Type.IsWalkable) continue;
 
             if (cell.OccupiedBy is PoliceRuntime) continue;
@@ -75,6 +81,7 @@ public class PoliceAI : MonoBehaviour
                 minDistance = distance;
                 bestCell = cell;
             }
+
 
         }
         return bestCell;

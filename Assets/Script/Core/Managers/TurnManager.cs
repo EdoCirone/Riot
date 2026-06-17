@@ -10,9 +10,10 @@ public class TurnManager : MonoBehaviour
 
     [Header("Events")]
     [SerializeField] GameEventSO _endTurnEvent;
-    [SerializeField] GameEventSO _winCombactEvent;
-    [SerializeField] GameEventSO _loseCombactEvent;
-    [SerializeField] GameEventSO _parCombactEvent;
+    //This events are placeholder for future application like sfx,vfx o HUD
+    //[SerializeField] GameEventSO _winCombatEvent;
+    //[SerializeField] GameEventSO _loseCombatEvent;
+    //[SerializeField] GameEventSO _parCombatEvent;
 
 
     private TurnPhases _currentPhase;
@@ -97,6 +98,7 @@ public class TurnManager : MonoBehaviour
                     else
                     {
                         Debug.Log("Police Disperse");
+                        atk.Disperse();
                     }
                     break;
                 }
@@ -173,13 +175,12 @@ public class TurnManager : MonoBehaviour
             _movOrders.Clear();
             foreach (var order in _atkOrders)
             {
-                Debug.Log($"Eseguo {_atkOrders.Count} attacchi polizia");
                 PushResolution(order.Atk, order.Def);
             }
+            
             _atkOrders.Clear();
             _waitingForPolice = false;
-            _endTurnEvent.Raise();
-            _currentPhase = TurnPhases.Decision;
+            EndTurn();
         }
     }
 
