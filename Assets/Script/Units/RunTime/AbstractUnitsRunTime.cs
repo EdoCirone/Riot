@@ -4,7 +4,12 @@ public abstract class AbstractUnitsRunTime
 {
     protected HexCell _positionCell;
     protected UnitsStatus _status;
+    protected int _morale;
+    protected int _actionPoints;
+    protected int _maxActionPoints;
 
+    public int ActionPoints => _actionPoints;
+    public int Morale => _morale;
     public abstract int Atk { get; }
     public abstract int Def { get; }
 
@@ -13,11 +18,28 @@ public abstract class AbstractUnitsRunTime
 
     public abstract GameObject GraphicsPrefab { get; }
 
-    protected AbstractUnitsRunTime (HexCell positionCell, UnitsStatus status)
+    protected AbstractUnitsRunTime (HexCell positionCell, UnitsStatus status, int morale, int actionPoints)
     {
         _positionCell = positionCell;
         _status = status;
+        _morale = morale;
+        _actionPoints = actionPoints;
+        _maxActionPoints = actionPoints;
+
     }
+    #region PointActions
+    public bool TrySpendActionPoint(int amount)
+    {
+        if (_actionPoints < amount) return false;
+        _actionPoints -= amount;
+        return true;
+    }
+    public void RefillActionPoints()
+    {
+        _actionPoints = _maxActionPoints;
+    }
+
+    #endregion
 
     public bool SetPosition(HexCell arriveCell)
     {
@@ -28,6 +50,15 @@ public abstract class AbstractUnitsRunTime
             _positionCell = arriveCell;
         }
         return isSucces;
+    }
+
+    public void LoseMorale(int amount)
+    {
+        _morale = Mathf.Max(_morale - amount, 0);
+        if (_morale == 0)
+        {
+            Disperse();
+        }
     }
 
     public void Disperse()

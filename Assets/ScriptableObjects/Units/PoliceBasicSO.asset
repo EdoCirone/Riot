@@ -16,5 +16,6 @@ MonoBehaviour:
   _displayName: PoliceBasic
   _atk: 8
   _def: 4
-  _mov: 2
+  _mor: 5
+  _actionPoints: 5
   _graphicsPrefab: {fileID: 5428298278659759717, guid: bd58c5f9af849ce4ca963c1024d1083b, type: 3}

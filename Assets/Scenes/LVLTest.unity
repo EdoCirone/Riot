@@ -159,7 +159,7 @@ Transform:
   m_GameObject: {fileID: 15252239}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.5199995, y: 4.28, z: 0}
+  m_LocalPosition: {x: 11.98, y: 5.15, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -976,7 +976,7 @@ Transform:
   m_GameObject: {fileID: 674529428}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.78999996, y: 4.73, z: 0}
+  m_LocalPosition: {x: 11.25, y: 5.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1055,6 +1055,7 @@ GameObject:
   - component: {fileID: 736496567}
   - component: {fileID: 736496568}
   - component: {fileID: 736496569}
+  - component: {fileID: 736496570}
   m_Layer: 0
   m_Name: TurnManager
   m_TagString: Untagged
@@ -1090,11 +1091,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TurnManager
   _lvlManager: {fileID: 2130109798}
+  _pathFinder: {fileID: 736496570}
   _policeAI: {fileID: 736496569}
   _endTurnEvent: {fileID: 11400000, guid: f69733287b575af41bf2051f9e7cb894, type: 2}
-  _winCombactEvent: {fileID: 11400000, guid: 30daf8697c582e742bb0391e35c0bf11, type: 2}
-  _loseCombactEvent: {fileID: 11400000, guid: 2c4d5f717647c8b46acd5808d882dbda, type: 2}
-  _parCombactEvent: {fileID: 11400000, guid: ff1b99c87707832488917b13804448eb, type: 2}
 --- !u!114 &736496569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1108,6 +1107,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoliceAI
   _lvlManager: {fileID: 2130109798}
+--- !u!114 &736496570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 736496566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca77ed48af3d1844d894fca42dbaf0ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PathFinder
 --- !u!1 &868366128
 GameObject:
   m_ObjectHideFlags: 0
@@ -1343,7 +1354,7 @@ Transform:
   m_GameObject: {fileID: 926824399}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.09545, y: -2.27675, z: 0}
+  m_LocalPosition: {x: -6.38455, y: -2.27675, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1773,7 +1784,7 @@ Transform:
   m_GameObject: {fileID: 1166010519}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.53, y: 5.15, z: 0}
+  m_LocalPosition: {x: 11.99, y: 6.02, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1897,7 +1908,7 @@ Transform:
   m_GameObject: {fileID: 1194469018}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 12.77, y: 5.72, z: 0}
+  m_LocalPosition: {x: 5.2900004, y: 5.72, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2472,7 +2483,7 @@ Transform:
   m_GameObject: {fileID: 2089225298}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 12.79, y: 4.74, z: 0}
+  m_LocalPosition: {x: 5.31, y: 4.74, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2678,7 +2689,6 @@ MonoBehaviour:
   _turnManager: {fileID: 736496568}
   _map: {fileID: 1144096843}
   _unitsRenderer: {fileID: 1693072225}
-  _objectiveCoordinates: []
   _numbersOfTurns: 8
   _scoreToWin: 30
   _scoreForOccupation: 10

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class PoliceAI : MonoBehaviour
 {
@@ -29,7 +30,11 @@ public class PoliceAI : MonoBehaviour
             if (distance == 1)
             {
                 Debug.Log($"Police attacca spezzone a distanza {distance}");
-                _turnManager.AddAttackOrder(new AttackOrder(police, nearestSpezzone));
+                _turnManager.ExecuteSkirmish(police, nearestSpezzone);
+            }
+            else if (distance == 3)
+            {
+                _turnManager.ExecuteCharge(police, nearestSpezzone);
             }
             else
             {
@@ -39,7 +44,7 @@ public class PoliceAI : MonoBehaviour
                     Debug.Log($"Police a {police.PositionCell.Coordinates} è circondata, nessuna mossa disponibile");
                     continue;
                 }
-                _turnManager.AddMovementOrder(new MovementOrder(police, moveCell));
+                _turnManager.ExecuteMovement(police, new List<HexCell> { moveCell });
             }
             Debug.Log($"Police a {police.PositionCell.Coordinates}, spezzone a {nearestSpezzone.PositionCell.Coordinates}, distanza: {distance}");
         }
@@ -51,7 +56,7 @@ public class PoliceAI : MonoBehaviour
         int minDistance = int.MaxValue;
         foreach (var spezzone in _lvlManager.Spezzoni)
         {
-            if (spezzone.Status == UnitsStatus.Disperse) continue;   // <-- nuovo
+            if (spezzone.Status == UnitsStatus.Disperse) continue;   
             int distance = police.PositionCell.Coordinates.Distance(spezzone.PositionCell.Coordinates);
             if (distance < minDistance)
             {
@@ -73,7 +78,7 @@ public class PoliceAI : MonoBehaviour
 
             if (!cell.Type.IsWalkable) continue;
 
-            if (cell.OccupiedBy is PoliceRuntime) continue;
+            if (cell.OccupiedBy != null) continue;
 
             int distance = neighbor.Distance(target.PositionCell.Coordinates);
             if (distance < minDistance)

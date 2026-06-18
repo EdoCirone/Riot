@@ -6,11 +6,9 @@ public class PoliceRuntime : AbstractUnitsRunTime
 
     public override int Atk => _police.Atk;
     public override int Def => _police.Def;
-    public int Mov => _police.Mov;
 
-
-    public PoliceRuntime(HexCell pos, UnitsStatus stato, PoliceSO police)
-        : base(pos, stato)
+    public PoliceRuntime(HexCell pos, UnitsStatus stato, PoliceSO police, int morale, int actionPoint)
+        : base(pos, stato, morale, actionPoint)
     {
         _police = police;
         pos.TryOccupy(this);

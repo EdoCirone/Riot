@@ -18,7 +18,7 @@ public class UnitsSetup : MonoBehaviour
         bool found = _grid.TryGetCell(coord, out cell);
         Debug.Log($"TryGetCell result: {found}");
 
-        if(cell == null)
+        if (cell == null)
         {
             Debug.LogWarning($"No cell found at {coord} for {gameObject.name}, cannot initialize {_unit}");
             return null;
@@ -26,12 +26,12 @@ public class UnitsSetup : MonoBehaviour
 
         if (_unit is PoliceSO police)
         {
-            PoliceRuntime policeRuntime = new PoliceRuntime(cell, UnitsStatus.Alive, police);
+            PoliceRuntime policeRuntime = new PoliceRuntime(cell, UnitsStatus.Alive, police, police.Mor, police.ActionPoints);
             return policeRuntime;
         }
-        else if(_unit is SpezzoneSO spezzone)
+        else if (_unit is SpezzoneSO spezzone)
         {
-            SpezzoneRuntime spezzoneRuntime = new SpezzoneRuntime(cell,UnitsStatus.Alive, spezzone);
+            SpezzoneRuntime spezzoneRuntime = new SpezzoneRuntime(cell, UnitsStatus.Alive, spezzone, spezzone.Mor, spezzone.ActionPoints);
             return spezzoneRuntime;
         }
 

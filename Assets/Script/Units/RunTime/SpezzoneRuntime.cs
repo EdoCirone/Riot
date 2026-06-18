@@ -7,11 +7,9 @@ public class SpezzoneRuntime : AbstractUnitsRunTime
 
     public override int Atk => _spezzone.Atk;
     public override int Def => _spezzone.Def;
-    public int Mov => _spezzone.Mov;
 
-
-    public SpezzoneRuntime(HexCell pos, UnitsStatus stato, SpezzoneSO spezzone)
-        : base(pos, stato)
+    public SpezzoneRuntime(HexCell pos, UnitsStatus stato, SpezzoneSO spezzone, int morale, int actionPoints)
+     : base(pos, stato, morale, actionPoints)
     {
         _spezzone = spezzone;
         pos.TryOccupy(this);
