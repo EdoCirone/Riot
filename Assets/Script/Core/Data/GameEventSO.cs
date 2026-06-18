@@ -9,7 +9,7 @@ public interface IGameEventListener
 }
 
 
-[CreateAssetMenu(fileName = "NuovoEventoGioco", menuName = "RIOT/Core/Evento Gioco")]
+[CreateAssetMenu(fileName = "NuovoEventoGioco", menuName = "RIOT/Events/Evento Gioco")]
 public class GameEventSO : ScriptableObject
 {
     

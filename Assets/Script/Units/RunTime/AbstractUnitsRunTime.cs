@@ -7,9 +7,11 @@ public abstract class AbstractUnitsRunTime
     protected int _morale;
     protected int _actionPoints;
     protected int _maxActionPoints;
+    protected int _maxMorale;
 
     public int ActionPoints => _actionPoints;
     public int Morale => _morale;
+    public int MaxMorale => _maxMorale;
     public abstract int Atk { get; }
     public abstract int Def { get; }
 
