@@ -29,12 +29,14 @@ public class PoliceAI : MonoBehaviour
 
             if (distance == 1)
             {
-                Debug.Log($"Police attacca spezzone a distanza {distance}");
-                _turnManager.ExecuteSkirmish(police, nearestSpezzone);
+                bool success = _turnManager.ExecuteSkirmish(police, nearestSpezzone);
+                Debug.Log(success ? "Police: Scontro riuscito" : "Police: Scontro fallito");
+
             }
             else if (distance == 3)
             {
-                _turnManager.ExecuteCharge(police, nearestSpezzone);
+                bool success = _turnManager.ExecuteCharge(police, nearestSpezzone);
+                Debug.Log(success ? "Police: Carica riuscita" : "Police: Carica fallita");
             }
             else
             {
@@ -44,7 +46,8 @@ public class PoliceAI : MonoBehaviour
                     Debug.Log($"Police a {police.PositionCell.Coordinates} è circondata, nessuna mossa disponibile");
                     continue;
                 }
-                _turnManager.ExecuteMovement(police, new List<HexCell> { moveCell });
+                bool success = _turnManager.ExecuteMovement(police, new List<HexCell> { moveCell });
+                Debug.Log(success ? "Police: Movimento riuscito" : "Police: Movimento fallito");
             }
             Debug.Log($"Police a {police.PositionCell.Coordinates}, spezzone a {nearestSpezzone.PositionCell.Coordinates}, distanza: {distance}");
         }
