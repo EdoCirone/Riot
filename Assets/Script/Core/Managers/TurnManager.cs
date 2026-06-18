@@ -242,10 +242,39 @@ public class TurnManager : MonoBehaviour
         }
 
         HexCell destination = path[path.Count - 1];
-        unit.SetPosition(destination);
-        _unitsRenderer.UpdateView(unit);
+        bool moved = unit.SetPosition(destination);
+        if (!moved)
+        {
+            Debug.Log($"Movimento fallito: cella di destinazione {destination.Coordinates} occupata");
+            return false;
+        }
 
+        _unitsRenderer.UpdateView(unit);
         return true;
+    }
+
+    //Metodo che mi serve per evitare la sovraposizione 
+    public HexCoordinates? FindBestAdjacentCell(HexCoordinates from, HexCoordinates targetCoord)
+    {
+        HexCoordinates[] neighbors = targetCoord.GetNeighbors();
+        HexCoordinates? best = null;
+        int minDistance = int.MaxValue;
+
+        foreach (var neighbor in neighbors)
+        {
+            if (!_lvlManager.Map.TryGetCell(neighbor, out HexCell cell)) continue;
+            if (!cell.Type.IsWalkable) continue;
+            if (cell.OccupiedBy != null) continue;
+
+            int distance = from.Distance(neighbor);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                best = neighbor;
+            }
+        }
+
+        return best;
     }
     #endregion
 
@@ -284,6 +313,9 @@ public class TurnManager : MonoBehaviour
                 def.LoseMorale(1);
                 break;
         }
+
+        _unitsRenderer.UpdateView(atk);
+        _unitsRenderer.UpdateView(def);
 
         return true;
     }
