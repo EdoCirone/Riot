@@ -6,8 +6,12 @@ using UnityEngine.InputSystem;
 public class InputHandler : MonoBehaviour
 {
     [Header("Reference")]
-    [SerializeField] private LVLManager _lvlManager; 
+    [SerializeField] private LVLManager _lvlManager;
     [SerializeField] private HexGrid _grid;
+
+    [Header("UI Events")]
+    [SerializeField] private UnitEventSO _unitSelectedEvent;
+    [SerializeField] private GameEventSO _unitDeselectedEvent;
 
     private TurnManager _turnManager;
     private InputSystem_Actions _inputSystem;
@@ -67,6 +71,7 @@ public class InputHandler : MonoBehaviour
             if (clickCell.OccupiedBy is SpezzoneRuntime spezzone)
             {
                 _selectedSpezzone = spezzone;
+                _unitSelectedEvent?.Raise(_selectedSpezzone);
                 Debug.Log($"Selezionato spezzone su {clickCell.Coordinates}");
             }
             return;
@@ -123,6 +128,7 @@ public class InputHandler : MonoBehaviour
         else if (clickCell.OccupiedBy is SpezzoneRuntime other)
         {
             _selectedSpezzone = other;
+            _unitSelectedEvent?.Raise(_selectedSpezzone);
             Debug.Log($"Cambiata selezione su {clickCell.Coordinates}");
         }
     }
@@ -132,6 +138,7 @@ public class InputHandler : MonoBehaviour
         _selectedSpezzone = null;
         _pendingDestination = null;
         _pendingTarget = null;
+        _unitDeselectedEvent?.Raise();
         Debug.Log("Selezione annullata");
     }
 
@@ -172,8 +179,12 @@ public class InputHandler : MonoBehaviour
         bool success = _turnManager.ExecuteMovement(_selectedSpezzone, path);
         if (!success)
         {
+
             Debug.Log("Movimento non eseguito");
         }
+
+        if (success)
+            _unitSelectedEvent?.Raise(_selectedSpezzone);
 
         _pendingDestination = null;
     }
@@ -202,6 +213,14 @@ public class InputHandler : MonoBehaviour
         if (!success)
         {
             Debug.Log("Attacco non eseguito");
+        }
+
+        if (success && _selectedSpezzone.Status != UnitsStatus.Disperse)
+            _unitSelectedEvent?.Raise(_selectedSpezzone);
+        else if (_selectedSpezzone.Status == UnitsStatus.Disperse)
+        {
+            _selectedSpezzone = null;
+            _unitDeselectedEvent?.Raise();
         }
 
         _pendingTarget = null;

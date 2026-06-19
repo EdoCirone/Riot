@@ -12,11 +12,11 @@ public class UnitsSetup : MonoBehaviour
         if (_unit == null) return null;
 
         HexCoordinates coord = HexCoordinates.FromWorldPosition(transform.position, _grid.CellSize);
-        Debug.Log($"Setup {gameObject.name}: worldPos={transform.position}, coord={coord}");
+        //Debug.Log($"Setup {gameObject.name}: worldPos={transform.position}, coord={coord}");
 
         HexCell cell;
         bool found = _grid.TryGetCell(coord, out cell);
-        Debug.Log($"TryGetCell result: {found}");
+        //Debug.Log($"TryGetCell result: {found}");
 
         if (cell == null)
         {

@@ -324,29 +324,26 @@ public class TurnManager : MonoBehaviour
     // Passa la mano: dal turno corteo a quello polizia, o viceversa con fine turno completo.
     public void EndTurn()
     {
-        if (!_waitingForPolice)
+        if (_waitingForPolice) return; // blocca input durante turno polizia
+
+        _waitingForPolice = true;
+        Debug.Log("--- TURNO POLIZIA ---");
+
+        foreach (var police in _lvlManager.Police)
         {
-            _waitingForPolice = true;
-            Debug.Log("--- TURNO POLIZIA ---");
-
-            foreach (var police in _lvlManager.Police)
-            {
-                if (police.Status == UnitsStatus.Disperse) continue;
-                police.RefillActionPoints();
-            }
-
-            _policeAI.ExecutePoliceActions();
+            if (police.Status == UnitsStatus.Disperse) continue;
+            police.RefillActionPoints();
         }
-        else
+
+        _policeAI.ExecutePoliceActions();
+        Debug.Log("--- FINE TURNO POLIZIA ---");
+
+        _waitingForPolice = false;
+
+        foreach (var spezzone in _lvlManager.Spezzoni)
         {
-            _waitingForPolice = false;
-
-            foreach (var spezzone in _lvlManager.Spezzoni)
-            {
-                if (spezzone.Status == UnitsStatus.Disperse) continue;
-
-                spezzone.RefillActionPoints();
-            }
+            if (spezzone.Status == UnitsStatus.Disperse) continue;
+            spezzone.RefillActionPoints();
         }
 
         _endTurnEvent.Raise();

@@ -10,6 +10,7 @@ public abstract class AbstractUnitsRunTime
     protected int _maxMorale;
 
     public int ActionPoints => _actionPoints;
+    public int MaxActionPoints => _maxActionPoints;
     public int Morale => _morale;
     public int MaxMorale => _maxMorale;
     public abstract int Atk { get; }
@@ -25,6 +26,7 @@ public abstract class AbstractUnitsRunTime
         _positionCell = positionCell;
         _status = status;
         _morale = morale;
+        _maxMorale = morale;
         _actionPoints = actionPoints;
         _maxActionPoints = actionPoints;
 

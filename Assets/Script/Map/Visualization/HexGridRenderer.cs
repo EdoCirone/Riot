@@ -9,6 +9,7 @@ public class HexGridRenderer : MonoBehaviour
     [Header("Type-based visuals")]
     [SerializeField] private HexTypeSO _defaultHexType;
 
+    private Dictionary<HexCoordinates, GameObject> _cellObjects = new();
     private void Start()
     {
         if (_grid == null) return;
@@ -24,8 +25,26 @@ public class HexGridRenderer : MonoBehaviour
                  _grid.transform.position + cell.Coordinates.ToWorldPosition(_grid.CellSize),
                  Quaternion.identity, transform);
 
+            _cellObjects[cell.Coordinates] = go;
             SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
             if (sr != null) sr.color = type.Color;
         }
     }
+
+    public void SetCellColor(HexCoordinates coords, Color color)
+    {
+        if (!_cellObjects.TryGetValue(coords, out GameObject go)) return;
+        SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
+        if (sr != null) sr.color = color;
+    }
+
+    public void ResetCellColor(HexCoordinates coords)
+    {
+        if (!_cellObjects.TryGetValue(coords, out GameObject go)) return;
+        HexCell cell;
+        if (!_grid.TryGetCell(coords, out cell)) return;
+        SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
+        if (sr != null) sr.color = cell.Type.Color;
+    }
+
 }
