@@ -43,28 +43,6 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    #region Direction
-    // Trova quale delle 6 direzioni esagonali, applicata "distance" volte, porta da "from" a "to".
-    // Restituisce null se le due celle non sono allineate su una direzione pura.
-    private HexCoordinates? FindDirection(HexCoordinates from, HexCoordinates to)
-    {
-        int distance = from.Distance(to);
-
-        foreach (var dir in HexCoordinates.Directions)
-        {
-            HexCoordinates candidate = new HexCoordinates(
-                from.Q + dir.Q * distance,
-                from.R + dir.R * distance
-            );
-
-            if (candidate.Equals(to))
-                return dir;
-        }
-
-        return null;
-    }
-    #endregion
-
     #region Push
     // Verifica se esistono esattamente 2 celle libere consecutive tra attaccante e difensore
     // (distanza 3, in linea retta). Se sì, restituisce la cella dove l'attaccante deve fermarsi
@@ -76,7 +54,7 @@ public class TurnManager : MonoBehaviour
         int distance = atkCoord.Distance(defCoord);
         if (distance != 3) return false;
 
-        HexCoordinates? dir = FindDirection(atkCoord, defCoord);
+        HexCoordinates? dir = HexDirectionFinder.FindDirection(atkCoord, defCoord);
         if (dir == null) return false;
 
         HexCoordinates dirValue = dir.Value;
