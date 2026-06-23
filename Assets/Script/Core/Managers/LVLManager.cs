@@ -20,7 +20,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
     private List<PoliceRuntime> _policeOfLVL = new List<PoliceRuntime>();
     private List<HexCell> _objectiveCells = new List<HexCell>();
-    
+
     private bool _gameOver = false;
     private float _currentScore;
     private int _currentTurn;
@@ -61,8 +61,17 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             }
 
             _unitsRenderer.SpawnUnits(unit, setup.gameObject);
-        }
 
+            // INIZIALIZZA UNITMOVEMENT
+            GameObject unitGO = _unitsRenderer.GetGameObject(unit);
+            if (unitGO != null)
+            {
+                UnitMovement movement = unitGO.GetComponent<UnitMovement>();
+                if (movement != null)
+                    movement.Initialize(unit);
+            }
+
+        }
     }
 
 

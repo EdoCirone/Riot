@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -12,6 +13,8 @@ public class InputHandler : MonoBehaviour
     [Header("UI Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
     [SerializeField] private GameEventSO _unitDeselectedEvent;
+
+    private bool _isExecutingAction = false;
 
     private TurnManager _turnManager;
     private InputSystem_Actions _inputSystem;
@@ -51,6 +54,8 @@ public class InputHandler : MonoBehaviour
 
     private void OnLeftClick(InputAction.CallbackContext ctx)
     {
+        if(_isExecutingAction) return;
+
         if (_lvlManager == null || !_lvlManager.IsGameActive) return;
 
         Vector2 screenPos = _inputSystem.Game.MousePosition.ReadValue<Vector2>();
@@ -118,11 +123,18 @@ public class InputHandler : MonoBehaviour
                 return;
             }
             _pendingDestination = clickCell;
+
+            Vector3 cellWorldPos = _grid.transform.position + clickCell.Coordinates.ToWorldPosition(_grid.CellSize);
+            FlipSelectedUnit(cellWorldPos);
+
+
             Debug.Log($"Destinazione marcata: {clickCell.Coordinates}");
         }
         else if (clickCell.OccupiedBy is PoliceRuntime police)
         {
             _pendingTarget = police;
+
+            FlipSelectedUnit(_grid.transform.position + police.PositionCell.Coordinates.ToWorldPosition(_grid.CellSize));
             Debug.Log($"Bersaglio marcato: {clickCell.Coordinates}");
         }
         else if (clickCell.OccupiedBy is SpezzoneRuntime other)
@@ -135,6 +147,8 @@ public class InputHandler : MonoBehaviour
 
     private void OnRightClick(InputAction.CallbackContext ctx)
     {
+        if (_isExecutingAction) return;
+
         _selectedSpezzone = null;
         _pendingDestination = null;
         _pendingTarget = null;
@@ -144,6 +158,8 @@ public class InputHandler : MonoBehaviour
 
     private void OnEndTurn(InputAction.CallbackContext ctx)
     {
+        if (_isExecutingAction) return;
+
         if (_lvlManager == null || !_lvlManager.IsGameActive) return;
 
         if (_turnManager != null)
@@ -154,8 +170,23 @@ public class InputHandler : MonoBehaviour
         }
     }
 
+    private void FlipSelectedUnit(Vector3 targetWorldPos)
+    {
+        if(_selectedSpezzone == null) return;
+
+        GameObject go = _lvlManager.Renderer.GetGameObject(_selectedSpezzone);
+        if(go == null) return;
+
+        UnitMovement movement = go.GetComponent<UnitMovement>();
+        if(movement == null) return;
+
+        movement.FlipTowards(targetWorldPos);
+    }
+
     private void ConfirmMovement()
     {
+        _isExecutingAction = true;
+
         HexCoordinates start = _selectedSpezzone.PositionCell.Coordinates;
         HexCoordinates end = _pendingDestination.Coordinates;
 
@@ -165,10 +196,10 @@ public class InputHandler : MonoBehaviour
         {
             Debug.Log("Nessun percorso trovato verso la destinazione");
             _pendingDestination = null;
+            _isExecutingAction = false;
             return;
         }
 
-        // FindPath include anche la cella di partenza: la togliamo, il costo si conta solo sulle celle da percorrere
         List<HexCell> path = new List<HexCell>();
         for (int i = 1; i < pathCoords.Count; i++)
         {
@@ -176,17 +207,16 @@ public class InputHandler : MonoBehaviour
                 path.Add(cell);
         }
 
-        bool success = _turnManager.ExecuteMovement(_selectedSpezzone, path);
+        // USA IL NUOVO ExecuteMovement CON CALLBACK
+        bool success = _turnManager.ExecuteMovement(_selectedSpezzone, path, () => {
+            OnActionComplete();
+        });
+
         if (!success)
         {
-
+            OnActionComplete();
             Debug.Log("Movimento non eseguito");
         }
-
-        if (success)
-            _unitSelectedEvent?.Raise(_selectedSpezzone);
-
-        _pendingDestination = null;
     }
 
     private void ConfirmAttack()
@@ -213,16 +243,30 @@ public class InputHandler : MonoBehaviour
         if (!success)
         {
             Debug.Log("Attacco non eseguito");
+            OnActionComplete();
+            return;
         }
 
-        if (success && _selectedSpezzone.Status != UnitsStatus.Disperse)
-            _unitSelectedEvent?.Raise(_selectedSpezzone);
-        else if (_selectedSpezzone.Status == UnitsStatus.Disperse)
+        OnActionComplete(); 
+
+    }
+
+    private void OnActionComplete()
+    {
+        // Se lo spezzone è disperso, deseleziona tutto
+        if (_selectedSpezzone != null && _selectedSpezzone.Status == UnitsStatus.Disperse)
         {
             _selectedSpezzone = null;
             _unitDeselectedEvent?.Raise();
         }
+        else if (_selectedSpezzone != null)
+        {
+            // Mantieni la selezione sullo spezzone
+            _unitSelectedEvent?.Raise(_selectedSpezzone);
+        }
 
+        _pendingDestination = null;
         _pendingTarget = null;
+        _isExecutingAction = false;
     }
 }

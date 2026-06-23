@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class PathFinder : MonoBehaviour 
+public class PathFinder : MonoBehaviour
 {
     public List<HexCoordinates> FindPath(HexCoordinates start, HexCoordinates end, HexGrid grid)
     {
@@ -35,6 +35,12 @@ public class PathFinder : MonoBehaviour
                     {
                         continue;
                     }
+
+                    if (grid.TryGetCell(neighbor, out HexCell neighborCell)
+                        && neighborCell.OccupiedBy != null
+                        && neighbor != end)
+                        continue;
+
                     int tentativeGCost = gCost[minFCell] + 1; // Assuming uniform cost for moving to a neighbor
                     if (!foundCell.Contains(neighbor))
                     {
