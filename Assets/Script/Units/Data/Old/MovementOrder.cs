@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class MovementOrder
 {
+
     private AbstractUnitsRunTime _selectedUnit;
     private HexCell _directionCell;
 

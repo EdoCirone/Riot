@@ -9,6 +9,13 @@ public class UnitsRenderer : MonoBehaviour
 
     private Dictionary<AbstractUnitsRunTime, GameObject> _unitsDict;
 
+    public GameObject GetGameObject(AbstractUnitsRunTime unit)
+    {
+        if (_unitsDict.TryGetValue(unit, out GameObject go))
+            return go;
+        return null;
+    }
+
     private void Awake()
     {
         _unitsDict = new Dictionary<AbstractUnitsRunTime, GameObject>();
@@ -24,15 +31,12 @@ public class UnitsRenderer : MonoBehaviour
         if (unit.Status == UnitsStatus.Disperse)
         {
             if (_unitsDict.TryGetValue(unit, out GameObject go))
-            {
-                go.SetActive(false);
-            }
+                go.transform.root.gameObject.SetActive(false);
         }
         else if (_unitsDict.TryGetValue(unit, out GameObject go))
         {
             Vector3 newPos = unit.PositionCell.Coordinates.ToWorldPosition(_grid.CellSize);
-            Debug.Log($"UpdateView: sposto {unit} a {newPos}");
-            go.transform.position = newPos;
+            go.transform.root.position = newPos;
         }
         else
         {

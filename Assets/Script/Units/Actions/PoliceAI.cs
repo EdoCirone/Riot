@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 public class PoliceAI : MonoBehaviour
@@ -19,13 +20,14 @@ public class PoliceAI : MonoBehaviour
         _turnManager = _lvlManager.TurnManager;
     }
 
-    public void ExecutePoliceActions()
+    public IEnumerator ExecutePoliceActions()
     {
         foreach (var police in _lvlManager.Police)
         {
             if (police.Status == UnitsStatus.Disperse) continue;
 
             bool actedThisTurn = true;
+
             while (actedThisTurn && police.ActionPoints > 0)
             {
                 actedThisTurn = false;
@@ -74,7 +76,16 @@ public class PoliceAI : MonoBehaviour
                             path.Add(cell);
                     }
 
-                    bool success = _turnManager.ExecuteMovement(police, path);
+                    bool finishMovement = false;
+                    
+                    bool success = _turnManager.ExecuteMovement(police, path, () =>
+                    {
+                        finishMovement = true;
+                    });
+                   
+                    yield return new WaitUntil(() => finishMovement);
+                    actedThisTurn = success;
+                
                     Debug.Log(success ? $"Police: Movimento riuscito ({path.Count} celle)" : "Police: Movimento fallito");
                 }
             }

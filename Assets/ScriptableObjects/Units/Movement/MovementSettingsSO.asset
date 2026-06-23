@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d1421a85ec73b642b87bc73c7b2cc7a, type: 3}
+  m_Name: MovementSettingsSO
+  m_EditorClassIdentifier: Assembly-CSharp::MovementSettingsSO
+  _moveDuration: 1
+  _windupDistance: 0.3
+  _windupDuration: 0.2
+  _chargeDuration: 0.5
+  _bumpDistance: 1
+  _bumpDuration: 1
+  _recoilDuration: 1

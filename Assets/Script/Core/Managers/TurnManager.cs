@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,10 +12,7 @@ public class TurnManager : MonoBehaviour
 
     [Header("Events")]
     [SerializeField] GameEventSO _endTurnEvent;
-    // Placeholder per future applicazioni (sfx, vfx, HUD)
-    //[SerializeField] GameEventSO _winCombatEvent;
-    //[SerializeField] GameEventSO _loseCombatEvent;
-    //[SerializeField] GameEventSO _parCombatEvent;
+
 
     private HexGrid _map;
     private UnitsRenderer _unitsRenderer;
@@ -73,8 +72,11 @@ public class TurnManager : MonoBehaviour
     // L'attaccante si sposta adiacente al difensore, poi si risolve la spinta come al solito.
     public bool ExecuteCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
+
         HexCoordinates atkCoord = atk.PositionCell.Coordinates;
         HexCoordinates defCoord = def.PositionCell.Coordinates;
+        Vector3 defenderWorldPos = _map.transform.position + def.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
+       
 
         if (!HasChargeRoom(atkCoord, defCoord, out HexCoordinates chargeDestination))
         {
@@ -89,17 +91,26 @@ public class TurnManager : MonoBehaviour
             return false;
         }
 
-        _map.TryGetCell(chargeDestination, out HexCell destinationCell);
-        atk.SetPosition(destinationCell);
-        _unitsRenderer.UpdateView(atk);
+        GameObject atkGO = _unitsRenderer.GetGameObject(atk);
+        UnitMovement movement = atkGO.GetComponent<UnitMovement>();
 
-        PushResolution(atk, def);
+        _map.TryGetCell(chargeDestination, out HexCell destinationCell);
+        
+        Action onComplete = () =>
+        {
+            PushResolution(atk, def);
+
+        };
+
+        atk.SetPosition(destinationCell);
+        movement.PlayCharge(destinationCell, defenderWorldPos, def.PositionCell, def, _map, onComplete);
+
 
         return true;
     }
 
     // Calcola dove finisce un'unità spinta: stessa direzione attaccante->difensore, applicata oltre il difensore.
-    private HexCell PushHandle(HexCoordinates atkCoord, HexCoordinates defCoord, CombatResult result)
+    public HexCell CalculatePushDestination(HexCoordinates atkCoord, HexCoordinates defCoord)
     {
         int resultQ = (defCoord.Q - atkCoord.Q);
         int resultR = (defCoord.R - atkCoord.R);
@@ -129,7 +140,7 @@ public class TurnManager : MonoBehaviour
         {
             case CombatResult.Win:
                 {
-                    HexCell target = PushHandle(atk.PositionCell.Coordinates, def.PositionCell.Coordinates, result);
+                    HexCell target = CalculatePushDestination(atk.PositionCell.Coordinates, def.PositionCell.Coordinates);
                     if (target != null)
                     {
                         def.SetPosition(target);
@@ -144,7 +155,7 @@ public class TurnManager : MonoBehaviour
 
             case CombatResult.Lose:
                 {
-                    HexCell target = PushHandle(def.PositionCell.Coordinates, atk.PositionCell.Coordinates, result);
+                    HexCell target = CalculatePushDestination(def.PositionCell.Coordinates, atk.PositionCell.Coordinates);
                     if (target != null)
                     {
                         atk.SetPosition(target);
@@ -178,7 +189,7 @@ public class TurnManager : MonoBehaviour
             foreach (var m in endCellNeighbors)
                 if (n == m) common.Add(n);
 
-        if (common.Count > 1 && Random.value > 0.5f)
+        if (common.Count > 1 && UnityEngine.Random.value > 0.5f)
         {
             var tmp = common[0];
             common[0] = common[1];
@@ -204,30 +215,65 @@ public class TurnManager : MonoBehaviour
 
     // Movimento puro: sposta l'unità di una cella, costa 1 PA per cella percorsa.
     // "path" è la sequenza di celle intermedie + destinazione (calcolata altrove, es. da pathfinding/preview).
-    public bool ExecuteMovement(AbstractUnitsRunTime unit, List<HexCell> path)
+
+    public bool ExecuteMovement(AbstractUnitsRunTime unit, List<HexCell> path, System.Action onComplete = null)
     {
         if (path == null || path.Count == 0)
         {
-            Debug.Log("Movimento non valido: percorso vuoto");
+            onComplete?.Invoke();
             return false;
         }
 
+        // Consuma PA
         int cost = path.Count;
         if (!unit.TrySpendActionPoint(cost))
         {
-            Debug.Log($"Movimento non eseguito: punti azione insufficienti (servono {cost})");
+            Debug.Log($"Movimento non eseguito: PA insufficienti (servono {cost})");
+            onComplete?.Invoke();
             return false;
         }
 
-        HexCell destination = path[path.Count - 1];
-        bool moved = unit.SetPosition(destination);
-        if (!moved)
+        // Rimuovi la cella corrente se presente
+        if (path.Count > 0 && path[0] == unit.PositionCell)
+            path.RemoveAt(0);
+
+        if (path.Count == 0)
         {
-            Debug.Log($"Movimento fallito: cella di destinazione {destination.Coordinates} occupata");
+            onComplete?.Invoke();
+            return true;
+        }
+
+        // Ottieni il GameObject
+        GameObject unitGO = _unitsRenderer.GetGameObject(unit);
+        if (unitGO == null)
+        {
+            Debug.LogError($"GameObject non trovato per {unit}");
+            onComplete?.Invoke();
             return false;
         }
 
-        _unitsRenderer.UpdateView(unit);
+        // Ottieni UnitMovement
+        UnitMovement movement = unitGO.GetComponent<UnitMovement>();
+        if (movement == null)
+        {
+            Debug.LogError($"UnitMovement non trovato su {unitGO.name}");
+            onComplete?.Invoke();
+            return false;
+        }
+
+        if (movement.IsMoving)
+        {
+            onComplete?.Invoke();
+            return false;
+        }
+
+        // AVVIA MOVIMENTO CON CALLBACK
+        movement.MoveAlongPath(path, _lvlManager.Map, () =>
+        {
+            _unitsRenderer.UpdateView(unit);
+            onComplete?.Invoke();
+        });
+
         return true;
     }
 
@@ -302,7 +348,7 @@ public class TurnManager : MonoBehaviour
     // Passa la mano: dal turno corteo a quello polizia, o viceversa con fine turno completo.
     public void EndTurn()
     {
-        if (_waitingForPolice) return; // blocca input durante turno polizia
+        if (_waitingForPolice) return;
 
         _waitingForPolice = true;
         Debug.Log("--- TURNO POLIZIA ---");
@@ -313,9 +359,14 @@ public class TurnManager : MonoBehaviour
             police.RefillActionPoints();
         }
 
-        _policeAI.ExecutePoliceActions();
-        Debug.Log("--- FINE TURNO POLIZIA ---");
+        StartCoroutine(ExecutePoliceTurn());
+    }
 
+    private IEnumerator ExecutePoliceTurn()
+    {
+        yield return StartCoroutine(_policeAI.ExecutePoliceActions());
+
+        Debug.Log("--- FINE TURNO POLIZIA ---");
         _waitingForPolice = false;
 
         foreach (var spezzone in _lvlManager.Spezzoni)
