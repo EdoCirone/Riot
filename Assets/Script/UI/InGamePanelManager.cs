@@ -5,6 +5,7 @@ public class InGamePanelManager : MonoBehaviour
     [Header("Panels Reference")]
     [SerializeField] GameObject _losePanel;
     [SerializeField] GameObject _winPanel;
+    [SerializeField] GameObject _menuPanel;
 
     [Header("Events")]
     [SerializeField] GameEventSO _loseEvent;
@@ -44,10 +45,13 @@ public class InGamePanelManager : MonoBehaviour
     private void OnWin() { _winPanel.SetActive(true); }
     private void OnLose() { _losePanel.SetActive(true); }
 
+    public void OnMenuButtonClick() { _menuPanel.SetActive(true); }
+
     public void CloseAllPanel()
     {
         _losePanel?.SetActive(false);
         _winPanel?.SetActive(false);
+        _menuPanel?.SetActive(false);
     }
 }
 

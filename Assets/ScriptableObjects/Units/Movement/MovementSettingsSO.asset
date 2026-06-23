@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d1421a85ec73b642b87bc73c7b2cc7a, type: 3}
   m_Name: MovementSettingsSO
   m_EditorClassIdentifier: Assembly-CSharp::MovementSettingsSO
-  _moveDuration: 1
+  _moveDuration: 0.4
   _windupDistance: 0.3
   _windupDuration: 0.2
   _chargeDuration: 0.5
