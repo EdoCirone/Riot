@@ -89,6 +89,41 @@ public class UnitMovement : MonoBehaviour
 
     #endregion
 
+    #region Skirmish
+
+    public void PlaySkirmish(Vector3 defenderWorldPos, Action onComplete)
+    {
+        if (_isMoving)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        MustFlip(defenderWorldPos);
+
+        Vector3 startPos = _rootTransform.position;
+        Vector3 windupDir = (startPos - defenderWorldPos).normalized;
+        
+        Vector3 windupTarget = startPos + windupDir * _movementSettings.SkirmishWindupDistance;
+        Vector3 bumpTarget = startPos + (defenderWorldPos - startPos).normalized * _movementSettings.SkirmishEndDistance;
+
+        _rootTransform.DOMove(windupTarget, _movementSettings.SkirmishWindupDuration)
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                _rootTransform.DOMove(bumpTarget, _movementSettings.SkirmishAtkDuration)
+                    .SetEase(Ease.InQuad)
+                    .OnComplete(() =>
+                    {
+                        _rootTransform.DOMove(startPos, _movementSettings.RecoilDuration)
+                            .SetEase(Ease.OutQuad)
+                            .OnComplete(() => onComplete?.Invoke());
+                    });
+            });
+    }
+
+    #endregion
+
     #region Charge
 
     public void PlayCharge(HexCell cellDestination, Vector3 defenderWorldPos, HexCell defenderDestination, AbstractUnitsRunTime defender, HexGrid grid, Action onComplete)
@@ -124,7 +159,6 @@ public class UnitMovement : MonoBehaviour
 
     }
 
-    //Coroutine
 
     private IEnumerator ChargeSequence(
     Vector3 windupTarget,
@@ -157,8 +191,6 @@ public class UnitMovement : MonoBehaviour
             yield return null;
         }
         _rootTransform.position = chargeEndPos;
-
-        _unit.SetPosition(cellDestination);
 
         _isMoving = false;
         onComplete?.Invoke();

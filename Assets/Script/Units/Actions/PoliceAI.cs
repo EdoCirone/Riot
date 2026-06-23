@@ -39,7 +39,8 @@ public class PoliceAI : MonoBehaviour
 
                 if (distance == 1)
                 {
-                    actedThisTurn = _turnManager.ExecuteSkirmish(police, nearestSpezzone);
+                    yield return StartCoroutine(_turnManager.ExecuteSkirmish(police, nearestSpezzone));
+                    actedThisTurn = true;
                 }
                 else if (distance == 3)
                 {

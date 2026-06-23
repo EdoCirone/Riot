@@ -4,11 +4,14 @@ using UnityEngine;
 public class OrderPreviewRenderer : MonoBehaviour
 {
     [Header("References")]
+    [SerializeField] private TurnManager _turnManager;
     [SerializeField] private HexGridRenderer _hexGridRenderer;
     [SerializeField] private HexGrid _grid;
 
     [Header("Colors")]
     [SerializeField] private Color _reachableColor = new Color(0.3f, 0.8f, 1f, 0.8f);
+    [SerializeField] private Color _attackableColor = Color.red;
+    [SerializeField] private Color _chargeColor = Color.red;
 
     [Header("Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
@@ -19,12 +22,13 @@ public class OrderPreviewRenderer : MonoBehaviour
 
     private void Awake()
     {
-        if (_hexGridRenderer == null || _grid == null ||
-            _unitSelectedEvent == null || _unitDeselectedEvent == null)
+        if (_hexGridRenderer == null || _grid == null || _turnManager == null ||
+       _unitSelectedEvent == null || _unitDeselectedEvent == null)
         {
             Debug.LogWarning("OrderPreviewRenderer: riferimenti mancanti");
             return;
         }
+
         _isValid = true;
     }
 
@@ -46,6 +50,7 @@ public class OrderPreviewRenderer : MonoBehaviour
     {
         ClearHighlight();
         HighlightReachable(unit);
+        HighlightAttackable(unit);
     }
 
     private void OnUnitDeselected()
@@ -92,6 +97,34 @@ public class OrderPreviewRenderer : MonoBehaviour
             if (coord == start) continue;
             _hexGridRenderer.SetCellColor(coord, _reachableColor);
             _highlightedCells.Add(coord);
+        }
+    }
+
+    private void HighlightAttackable(AbstractUnitsRunTime unit)
+    {
+
+
+        if (unit.ActionPoints <= 0) return;
+        foreach (HexCell cell in _grid.GetAllCells())
+        {
+            if (cell.OccupiedBy is not PoliceRuntime police) continue;
+
+            bool skirmish = unit.PositionCell.Coordinates.Distance(cell.Coordinates) == 1
+                 && unit.ActionPoints >= 1;
+
+            bool charge = _turnManager.CanCharge(unit, police)
+                          && unit.ActionPoints >= 4;
+
+            if (skirmish)
+            {
+                _hexGridRenderer.SetCellColor(cell.Coordinates, _attackableColor);
+                _highlightedCells.Add(cell.Coordinates);
+            }
+            else if (charge)
+            {
+                _hexGridRenderer.SetCellColor(cell.Coordinates, _chargeColor);
+                _highlightedCells.Add(cell.Coordinates);
+            }
         }
     }
 

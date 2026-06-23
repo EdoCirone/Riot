@@ -1,4 +1,4 @@
-using System;
+Ôªøusing System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -42,13 +42,15 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    #region Push
+    #region Charge
     // Verifica se esistono esattamente 2 celle libere consecutive tra attaccante e difensore
-    // (distanza 3, in linea retta). Se sÏ, restituisce la cella dove l'attaccante deve fermarsi
+    // (distanza 3, in linea retta). Se s√¨, restituisce la cella dove l'attaccante deve fermarsi
     // (adiacente al difensore) tramite chargeDestination.
     private bool HasChargeRoom(HexCoordinates atkCoord, HexCoordinates defCoord, out HexCoordinates chargeDestination)
     {
         chargeDestination = default;
+
+        if (_map == null) return false;
 
         int distance = atkCoord.Distance(defCoord);
         if (distance != 3) return false;
@@ -68,6 +70,13 @@ public class TurnManager : MonoBehaviour
         return true;
     }
 
+    //Mi serve esposta publica per l'highlight di feedback
+    public bool CanCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
+    {
+        Debug.Log($"CanCharge: {atk.PositionCell.Coordinates} ‚Üí {def.PositionCell.Coordinates}");
+        return HasChargeRoom(atk.PositionCell.Coordinates, def.PositionCell.Coordinates, out _);
+    }
+
     // Carica: richiede esattamente 2 celle libere di rincorsa, costa 4 PA (2 fissi + 2 per le celle percorse).
     // L'attaccante si sposta adiacente al difensore, poi si risolve la spinta come al solito.
     public bool ExecuteCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
@@ -76,7 +85,7 @@ public class TurnManager : MonoBehaviour
         HexCoordinates atkCoord = atk.PositionCell.Coordinates;
         HexCoordinates defCoord = def.PositionCell.Coordinates;
         Vector3 defenderWorldPos = _map.transform.position + def.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
-       
+
 
         if (!HasChargeRoom(atkCoord, defCoord, out HexCoordinates chargeDestination))
         {
@@ -95,7 +104,7 @@ public class TurnManager : MonoBehaviour
         UnitMovement movement = atkGO.GetComponent<UnitMovement>();
 
         _map.TryGetCell(chargeDestination, out HexCell destinationCell);
-        
+
         Action onComplete = () =>
         {
             PushResolution(atk, def);
@@ -109,7 +118,7 @@ public class TurnManager : MonoBehaviour
         return true;
     }
 
-    // Calcola dove finisce un'unit‡ spinta: stessa direzione attaccante->difensore, applicata oltre il difensore.
+    // Calcola dove finisce un'unit√† spinta: stessa direzione attaccante->difensore, applicata oltre il difensore.
     public HexCell CalculatePushDestination(HexCoordinates atkCoord, HexCoordinates defCoord)
     {
         int resultQ = (defCoord.Q - atkCoord.Q);
@@ -177,7 +186,7 @@ public class TurnManager : MonoBehaviour
     #endregion
 
     #region Moviment
-    // Se la cella diretta di spinta non Ë libera, cerca una cella laterale comune
+    // Se la cella diretta di spinta non √® libera, cerca una cella laterale comune
     // (intersezione tra i vicini di partenza e arrivo), in ordine casuale.
     private HexCell FoundNearCellAvailable(HexCoordinates startPushCell, HexCoordinates endPushCell)
     {
@@ -204,7 +213,7 @@ public class TurnManager : MonoBehaviour
         return null;
     }
 
-    // Una cella Ë disponibile se esiste, non Ë occupata da nessuno, ed Ë percorribile.
+    // Una cella √® disponibile se esiste, non √® occupata da nessuno, ed √® percorribile.
     private bool IsCellAvailable(HexCell cell)
     {
         if (cell == null) return false;
@@ -213,8 +222,8 @@ public class TurnManager : MonoBehaviour
         return cell.Type.IsWalkable;
     }
 
-    // Movimento puro: sposta l'unit‡ di una cella, costa 1 PA per cella percorsa.
-    // "path" Ë la sequenza di celle intermedie + destinazione (calcolata altrove, es. da pathfinding/preview).
+    // Movimento puro: sposta l'unit√† di una cella, costa 1 PA per cella percorsa.
+    // "path" √® la sequenza di celle intermedie + destinazione (calcolata altrove, es. da pathfinding/preview).
 
     public bool ExecuteMovement(AbstractUnitsRunTime unit, List<HexCell> path, System.Action onComplete = null)
     {
@@ -304,44 +313,58 @@ public class TurnManager : MonoBehaviour
 
     #region Scontri
     // Scontro: richiede adiacenza, costa 1 PA fisso. Non sposta nessuno, intacca solo il Morale.
-    // Parit‡: entrambi perdono 1 Morale (diverso dalla Carica, dove la parit‡ Ë uno stallo).
-    public bool ExecuteSkirmish(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
+    // Parit√†: entrambi perdono 1 Morale (diverso dalla Carica, dove la parit√† √® uno stallo).
+
+    public void StartSkirmish(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
+    {
+        StartCoroutine(SkirmishWithCallback(atk, def, onComplete));
+    }
+
+    private IEnumerator SkirmishWithCallback(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
+    {
+        yield return StartCoroutine(ExecuteSkirmish(atk, def));
+        onComplete?.Invoke();
+    }
+
+    public IEnumerator ExecuteSkirmish(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
         HexCoordinates atkCoord = atk.PositionCell.Coordinates;
         HexCoordinates defCoord = def.PositionCell.Coordinates;
 
         if (atkCoord.Distance(defCoord) != 1)
         {
-            Debug.Log("Scontro non valido: le unit‡ non sono adiacenti");
-            return false;
+            Debug.Log("Scontro non valido: le unit√† non sono adiacenti");
+            yield break;
         }
 
         const int skirmishCost = 1;
         if (!atk.TrySpendActionPoint(skirmishCost))
         {
             Debug.Log($"Scontro non eseguito: punti azione insufficienti (servono {skirmishCost})");
-            return false;
+            yield break;
         }
 
         CombatResult result = CombatResolver.Resolve(atk, def);
         switch (result)
         {
-            case CombatResult.Win:
-                def.LoseMorale(1);
-                break;
-            case CombatResult.Lose:
-                atk.LoseMorale(1);
-                break;
-            case CombatResult.Par:
-                atk.LoseMorale(1);
-                def.LoseMorale(1);
-                break;
+            case CombatResult.Win: def.LoseMorale(1); break;
+            case CombatResult.Lose: atk.LoseMorale(1); break;
+            case CombatResult.Par: atk.LoseMorale(1); def.LoseMorale(1); break;
         }
 
-        _unitsRenderer.UpdateView(atk);
-        _unitsRenderer.UpdateView(def);
+        bool done = false;
+        GameObject atkGO = _unitsRenderer.GetGameObject(atk);
+        UnitMovement movement = atkGO.GetComponent<UnitMovement>();
+        Vector3 defWorldPos = _map.transform.position + def.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
 
-        return true;
+        movement.PlaySkirmish(defWorldPos, () =>
+        {
+            _unitsRenderer.UpdateView(atk);
+            _unitsRenderer.UpdateView(def);
+            done = true;
+        });
+
+        yield return new WaitUntil(() => done);
     }
     #endregion
 

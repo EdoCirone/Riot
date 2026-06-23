@@ -54,7 +54,7 @@ public class InputHandler : MonoBehaviour
 
     private void OnLeftClick(InputAction.CallbackContext ctx)
     {
-        if(_isExecutingAction) return;
+        if (_isExecutingAction) return;
 
         if (_lvlManager == null || !_lvlManager.IsGameActive) return;
 
@@ -172,13 +172,13 @@ public class InputHandler : MonoBehaviour
 
     private void FlipSelectedUnit(Vector3 targetWorldPos)
     {
-        if(_selectedSpezzone == null) return;
+        if (_selectedSpezzone == null) return;
 
         GameObject go = _lvlManager.Renderer.GetGameObject(_selectedSpezzone);
-        if(go == null) return;
+        if (go == null) return;
 
         UnitMovement movement = go.GetComponent<UnitMovement>();
-        if(movement == null) return;
+        if (movement == null) return;
 
         movement.FlipTowards(targetWorldPos);
     }
@@ -208,7 +208,8 @@ public class InputHandler : MonoBehaviour
         }
 
         // USA IL NUOVO ExecuteMovement CON CALLBACK
-        bool success = _turnManager.ExecuteMovement(_selectedSpezzone, path, () => {
+        bool success = _turnManager.ExecuteMovement(_selectedSpezzone, path, () =>
+        {
             OnActionComplete();
         });
 
@@ -228,7 +229,9 @@ public class InputHandler : MonoBehaviour
         bool success;
         if (distance == 1)
         {
-            success = _turnManager.ExecuteSkirmish(_selectedSpezzone, _pendingTarget);
+            _isExecutingAction = true;
+            _turnManager.StartSkirmish(_selectedSpezzone, _pendingTarget, () => OnActionComplete());
+            return;
         }
         else if (distance == 3)
         {
@@ -236,8 +239,51 @@ public class InputHandler : MonoBehaviour
         }
         else
         {
-            Debug.Log("Distanza non valida per nessuna azione");
-            success = false;
+            // Muovi verso il bersaglio e poi attacca
+            HexCoordinates? bestAdjacent = _turnManager.FindBestAdjacentCell(atkCoord, defCoord);
+            if (bestAdjacent == null)
+            {
+                Debug.Log("Nessuna cella adiacente libera al bersaglio");
+                success = false;
+            }
+            else
+            {
+                List<HexCoordinates> pathCoords = _turnManager.PathFinder.FindPath(atkCoord, bestAdjacent.Value, _grid);
+                if (pathCoords.Count == 0)
+                {
+                    Debug.Log("Nessun percorso verso il bersaglio");
+                    success = false;
+                }
+                else
+                {
+                    List<HexCell> path = new List<HexCell>();
+                    for (int i = 1; i < pathCoords.Count; i++)
+                    {
+                        if (_grid.TryGetCell(pathCoords[i], out HexCell cell))
+                            path.Add(cell);
+                    }
+
+                    int moveCost = path.Count;
+                    if (_selectedSpezzone.ActionPoints < moveCost + 1)
+                    {
+                        Debug.Log("PA insufficienti per muoversi e attaccare");
+                        success = false;
+                    }
+                    else
+                    {
+                        success = true;
+                        _isExecutingAction = true;
+                        _turnManager.ExecuteMovement(_selectedSpezzone, path, () =>
+                        {
+                            if (_pendingTarget != null && _pendingTarget.Status != UnitsStatus.Disperse)
+                                _turnManager.StartSkirmish(_selectedSpezzone, _pendingTarget, () => OnActionComplete());
+                            else
+                                OnActionComplete();
+                        });
+                        return;
+                    }
+                }
+            }
         }
 
         if (!success)
@@ -247,7 +293,7 @@ public class InputHandler : MonoBehaviour
             return;
         }
 
-        OnActionComplete(); 
+        OnActionComplete();
 
     }
 

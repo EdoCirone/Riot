@@ -16,6 +16,12 @@ MonoBehaviour:
   _windupDistance: 0.3
   _windupDuration: 0.2
   _chargeDuration: 0.5
-  _bumpDistance: 1
-  _bumpDuration: 1
+  _skirmishWindupDistance: 0.3
+  _skirmishWindupDuration: 0.1
+  _skirmishEndDistance: 0.1
+  _skirmishAtkDuration: 0.15
+  _chargeBumpDistance: 0.5
+  _chargeBumpDuration: 0.1
+  _skirmishBumpDistance: 0.3
+  _skirmishBumpDuration: 0.1
   _recoilDuration: 1
