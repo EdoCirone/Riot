@@ -22,6 +22,7 @@ public class TurnManager : MonoBehaviour
 
     public PathFinder PathFinder => _pathFinder;
     public GameEventSO EndTurnEvent => _endTurnEvent;
+    private bool IsCellAvailable(HexCell cell) => TacticalQuery.IsCellAvailable(cell);
     public bool IsPoliceTurn => _waitingForPolice;
 
     private void Start()
@@ -43,37 +44,12 @@ public class TurnManager : MonoBehaviour
     }
 
     #region Charge
-    // Verifica se esistono esattamente 2 celle libere consecutive tra attaccante e difensore
-    // (distanza 3, in linea retta). Se sì, restituisce la cella dove l'attaccante deve fermarsi
-    // (adiacente al difensore) tramite chargeDestination.
     private bool HasChargeRoom(HexCoordinates atkCoord, HexCoordinates defCoord, out HexCoordinates chargeDestination)
-    {
-        chargeDestination = default;
-
-        if (_map == null) return false;
-
-        int distance = atkCoord.Distance(defCoord);
-        if (distance != 3) return false;
-
-        HexCoordinates? dir = HexDirectionFinder.FindDirection(atkCoord, defCoord);
-        if (dir == null) return false;
-
-        HexCoordinates dirValue = dir.Value;
-
-        HexCoordinates firstStep = new HexCoordinates(atkCoord.Q + dirValue.Q, atkCoord.R + dirValue.R);
-        HexCoordinates secondStep = new HexCoordinates(atkCoord.Q + dirValue.Q * 2, atkCoord.R + dirValue.R * 2);
-
-        if (!_map.TryGetCell(firstStep, out HexCell firstCell) || !IsCellAvailable(firstCell)) return false;
-        if (!_map.TryGetCell(secondStep, out HexCell secondCell) || !IsCellAvailable(secondCell)) return false;
-
-        chargeDestination = secondStep;
-        return true;
-    }
+     => TacticalQuery.HasChargeRoom(atkCoord, defCoord, _map, out chargeDestination);
 
     //Mi serve esposta publica per l'highlight di feedback
     public bool CanCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
-        Debug.Log($"CanCharge: {atk.PositionCell.Coordinates} → {def.PositionCell.Coordinates}");
         return HasChargeRoom(atk.PositionCell.Coordinates, def.PositionCell.Coordinates, out _);
     }
 
@@ -213,15 +189,6 @@ public class TurnManager : MonoBehaviour
         return null;
     }
 
-    // Una cella è disponibile se esiste, non è occupata da nessuno, ed è percorribile.
-    private bool IsCellAvailable(HexCell cell)
-    {
-        if (cell == null) return false;
-        if (cell.OccupiedBy != null) return false;
-
-        return cell.Type.IsWalkable;
-    }
-
     // Movimento puro: sposta l'unità di una cella, costa 1 PA per cella percorsa.
     // "path" è la sequenza di celle intermedie + destinazione (calcolata altrove, es. da pathfinding/preview).
 
@@ -296,8 +263,7 @@ public class TurnManager : MonoBehaviour
         foreach (var neighbor in neighbors)
         {
             if (!_lvlManager.Map.TryGetCell(neighbor, out HexCell cell)) continue;
-            if (!cell.Type.IsWalkable) continue;
-            if (cell.OccupiedBy != null) continue;
+            if (!IsCellAvailable(cell)) continue;
 
             int distance = from.Distance(neighbor);
             if (distance < minDistance)

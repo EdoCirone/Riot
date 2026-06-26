@@ -11,7 +11,7 @@ public class OrderPreviewRenderer : MonoBehaviour
     [Header("Colors")]
     [SerializeField] private Color _reachableColor = new Color(0.3f, 0.8f, 1f, 0.8f);
     [SerializeField] private Color _attackableColor = Color.red;
-    [SerializeField] private Color _chargeColor = Color.red;
+    [SerializeField] private Color _chargeColor = Color.yellow;
 
     [Header("Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
@@ -49,8 +49,10 @@ public class OrderPreviewRenderer : MonoBehaviour
     private void OnUnitSelected(AbstractUnitsRunTime unit)
     {
         ClearHighlight();
-        HighlightReachable(unit);
-        HighlightAttackable(unit);
+        var visited = TacticalQuery.GetReachable(
+            unit.PositionCell.Coordinates, unit.ActionPoints, _grid);
+        HighlightReachable(unit, visited);
+        HighlightAttackable(unit, visited);
     }
 
     private void OnUnitDeselected()
@@ -58,40 +60,9 @@ public class OrderPreviewRenderer : MonoBehaviour
         ClearHighlight();
     }
 
-    private void HighlightReachable(AbstractUnitsRunTime unit)
+    private void HighlightReachable(AbstractUnitsRunTime unit, Dictionary<HexCoordinates, int> visited)
     {
-        // Stesse regole di PathFinder: solo celle walkable e libere
         HexCoordinates start = unit.PositionCell.Coordinates;
-        int budget = unit.ActionPoints;
-
-        Dictionary<HexCoordinates, int> visited = new();
-        Queue<(HexCoordinates coord, int cost)> queue = new();
-
-        visited[start] = 0;
-        queue.Enqueue((start, 0));
-
-        while (queue.Count > 0)
-        {
-            var (current, cost) = queue.Dequeue();
-
-            foreach (HexCoordinates dir in HexCoordinates.Directions)
-            {
-                HexCoordinates neighbor = current + dir;
-                int newCost = cost + 1;
-
-                if (newCost > budget) continue;
-                if (visited.ContainsKey(neighbor)) continue;
-
-                if (!_grid.TryGetCell(neighbor, out HexCell cell)) continue;
-                if (!cell.Type.IsWalkable) continue;
-                if (cell.OccupiedBy != null) continue;
-
-                visited[neighbor] = newCost;
-                queue.Enqueue((neighbor, newCost));
-            }
-        }
-
-        // Colora tutte le celle raggiungibili tranne la cella di partenza
         foreach (HexCoordinates coord in visited.Keys)
         {
             if (coord == start) continue;
@@ -100,20 +71,19 @@ public class OrderPreviewRenderer : MonoBehaviour
         }
     }
 
-    private void HighlightAttackable(AbstractUnitsRunTime unit)
+    private void HighlightAttackable(AbstractUnitsRunTime unit, Dictionary<HexCoordinates, int> visited)
     {
-
-
         if (unit.ActionPoints <= 0) return;
+        int budget = unit.ActionPoints;
+
         foreach (HexCell cell in _grid.GetAllCells())
         {
             if (cell.OccupiedBy is not PoliceRuntime police) continue;
 
             bool skirmish = unit.PositionCell.Coordinates.Distance(cell.Coordinates) == 1
-                 && unit.ActionPoints >= 1;
-
-            bool charge = _turnManager.CanCharge(unit, police)
-                          && unit.ActionPoints >= 4;
+                 && budget >= 1;
+            bool charge = _turnManager.CanCharge(unit, police) && budget >= 4;
+            bool moveAndAttack = !skirmish && CanMoveAndSkirmish(cell.Coordinates, visited, budget);
 
             if (skirmish)
             {
@@ -125,7 +95,22 @@ public class OrderPreviewRenderer : MonoBehaviour
                 _hexGridRenderer.SetCellColor(cell.Coordinates, _chargeColor);
                 _highlightedCells.Add(cell.Coordinates);
             }
+            else if (moveAndAttack)
+            {
+                _hexGridRenderer.SetCellColor(cell.Coordinates, _attackableColor);
+                _highlightedCells.Add(cell.Coordinates);
+            }
         }
+    }
+
+    private bool CanMoveAndSkirmish(HexCoordinates policeCoord,
+                                Dictionary<HexCoordinates, int> visited,
+                                int budget)
+    {
+        foreach (HexCoordinates n in policeCoord.GetNeighbors())
+            if (visited.TryGetValue(n, out int cost) && cost + 1 <= budget)
+                return true;
+        return false;
     }
 
     private void ClearHighlight()
