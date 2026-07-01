@@ -20,6 +20,7 @@ public class InputHandler : MonoBehaviour
     private InputSystem_Actions _inputSystem;
 
     private SpezzoneRuntime _selectedSpezzone;
+    private ActionType _selectedAction = ActionType.None;
     private HexCell _pendingDestination;
     private PoliceRuntime _pendingTarget;
 
@@ -41,6 +42,7 @@ public class InputHandler : MonoBehaviour
         _inputSystem.UI.LeftClick.performed += OnLeftClick;
         _inputSystem.UI.RightClick.performed += OnRightClick;
         _inputSystem.Game.EndTurn.performed += OnEndTurn;
+        _inputSystem.Game.Charge.performed += OnChargeKey;
         _inputSystem.Enable();
     }
 
@@ -49,6 +51,7 @@ public class InputHandler : MonoBehaviour
         _inputSystem.UI.LeftClick.performed -= OnLeftClick;
         _inputSystem.UI.RightClick.performed -= OnRightClick;
         _inputSystem.Game.EndTurn.performed -= OnEndTurn;
+        _inputSystem.Game.Charge.performed -= OnChargeKey;
         _inputSystem.Disable();
     }
 
@@ -67,6 +70,12 @@ public class InputHandler : MonoBehaviour
         if (clickCell == null)
         {
             Debug.Log($"No cell at {clickCoordinates}");
+            return;
+        }
+
+        if (_selectedAction != ActionType.None)
+        {
+            HandleActionClick(clickCell);
             return;
         }
 
@@ -148,6 +157,16 @@ public class InputHandler : MonoBehaviour
     private void OnRightClick(InputAction.CallbackContext ctx)
     {
         if (_isExecutingAction) return;
+
+        // if in action mode, cancel the action and keep the spezzone selected
+        if (_selectedAction != ActionType.None)
+        {
+            _selectedAction = ActionType.None;
+            _pendingDestination = null;
+            _pendingTarget = null;
+            Debug.Log("Azione annullata, spezzone ancora selezionato");
+            return;
+        }
 
         _selectedSpezzone = null;
         _pendingDestination = null;
@@ -233,10 +252,6 @@ public class InputHandler : MonoBehaviour
             _turnManager.StartSkirmish(_selectedSpezzone, _pendingTarget, () => OnActionComplete());
             return;
         }
-        else if (distance == 3)
-        {
-            success = _turnManager.ExecuteCharge(_selectedSpezzone, _pendingTarget);
-        }
         else
         {
             // Muovi verso il bersaglio e poi attacca
@@ -305,6 +320,13 @@ public class InputHandler : MonoBehaviour
             _selectedSpezzone = null;
             _unitDeselectedEvent?.Raise();
         }
+        else if (_selectedSpezzone != null && _selectedSpezzone.ActionPoints <= 0)
+        {
+
+            _selectedSpezzone = null;
+            _selectedAction = ActionType.None;
+            _unitDeselectedEvent?.Raise();
+        }
         else if (_selectedSpezzone != null)
         {
             // Mantieni la selezione sullo spezzone
@@ -314,5 +336,36 @@ public class InputHandler : MonoBehaviour
         _pendingDestination = null;
         _pendingTarget = null;
         _isExecutingAction = false;
+    }
+
+    private void OnChargeKey(InputAction.CallbackContext ctx)
+    {
+        if (_isExecutingAction) return;
+        if (_selectedSpezzone == null) return;
+
+        _selectedAction = (_selectedAction == ActionType.Charge) ? ActionType.None : ActionType.Charge;
+
+        _pendingDestination = null;
+        _pendingTarget = null;
+        Debug.Log($"Azione selezionata: {_selectedAction}");
+    }
+
+    private void HandleActionClick(HexCell clickCell)
+    {
+        if (_selectedAction == ActionType.Charge)
+        {
+            if (clickCell.OccupiedBy is PoliceRuntime police
+             && _turnManager.CanCharge(_selectedSpezzone, police))
+            {
+                _isExecutingAction = true;
+                _turnManager.ExecuteCharge(_selectedSpezzone, police);
+                _selectedAction = ActionType.None;
+                OnActionComplete();
+            }
+            else
+            {
+                Debug.Log("Bersaglio non valido per la carica");
+            }
+        }
     }
 }
