@@ -32,6 +32,30 @@ public static class TacticalQuery
 
         return visited;   
     }
+
+    public static List<HexCoordinates> GetValidTargets(
+    HexCoordinates from, int budget, ActionType action, HexGrid map)
+    {
+        List<HexCoordinates> targets = new();
+
+        switch (action)
+        {
+            case ActionType.Charge:
+                if (budget < 4) break;
+
+                foreach (HexCell cell in map.GetAllCells())
+                {
+                    if (cell.OccupiedBy is PoliceRuntime
+                        && HasChargeRoom(from, cell.Coordinates, map, out _))
+                    {
+                        targets.Add(cell.Coordinates);
+                    }
+                }
+                break;
+        }
+
+        return targets;
+    }
     public static bool IsCellAvailable(HexCell cell)
     {
         if (cell == null) return false;

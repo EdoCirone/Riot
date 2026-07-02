@@ -10,9 +10,11 @@ public class InputHandler : MonoBehaviour
     [SerializeField] private LVLManager _lvlManager;
     [SerializeField] private HexGrid _grid;
 
-    [Header("UI Events")]
+    [Header("Units Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
     [SerializeField] private GameEventSO _unitDeselectedEvent;
+    [SerializeField] private ActionEventSO _actionSelectedEvent;
+
 
     private bool _isExecutingAction = false;
 
@@ -149,8 +151,9 @@ public class InputHandler : MonoBehaviour
         else if (clickCell.OccupiedBy is SpezzoneRuntime other)
         {
             _selectedSpezzone = other;
+            SetSelectedAction(ActionType.None);
             _unitSelectedEvent?.Raise(_selectedSpezzone);
-            Debug.Log($"Cambiata selezione su {clickCell.Coordinates}");
+
         }
     }
 
@@ -161,7 +164,7 @@ public class InputHandler : MonoBehaviour
         // if in action mode, cancel the action and keep the spezzone selected
         if (_selectedAction != ActionType.None)
         {
-            _selectedAction = ActionType.None;
+            SetSelectedAction(ActionType.None);
             _pendingDestination = null;
             _pendingTarget = null;
             Debug.Log("Azione annullata, spezzone ancora selezionato");
@@ -318,13 +321,14 @@ public class InputHandler : MonoBehaviour
         if (_selectedSpezzone != null && _selectedSpezzone.Status == UnitsStatus.Disperse)
         {
             _selectedSpezzone = null;
+            SetSelectedAction(ActionType.None);
             _unitDeselectedEvent?.Raise();
         }
         else if (_selectedSpezzone != null && _selectedSpezzone.ActionPoints <= 0)
         {
 
             _selectedSpezzone = null;
-            _selectedAction = ActionType.None;
+            SetSelectedAction(ActionType.None);
             _unitDeselectedEvent?.Raise();
         }
         else if (_selectedSpezzone != null)
@@ -343,8 +347,7 @@ public class InputHandler : MonoBehaviour
         if (_isExecutingAction) return;
         if (_selectedSpezzone == null) return;
 
-        _selectedAction = (_selectedAction == ActionType.Charge) ? ActionType.None : ActionType.Charge;
-
+        SetSelectedAction(_selectedAction == ActionType.Charge ? ActionType.None : ActionType.Charge);
         _pendingDestination = null;
         _pendingTarget = null;
         Debug.Log($"Azione selezionata: {_selectedAction}");
@@ -359,7 +362,7 @@ public class InputHandler : MonoBehaviour
             {
                 _isExecutingAction = true;
                 _turnManager.ExecuteCharge(_selectedSpezzone, police);
-                _selectedAction = ActionType.None;
+                SetSelectedAction(ActionType.None);
                 OnActionComplete();
             }
             else
@@ -367,5 +370,11 @@ public class InputHandler : MonoBehaviour
                 Debug.Log("Bersaglio non valido per la carica");
             }
         }
+    }
+
+    private void SetSelectedAction(ActionType action)
+    {
+        _selectedAction = action;
+        _actionSelectedEvent?.Raise(action);
     }
 }

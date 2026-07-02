@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class OrderPreviewRenderer : MonoBehaviour
@@ -16,8 +16,10 @@ public class OrderPreviewRenderer : MonoBehaviour
     [Header("Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
     [SerializeField] private GameEventSO _unitDeselectedEvent;
+    [SerializeField] private ActionEventSO _actionSelectedEvent;
 
     private List<HexCoordinates> _highlightedCells = new();
+    private AbstractUnitsRunTime _selectedUnit;
     private bool _isValid = false;
 
     private void Awake()
@@ -37,6 +39,7 @@ public class OrderPreviewRenderer : MonoBehaviour
         if (!_isValid) return;
         _unitSelectedEvent.Subscribe(OnUnitSelected);
         _unitDeselectedEvent.Subscribe(OnUnitDeselected);
+        _actionSelectedEvent.Subscribe(OnActionSelected);
     }
 
     private void OnDisable()
@@ -44,19 +47,23 @@ public class OrderPreviewRenderer : MonoBehaviour
         if (!_isValid) return;
         _unitSelectedEvent.Unsubscribe(OnUnitSelected);
         _unitDeselectedEvent.Unsubscribe(OnUnitDeselected);
+        _actionSelectedEvent.Unsubscribe(OnActionSelected);
     }
 
     private void OnUnitSelected(AbstractUnitsRunTime unit)
     {
+        _selectedUnit = unit;
         ClearHighlight();
         var visited = TacticalQuery.GetReachable(
             unit.PositionCell.Coordinates, unit.ActionPoints, _grid);
         HighlightReachable(unit, visited);
         HighlightAttackable(unit, visited);
+
     }
 
     private void OnUnitDeselected()
     {
+        _selectedUnit = null;
         ClearHighlight();
     }
 
@@ -90,11 +97,6 @@ public class OrderPreviewRenderer : MonoBehaviour
                 _hexGridRenderer.SetCellColor(cell.Coordinates, _attackableColor);
                 _highlightedCells.Add(cell.Coordinates);
             }
-            else if (charge)
-            {
-                _hexGridRenderer.SetCellColor(cell.Coordinates, _chargeColor);
-                _highlightedCells.Add(cell.Coordinates);
-            }
             else if (moveAndAttack)
             {
                 _hexGridRenderer.SetCellColor(cell.Coordinates, _attackableColor);
@@ -102,6 +104,32 @@ public class OrderPreviewRenderer : MonoBehaviour
             }
         }
     }
+
+    private void OnActionSelected(ActionType action)
+    {
+        ClearHighlight();
+        if (action == ActionType.None)
+        {
+            if (_selectedUnit != null && _selectedUnit.Status == UnitsStatus.Alive)
+            {
+                var visited = TacticalQuery.GetReachable(
+                    _selectedUnit.PositionCell.Coordinates, _selectedUnit.ActionPoints, _grid);
+                HighlightReachable(_selectedUnit, visited);
+                HighlightAttackable(_selectedUnit, visited);
+            }
+            return;
+        }
+        if (_selectedUnit == null) return;
+        var targets = TacticalQuery.GetValidTargets(
+            _selectedUnit.PositionCell.Coordinates, _selectedUnit.ActionPoints, action, _grid);
+        foreach (var coord in targets)
+        {
+
+            _hexGridRenderer.SetCellColor(coord, _chargeColor);
+            _highlightedCells.Add(coord);
+        }
+    }
+
 
     private bool CanMoveAndSkirmish(HexCoordinates policeCoord,
                                 Dictionary<HexCoordinates, int> visited,
