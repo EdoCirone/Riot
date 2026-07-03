@@ -1,4 +1,4 @@
-using DG.Tweening;
+﻿using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -45,6 +45,7 @@ public class InputHandler : MonoBehaviour
         _inputSystem.UI.RightClick.performed += OnRightClick;
         _inputSystem.Game.EndTurn.performed += OnEndTurn;
         _inputSystem.Game.Charge.performed += OnChargeKey;
+        _inputSystem.Game.Throw.performed += OnThrowKey;
         _inputSystem.Enable();
     }
 
@@ -54,6 +55,7 @@ public class InputHandler : MonoBehaviour
         _inputSystem.UI.RightClick.performed -= OnRightClick;
         _inputSystem.Game.EndTurn.performed -= OnEndTurn;
         _inputSystem.Game.Charge.performed -= OnChargeKey;
+        _inputSystem.Game.Throw.performed -= OnThrowKey;
         _inputSystem.Disable();
     }
 
@@ -109,7 +111,7 @@ public class InputHandler : MonoBehaviour
             return;
         }
 
-        // Stato: spezzone selezionato, c'� un pending bersaglio 
+        // Stato: spezzone selezionato, c'è un pending bersaglio 
         if (_pendingTarget != null)
         {
             if (clickCell.OccupiedBy == _pendingTarget)
@@ -181,17 +183,19 @@ public class InputHandler : MonoBehaviour
     private void OnEndTurn(InputAction.CallbackContext ctx)
     {
         if (_isExecutingAction) return;
-
         if (_lvlManager == null || !_lvlManager.IsGameActive) return;
+
+        _selectedSpezzone = null;
+        SetSelectedAction(ActionType.None);
+        _pendingDestination = null;
+        _pendingTarget = null;
+        _unitDeselectedEvent?.Raise();
 
         if (_turnManager != null)
         {
-
             _turnManager.EndTurn();
-
         }
     }
-
     private void FlipSelectedUnit(Vector3 targetWorldPos)
     {
         if (_selectedSpezzone == null) return;
@@ -317,7 +321,7 @@ public class InputHandler : MonoBehaviour
 
     private void OnActionComplete()
     {
-        // Se lo spezzone � disperso, deseleziona tutto
+        // Se lo spezzone è disperso, deseleziona tutto
         if (_selectedSpezzone != null && _selectedSpezzone.Status == UnitsStatus.Disperse)
         {
             _selectedSpezzone = null;
@@ -353,24 +357,45 @@ public class InputHandler : MonoBehaviour
         Debug.Log($"Azione selezionata: {_selectedAction}");
     }
 
+    private void OnThrowKey(InputAction.CallbackContext ctx)
+    {
+        if (_isExecutingAction) return;
+        if (_selectedSpezzone == null) return;
+        SetSelectedAction(_selectedAction == ActionType.Throw ? ActionType.None : ActionType.Throw);
+        _pendingDestination = null;
+        _pendingTarget = null;
+        Debug.Log($"Azione selezionata: {_selectedAction}");
+    }
+
     private void HandleActionClick(HexCell clickCell)
     {
-        if (_selectedAction == ActionType.Charge)
+        var validTargets = TacticalQuery.GetValidTargets(
+            _selectedSpezzone.PositionCell.Coordinates, _selectedSpezzone.ActionPoints,
+            _selectedAction, _lvlManager.Map);
+
+        if (!validTargets.Contains(clickCell.Coordinates))
         {
-            if (clickCell.OccupiedBy is PoliceRuntime police
-             && _turnManager.CanCharge(_selectedSpezzone, police))
-            {
-                _isExecutingAction = true;
-                _turnManager.ExecuteCharge(_selectedSpezzone, police);
-                SetSelectedAction(ActionType.None);
-                OnActionComplete();
-            }
-            else
-            {
-                Debug.Log("Bersaglio non valido per la carica");
-            }
+            Debug.Log("Bersaglio non valido");
+            return;
         }
+
+        PoliceRuntime police = clickCell.OccupiedBy as PoliceRuntime;
+        if (police == null)
+        {
+            Debug.LogWarning("Cella valida ma senza police — incoerenza");
+            return;
+        }
+
+        _isExecutingAction = true;
+        switch (_selectedAction)
+        {
+            case ActionType.Charge: _turnManager.ExecuteCharge(_selectedSpezzone, police); break;
+            case ActionType.Throw: _turnManager.ExecuteThrow(_selectedSpezzone, police); break;
+        }
+        SetSelectedAction(ActionType.None);
+        OnActionComplete();
     }
+
 
     private void SetSelectedAction(ActionType action)
     {

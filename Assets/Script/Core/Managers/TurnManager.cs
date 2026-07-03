@@ -17,7 +17,6 @@ public class TurnManager : MonoBehaviour
     private HexGrid _map;
     private UnitsRenderer _unitsRenderer;
 
-    // true = turno della polizia, false = turno del corteo (giocatore)
     private bool _waitingForPolice = false;
 
     public PathFinder PathFinder => _pathFinder;
@@ -53,8 +52,6 @@ public class TurnManager : MonoBehaviour
         return HasChargeRoom(atk.PositionCell.Coordinates, def.PositionCell.Coordinates, out _);
     }
 
-    // Carica: richiede esattamente 2 celle libere di rincorsa, costa 4 PA (2 fissi + 2 per le celle percorse).
-    // L'attaccante si sposta adiacente al difensore, poi si risolve la spinta come al solito.
     public bool ExecuteCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
 
@@ -94,7 +91,6 @@ public class TurnManager : MonoBehaviour
         return true;
     }
 
-    // Calcola dove finisce un'unità spinta: stessa direzione attaccante->difensore, applicata oltre il difensore.
     public HexCell CalculatePushDestination(HexCoordinates atkCoord, HexCoordinates defCoord)
     {
         int resultQ = (defCoord.Q - atkCoord.Q);
@@ -117,7 +113,6 @@ public class TurnManager : MonoBehaviour
         return null;
     }
 
-    // Risolve un impatto diretto (Carica): calcola Win/Lose/Par e applica spinta o dispersione.
     private void PushResolution(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
         CombatResult result = CombatResolver.Resolve(atk, def);
@@ -162,8 +157,7 @@ public class TurnManager : MonoBehaviour
     #endregion
 
     #region Moviment
-    // Se la cella diretta di spinta non è libera, cerca una cella laterale comune
-    // (intersezione tra i vicini di partenza e arrivo), in ordine casuale.
+
     private HexCell FoundNearCellAvailable(HexCoordinates startPushCell, HexCoordinates endPushCell)
     {
         HexCoordinates[] startCellNeighbors = startPushCell.GetNeighbors();
@@ -188,9 +182,6 @@ public class TurnManager : MonoBehaviour
         }
         return null;
     }
-
-    // Movimento puro: sposta l'unità di una cella, costa 1 PA per cella percorsa.
-    // "path" è la sequenza di celle intermedie + destinazione (calcolata altrove, es. da pathfinding/preview).
 
     public bool ExecuteMovement(AbstractUnitsRunTime unit, List<HexCell> path, System.Action onComplete = null)
     {
@@ -278,8 +269,6 @@ public class TurnManager : MonoBehaviour
     #endregion
 
     #region Scontri
-    // Scontro: richiede adiacenza, costa 1 PA fisso. Non sposta nessuno, intacca solo il Morale.
-    // Parità: entrambi perdono 1 Morale (diverso dalla Carica, dove la parità è uno stallo).
 
     public void StartSkirmish(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
     {
@@ -334,12 +323,29 @@ public class TurnManager : MonoBehaviour
     }
     #endregion
 
-    // Passa la mano: dal turno corteo a quello polizia, o viceversa con fine turno completo.
+    public void ExecuteThrow(AbstractUnitsRunTime atk, PoliceRuntime target)
+    {
+        const int throwCost = 2;
+        if (!atk.TrySpendActionPoint(throwCost))
+        {
+            Debug.Log($"Lancio non eseguito: PA insufficienti (servono {throwCost})");
+            return;
+        }
+
+        Debug.Log($"[LANCIO] Morale police prima: {target.Morale}");
+        target.LoseMorale(1);
+        Debug.Log($"[LANCIO] Morale police dopo: {target.Morale}, status: {target.Status}");
+
+        _unitsRenderer.UpdateView(target);
+    }
+
+
     public void EndTurn()
     {
         if (_waitingForPolice) return;
 
         _waitingForPolice = true;
+
         Debug.Log("--- TURNO POLIZIA ---");
 
         foreach (var police in _lvlManager.Police)

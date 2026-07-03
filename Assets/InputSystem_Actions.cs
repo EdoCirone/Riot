@@ -199,6 +199,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Throw"",
+                    ""type"": ""Button"",
+                    ""id"": ""66df7037-1288-49d6-9d60-155bee87897c"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -232,6 +241,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Charge"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""149bea11-396c-4de7-922d-32aca42c4e40"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Throw"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -310,6 +330,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Game_EndTurn = m_Game.FindAction("EndTurn", throwIfNotFound: true);
         m_Game_MousePosition = m_Game.FindAction("MousePosition", throwIfNotFound: true);
         m_Game_Charge = m_Game.FindAction("Charge", throwIfNotFound: true);
+        m_Game_Throw = m_Game.FindAction("Throw", throwIfNotFound: true);
     }
 
     ~@InputSystem_Actions()
@@ -501,6 +522,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Game_EndTurn;
     private readonly InputAction m_Game_MousePosition;
     private readonly InputAction m_Game_Charge;
+    private readonly InputAction m_Game_Throw;
     /// <summary>
     /// Provides access to input actions defined in input action map "Game".
     /// </summary>
@@ -524,6 +546,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Game/Charge".
         /// </summary>
         public InputAction @Charge => m_Wrapper.m_Game_Charge;
+        /// <summary>
+        /// Provides access to the underlying input action "Game/Throw".
+        /// </summary>
+        public InputAction @Throw => m_Wrapper.m_Game_Throw;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -559,6 +585,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Charge.started += instance.OnCharge;
             @Charge.performed += instance.OnCharge;
             @Charge.canceled += instance.OnCharge;
+            @Throw.started += instance.OnThrow;
+            @Throw.performed += instance.OnThrow;
+            @Throw.canceled += instance.OnThrow;
         }
 
         /// <summary>
@@ -579,6 +608,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Charge.started -= instance.OnCharge;
             @Charge.performed -= instance.OnCharge;
             @Charge.canceled -= instance.OnCharge;
+            @Throw.started -= instance.OnThrow;
+            @Throw.performed -= instance.OnThrow;
+            @Throw.canceled -= instance.OnThrow;
         }
 
         /// <summary>
@@ -727,5 +759,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCharge(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Throw" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnThrow(InputAction.CallbackContext context);
     }
 }

@@ -52,6 +52,19 @@ public static class TacticalQuery
                     }
                 }
                 break;
+
+            case ActionType.Throw:
+                if (budget < 2) break;
+                foreach (HexCell cell in map.GetAllCells())
+                {
+                    if (cell.OccupiedBy is PoliceRuntime
+                        && from.Distance(cell.Coordinates) == 2
+                        && HasThrowPath(from, cell.Coordinates, map))
+                    {
+                        targets.Add(cell.Coordinates);
+                    }
+                }
+                break;
         }
 
         return targets;
@@ -84,5 +97,18 @@ public static class TacticalQuery
 
         chargeDestination = secondStep;
         return true;
+    }
+    private static bool HasThrowPath(HexCoordinates from, HexCoordinates target, HexGrid map)
+    {
+        foreach (HexCoordinates dir in HexCoordinates.Directions)
+        {
+            HexCoordinates neighbor = from + dir;
+            // la cella intermedia deve essere adiacente ANCHE al target
+            if (neighbor.Distance(target) != 1) continue;
+            // è un'intermedia valida: se è walkable, il sasso passa
+            if (map.TryGetCell(neighbor, out HexCell cell) && cell.Type.IsWalkable)
+                return true;
+        }
+        return false;
     }
 }

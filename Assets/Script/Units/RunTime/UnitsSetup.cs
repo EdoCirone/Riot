@@ -5,7 +5,6 @@ public class UnitsSetup : MonoBehaviour
 
     [SerializeField] private UnitsSO _unit;
     [SerializeField] private HexGrid _grid;
-
     public AbstractUnitsRunTime Initialize()
     {
         if (_grid == null) return null;

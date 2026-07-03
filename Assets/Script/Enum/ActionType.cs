@@ -2,5 +2,6 @@
 public enum ActionType
 {
     None,
-    Charge
+    Charge,
+    Throw,
 }
