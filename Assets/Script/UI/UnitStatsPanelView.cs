@@ -68,6 +68,7 @@ public class UnitStatsPanelView : MonoBehaviour
     private void Show(AbstractUnitsRunTime unit)   
     {
         if (unit == null) return;
+        _currentUnit = unit;
         Refresh();
         if (_canvasGroup.alpha >= 1f) return;  
         _canvasGroup.DOKill();

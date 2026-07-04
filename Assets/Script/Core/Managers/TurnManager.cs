@@ -12,6 +12,7 @@ public class TurnManager : MonoBehaviour
 
     [Header("Events")]
     [SerializeField] GameEventSO _endTurnEvent;
+    [SerializeField] UnitEventSO _throwEvent;
 
 
     private HexGrid _map;
@@ -21,6 +22,8 @@ public class TurnManager : MonoBehaviour
 
     public PathFinder PathFinder => _pathFinder;
     public GameEventSO EndTurnEvent => _endTurnEvent;
+
+    public UnitEventSO ThrowEvent => _throwEvent;
     private bool IsCellAvailable(HexCell cell) => TacticalQuery.IsCellAvailable(cell);
     public bool IsPoliceTurn => _waitingForPolice;
 
@@ -333,6 +336,7 @@ public class TurnManager : MonoBehaviour
         }
 
         Debug.Log($"[LANCIO] Morale police prima: {target.Morale}");
+        _throwEvent.Raise(target);
         target.LoseMorale(1);
         Debug.Log($"[LANCIO] Morale police dopo: {target.Morale}, status: {target.Status}");
 

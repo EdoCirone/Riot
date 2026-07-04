@@ -103,9 +103,7 @@ public static class TacticalQuery
         foreach (HexCoordinates dir in HexCoordinates.Directions)
         {
             HexCoordinates neighbor = from + dir;
-            // la cella intermedia deve essere adiacente ANCHE al target
             if (neighbor.Distance(target) != 1) continue;
-            // è un'intermedia valida: se è walkable, il sasso passa
             if (map.TryGetCell(neighbor, out HexCell cell) && cell.Type.IsWalkable)
                 return true;
         }
