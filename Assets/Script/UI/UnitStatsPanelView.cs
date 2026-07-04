@@ -1,11 +1,13 @@
-using UnityEngine;
+using DG.Tweening;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class UnitStatsPanelView : MonoBehaviour
 {
     [Header("Panel Root")]
-    [SerializeField] private GameObject _panelRoot;   // UnitSelectedPanel, l'oggetto da mostrare/nascondere
+    [SerializeField] private GameObject _panelRoot;   
+    [SerializeField] private CanvasGroup _canvasGroup;
 
     [Header("Avatar")]
     [SerializeField] private Image _avatarImage;
@@ -44,43 +46,42 @@ public class UnitStatsPanelView : MonoBehaviour
             return;
         }
         _isValid = true;
-        _panelRoot.SetActive(false);   // spengo il PANEL, non me stesso
+        _canvasGroup.alpha = 0;
+        _canvasGroup.blocksRaycasts = false;   
     }
 
     private void OnEnable()
     {
         if (!_isValid) return;
-        _unitSelectedEvent.Subscribe(OnUnitSelected);
-        _unitDeselectedEvent.Subscribe(OnUnitDeselected);
-        _endTurnEvent.Subscribe(OnEndTurn);
+        _unitSelectedEvent.Subscribe(Show);
+        _unitDeselectedEvent.Subscribe(Hide);
+        _endTurnEvent.Subscribe(Hide);   
     }
-
     private void OnDisable()
     {
         if (!_isValid) return;
-        _unitSelectedEvent.Unsubscribe(OnUnitSelected);
-        _unitDeselectedEvent.Unsubscribe(OnUnitDeselected);
-        _endTurnEvent.Unsubscribe(OnEndTurn);
+        _unitSelectedEvent.Unsubscribe(Show);
+        _unitDeselectedEvent.Unsubscribe(Hide);
+        _endTurnEvent.Unsubscribe(Hide);
     }
 
-    private void OnUnitSelected(AbstractUnitsRunTime unit)
+    private void Show(AbstractUnitsRunTime unit)   
     {
-        _currentUnit = unit;
-        _panelRoot.SetActive(true);
+        if (unit == null) return;
         Refresh();
+        if (_canvasGroup.alpha >= 1f) return;  
+        _canvasGroup.DOKill();
+        _canvasGroup.blocksRaycasts = true;
+        _canvasGroup.DOFade(1, 0.2f);
+        _panelRoot.transform.DOScale(1f, 0.2f).From(0.9f);  
     }
 
-    private void OnUnitDeselected()
+    private void Hide()   
     {
+        _canvasGroup.DOKill();
+        _canvasGroup.blocksRaycasts = false;
+        _canvasGroup.DOFade(0, 0.15f);
         _currentUnit = null;
-        _panelRoot.SetActive(false);
-    }
-
-    private void OnEndTurn()
-    {
-        _currentUnit = null;
-        _panelRoot.SetActive(false);
-
     }
 
     public void Refresh()

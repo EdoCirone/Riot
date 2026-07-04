@@ -13,6 +13,8 @@ public class InputHandler : MonoBehaviour
     [Header("Units Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
     [SerializeField] private GameEventSO _unitDeselectedEvent;
+    [SerializeField] private UnitEventSO _policeSelectedEvent;
+    [SerializeField] private GameEventSO _policeDeselectedEvent;
     [SerializeField] private ActionEventSO _actionSelectedEvent;
 
 
@@ -21,6 +23,7 @@ public class InputHandler : MonoBehaviour
     private TurnManager _turnManager;
     private InputSystem_Actions _inputSystem;
 
+    private PoliceRuntime _lastAttackedPolice;
     private SpezzoneRuntime _selectedSpezzone;
     private ActionType _selectedAction = ActionType.None;
     private HexCell _pendingDestination;
@@ -90,7 +93,11 @@ public class InputHandler : MonoBehaviour
             {
                 _selectedSpezzone = spezzone;
                 _unitSelectedEvent?.Raise(_selectedSpezzone);
-                Debug.Log($"Selezionato spezzone su {clickCell.Coordinates}");
+                _policeDeselectedEvent?.Raise();
+            }
+            else if (clickCell.OccupiedBy is PoliceRuntime police)
+            {
+                _policeSelectedEvent?.Raise(police);  
             }
             return;
         }
@@ -122,6 +129,7 @@ public class InputHandler : MonoBehaviour
             else
             {
                 _pendingTarget = null;
+                _policeDeselectedEvent?.Raise();
                 Debug.Log("Attacco annullato");
             }
             return;
@@ -146,7 +154,7 @@ public class InputHandler : MonoBehaviour
         else if (clickCell.OccupiedBy is PoliceRuntime police)
         {
             _pendingTarget = police;
-
+            _policeSelectedEvent?.Raise(police);
             FlipSelectedUnit(_grid.transform.position + police.PositionCell.Coordinates.ToWorldPosition(_grid.CellSize));
             Debug.Log($"Bersaglio marcato: {clickCell.Coordinates}");
         }
@@ -169,7 +177,7 @@ public class InputHandler : MonoBehaviour
             SetSelectedAction(ActionType.None);
             _pendingDestination = null;
             _pendingTarget = null;
-            Debug.Log("Azione annullata, spezzone ancora selezionato");
+            _policeDeselectedEvent?.Raise();
             return;
         }
 
@@ -177,7 +185,7 @@ public class InputHandler : MonoBehaviour
         _pendingDestination = null;
         _pendingTarget = null;
         _unitDeselectedEvent?.Raise();
-        Debug.Log("Selezione annullata");
+        _policeDeselectedEvent?.Raise();
     }
 
     private void OnEndTurn(InputAction.CallbackContext ctx)
@@ -248,9 +256,11 @@ public class InputHandler : MonoBehaviour
 
     private void ConfirmAttack()
     {
+        _lastAttackedPolice = _pendingTarget;
         HexCoordinates atkCoord = _selectedSpezzone.PositionCell.Coordinates;
         HexCoordinates defCoord = _pendingTarget.PositionCell.Coordinates;
         int distance = atkCoord.Distance(defCoord);
+
 
         bool success;
         if (distance == 1)
@@ -341,6 +351,16 @@ public class InputHandler : MonoBehaviour
             _unitSelectedEvent?.Raise(_selectedSpezzone);
         }
 
+        if (_lastAttackedPolice != null)
+        {
+            if (_lastAttackedPolice.Status == UnitsStatus.Disperse)
+                _policeDeselectedEvent?.Raise();
+            else
+            {
+                _policeSelectedEvent?.Raise(_lastAttackedPolice);
+            }
+            _lastAttackedPolice = null;
+        }
         _pendingDestination = null;
         _pendingTarget = null;
         _isExecutingAction = false;
@@ -385,15 +405,18 @@ public class InputHandler : MonoBehaviour
             Debug.LogWarning("Cella valida ma senza police — incoerenza");
             return;
         }
-
+        _lastAttackedPolice = police;
         _isExecutingAction = true;
         switch (_selectedAction)
         {
             case ActionType.Charge: _turnManager.ExecuteCharge(_selectedSpezzone, police); break;
             case ActionType.Throw: _turnManager.ExecuteThrow(_selectedSpezzone, police); break;
         }
+
         SetSelectedAction(ActionType.None);
+
         OnActionComplete();
+
     }
 
 
