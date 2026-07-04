@@ -11,8 +11,11 @@ public class TurnManager : MonoBehaviour
     [SerializeField] private PoliceAI _policeAI;
 
     [Header("Events")]
-    [SerializeField] GameEventSO _endTurnEvent;
-    [SerializeField] UnitEventSO _throwEvent;
+    [SerializeField] private GameEventSO _startPlayerTurnEvent;
+    [SerializeField] private GameEventSO _endPlayerTurnEvent;
+    [SerializeField] private UnitEventSO _throwEvent;
+    [SerializeField] private GameObjectEventSO _startFollowEvent;
+    [SerializeField] private GameEventSO _stopFollowEvent;
 
 
     private HexGrid _map;
@@ -21,7 +24,8 @@ public class TurnManager : MonoBehaviour
     private bool _waitingForPolice = false;
 
     public PathFinder PathFinder => _pathFinder;
-    public GameEventSO EndTurnEvent => _endTurnEvent;
+    public GameEventSO EndPlayerTurnEvent => _endPlayerTurnEvent;
+    public GameEventSO StartPlayerTurnEvent => _startPlayerTurnEvent;
 
     public UnitEventSO ThrowEvent => _throwEvent;
     private bool IsCellAvailable(HexCell cell) => TacticalQuery.IsCellAvailable(cell);
@@ -43,6 +47,8 @@ public class TurnManager : MonoBehaviour
             Debug.LogWarning("PathFinder non assegnato in TurnManager");
             return;
         }
+
+        _startPlayerTurnEvent.Raise();
     }
 
     #region Charge
@@ -222,6 +228,8 @@ public class TurnManager : MonoBehaviour
             return false;
         }
 
+
+
         // Ottieni UnitMovement
         UnitMovement movement = unitGO.GetComponent<UnitMovement>();
         if (movement == null)
@@ -238,9 +246,12 @@ public class TurnManager : MonoBehaviour
         }
 
         // AVVIA MOVIMENTO CON CALLBACK
+        
+        _startFollowEvent?.Raise(unitGO);
         movement.MoveAlongPath(path, _lvlManager.Map, () =>
         {
             _unitsRenderer.UpdateView(unit);
+            _stopFollowEvent?.Raise();
             onComplete?.Invoke();
         });
 
@@ -374,6 +385,6 @@ public class TurnManager : MonoBehaviour
             spezzone.RefillActionPoints();
         }
 
-        _endTurnEvent.Raise();
+        _startPlayerTurnEvent.Raise();
     }
 }

@@ -27,7 +27,9 @@ public class UnitStatsPanelView : MonoBehaviour
     [Header("Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
     [SerializeField] private GameEventSO _unitDeselectedEvent;
-    [SerializeField] private GameEventSO _endTurnEvent;
+    [SerializeField] private GameEventSO _endPlayerTurnEvent;
+    [SerializeField] private GameEventSO _startPlayerTurnEvent;
+
     
 
     private AbstractUnitsRunTime _currentUnit;
@@ -35,7 +37,7 @@ public class UnitStatsPanelView : MonoBehaviour
 
     private void Awake()
     {
-        if (_unitSelectedEvent == null || _unitDeselectedEvent == null || _endTurnEvent == null)
+        if (_unitSelectedEvent == null || _unitDeselectedEvent == null || _startPlayerTurnEvent == null || _endPlayerTurnEvent == null)
         {
             Debug.LogWarning("Events missing in UnitStatsPanelView");
             return;
@@ -55,14 +57,16 @@ public class UnitStatsPanelView : MonoBehaviour
         if (!_isValid) return;
         _unitSelectedEvent.Subscribe(Show);
         _unitDeselectedEvent.Subscribe(Hide);
-        _endTurnEvent.Subscribe(Hide);   
+        _startPlayerTurnEvent.Subscribe(Hide);   
+        _endPlayerTurnEvent.Subscribe(Hide);   
     }
     private void OnDisable()
     {
         if (!_isValid) return;
         _unitSelectedEvent.Unsubscribe(Show);
         _unitDeselectedEvent.Unsubscribe(Hide);
-        _endTurnEvent.Unsubscribe(Hide);
+        _startPlayerTurnEvent.Unsubscribe(Hide);
+        _endPlayerTurnEvent.Unsubscribe(Hide);
     }
 
     private void Show(AbstractUnitsRunTime unit)   

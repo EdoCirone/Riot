@@ -41,7 +41,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     {
         _currentScore = 0;
         _currentTurn = _numbersOfTurns;
-        _turnManager.EndTurnEvent.Subscribe(this);
+        _turnManager.EndPlayerTurnEvent.Subscribe(this);
 
         RefreshObjectiveCells();
     }
@@ -77,7 +77,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     private void OnDisable()
     {
-        _turnManager.EndTurnEvent.Unsubscribe(this);
+        _turnManager.EndPlayerTurnEvent.Unsubscribe(this);
     }
 
     public void OnEventRaised()

@@ -2603,7 +2603,8 @@ MonoBehaviour:
   _defText: {fileID: 1013883969}
   _unitSelectedEvent: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
   _unitDeselectedEvent: {fileID: 11400000, guid: 6592294ff1c895a4cb56bba59c48821a, type: 2}
-  _endTurnEvent: {fileID: 11400000, guid: f69733287b575af41bf2051f9e7cb894, type: 2}
+  _endPlayerTurnEvent: {fileID: 11400000, guid: f69733287b575af41bf2051f9e7cb894, type: 2}
+  _startPlayerTurnEvent: {fileID: 11400000, guid: a82b422d354c8a64bb15021fed8e5b95, type: 2}
 --- !u!225 &455244785
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3579,7 +3580,8 @@ MonoBehaviour:
   _defText: {fileID: 612705079}
   _unitSelectedEvent: {fileID: 11400000, guid: 93aeb65fcb4a88444b8f15479fbd1575, type: 2}
   _unitDeselectedEvent: {fileID: 11400000, guid: 846ee339e87c801428c1c02151436959, type: 2}
-  _endTurnEvent: {fileID: 11400000, guid: f69733287b575af41bf2051f9e7cb894, type: 2}
+  _endPlayerTurnEvent: {fileID: 11400000, guid: f69733287b575af41bf2051f9e7cb894, type: 2}
+  _startPlayerTurnEvent: {fileID: 11400000, guid: a82b422d354c8a64bb15021fed8e5b95, type: 2}
 --- !u!114 &719236378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3782,8 +3784,11 @@ MonoBehaviour:
   _lvlManager: {fileID: 2130109798}
   _pathFinder: {fileID: 736496570}
   _policeAI: {fileID: 736496569}
-  _endTurnEvent: {fileID: 11400000, guid: f69733287b575af41bf2051f9e7cb894, type: 2}
+  _startPlayerTurnEvent: {fileID: 11400000, guid: a82b422d354c8a64bb15021fed8e5b95, type: 2}
+  _endPlayerTurnEvent: {fileID: 11400000, guid: f69733287b575af41bf2051f9e7cb894, type: 2}
   _throwEvent: {fileID: 11400000, guid: b29de7a6fc5add94c88606d4aec6b7ef, type: 2}
+  _startFollowEvent: {fileID: 11400000, guid: b9cd032b448466f4392bfe32f9b91b83, type: 2}
+  _stopFollowEvent: {fileID: 11400000, guid: 14bb41a0b251d904ebfcd4fd64b09b8c, type: 2}
 --- !u!114 &736496569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8248,14 +8253,17 @@ MonoBehaviour:
   _mainCamera: {fileID: 519420031}
   _map: {fileID: 1144096843}
   _cameraMoveMaxSpeed: 5
-  _cameraAcceleration: 10
-  _damping: 0.9
+  _cameraAcceleration: 4
   _centerSelectionTime: 0.2
   _easeType: 4
+  _followSpeed: 5
   _stepSize: 2
   _minZoom: 2
   _maxZoom: 10
   _zoomSpeed: 5
+  _startPlayerTurnEvent: {fileID: 11400000, guid: a82b422d354c8a64bb15021fed8e5b95, type: 2}
+  _startFollowEvent: {fileID: 11400000, guid: b9cd032b448466f4392bfe32f9b91b83, type: 2}
+  _stopFollowEvent: {fileID: 11400000, guid: 14bb41a0b251d904ebfcd4fd64b09b8c, type: 2}
   _onSelectedEvent: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
 --- !u!1 &1838237214
 GameObject:

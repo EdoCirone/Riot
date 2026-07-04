@@ -1,7 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 
-public class T : MonoBehaviour
+public class ThrowObjectVFX : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private HexGrid _map;
@@ -62,8 +62,8 @@ public class T : MonoBehaviour
             return;
         }
         
-        Vector3 selectedUnitPos = _selectedUnit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize); 
-        Vector3 targetUnitPos = unit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
+        Vector3 selectedUnitPos = _map.transform.position + _selectedUnit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize); 
+        Vector3 targetUnitPos = _map.transform.position + unit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
 
         GameObject throwObject = Instantiate(_trowhObjectPrefab, selectedUnitPos, Quaternion.identity);
         throwObject.transform.DOJump(targetUnitPos, 1f, 1, 0.5f).OnComplete(() =>

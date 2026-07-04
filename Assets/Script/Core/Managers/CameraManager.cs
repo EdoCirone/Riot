@@ -11,11 +11,11 @@ public class CameraManager : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float _cameraMoveMaxSpeed = 5f;
     [SerializeField] private float _cameraAcceleration = 10f;
-    [SerializeField] private float _damping = 0.9f;
 
-    [Header("Center Settings")]
+    [Header("Follow Settings")]
     [SerializeField] private float _centerSelectionTime = 0.2f;
     [SerializeField] private Ease _easeType = Ease.InOutSine;
+    [SerializeField] private float _followSpeed = 5f;
 
     [Header("Zoom Settings")]
     [SerializeField] private float _stepSize = 2f;
@@ -24,7 +24,13 @@ public class CameraManager : MonoBehaviour
     [SerializeField] private float _zoomSpeed = 3f;
 
     [Header("Events")]
+    [SerializeField] private GameEventSO _startPlayerTurnEvent;
+    [SerializeField] private GameObjectEventSO _startFollowEvent;
+    [SerializeField] private GameEventSO _stopFollowEvent;
     [SerializeField] private UnitEventSO _onSelectedEvent;
+
+    private Transform _followTarget;
+    private AbstractUnitsRunTime _lastPlayerUnit;
 
     private InputSystem_Actions _inputSystem;
     private AbstractUnitsRunTime _lastCenteredUnit;
@@ -32,7 +38,7 @@ public class CameraManager : MonoBehaviour
 
     private Vector2 _moveInput;
     private float _currentMoveSpeed;
-    private float _currentZoomSpeed; 
+    private float _currentZoomSpeed;
 
     private void Awake()
     {
@@ -58,9 +64,12 @@ public class CameraManager : MonoBehaviour
         _inputSystem.Camera.Zoom.performed += OnZoomPerformed;
         _inputSystem.Camera.Zoom.canceled += OnZoomCanceled;
 
-        // --- SELEZIONE UNITÀ ---
+        // --- SEGUI UNITÀ ---
         if (_onSelectedEvent != null)
             _onSelectedEvent.Subscribe(CenterCamera);
+        _startPlayerTurnEvent.Subscribe(OnPlayerTurnStart);
+        _startFollowEvent.Subscribe(StartFollow);
+        _stopFollowEvent.Subscribe(StopFollow);
     }
 
     private void OnDisable()
@@ -76,10 +85,12 @@ public class CameraManager : MonoBehaviour
         _inputSystem.Camera.CameraMovement.Disable();
 
         if (_onSelectedEvent != null)
-        {
             _onSelectedEvent.Unsubscribe(CenterCamera);
-            _cameraTween?.Kill();
-        }
+        _startFollowEvent.Unsubscribe(StartFollow);
+        _stopFollowEvent.Unsubscribe(StopFollow);
+        _startPlayerTurnEvent.Unsubscribe(OnPlayerTurnStart);
+
+
     }
 
     #region Callbacks Input
@@ -111,6 +122,15 @@ public class CameraManager : MonoBehaviour
 
     private void Update()
     {
+        if (_followTarget != null)
+        {
+            // FOLLOW: insegue il transform, pan manuale sospeso
+            Vector3 targetPos = _followTarget.position;
+            targetPos.z = _mainCamera.transform.position.z;
+            _mainCamera.transform.position = Vector3.Lerp(
+                _mainCamera.transform.position, targetPos, _followSpeed * Time.deltaTime);
+            return;   // <-- salta il movimento manuale mentre segue
+        }
         // ---- MOVIMENTO ----
         float targetSpeed = _moveInput.magnitude * _cameraMoveMaxSpeed;
         _currentMoveSpeed = Mathf.MoveTowards(_currentMoveSpeed, targetSpeed, _cameraAcceleration * Time.deltaTime);
@@ -120,11 +140,6 @@ public class CameraManager : MonoBehaviour
             Vector3 moveDir = _moveInput.normalized;
             Vector3 delta = moveDir * _currentMoveSpeed * Time.deltaTime;
             _mainCamera.transform.position += delta;
-        }
-        // Damping quando non c'è input
-        else if (_moveInput.magnitude < 0.01f && _currentMoveSpeed > 0.01f)
-        {
-            _currentMoveSpeed = Mathf.Lerp(_currentMoveSpeed, 0f, _damping * Time.deltaTime);
         }
 
         // ---- ZOOM ----
@@ -149,11 +164,15 @@ public class CameraManager : MonoBehaviour
 
     private void CenterCamera(AbstractUnitsRunTime unit)
     {
+        if (unit is SpezzoneRuntime)
+            _lastPlayerUnit = unit;
+
+        if (_followTarget != null) return;
         if (unit == null || _mainCamera == null || _map == null) return;
         if (unit == _lastCenteredUnit) return;
         _lastCenteredUnit = unit;
 
-        Vector3 targetPos = unit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
+        Vector3 targetPos = _map.transform.position + unit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
         targetPos.z = _mainCamera.transform.position.z;
 
         if (Vector3.Distance(_mainCamera.transform.position, targetPos) < 0.1f) return;
@@ -162,6 +181,25 @@ public class CameraManager : MonoBehaviour
         _cameraTween = _mainCamera.transform
             .DOMove(targetPos, _centerSelectionTime)
             .SetEase(_easeType);
+    }
+
+    private void StartFollow(GameObject target)
+    {
+        _cameraTween?.Kill();
+        _followTarget = target != null ? target.transform : null;
+    }
+    private void StopFollow()
+    {
+        _followTarget = null;
+        _lastCenteredUnit = null;
+    }
+
+    private void OnPlayerTurnStart()
+    {
+        if (_lastPlayerUnit == null) return;
+        if (_lastPlayerUnit.Status == UnitsStatus.Disperse) return;   
+        _lastCenteredUnit = null;              
+        CenterCamera(_lastPlayerUnit);
     }
 
     #endregion
