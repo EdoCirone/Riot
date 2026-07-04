@@ -5,6 +5,8 @@ public class MovementSettingsSO : ScriptableObject
 {
     [Header("Movement")]
     [SerializeField] private float _moveDuration = 1f;
+    [SerializeField] private float _bobAmplitude = 0.15f;
+    [SerializeField] private float _bobDuration = 0.2f;
 
     [Header("Charge")]
     [SerializeField] private float _windupDistance = 1f;
@@ -24,6 +26,10 @@ public class MovementSettingsSO : ScriptableObject
     [SerializeField] private float _skirmishBumpDuration = 0.1f;
 
     [SerializeField] private float _recoilDuration = 1f;
+    public float BobAmplitude => _bobAmplitude;
+    public float BobDuration => _bobDuration;
+
+
     public float MoveDuration => _moveDuration;
     public float WindupDistance => _windupDistance;
     public float WindupDuration => _windupDuration;

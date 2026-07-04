@@ -13,6 +13,7 @@ public class UnitMovement : MonoBehaviour
 
     private AbstractUnitsRunTime _unit;
     private Coroutine _currentMove;
+    private Tween _movementLoopTween;
     private bool _isMoving;
 
     public bool IsMoving => _isMoving;
@@ -25,6 +26,7 @@ public class UnitMovement : MonoBehaviour
     #region Movement
     public void MoveAlongPath(List<HexCell> path, HexGrid grid, Action onComplete)
     {
+
         if (_unit == null)
         {
             Debug.LogError("UnitMovement: _unit è null! Chiama Initialize() prima.");
@@ -39,7 +41,13 @@ public class UnitMovement : MonoBehaviour
         }
 
         if (_currentMove != null)
+        {
+            if (_movementLoopTween!= null && _movementLoopTween.IsActive())
+            {
+                _movementLoopTween.Kill();
+            }
             StopCoroutine(_currentMove);
+        }
 
         _currentMove = StartCoroutine(MoveCoroutine(path, grid, onComplete));
     }
@@ -47,13 +55,13 @@ public class UnitMovement : MonoBehaviour
     private IEnumerator MoveCoroutine(List<HexCell> path, HexGrid grid, Action onComplete)
     {
         _isMoving = true;
-
+        StartBobLoop();
 
         foreach (HexCell cell in path)
         {
             Vector3 startPos = _rootTransform.position;
             Vector3 endPos = grid.transform.position + cell.Coordinates.ToWorldPosition(grid.CellSize);
-            
+
             MustFlip(endPos);
 
             float elapsed = 0f;
@@ -66,13 +74,13 @@ public class UnitMovement : MonoBehaviour
                 _rootTransform.position = Vector3.Lerp(startPos, endPos, t);
                 yield return null;
             }
-
             _rootTransform.position = endPos;
 
             // Aggiorna la posizione logica DOPO aver raggiunto la cella
             _unit.SetPosition(cell);
         }
 
+        KillBobLoop();
         _isMoving = false;
         onComplete?.Invoke();
     }
@@ -85,6 +93,25 @@ public class UnitMovement : MonoBehaviour
             _currentMove = null;
         }
         _isMoving = false;
+    }
+
+    private void StartBobLoop()
+    {
+        KillBobLoop(); 
+        Vector3 basePos = _graphicsTransform.localPosition;
+        _movementLoopTween = _graphicsTransform
+            .DOLocalMoveY(basePos.y + _movementSettings.BobAmplitude, _movementSettings.BobDuration)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(Ease.InOutSine);
+    }
+
+    private void KillBobLoop()
+    {
+        if (_movementLoopTween != null && _movementLoopTween.IsActive())
+        {
+            _movementLoopTween.Kill();
+        }
+        _movementLoopTween = null;
     }
 
     #endregion
@@ -103,7 +130,7 @@ public class UnitMovement : MonoBehaviour
 
         Vector3 startPos = _rootTransform.position;
         Vector3 windupDir = (startPos - defenderWorldPos).normalized;
-        
+
         Vector3 windupTarget = startPos + windupDir * _movementSettings.SkirmishWindupDistance;
         Vector3 bumpTarget = startPos + (defenderWorldPos - startPos).normalized * _movementSettings.SkirmishEndDistance;
 
