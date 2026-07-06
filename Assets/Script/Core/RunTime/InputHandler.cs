@@ -46,9 +46,12 @@ public class InputHandler : MonoBehaviour
     {
         _inputSystem.UI.LeftClick.performed += OnLeftClick;
         _inputSystem.UI.RightClick.performed += OnRightClick;
+
         _inputSystem.Game.EndTurn.performed += OnEndTurn;
         _inputSystem.Game.Charge.performed += OnChargeKey;
         _inputSystem.Game.Throw.performed += OnThrowKey;
+        _inputSystem.Game.Barricade.performed += OnBarricadeKey;
+
         _inputSystem.Enable();
     }
 
@@ -56,9 +59,12 @@ public class InputHandler : MonoBehaviour
     {
         _inputSystem.UI.LeftClick.performed -= OnLeftClick;
         _inputSystem.UI.RightClick.performed -= OnRightClick;
+
         _inputSystem.Game.EndTurn.performed -= OnEndTurn;
         _inputSystem.Game.Charge.performed -= OnChargeKey;
         _inputSystem.Game.Throw.performed -= OnThrowKey;
+        _inputSystem.Game.Barricade.performed -= OnBarricadeKey;
+
         _inputSystem.Disable();
     }
 
@@ -329,9 +335,40 @@ public class InputHandler : MonoBehaviour
 
     }
 
+
+    private void OnChargeKey(InputAction.CallbackContext ctx)
+    {
+        if (_isExecutingAction) return;
+        if (_selectedSpezzone == null) return;
+
+        SetSelectedAction(_selectedAction == ActionType.Charge ? ActionType.None : ActionType.Charge);
+        _pendingDestination = null;
+        _pendingTarget = null;
+        Debug.Log($"Azione selezionata: {_selectedAction}");
+    }
+
+    private void OnThrowKey(InputAction.CallbackContext ctx)
+    {
+        if (_isExecutingAction) return;
+        if (_selectedSpezzone == null) return;
+        SetSelectedAction(_selectedAction == ActionType.Throw ? ActionType.None : ActionType.Throw);
+        _pendingDestination = null;
+        _pendingTarget = null;
+        Debug.Log($"Azione selezionata: {_selectedAction}");
+    }
+
+    private void OnBarricadeKey(InputAction.CallbackContext ctx)
+    {
+        if (_isExecutingAction) return;
+        if (_selectedSpezzone == null) return;
+        SetSelectedAction(_selectedAction == ActionType.Barricade ? ActionType.None : ActionType.Barricade);
+        _pendingDestination = null;
+        _pendingTarget = null;
+        Debug.Log($"Azione selezionata: {_selectedAction}");
+    }
+
     private void OnActionComplete()
     {
-        // Se lo spezzone è disperso, deseleziona tutto
         if (_selectedSpezzone != null && _selectedSpezzone.Status == UnitsStatus.Disperse)
         {
             _selectedSpezzone = null;
@@ -365,28 +402,6 @@ public class InputHandler : MonoBehaviour
         _pendingTarget = null;
         _isExecutingAction = false;
     }
-
-    private void OnChargeKey(InputAction.CallbackContext ctx)
-    {
-        if (_isExecutingAction) return;
-        if (_selectedSpezzone == null) return;
-
-        SetSelectedAction(_selectedAction == ActionType.Charge ? ActionType.None : ActionType.Charge);
-        _pendingDestination = null;
-        _pendingTarget = null;
-        Debug.Log($"Azione selezionata: {_selectedAction}");
-    }
-
-    private void OnThrowKey(InputAction.CallbackContext ctx)
-    {
-        if (_isExecutingAction) return;
-        if (_selectedSpezzone == null) return;
-        SetSelectedAction(_selectedAction == ActionType.Throw ? ActionType.None : ActionType.Throw);
-        _pendingDestination = null;
-        _pendingTarget = null;
-        Debug.Log($"Azione selezionata: {_selectedAction}");
-    }
-
     private void HandleActionClick(HexCell clickCell)
     {
         var validTargets = TacticalQuery.GetValidTargets(
@@ -395,28 +410,29 @@ public class InputHandler : MonoBehaviour
 
         if (!validTargets.Contains(clickCell.Coordinates))
         {
-            Debug.Log("Bersaglio non valido");
+            Debug.Log("not valid Target");
             return;
         }
 
-        PoliceRuntime police = clickCell.OccupiedBy as PoliceRuntime;
-        if (police == null)
-        {
-            Debug.LogWarning("Cella valida ma senza police — incoerenza");
-            return;
-        }
-        _lastAttackedPolice = police;
         _isExecutingAction = true;
         switch (_selectedAction)
         {
-            case ActionType.Charge: _turnManager.ExecuteCharge(_selectedSpezzone, police); break;
-            case ActionType.Throw: _turnManager.ExecuteThrow(_selectedSpezzone, police); break;
+            case ActionType.Charge:
+            case ActionType.Throw:
+                PoliceRuntime police = clickCell.OccupiedBy as PoliceRuntime;
+                if (_selectedAction == ActionType.Charge)
+                    _turnManager.ExecuteCharge(_selectedSpezzone, police);
+                else
+                    _turnManager.ExecuteThrow(_selectedSpezzone, police);
+                _lastAttackedPolice = police;
+                break;
+
+            case ActionType.Barricade:
+                _turnManager.ExecuteBarricade(_selectedSpezzone, clickCell);   
+                break;
         }
-
         SetSelectedAction(ActionType.None);
-
         OnActionComplete();
-
     }
 
 

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c4c4a67bf67bf0498bbd497e26d22a7, type: 3}
+  m_Name: BarricadeBasicSO
+  m_EditorClassIdentifier: Assembly-CSharp::BarricadeSO
+  _name: Basic Barricade
+  _id: basicBarricade
+  _actionPointCost: 2
+  _inventoryIcon: {fileID: -7896261095710235050, guid: 0dc7f0c380846a44a9b72b88a6585e36, type: 3}
+  _GraphicPrefab: {fileID: 5278519137690880615, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}

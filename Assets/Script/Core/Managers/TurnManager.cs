@@ -9,6 +9,7 @@ public class TurnManager : MonoBehaviour
     [SerializeField] private LVLManager _lvlManager;
     [SerializeField] private PathFinder _pathFinder;
     [SerializeField] private PoliceAI _policeAI;
+    [SerializeField] private BarricadeSO _defaultBarricadeSO;   // campo da eliminare appena si implementa l'inventario
 
     [Header("Events")]
     [SerializeField] private GameEventSO _startPlayerTurnEvent;
@@ -337,6 +338,7 @@ public class TurnManager : MonoBehaviour
     }
     #endregion
 
+    #region Lancio
     public void ExecuteThrow(AbstractUnitsRunTime atk, PoliceRuntime target)
     {
         const int throwCost = 2;
@@ -354,12 +356,41 @@ public class TurnManager : MonoBehaviour
         _unitsRenderer.UpdateView(target);
     }
 
+    #endregion
 
+    #region Barricade
+
+
+    public void ExecuteBarricade(AbstractUnitsRunTime atk, HexCell targetCell)
+    {
+        int cost = _defaultBarricadeSO.ActionPointCost;  
+
+        if (!atk.TrySpendActionPoint(cost))
+        {
+            Debug.Log($"Barricata non eseguita: PA insufficienti (servono {cost})");
+            return;
+        }
+
+        BarricadeRuntime barricade = new BarricadeRuntime(_defaultBarricadeSO);
+       
+        if (!targetCell.TryPlaceBarricade(barricade))
+        {
+            Debug.Log("Barricata non piazzata: cella non disponibile");
+            return;
+        }
+        
+        Vector3 worldPos = _map.transform.position + targetCell.Coordinates.ToWorldPosition(_map.CellSize);
+        Instantiate(_defaultBarricadeSO.GraphicPrefab, worldPos, Quaternion.identity); // istanza temporanea, da cancellare appena faccio _barricadeRenderer
+    }
+
+    #endregion
     public void EndTurn()
     {
         if (_waitingForPolice) return;
 
         _waitingForPolice = true;
+        _endPlayerTurnEvent.Raise();
+        Debug.Log("TurnManager: EndPlayerTurnEvent rise");
 
         Debug.Log("--- TURNO POLIZIA ---");
 

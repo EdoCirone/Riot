@@ -569,7 +569,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22.55
+  m_fontSize: 22.4
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -781,7 +781,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22.55
+  m_fontSize: 22.4
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2031,7 +2031,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26.55
+  m_fontSize: 26.4
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3039,7 +3039,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22.55
+  m_fontSize: 22.4
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3784,6 +3784,7 @@ MonoBehaviour:
   _lvlManager: {fileID: 2130109798}
   _pathFinder: {fileID: 736496570}
   _policeAI: {fileID: 736496569}
+  _defaultBarricadeSO: {fileID: 11400000, guid: 26fc8bbf25bac1145a169332a20b0c86, type: 2}
   _startPlayerTurnEvent: {fileID: 11400000, guid: a82b422d354c8a64bb15021fed8e5b95, type: 2}
   _endPlayerTurnEvent: {fileID: 11400000, guid: f69733287b575af41bf2051f9e7cb894, type: 2}
   _throwEvent: {fileID: 11400000, guid: b29de7a6fc5add94c88606d4aec6b7ef, type: 2}
@@ -5047,7 +5048,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28.35
+  m_fontSize: 28.25
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -5251,7 +5252,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28.35
+  m_fontSize: 28.25
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -5995,7 +5996,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22.55
+  m_fontSize: 22.4
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -7735,7 +7736,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26.55
+  m_fontSize: 26.4
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -7872,7 +7873,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28.35
+  m_fontSize: 28.25
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -8349,7 +8350,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57.2
+  m_fontSize: 56.75
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -9657,7 +9658,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28.35
+  m_fontSize: 28.25
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -9794,7 +9795,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57.2
+  m_fontSize: 56.75
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -9895,7 +9896,7 @@ MonoBehaviour:
   _turnManager: {fileID: 736496568}
   _map: {fileID: 1144096843}
   _unitsRenderer: {fileID: 1693072225}
-  _numbersOfTurns: 8
+  _numbersOfTurns: 5
   _scoreToWin: 30
   _scoreForOccupation: 10
   _winEvent: {fileID: 11400000, guid: a0a8fcf3c2315ec4b936579de826bca6, type: 2}
@@ -10119,6 +10120,63 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
+--- !u!1001 &4764154446403888877
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5278519137690880615, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
+      propertyPath: m_Name
+      value: ClassicBarricadeGraphic
+      objectReference: {fileID: 0}
+    - target: {fileID: 8210494116224347960, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8210494116224347960, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8210494116224347960, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8210494116224347960, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8210494116224347960, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8210494116224347960, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8210494116224347960, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8210494116224347960, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8210494116224347960, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8210494116224347960, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
 --- !u!1001 &6719130043732477687
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10225,3 +10283,4 @@ SceneRoots:
   - {fileID: 152116237}
   - {fileID: 243430665}
   - {fileID: 36075519}
+  - {fileID: 4764154446403888877}

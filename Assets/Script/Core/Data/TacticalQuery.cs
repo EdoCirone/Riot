@@ -30,7 +30,7 @@ public static class TacticalQuery
             }
         }
 
-        return visited;   
+        return visited;
     }
 
     public static List<HexCoordinates> GetValidTargets(
@@ -65,6 +65,18 @@ public static class TacticalQuery
                     }
                 }
                 break;
+
+            case ActionType.Barricade:                         
+                foreach (HexCoordinates dir in HexCoordinates.Directions)
+                {
+                    HexCoordinates neighbor = from + dir;        
+                    if (map.TryGetCell(neighbor, out HexCell cell)
+                        && IsCellAvailable(cell))               
+                    {
+                        targets.Add(neighbor);
+                    }
+                }
+                break;
         }
 
         return targets;
@@ -73,6 +85,7 @@ public static class TacticalQuery
     {
         if (cell == null) return false;
         if (cell.OccupiedBy != null) return false;
+        if (cell.Barricade != null) return false;
         return cell.Type.IsWalkable;
     }
 

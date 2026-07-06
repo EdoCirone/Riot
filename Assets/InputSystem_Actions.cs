@@ -208,6 +208,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Barricade"",
+                    ""type"": ""Button"",
+                    ""id"": ""cf1fafc1-b4f7-43ed-9b9a-217ba8fa9877"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -252,6 +261,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Throw"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c5545d70-4494-49aa-9958-fb2480a7f8c6"",
+                    ""path"": ""<Keyboard>/b"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Barricade"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -445,6 +465,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Game_MousePosition = m_Game.FindAction("MousePosition", throwIfNotFound: true);
         m_Game_Charge = m_Game.FindAction("Charge", throwIfNotFound: true);
         m_Game_Throw = m_Game.FindAction("Throw", throwIfNotFound: true);
+        m_Game_Barricade = m_Game.FindAction("Barricade", throwIfNotFound: true);
         // Camera
         m_Camera = asset.FindActionMap("Camera", throwIfNotFound: true);
         m_Camera_CameraMovement = m_Camera.FindAction("CameraMovement", throwIfNotFound: true);
@@ -642,6 +663,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Game_MousePosition;
     private readonly InputAction m_Game_Charge;
     private readonly InputAction m_Game_Throw;
+    private readonly InputAction m_Game_Barricade;
     /// <summary>
     /// Provides access to input actions defined in input action map "Game".
     /// </summary>
@@ -669,6 +691,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Game/Throw".
         /// </summary>
         public InputAction @Throw => m_Wrapper.m_Game_Throw;
+        /// <summary>
+        /// Provides access to the underlying input action "Game/Barricade".
+        /// </summary>
+        public InputAction @Barricade => m_Wrapper.m_Game_Barricade;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -707,6 +733,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Throw.started += instance.OnThrow;
             @Throw.performed += instance.OnThrow;
             @Throw.canceled += instance.OnThrow;
+            @Barricade.started += instance.OnBarricade;
+            @Barricade.performed += instance.OnBarricade;
+            @Barricade.canceled += instance.OnBarricade;
         }
 
         /// <summary>
@@ -730,6 +759,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Throw.started -= instance.OnThrow;
             @Throw.performed -= instance.OnThrow;
             @Throw.canceled -= instance.OnThrow;
+            @Barricade.started -= instance.OnBarricade;
+            @Barricade.performed -= instance.OnBarricade;
+            @Barricade.canceled -= instance.OnBarricade;
         }
 
         /// <summary>
@@ -992,6 +1024,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnThrow(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Barricade" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBarricade(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Camera" which allows adding and removing callbacks.

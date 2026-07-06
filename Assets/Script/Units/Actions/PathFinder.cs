@@ -32,13 +32,10 @@ public class PathFinder : MonoBehaviour
                 foreach (HexCoordinates neighbor in minFCell.GetNeighbors())
                 {
                     if (checkedCell.Contains(neighbor) || !grid.IsCellWalkable(neighbor))
-                    {
                         continue;
-                    }
 
-                    if (grid.TryGetCell(neighbor, out HexCell neighborCell)
-                        && neighborCell.OccupiedBy != null
-                        && neighbor != end)
+                    if (grid.TryGetCell(neighbor, out HexCell barricadeCheckCell)
+                        && barricadeCheckCell.Barricade != null) 
                         continue;
 
                     int tentativeGCost = gCost[minFCell] + 1; // Assuming uniform cost for moving to a neighbor

@@ -122,6 +122,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Barricade",
+                    "type": "Button",
+                    "id": "cf1fafc1-b4f7-43ed-9b9a-217ba8fa9877",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -166,6 +175,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Throw",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c5545d70-4494-49aa-9958-fb2480a7f8c6",
+                    "path": "<Keyboard>/b",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Barricade",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
