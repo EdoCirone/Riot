@@ -1,27 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "BarricadeSO", menuName = "RIOT/Items/BarricadeSO")]
-public class BarricadeSO : ScriptableObject
+public class BarricadeSO : ItemSO
 {
-    [Header("General")]
-    [SerializeField] private string _name;
-    [SerializeField] private string _id;
-
-    [Header("Graphic")]
-    [SerializeField] private Sprite _inventoryIcon;
-    [SerializeField] private GameObject _GraphicPrefab;
-
-    [Header("Settings")]
-    [SerializeField] private int _actionPointCost;
-
-    public string Name => _name;
-    public string Id => _id;
-
-    public int ActionPointCost => _actionPointCost;
-
-    public Sprite InventoryIcon => _inventoryIcon;
-    public GameObject GraphicPrefab => _GraphicPrefab;
-
-
 
 }
