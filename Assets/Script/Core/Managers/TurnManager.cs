@@ -348,10 +348,8 @@ public class TurnManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[LANCIO] Morale police prima: {target.Morale}");
         _throwEvent.Raise(target);
         target.LoseMorale(1);
-        Debug.Log($"[LANCIO] Morale police dopo: {target.Morale}, status: {target.Status}");
 
         _unitsRenderer.UpdateView(target);
     }
@@ -390,7 +388,6 @@ public class TurnManager : MonoBehaviour
 
         _waitingForPolice = true;
         _endPlayerTurnEvent.Raise();
-        Debug.Log("TurnManager: EndPlayerTurnEvent rise");
 
         Debug.Log("--- TURNO POLIZIA ---");
 

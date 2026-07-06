@@ -27,7 +27,7 @@ public class OrderPreviewRenderer : MonoBehaviour
         if (_hexGridRenderer == null || _grid == null || _turnManager == null ||
        _unitSelectedEvent == null || _unitDeselectedEvent == null)
         {
-            Debug.LogWarning("OrderPreviewRenderer: riferimenti mancanti");
+            Debug.LogWarning("OrderPreviewRenderer: missing References");
             return;
         }
 
