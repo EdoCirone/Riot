@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdaccd0846c48ec45a2a54ba2aa7b0be, type: 3}
+  m_Name: SanPietrinoSO
+  m_EditorClassIdentifier: Assembly-CSharp::ThrowItemSO
+  _name: San Pietrino
+  _id: sanpietrino
+  _inventoryIcon: {fileID: 4158178897797874180, guid: 170b95eea151767409cbd9075ce9fdca, type: 3}
+  _graphicPrefab: {fileID: 2792980280111149162, guid: 2eef7805a1e77a343b0ee0bd5b1d1b7c, type: 3}
+  _actionPointCost: 1
+  _moralLost: 1

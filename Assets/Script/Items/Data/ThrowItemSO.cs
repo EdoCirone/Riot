@@ -6,5 +6,6 @@ public class ThrowItemSO : ItemSO
 {
     [SerializeField] private int _moralLost;
 
+    public override ActionType Action => ActionType.Throw;
     public int MoralLost => _moralLost;
 }

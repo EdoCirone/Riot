@@ -4,4 +4,6 @@ using UnityEngine;
 public class BarricadeSO : ItemSO
 {
 
+    public override ActionType Action => ActionType.Barricade;
+
 }

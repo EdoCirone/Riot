@@ -11,6 +11,8 @@ public abstract class ItemSO : ScriptableObject
     [Header("Settings")]
     [SerializeField] protected int _actionPointCost;
 
+    public abstract ActionType Action { get; }
+
     public string Name => _name;
     public string Id => _id;
     public Sprite InventoryIcon => _inventoryIcon;

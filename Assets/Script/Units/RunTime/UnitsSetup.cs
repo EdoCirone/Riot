@@ -5,6 +5,15 @@ public class UnitsSetup : MonoBehaviour
 
     [SerializeField] private UnitsSO _unit;
     [SerializeField] private HexGrid _grid;
+
+
+    // in UnitsSetup — seeding provvisorio, sostituito dalla composizione corteo
+    [SerializeField] private StartingItem[] _startingInventory;   // provvisorio
+
+    [System.Serializable]
+    public struct StartingItem { public ItemSO item; public int quantity; }
+
+
     public AbstractUnitsRunTime Initialize()
     {
         if (_grid == null) return null;
@@ -31,8 +40,17 @@ public class UnitsSetup : MonoBehaviour
         else if (_unit is SpezzoneSO spezzone)
         {
             SpezzoneRuntime spezzoneRuntime = new SpezzoneRuntime(cell, UnitsStatus.Alive, spezzone, spezzone.Mor, spezzone.ActionPoints);
+
+            foreach (var s in _startingInventory)
+            {
+                spezzoneRuntime.Inventory.AddItem(s.item, s.quantity);
+                if (s.item == null || s.quantity <= 0) continue;
+            }
+
             return spezzoneRuntime;
         }
+
+
 
         return null;
     }
