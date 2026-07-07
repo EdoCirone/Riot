@@ -355,7 +355,6 @@ public class InputHandler : MonoBehaviour
         SetSelectedAction(_selectedAction == ActionType.Charge ? ActionType.None : ActionType.Charge);
         _pendingDestination = null;
         _pendingTarget = null;
-        Debug.Log($"Azione selezionata: {_selectedAction}");
     }
 
     private void OnThrowKey(InputAction.CallbackContext ctx)
@@ -365,7 +364,6 @@ public class InputHandler : MonoBehaviour
         SetSelectedAction(_selectedAction == ActionType.Throw ? ActionType.None : ActionType.Throw);
         _pendingDestination = null;
         _pendingTarget = null;
-        Debug.Log($"Azione selezionata: {_selectedAction}");
     }
 
     private void OnBarricadeKey(InputAction.CallbackContext ctx)
@@ -375,7 +373,6 @@ public class InputHandler : MonoBehaviour
         SetSelectedAction(_selectedAction == ActionType.Barricade ? ActionType.None : ActionType.Barricade);
         _pendingDestination = null;
         _pendingTarget = null;
-        Debug.Log($"Azione selezionata: {_selectedAction}");
     }
 
     private void OnItemSelected(ItemSO item)
@@ -384,7 +381,6 @@ public class InputHandler : MonoBehaviour
         if (_selectedSpezzone == null) return;
         _selectedItem = item;
         SetSelectedAction(item.Action);   
-        Debug.Log($"[ARMATO] {item.Name}, azione={item.Action}");
     }
 
     private bool IsPointerOverUI()
@@ -416,7 +412,6 @@ public class InputHandler : MonoBehaviour
         }
         else if (_selectedSpezzone != null)
         {
-            // Mantieni la selezione sullo spezzone
             _unitSelectedEvent?.Raise(_selectedSpezzone);
         }
 
@@ -458,7 +453,7 @@ public class InputHandler : MonoBehaviour
             case ActionType.Throw:
                 if (_selectedItem == null)
                 {
-                    Debug.Log("Devi selezionare un oggetto da lanciare");
+                    Debug.Log("select a throw object");
                     _isExecutingAction = false;
                     return;
                 }
@@ -470,7 +465,7 @@ public class InputHandler : MonoBehaviour
             case ActionType.Barricade:
                 if (_selectedItem == null)
                 {
-                    Debug.Log("Devi selezionare una barricata");
+                    Debug.Log("Select a Barricade");
                     _isExecutingAction = false;
                     return;
                 }

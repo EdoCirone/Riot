@@ -10,7 +10,6 @@ public class TurnManager : MonoBehaviour
     [SerializeField] private LVLManager _lvlManager;
     [SerializeField] private PathFinder _pathFinder;
     [SerializeField] private PoliceAI _policeAI;
-    [SerializeField] private BarricadeSO _defaultBarricadeSO;   // campo da eliminare appena si implementa l'inventario
 
     [Header("Events")]
     [SerializeField] private GameEventSO _startPlayerTurnEvent;

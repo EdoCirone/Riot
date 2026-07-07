@@ -79,7 +79,6 @@ public class InventoryView : MonoBehaviour
 
     public void OnSlotClicked(ItemSO item)
     {
-        Debug.Log($"[SLOT CLICK] {item.Name}");
         _itemSelectedEvent?.Raise(item);
     }
 
