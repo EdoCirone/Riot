@@ -19,6 +19,7 @@ public class InputHandler : MonoBehaviour
     [SerializeField] private GameEventSO _policeDeselectedEvent;
     [SerializeField] private ActionEventSO _actionSelectedEvent;
     [SerializeField] private ItemEventSO _itemSelectedEvent;
+    [SerializeField] private StringEventSO _alertEvent;
 
     private bool _isExecutingAction = false;
 
@@ -437,7 +438,7 @@ public class InputHandler : MonoBehaviour
 
         if (!validTargets.Contains(clickCell.Coordinates))
         {
-            Debug.Log("not valid Target");
+            _alertEvent?.Raise("not valid Target");
             return;
         }
 
@@ -453,7 +454,7 @@ public class InputHandler : MonoBehaviour
             case ActionType.Throw:
                 if (_selectedItem == null)
                 {
-                    Debug.Log("select a throw object");
+                    _alertEvent?.Raise("select a throw object");
                     _isExecutingAction = false;
                     return;
                 }
@@ -465,7 +466,7 @@ public class InputHandler : MonoBehaviour
             case ActionType.Barricade:
                 if (_selectedItem == null)
                 {
-                    Debug.Log("Select a Barricade");
+                    _alertEvent?.Raise("Select a Barricade");
                     _isExecutingAction = false;
                     return;
                 }

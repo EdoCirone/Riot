@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class TurnManager : MonoBehaviour
 {
@@ -17,6 +16,7 @@ public class TurnManager : MonoBehaviour
     [SerializeField] private UnitEventSO _throwEvent;
     [SerializeField] private GameObjectEventSO _startFollowEvent;
     [SerializeField] private GameEventSO _stopFollowEvent;
+    [SerializeField] private StringEventSO _alertEvent;
 
 
     private HexGrid _map;
@@ -343,12 +343,12 @@ public class TurnManager : MonoBehaviour
     {
         if (item == null)
         {
-            Debug.Log("Lancio non eseguito: nessun oggetto selezionato");
+            _alertEvent?.Raise("not selected Item");
             return;
         }
         if (!atk.TrySpendActionPoint(item.ActionPointCost)) 
         {
-            Debug.Log($"Lancio non eseguito: PA insufficienti (servono {item.ActionPointCost})");
+            _alertEvent?.Raise($"Not enough PA, {item.ActionPointCost} needed");
             return;
         }
         _throwEvent.Raise(target);
@@ -367,7 +367,6 @@ public class TurnManager : MonoBehaviour
     {
         if (item == null)
         {
-            Debug.Log("Nessuna barricata selezionata");
             return false;
         }
 
@@ -383,7 +382,7 @@ public class TurnManager : MonoBehaviour
         if (!atk.TrySpendActionPoint(item.ActionPointCost))
         {
             targetCell.RemoveBarricade();
-            Debug.Log($"Barricata annullata: PA insufficienti (servono {item.ActionPointCost})");
+            _alertEvent?.Raise($"Not enough PA, {item.ActionPointCost} needed");
             return false;
         }
         if (atk is SpezzoneRuntime spezzone)
