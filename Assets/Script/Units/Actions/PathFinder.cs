@@ -31,14 +31,11 @@ public class PathFinder : MonoBehaviour
 
                 foreach (HexCoordinates neighbor in minFCell.GetNeighbors())
                 {
-                    if (checkedCell.Contains(neighbor) || !grid.IsCellWalkable(neighbor))
-                        continue;
+                    if (checkedCell.Contains(neighbor)) continue;
+                    if (!grid.TryGetCell(neighbor, out HexCell neighborCell)) continue;
+                    if (!TacticalQuery.IsCellAvailable(neighborCell)) continue;
 
-                    if (grid.TryGetCell(neighbor, out HexCell barricadeCheckCell)
-                        && barricadeCheckCell.Barricade != null) 
-                        continue;
-
-                    int tentativeGCost = gCost[minFCell] + 1; // Assuming uniform cost for moving to a neighbor
+                    int tentativeGCost = gCost[minFCell] + 1;
                     if (!foundCell.Contains(neighbor))
                     {
                         gCost[neighbor] = tentativeGCost;

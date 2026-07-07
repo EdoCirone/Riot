@@ -197,6 +197,7 @@ public class TurnManager : MonoBehaviour
     {
         if (path == null || path.Count == 0)
         {
+            _alertEvent?.Raise("No Path Found");
             onComplete?.Invoke();
             return false;
         }
@@ -375,7 +376,7 @@ public class TurnManager : MonoBehaviour
 
         if (!targetCell.TryPlaceBarricade(barricade))
         {
-            Debug.Log("Barricata non piazzata: cella non disponibile");
+            _alertEvent?.Raise("Barricata non piazzata: cella non disponibile");
             return false;
         }
 

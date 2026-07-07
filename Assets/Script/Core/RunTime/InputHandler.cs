@@ -131,7 +131,7 @@ public class InputHandler : MonoBehaviour
             else
             {
                 _pendingDestination = null;
-                Debug.Log("Movimento annullato");
+                _alertEvent?.Raise("Out of range");
             }
             return;
         }
@@ -246,7 +246,7 @@ public class InputHandler : MonoBehaviour
 
         if (pathCoords.Count == 0)
         {
-            Debug.Log("Nessun percorso trovato verso la destinazione");
+            _alertEvent?.Raise("No path found");
             _pendingDestination = null;
             _isExecutingAction = false;
             return;
@@ -293,7 +293,7 @@ public class InputHandler : MonoBehaviour
             HexCoordinates? bestAdjacent = _turnManager.FindBestAdjacentCell(atkCoord, defCoord);
             if (bestAdjacent == null)
             {
-                Debug.Log("Nessuna cella adiacente libera al bersaglio");
+                _alertEvent?.Raise("No free adiacent Cell");
                 success = false;
             }
             else
@@ -301,7 +301,7 @@ public class InputHandler : MonoBehaviour
                 List<HexCoordinates> pathCoords = _turnManager.PathFinder.FindPath(atkCoord, bestAdjacent.Value, _grid);
                 if (pathCoords.Count == 0)
                 {
-                    Debug.Log("Nessun percorso verso il bersaglio");
+                    _alertEvent?.Raise("No path to target");
                     success = false;
                 }
                 else
@@ -316,7 +316,7 @@ public class InputHandler : MonoBehaviour
                     int moveCost = path.Count;
                     if (_selectedSpezzone.ActionPoints < moveCost + 1)
                     {
-                        Debug.Log("PA insufficienti per muoversi e attaccare");
+                        _alertEvent?.Raise("not enough PA");
                         success = false;
                     }
                     else
