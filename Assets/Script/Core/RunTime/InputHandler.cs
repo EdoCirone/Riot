@@ -450,6 +450,11 @@ public class InputHandler : MonoBehaviour
         switch (_selectedAction)
         {
             case ActionType.Charge:
+                PoliceRuntime chargeTarget = clickCell.OccupiedBy as PoliceRuntime;
+                _turnManager.ExecuteCharge(_selectedSpezzone, chargeTarget);
+                _lastAttackedPolice = chargeTarget;
+                break;
+
             case ActionType.Throw:
                 if (_selectedItem == null)
                 {
@@ -472,7 +477,6 @@ public class InputHandler : MonoBehaviour
                 bool placed = _turnManager.ExecuteBarricade(_selectedSpezzone, clickCell, _selectedItem as BarricadeSO);
                 if (!placed) { _isExecutingAction = false; return; }
                 break;
-
         }
         SetSelectedAction(ActionType.None);
         OnActionComplete();
