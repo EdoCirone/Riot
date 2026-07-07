@@ -9,6 +9,7 @@ public class InventoryView : MonoBehaviour
     [SerializeField] private UnitEventSO _unitSelectedEvent;
     [SerializeField] private GameEventSO _unitDeselectedEvent;
     [SerializeField] private ActionEventSO _actionSelectedEvent;
+    [SerializeField] private ItemEventSO _itemSelectedEvent;
 
     private bool _isValid;
 
@@ -20,6 +21,9 @@ public class InventoryView : MonoBehaviour
             return;
         }
         _isValid = true;
+
+        foreach (var slot in _slots)
+            slot.Init(this);
         ClearAllSlots();
     }
 
@@ -71,6 +75,12 @@ public class InventoryView : MonoBehaviour
 
         foreach (var slot in _slots)
             slot.SetHighlighted(slot.IsCompatibleWith(action));
+    }
+
+    public void OnSlotClicked(ItemSO item)
+    {
+        Debug.Log($"[SLOT CLICK] {item.Name}");
+        _itemSelectedEvent?.Raise(item);
     }
 
     private void ClearAllSlots()

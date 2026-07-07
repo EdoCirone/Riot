@@ -1,13 +1,16 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
-public class InventorySlotUI : MonoBehaviour
+public class InventorySlotUI : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] private Image _iconImage;
     [SerializeField] private TextMeshProUGUI _quantityText;
 
     private ItemSO _currentItem;
+    private InventoryView _owner;
+
+    public void Init(InventoryView owner) => _owner = owner;
 
     public void SetItem(ItemSO item, int quantity)
     {
@@ -37,4 +40,12 @@ public class InventorySlotUI : MonoBehaviour
         if (_quantityText != null)
             _quantityText.text = "";
     }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (_currentItem == null) return;          // slot vuoto: click ignorato
+        if (_iconImage.color.a < 1f) return;       // slot grigiato (non compatibile): ignora
+        _owner?.OnSlotClicked(_currentItem);
+    }
+
 }

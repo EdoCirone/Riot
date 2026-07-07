@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class TurnManager : MonoBehaviour
 {
@@ -339,18 +340,22 @@ public class TurnManager : MonoBehaviour
     #endregion
 
     #region Lancio
-    public void ExecuteThrow(AbstractUnitsRunTime atk, PoliceRuntime target)
+    public void ExecuteThrow(AbstractUnitsRunTime atk, PoliceRuntime target, ThrowItemSO item)
     {
-        const int throwCost = 2;
-        if (!atk.TrySpendActionPoint(throwCost))
+        if (item == null)
         {
-            Debug.Log($"Lancio non eseguito: PA insufficienti (servono {throwCost})");
+            Debug.Log("Lancio non eseguito: nessun oggetto selezionato");
             return;
         }
-
+        if (!atk.TrySpendActionPoint(item.ActionPointCost)) 
+        {
+            Debug.Log($"Lancio non eseguito: PA insufficienti (servono {item.ActionPointCost})");
+            return;
+        }
         _throwEvent.Raise(target);
-        target.LoseMorale(1);
-
+        target.LoseMorale(item.MoralLost);
+        if (atk is SpezzoneRuntime spezzone)
+            spezzone.Inventory.ConsumeItem(item);
         _unitsRenderer.UpdateView(target);
     }
 
@@ -359,26 +364,35 @@ public class TurnManager : MonoBehaviour
     #region Barricade
 
 
-    public void ExecuteBarricade(AbstractUnitsRunTime atk, HexCell targetCell)
+    public bool ExecuteBarricade(AbstractUnitsRunTime atk, HexCell targetCell, BarricadeSO item)
     {
-        int cost = _defaultBarricadeSO.ActionPointCost;  
-
-        if (!atk.TrySpendActionPoint(cost))
+        if (item == null)
         {
-            Debug.Log($"Barricata non eseguita: PA insufficienti (servono {cost})");
-            return;
+            Debug.Log("Nessuna barricata selezionata");
+            return false;
         }
 
-        BarricadeRuntime barricade = new BarricadeRuntime(_defaultBarricadeSO);
-       
+
+        BarricadeRuntime barricade = new BarricadeRuntime(item);
+
         if (!targetCell.TryPlaceBarricade(barricade))
         {
             Debug.Log("Barricata non piazzata: cella non disponibile");
-            return;
+            return false;
         }
-        
+
+        if (!atk.TrySpendActionPoint(item.ActionPointCost))
+        {
+            targetCell.RemoveBarricade();
+            Debug.Log($"Barricata annullata: PA insufficienti (servono {item.ActionPointCost})");
+            return false;
+        }
+        if (atk is SpezzoneRuntime spezzone)
+            spezzone.Inventory.ConsumeItem(item);
+
         Vector3 worldPos = _map.transform.position + targetCell.Coordinates.ToWorldPosition(_map.CellSize);
-        Instantiate(_defaultBarricadeSO.GraphicPrefab, worldPos, Quaternion.identity); // istanza temporanea, da cancellare appena faccio _barricadeRenderer
+        Instantiate(item.GraphicPrefab, worldPos, Quaternion.identity);
+        return true;
     }
 
     #endregion

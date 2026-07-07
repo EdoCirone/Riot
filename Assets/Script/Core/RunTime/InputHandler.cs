@@ -1,4 +1,6 @@
 ﻿using DG.Tweening;
+
+using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -16,7 +18,7 @@ public class InputHandler : MonoBehaviour
     [SerializeField] private UnitEventSO _policeSelectedEvent;
     [SerializeField] private GameEventSO _policeDeselectedEvent;
     [SerializeField] private ActionEventSO _actionSelectedEvent;
-
+    [SerializeField] private ItemEventSO _itemSelectedEvent;
 
     private bool _isExecutingAction = false;
 
@@ -25,7 +27,10 @@ public class InputHandler : MonoBehaviour
 
     private PoliceRuntime _lastAttackedPolice;
     private SpezzoneRuntime _selectedSpezzone;
+
     private ActionType _selectedAction = ActionType.None;
+    private ItemSO _selectedItem;
+
     private HexCell _pendingDestination;
     private PoliceRuntime _pendingTarget;
 
@@ -52,6 +57,8 @@ public class InputHandler : MonoBehaviour
         _inputSystem.Game.Throw.performed += OnThrowKey;
         _inputSystem.Game.Barricade.performed += OnBarricadeKey;
 
+        _itemSelectedEvent.Subscribe(OnItemSelected);
+
         _inputSystem.Enable();
     }
 
@@ -65,6 +72,8 @@ public class InputHandler : MonoBehaviour
         _inputSystem.Game.Throw.performed -= OnThrowKey;
         _inputSystem.Game.Barricade.performed -= OnBarricadeKey;
 
+        _itemSelectedEvent.Unsubscribe(OnItemSelected);
+
         _inputSystem.Disable();
     }
 
@@ -73,6 +82,8 @@ public class InputHandler : MonoBehaviour
         if (_isExecutingAction) return;
 
         if (_lvlManager == null || !_lvlManager.IsGameActive) return;
+
+        if (IsPointerOverUI()) return;
 
         Vector2 screenPos = _inputSystem.Game.MousePosition.ReadValue<Vector2>();
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 0));
@@ -103,7 +114,7 @@ public class InputHandler : MonoBehaviour
             }
             else if (clickCell.OccupiedBy is PoliceRuntime police)
             {
-                _policeSelectedEvent?.Raise(police);  
+                _policeSelectedEvent?.Raise(police);
             }
             return;
         }
@@ -367,6 +378,27 @@ public class InputHandler : MonoBehaviour
         Debug.Log($"Azione selezionata: {_selectedAction}");
     }
 
+    private void OnItemSelected(ItemSO item)
+    {
+        if (_isExecutingAction) return;
+        if (_selectedSpezzone == null) return;
+        _selectedItem = item;
+        SetSelectedAction(item.Action);   
+        Debug.Log($"[ARMATO] {item.Name}, azione={item.Action}");
+    }
+
+    private bool IsPointerOverUI()
+    {
+        if (EventSystem.current == null) return false;
+        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        {
+            position = Mouse.current.position.ReadValue()
+        };
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+        return results.Count > 0;
+    }
+
     private void OnActionComplete()
     {
         if (_selectedSpezzone != null && _selectedSpezzone.Status == UnitsStatus.Disperse)
@@ -419,17 +451,28 @@ public class InputHandler : MonoBehaviour
         {
             case ActionType.Charge:
             case ActionType.Throw:
+                if (_selectedItem == null)
+                {
+                    Debug.Log("Devi selezionare un oggetto da lanciare");
+                    _isExecutingAction = false;
+                    return;
+                }
                 PoliceRuntime police = clickCell.OccupiedBy as PoliceRuntime;
-                if (_selectedAction == ActionType.Charge)
-                    _turnManager.ExecuteCharge(_selectedSpezzone, police);
-                else
-                    _turnManager.ExecuteThrow(_selectedSpezzone, police);
+                _turnManager.ExecuteThrow(_selectedSpezzone, police, _selectedItem as ThrowItemSO);
                 _lastAttackedPolice = police;
                 break;
 
             case ActionType.Barricade:
-                _turnManager.ExecuteBarricade(_selectedSpezzone, clickCell);   
+                if (_selectedItem == null)
+                {
+                    Debug.Log("Devi selezionare una barricata");
+                    _isExecutingAction = false;
+                    return;
+                }
+                bool placed = _turnManager.ExecuteBarricade(_selectedSpezzone, clickCell, _selectedItem as BarricadeSO);
+                if (!placed) { _isExecutingAction = false; return; }
                 break;
+
         }
         SetSelectedAction(ActionType.None);
         OnActionComplete();
@@ -439,6 +482,10 @@ public class InputHandler : MonoBehaviour
     private void SetSelectedAction(ActionType action)
     {
         _selectedAction = action;
+
+        if (action == ActionType.None)
+            _selectedItem = null;
+
         _actionSelectedEvent?.Raise(action);
     }
 }

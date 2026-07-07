@@ -12,6 +12,10 @@ public class ThrowObjectVFX : MonoBehaviour
     [Header ("Events")]
     [SerializeField] private UnitEventSO _throwObjectEvent;
     [SerializeField] private UnitEventSO _unitSelected;
+    [SerializeField] private ItemEventSO _itemSelectedEvent;
+    
+    private ItemSO _selectedItem;
+    private void SaveItem(ItemSO item) => _selectedItem = item;
 
     private AbstractUnitsRunTime _selectedUnit;
 
@@ -34,6 +38,7 @@ public class ThrowObjectVFX : MonoBehaviour
         if (_throwObjectEvent == null || _unitSelected == null) return;
         _unitSelected.Subscribe(SaveSelection);
         _throwObjectEvent.Subscribe(PlayThrowVFX);
+        _itemSelectedEvent.Subscribe(SaveItem);
     }
 
     private void OnDisable()
@@ -41,6 +46,7 @@ public class ThrowObjectVFX : MonoBehaviour
         if (_throwObjectEvent == null || _unitSelected == null) return;
         _unitSelected.Unsubscribe(SaveSelection);
         _throwObjectEvent.Unsubscribe(PlayThrowVFX);
+        _itemSelectedEvent.Unsubscribe(SaveItem);
     }
 
     private void SaveSelection(AbstractUnitsRunTime unit)
@@ -65,8 +71,11 @@ public class ThrowObjectVFX : MonoBehaviour
         Vector3 selectedUnitPos = _map.transform.position + _selectedUnit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize); 
         Vector3 targetUnitPos = _map.transform.position + unit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
 
-        GameObject throwObject = Instantiate(_trowhObjectPrefab, selectedUnitPos, Quaternion.identity);
-        throwObject.transform.DOJump(targetUnitPos, 1f, 1, 0.5f).OnComplete(() =>
+        GameObject prefab = (_selectedItem != null && _selectedItem.GraphicPrefab != null)
+            ? _selectedItem.GraphicPrefab
+            : _trowhObjectPrefab;  
+
+        GameObject throwObject = Instantiate(prefab, selectedUnitPos, Quaternion.identity); throwObject.transform.DOJump(targetUnitPos, 1f, 1, 0.5f).OnComplete(() =>
         {
             Destroy(throwObject);
         });
