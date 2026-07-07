@@ -89,6 +89,51 @@ public static class TacticalQuery
         return cell.Type.IsWalkable;
     }
 
+    public struct AttackOption
+    {
+        public bool IsValid;
+        public bool RequiresMovement;
+        public HexCoordinates MoveDestination;
+        public int MoveCost;
+    }
+
+    public static AttackOption GetAttackOption(HexCoordinates from, HexCoordinates targetCoord, int budget, HexGrid map,
+     Dictionary<HexCoordinates, int> precomputedVisited = null)
+    {
+        if (budget < 1) return new AttackOption { IsValid = false };
+
+        if (from.Distance(targetCoord) == 1)
+            return new AttackOption { IsValid = true, RequiresMovement = false };
+
+        Dictionary<HexCoordinates, int> visited = precomputedVisited ?? GetReachable(from, budget, map);
+
+        bool found = false;
+        HexCoordinates bestNeighbor = default;
+        int bestCost = int.MaxValue;
+
+        foreach (HexCoordinates neighbor in targetCoord.GetNeighbors())
+        {
+            if (!visited.TryGetValue(neighbor, out int cost)) continue;
+            if (cost + 1 > budget) continue;
+            if (cost < bestCost)
+            {
+                bestCost = cost;
+                bestNeighbor = neighbor;
+                found = true;
+            }
+        }
+
+        if (!found) return new AttackOption { IsValid = false };
+
+        return new AttackOption
+        {
+            IsValid = true,
+            RequiresMovement = true,
+            MoveDestination = bestNeighbor,
+            MoveCost = bestCost
+        };
+    }
+
     public static bool HasChargeRoom(HexCoordinates atkCoord, HexCoordinates defCoord,
                                  HexGrid map, out HexCoordinates chargeDestination)
     {

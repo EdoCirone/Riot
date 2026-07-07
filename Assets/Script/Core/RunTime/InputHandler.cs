@@ -125,17 +125,15 @@ public class InputHandler : MonoBehaviour
         {
             if (clickCell == _pendingDestination)
             {
-                Debug.Log("Destinazione confermata eseguo");
                 ConfirmMovement();
             }
             else
             {
                 _pendingDestination = null;
-                _alertEvent?.Raise("Out of range");
+                TrySetPendingDestination(clickCell);
             }
             return;
         }
-
         // Stato: spezzone selezionato, c'è un pending bersaglio 
         if (_pendingTarget != null)
         {
@@ -156,18 +154,7 @@ public class InputHandler : MonoBehaviour
         // Stato: spezzone selezionato, nessun pending 
         if (clickCell.OccupiedBy == null)
         {
-            if (!clickCell.Type.IsWalkable)
-            {
-                Debug.Log("Cella non percorribile");
-                return;
-            }
-            _pendingDestination = clickCell;
-
-            Vector3 cellWorldPos = _grid.transform.position + clickCell.Coordinates.ToWorldPosition(_grid.CellSize);
-            FlipSelectedUnit(cellWorldPos);
-
-
-            Debug.Log($"Destinazione marcata: {clickCell.Coordinates}");
+            TrySetPendingDestination(clickCell);
         }
         else if (clickCell.OccupiedBy is PoliceRuntime police)
         {
@@ -289,53 +276,35 @@ public class InputHandler : MonoBehaviour
         }
         else
         {
-            // Muovi verso il bersaglio e poi attacca
-            HexCoordinates? bestAdjacent = _turnManager.FindBestAdjacentCell(atkCoord, defCoord);
-            if (bestAdjacent == null)
+            var option = TacticalQuery.GetAttackOption(atkCoord, defCoord, _selectedSpezzone.ActionPoints, _grid);
+
+            if (!option.IsValid)
             {
-                _alertEvent?.Raise("No free adiacent Cell");
+                _alertEvent?.Raise("No path to target");
                 success = false;
             }
             else
             {
-                List<HexCoordinates> pathCoords = _turnManager.PathFinder.FindPath(atkCoord, bestAdjacent.Value, _grid);
-                if (pathCoords.Count == 0)
+                List<HexCoordinates> pathCoords = _turnManager.PathFinder.FindPath(atkCoord, option.MoveDestination, _grid);
+                List<HexCell> path = new List<HexCell>();
+                for (int i = 1; i < pathCoords.Count; i++)
                 {
-                    _alertEvent?.Raise("No path to target");
-                    success = false;
+                    if (_grid.TryGetCell(pathCoords[i], out HexCell cell))
+                        path.Add(cell);
                 }
-                else
-                {
-                    List<HexCell> path = new List<HexCell>();
-                    for (int i = 1; i < pathCoords.Count; i++)
-                    {
-                        if (_grid.TryGetCell(pathCoords[i], out HexCell cell))
-                            path.Add(cell);
-                    }
 
-                    int moveCost = path.Count;
-                    if (_selectedSpezzone.ActionPoints < moveCost + 1)
-                    {
-                        _alertEvent?.Raise("not enough PA");
-                        success = false;
-                    }
+                success = true;
+                _isExecutingAction = true;
+                _turnManager.ExecuteMovement(_selectedSpezzone, path, () =>
+                {
+                    if (_pendingTarget != null && _pendingTarget.Status != UnitsStatus.Disperse)
+                        _turnManager.StartSkirmish(_selectedSpezzone, _pendingTarget, () => OnActionComplete());
                     else
-                    {
-                        success = true;
-                        _isExecutingAction = true;
-                        _turnManager.ExecuteMovement(_selectedSpezzone, path, () =>
-                        {
-                            if (_pendingTarget != null && _pendingTarget.Status != UnitsStatus.Disperse)
-                                _turnManager.StartSkirmish(_selectedSpezzone, _pendingTarget, () => OnActionComplete());
-                            else
-                                OnActionComplete();
-                        });
-                        return;
-                    }
-                }
+                        OnActionComplete();
+                });
+                return;
             }
         }
-
         if (!success)
         {
             Debug.Log("Attacco non eseguito");
@@ -347,7 +316,20 @@ public class InputHandler : MonoBehaviour
 
     }
 
+    private void TrySetPendingDestination(HexCell cell)
+    {
+        var reachable = TacticalQuery.GetReachable(
+            _selectedSpezzone.PositionCell.Coordinates, _selectedSpezzone.ActionPoints, _grid);
 
+        if (!reachable.ContainsKey(cell.Coordinates))
+        {
+            _alertEvent?.Raise("Out of range");
+            return;
+        }
+
+        _pendingDestination = cell;
+        FlipSelectedUnit(_grid.transform.position + cell.Coordinates.ToWorldPosition(_grid.CellSize));
+    }
     private void OnChargeKey(InputAction.CallbackContext ctx)
     {
         if (_isExecutingAction) return;

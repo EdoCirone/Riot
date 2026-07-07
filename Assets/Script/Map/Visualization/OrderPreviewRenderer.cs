@@ -85,19 +85,12 @@ public class OrderPreviewRenderer : MonoBehaviour
 
         foreach (HexCell cell in _grid.GetAllCells())
         {
-            if (cell.OccupiedBy is not PoliceRuntime police) continue;
+            if (cell.OccupiedBy is not PoliceRuntime) continue;
 
-            bool skirmish = unit.PositionCell.Coordinates.Distance(cell.Coordinates) == 1
-                 && budget >= 1;
-            bool charge = _turnManager.CanCharge(unit, police) && budget >= 4;
-            bool moveAndAttack = !skirmish && CanMoveAndSkirmish(cell.Coordinates, visited, budget);
+            var option = TacticalQuery.GetAttackOption(
+                unit.PositionCell.Coordinates, cell.Coordinates, budget, _grid, visited);
 
-            if (skirmish)
-            {
-                _hexGridRenderer.SetCellColor(cell.Coordinates, _attackableColor);
-                _highlightedCells.Add(cell.Coordinates);
-            }
-            else if (moveAndAttack)
+            if (option.IsValid)
             {
                 _hexGridRenderer.SetCellColor(cell.Coordinates, _attackableColor);
                 _highlightedCells.Add(cell.Coordinates);
@@ -128,17 +121,6 @@ public class OrderPreviewRenderer : MonoBehaviour
             _hexGridRenderer.SetCellColor(coord, _chargeColor);
             _highlightedCells.Add(coord);
         }
-    }
-
-
-    private bool CanMoveAndSkirmish(HexCoordinates policeCoord,
-                                Dictionary<HexCoordinates, int> visited,
-                                int budget)
-    {
-        foreach (HexCoordinates n in policeCoord.GetNeighbors())
-            if (visited.TryGetValue(n, out int cost) && cost + 1 <= budget)
-                return true;
-        return false;
     }
 
     private void ClearHighlight()
