@@ -131,6 +131,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Chant",
+                    "type": "Button",
+                    "id": "beb08ed4-7b74-42a0-b493-d3f4fbb553f6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SitStand",
+                    "type": "Button",
+                    "id": "3352e66b-b8bd-489c-9ded-29856011b25f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -186,6 +204,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Barricade",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "057097c5-ecc7-4d4f-b559-ee2060ecbc0a",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Chant",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3adeceb9-feb8-4e37-820c-e55457633b89",
+                    "path": "<Keyboard>/g",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SitStand",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

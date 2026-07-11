@@ -217,6 +217,24 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Chant"",
+                    ""type"": ""Button"",
+                    ""id"": ""beb08ed4-7b74-42a0-b493-d3f4fbb553f6"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SitStand"",
+                    ""type"": ""Button"",
+                    ""id"": ""3352e66b-b8bd-489c-9ded-29856011b25f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -272,6 +290,28 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Barricade"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""057097c5-ecc7-4d4f-b559-ee2060ecbc0a"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Chant"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3adeceb9-feb8-4e37-820c-e55457633b89"",
+                    ""path"": ""<Keyboard>/g"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SitStand"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -466,6 +506,8 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Game_Charge = m_Game.FindAction("Charge", throwIfNotFound: true);
         m_Game_Throw = m_Game.FindAction("Throw", throwIfNotFound: true);
         m_Game_Barricade = m_Game.FindAction("Barricade", throwIfNotFound: true);
+        m_Game_Chant = m_Game.FindAction("Chant", throwIfNotFound: true);
+        m_Game_SitStand = m_Game.FindAction("SitStand", throwIfNotFound: true);
         // Camera
         m_Camera = asset.FindActionMap("Camera", throwIfNotFound: true);
         m_Camera_CameraMovement = m_Camera.FindAction("CameraMovement", throwIfNotFound: true);
@@ -664,6 +706,8 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Game_Charge;
     private readonly InputAction m_Game_Throw;
     private readonly InputAction m_Game_Barricade;
+    private readonly InputAction m_Game_Chant;
+    private readonly InputAction m_Game_SitStand;
     /// <summary>
     /// Provides access to input actions defined in input action map "Game".
     /// </summary>
@@ -695,6 +739,14 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Game/Barricade".
         /// </summary>
         public InputAction @Barricade => m_Wrapper.m_Game_Barricade;
+        /// <summary>
+        /// Provides access to the underlying input action "Game/Chant".
+        /// </summary>
+        public InputAction @Chant => m_Wrapper.m_Game_Chant;
+        /// <summary>
+        /// Provides access to the underlying input action "Game/SitStand".
+        /// </summary>
+        public InputAction @SitStand => m_Wrapper.m_Game_SitStand;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -736,6 +788,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Barricade.started += instance.OnBarricade;
             @Barricade.performed += instance.OnBarricade;
             @Barricade.canceled += instance.OnBarricade;
+            @Chant.started += instance.OnChant;
+            @Chant.performed += instance.OnChant;
+            @Chant.canceled += instance.OnChant;
+            @SitStand.started += instance.OnSitStand;
+            @SitStand.performed += instance.OnSitStand;
+            @SitStand.canceled += instance.OnSitStand;
         }
 
         /// <summary>
@@ -762,6 +820,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Barricade.started -= instance.OnBarricade;
             @Barricade.performed -= instance.OnBarricade;
             @Barricade.canceled -= instance.OnBarricade;
+            @Chant.started -= instance.OnChant;
+            @Chant.performed -= instance.OnChant;
+            @Chant.canceled -= instance.OnChant;
+            @SitStand.started -= instance.OnSitStand;
+            @SitStand.performed -= instance.OnSitStand;
+            @SitStand.canceled -= instance.OnSitStand;
         }
 
         /// <summary>
@@ -1031,6 +1095,20 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnBarricade(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Chant" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnChant(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SitStand" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSitStand(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Camera" which allows adding and removing callbacks.

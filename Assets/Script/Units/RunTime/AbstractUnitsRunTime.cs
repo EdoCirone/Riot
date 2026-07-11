@@ -8,11 +8,15 @@ public abstract class AbstractUnitsRunTime
     protected int _actionPoints;
     protected int _maxActionPoints;
     protected int _maxMorale;
-
+    protected bool _isSeated;
+    
     public int ActionPoints => _actionPoints;
     public int MaxActionPoints => _maxActionPoints;
     public int Morale => _morale;
     public int MaxMorale => _maxMorale;
+    
+    public bool IsSeated => _isSeated;
+    
     public abstract int Atk { get; }
     public abstract int Def { get; }
 
@@ -54,6 +58,14 @@ public abstract class AbstractUnitsRunTime
             _positionCell = arriveCell;
         }
         return isSucces;
+    }
+
+    public void SitDown() => _isSeated = true;
+    public void StandUp() => _isSeated = false;
+
+    public void GainMorale(int amount)
+    {
+        _morale = Mathf.Min(_morale + amount, _maxMorale);
     }
 
     public void LoseMorale(int amount)

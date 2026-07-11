@@ -1,8 +1,9 @@
-
 public enum ActionType
 {
     None,
     Charge,
     Throw,
-    Barricade
+    Barricade,
+    Chant,
+    SitStand
 }

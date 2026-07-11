@@ -59,16 +59,22 @@ public class TurnManager : MonoBehaviour
     //Mi serve esposta publica per l'highlight di feedback
     public bool CanCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
+        if (def.IsSeated) return false;
         return HasChargeRoom(atk.PositionCell.Coordinates, def.PositionCell.Coordinates, out _);
     }
 
     public bool ExecuteCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
+        if (def.IsSeated)
+        {
+            Debug.Log("Carica non valida: bersaglio seduto (barricata umana)");
+            return false;
+        }
 
         HexCoordinates atkCoord = atk.PositionCell.Coordinates;
         HexCoordinates defCoord = def.PositionCell.Coordinates;
         Vector3 defenderWorldPos = _map.transform.position + def.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
-
+        
 
         if (!HasChargeRoom(atkCoord, defCoord, out HexCoordinates chargeDestination))
         {
@@ -395,6 +401,66 @@ public class TurnManager : MonoBehaviour
     }
 
     #endregion
+
+    #region Chant & SitDown
+
+    public bool ExecuteChant(AbstractUnitsRunTime caster)
+    {
+        const int chantCost = 3;
+        if (!caster.TrySpendActionPoint(chantCost))
+        {
+            Debug.Log($"Coro non eseguito: PA insufficienti (servono {chantCost})");
+            _alertEvent?.Raise($"Not enough PA, {chantCost} needed");
+            return false;
+        }
+
+        caster.GainMorale(1);
+        _unitsRenderer.UpdateView(caster);
+        Debug.Log($"Coro: {caster} +1 morale (ora {caster.Morale}/{caster.MaxMorale})");
+
+        foreach (HexCoordinates n in caster.PositionCell.Coordinates.GetNeighbors())
+        {
+            if (!_map.TryGetCell(n, out HexCell cell)) continue;
+            if (cell.OccupiedBy is SpezzoneRuntime spezzone && spezzone.Status == UnitsStatus.Alive)
+            {
+                spezzone.GainMorale(1);
+                _unitsRenderer.UpdateView(spezzone);
+                Debug.Log($"Coro: {spezzone} +1 morale (ora {spezzone.Morale}/{spezzone.MaxMorale})");
+            }
+        }
+        return true;
+    }
+
+    public bool ExecuteSitStand(AbstractUnitsRunTime unit)
+    {
+        if (!unit.IsSeated)
+        {
+            const int sitCost = 1;
+            if (!unit.TrySpendActionPoint(sitCost))
+            {
+                Debug.Log($"Seduta non eseguita: PA insufficienti (servono {sitCost})");
+                _alertEvent?.Raise($"Not enough PA, {sitCost} needed");
+                return false;
+            }
+            unit.SitDown();
+            Debug.Log($"{unit} si siede. Def ora {unit.Def}, PA rimasti {unit.ActionPoints}");
+            return true;
+        }
+
+        const int standCost = 2;
+        if (!unit.TrySpendActionPoint(standCost))
+        {
+            Debug.Log($"Rialzata non eseguita: PA insufficienti (servono {standCost})");
+            _alertEvent?.Raise($"Not enough PA, {standCost} needed");
+            return false;
+        }
+        unit.StandUp();
+        Debug.Log($"{unit} si rialza. Def ora {unit.Def}, PA rimasti {unit.ActionPoints}");
+        return true;
+    }
+
+    #endregion
+
     public void EndTurn()
     {
         if (_waitingForPolice) return;

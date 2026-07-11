@@ -12,6 +12,11 @@ public class OrderPreviewRenderer : MonoBehaviour
     [SerializeField] private Color _reachableColor = new Color(0.3f, 0.8f, 1f, 0.8f);
     [SerializeField] private Color _attackableColor = Color.red;
     [SerializeField] private Color _chargeColor = Color.yellow;
+    [SerializeField] private Color _throwColor = new Color(1f, 0.5f, 0f, 0.8f);
+    [SerializeField] private Color _barricadeColor = new Color(0.55f, 0.35f, 0.15f, 0.8f);
+    [SerializeField] private Color _chantColor = new Color(1f, 0.85f, 0f, 0.8f);
+    [SerializeField] private Color _chantAreaColor = new Color(1f, 0.85f, 0f, 0.35f);
+    [SerializeField] private Color _sitStandColor = new Color(0.6f, 0.6f, 0.6f, 0.8f);
 
     [Header("Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
@@ -54,6 +59,9 @@ public class OrderPreviewRenderer : MonoBehaviour
     {
         _selectedUnit = unit;
         ClearHighlight();
+
+        if(unit.IsSeated) return;
+
         var visited = TacticalQuery.GetReachable(
             unit.PositionCell.Coordinates, unit.ActionPoints, _grid);
         HighlightReachable(unit, visited);
@@ -103,7 +111,7 @@ public class OrderPreviewRenderer : MonoBehaviour
         ClearHighlight();
         if (action == ActionType.None)
         {
-            if (_selectedUnit != null && _selectedUnit.Status == UnitsStatus.Alive)
+            if (_selectedUnit != null && _selectedUnit.Status == UnitsStatus.Alive && !_selectedUnit.IsSeated)
             {
                 var visited = TacticalQuery.GetReachable(
                     _selectedUnit.PositionCell.Coordinates, _selectedUnit.ActionPoints, _grid);
@@ -113,13 +121,40 @@ public class OrderPreviewRenderer : MonoBehaviour
             return;
         }
         if (_selectedUnit == null) return;
+
         var targets = TacticalQuery.GetValidTargets(
             _selectedUnit.PositionCell.Coordinates, _selectedUnit.ActionPoints, action, _grid);
+
+        Color color = action switch
+        {
+            ActionType.Charge => _chargeColor,
+            ActionType.Throw => _throwColor,
+            ActionType.Barricade => _barricadeColor,
+            ActionType.Chant => _chantColor,
+            ActionType.SitStand => _sitStandColor,
+            _ => _chargeColor
+        };
+
         foreach (var coord in targets)
         {
-
-            _hexGridRenderer.SetCellColor(coord, _chargeColor);
+            _hexGridRenderer.SetCellColor(coord, color);
             _highlightedCells.Add(coord);
+        }
+
+        if (action == ActionType.Chant)
+            HighlightChantArea(_selectedUnit.PositionCell.Coordinates);
+    }
+
+    private void HighlightChantArea(HexCoordinates from)
+    {
+        foreach (HexCoordinates n in from.GetNeighbors())
+        {
+            if (!_grid.TryGetCell(n, out HexCell cell)) continue;
+            if (cell.OccupiedBy is not SpezzoneRuntime spezzone) continue;
+            if (spezzone.Status != UnitsStatus.Alive) continue;
+
+            _hexGridRenderer.SetCellColor(n, _chantAreaColor);
+            _highlightedCells.Add(n);
         }
     }
 

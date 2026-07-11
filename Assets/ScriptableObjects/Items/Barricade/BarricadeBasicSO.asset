@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BarricadeSO
   _name: Basic Barricade
   _id: basicBarricade
-  _inventoryIcon: {fileID: 5889456238588804440, guid: 656fa9b6754f2ff42aeac3043d58e18e, type: 3}
+  _inventoryIcon: {fileID: 21300000, guid: 381035681055a944f9f9ee8364ab058a, type: 3}
   _graphicPrefab: {fileID: 5278519137690880615, guid: 0ffc52875f95a894ca108116eb90015c, type: 3}
   _actionPointCost: 2

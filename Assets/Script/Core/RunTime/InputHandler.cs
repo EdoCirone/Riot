@@ -18,6 +18,7 @@ public class InputHandler : MonoBehaviour
     [SerializeField] private UnitEventSO _policeSelectedEvent;
     [SerializeField] private GameEventSO _policeDeselectedEvent;
     [SerializeField] private ActionEventSO _actionSelectedEvent;
+    [SerializeField] private ActionEventSO _actionButtonClickedEvent;
     [SerializeField] private ItemEventSO _itemSelectedEvent;
     [SerializeField] private StringEventSO _alertEvent;
 
@@ -53,10 +54,14 @@ public class InputHandler : MonoBehaviour
         _inputSystem.UI.LeftClick.performed += OnLeftClick;
         _inputSystem.UI.RightClick.performed += OnRightClick;
 
+        _actionButtonClickedEvent.Subscribe(OnActionButtonClicked);
+
         _inputSystem.Game.EndTurn.performed += OnEndTurn;
         _inputSystem.Game.Charge.performed += OnChargeKey;
         _inputSystem.Game.Throw.performed += OnThrowKey;
         _inputSystem.Game.Barricade.performed += OnBarricadeKey;
+        _inputSystem.Game.Chant.performed += OnChantKey;
+        _inputSystem.Game.SitStand.performed += OnSitStandKey;
 
         _itemSelectedEvent.Subscribe(OnItemSelected);
 
@@ -68,10 +73,14 @@ public class InputHandler : MonoBehaviour
         _inputSystem.UI.LeftClick.performed -= OnLeftClick;
         _inputSystem.UI.RightClick.performed -= OnRightClick;
 
+        _actionButtonClickedEvent.Unsubscribe(OnActionButtonClicked);
+
         _inputSystem.Game.EndTurn.performed -= OnEndTurn;
         _inputSystem.Game.Charge.performed -= OnChargeKey;
         _inputSystem.Game.Throw.performed -= OnThrowKey;
         _inputSystem.Game.Barricade.performed -= OnBarricadeKey;
+        _inputSystem.Game.Chant.performed -= OnChantKey;
+        _inputSystem.Game.SitStand.performed -= OnSitStandKey;
 
         _itemSelectedEvent.Unsubscribe(OnItemSelected);
 
@@ -98,6 +107,7 @@ public class InputHandler : MonoBehaviour
             return;
         }
 
+
         if (_selectedAction != ActionType.None)
         {
             HandleActionClick(clickCell);
@@ -117,6 +127,13 @@ public class InputHandler : MonoBehaviour
             {
                 _policeSelectedEvent?.Raise(police);
             }
+            return;
+        }
+
+        // Seduto: nessuna azione implicita (movimento/scontro) mentre non stai già rialzandoti
+        if (_selectedSpezzone.IsSeated)
+        {
+            _alertEvent?.Raise("you are sitting, can only stand up");
             return;
         }
 
@@ -358,12 +375,30 @@ public class InputHandler : MonoBehaviour
         _pendingTarget = null;
     }
 
+    private void OnChantKey(InputAction.CallbackContext ctx)
+    {
+        if (_isExecutingAction) return;
+        if (_selectedSpezzone == null) return;
+        SetSelectedAction(_selectedAction == ActionType.Chant ? ActionType.None : ActionType.Chant);
+        _pendingDestination = null;
+        _pendingTarget = null;
+    }
+
+    private void OnSitStandKey(InputAction.CallbackContext ctx)
+    {
+        if (_isExecutingAction) return;
+        if (_selectedSpezzone == null) return;
+        SetSelectedAction(_selectedAction == ActionType.SitStand ? ActionType.None : ActionType.SitStand);
+        _pendingDestination = null;
+        _pendingTarget = null;
+    }
+
     private void OnItemSelected(ItemSO item)
     {
         if (_isExecutingAction) return;
         if (_selectedSpezzone == null) return;
         _selectedItem = item;
-        SetSelectedAction(item.Action);   
+        SetSelectedAction(item.Action);
     }
 
     private bool IsPointerOverUI()
@@ -376,6 +411,14 @@ public class InputHandler : MonoBehaviour
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
         return results.Count > 0;
+    }
+    private void OnActionButtonClicked(ActionType action)
+    {
+        if (_isExecutingAction) return;
+        if (_selectedSpezzone == null) return;
+        SetSelectedAction(_selectedAction == action ? ActionType.None : action);
+        _pendingDestination = null;
+        _pendingTarget = null;
     }
 
     private void OnActionComplete()
@@ -455,6 +498,14 @@ public class InputHandler : MonoBehaviour
                 bool placed = _turnManager.ExecuteBarricade(_selectedSpezzone, clickCell, _selectedItem as BarricadeSO);
                 if (!placed) { _isExecutingAction = false; return; }
                 break;
+
+            case ActionType.Chant:
+                _turnManager.ExecuteChant(_selectedSpezzone);
+                break;
+
+            case ActionType.SitStand:
+                _turnManager.ExecuteSitStand(_selectedSpezzone);
+                break;
         }
         SetSelectedAction(ActionType.None);
         OnActionComplete();
@@ -463,11 +514,19 @@ public class InputHandler : MonoBehaviour
 
     private void SetSelectedAction(ActionType action)
     {
-        _selectedAction = action;
+        bool allowedWhileSeated = action == ActionType.None
+            || action == ActionType.SitStand
+            || action == ActionType.Chant;
 
+        if (!allowedWhileSeated && _selectedSpezzone != null && _selectedSpezzone.IsSeated)
+        {
+            _alertEvent?.Raise("you are sitting, can only stand up or chant");
+            return;
+        }
+
+        _selectedAction = action;
         if (action == ActionType.None)
             _selectedItem = null;
-
         _actionSelectedEvent?.Raise(action);
     }
 }

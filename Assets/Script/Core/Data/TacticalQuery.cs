@@ -77,6 +77,16 @@ public static class TacticalQuery
                     }
                 }
                 break;
+
+            case ActionType.Chant:
+                if (budget < 3) break;
+                targets.Add(from);
+                break;
+
+            case ActionType.SitStand:
+                if (budget < 1) break; 
+                targets.Add(from);
+                break;
         }
 
         return targets;

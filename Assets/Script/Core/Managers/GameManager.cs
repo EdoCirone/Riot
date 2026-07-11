@@ -10,6 +10,10 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(currentSceneName);
     }
 
+    public void PlayNewRun()
+    {
+        SceneManager.LoadScene("LVLTest");
+    }
 
     public void OnApplicationQuit()
     {

@@ -80,6 +80,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnitsSetup
   _unit: {fileID: 11400000, guid: bab4a89873b3d9a408c28b1e760a4445, type: 2}
   _grid: {fileID: 0}
+  _startingInventory: []
 --- !u!114 &5688704029486242146
 MonoBehaviour:
   m_ObjectHideFlags: 0
