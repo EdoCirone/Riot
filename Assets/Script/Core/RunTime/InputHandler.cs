@@ -113,15 +113,14 @@ public class InputHandler : MonoBehaviour
             HandleActionClick(clickCell);
             return;
         }
-
         // Stato: nessuno selezionato
         if (_selectedSpezzone == null)
         {
             if (clickCell.OccupiedBy is SpezzoneRuntime spezzone)
             {
+                _policeDeselectedEvent?.Raise();          
                 _selectedSpezzone = spezzone;
-                _unitSelectedEvent?.Raise(_selectedSpezzone);
-                _policeDeselectedEvent?.Raise();
+                _unitSelectedEvent?.Raise(_selectedSpezzone);  
             }
             else if (clickCell.OccupiedBy is PoliceRuntime police)
             {

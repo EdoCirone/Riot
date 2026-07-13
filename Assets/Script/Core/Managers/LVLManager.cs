@@ -66,6 +66,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             GameObject unitGO = _unitsRenderer.GetGameObject(unit);
             if (unitGO != null)
             {
+                unitGO.GetComponentInParent<SelectionOutline>()?.Initialize(unit);
                 UnitMovement movement = unitGO.GetComponent<UnitMovement>();
                 if (movement != null)
                     movement.Initialize(unit);
