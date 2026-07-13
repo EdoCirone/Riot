@@ -18,6 +18,7 @@ public class MovementSettingsSO : ScriptableObject
     [SerializeField] private float _skirmishWindupDuration = 0.1f;
     [SerializeField] private float _skirmishEndDistance = 0.5f;
     [SerializeField] private float _skirmishAtkDuration = 0.15f;
+    [SerializeField] private float _hitReactionDistance = 0.10f;
 
     [Header("Bump")]
     [SerializeField] private float _chargeBumpDistance = 0.5f;
@@ -39,6 +40,7 @@ public class MovementSettingsSO : ScriptableObject
     public float SkirmishWindupDuration => _skirmishWindupDuration;
     public float SkirmishEndDistance => _skirmishEndDistance;
     public float SkirmishAtkDuration => _skirmishAtkDuration;
+    public float HitReactionDistance => _hitReactionDistance;
     public float ChargeBumpDistance => _chargeBumpDistance;
     public float ChargeBumpDuration => _chargeBumpDuration;
     public float SkirmishBumpDistance => _skirmishBumpDistance;

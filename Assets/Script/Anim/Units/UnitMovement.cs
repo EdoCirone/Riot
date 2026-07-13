@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,7 +29,7 @@ public class UnitMovement : MonoBehaviour
 
         if (_unit == null)
         {
-            Debug.LogError("UnitMovement: _unit è null! Chiama Initialize() prima.");
+            Debug.LogError("UnitMovement: _unit Ã¨ null! Chiama Initialize() prima.");
             onComplete?.Invoke();
             return;
         }
@@ -118,19 +118,13 @@ public class UnitMovement : MonoBehaviour
 
     #region Skirmish
 
-    public void PlaySkirmish(Vector3 defenderWorldPos, Action onComplete)
+    public void PlaySkirmish(Vector3 defenderWorldPos, Action onComplete, Action onImpact = null)
     {
-        if (_isMoving)
-        {
-            onComplete?.Invoke();
-            return;
-        }
+        if (_isMoving) { onComplete?.Invoke(); return; }
 
         MustFlip(defenderWorldPos);
-
         Vector3 startPos = _rootTransform.position;
         Vector3 windupDir = (startPos - defenderWorldPos).normalized;
-
         Vector3 windupTarget = startPos + windupDir * _movementSettings.SkirmishWindupDistance;
         Vector3 bumpTarget = startPos + (defenderWorldPos - startPos).normalized * _movementSettings.SkirmishEndDistance;
 
@@ -138,6 +132,7 @@ public class UnitMovement : MonoBehaviour
             .SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
+                onImpact?.Invoke();
                 _rootTransform.DOMove(bumpTarget, _movementSettings.SkirmishAtkDuration)
                     .SetEase(Ease.InQuad)
                     .OnComplete(() =>
@@ -148,7 +143,28 @@ public class UnitMovement : MonoBehaviour
                     });
             });
     }
+    public void PlayHitReaction(Vector3 attackerWorldPos, Action onComplete = null)
+    {
+        if (_isMoving)
+        {
+            onComplete?.Invoke();
+            return;
+        }
 
+        Vector3 startPos = _rootTransform.position;
+        // direzione OPPOSTA all'attaccante: il difensore rincula
+        Vector3 recoilDir = (startPos - attackerWorldPos).normalized;
+        Vector3 recoilTarget = startPos + recoilDir * _movementSettings.HitReactionDistance;
+
+        _rootTransform.DOMove(recoilTarget, _movementSettings.SkirmishAtkDuration)
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                _rootTransform.DOMove(startPos, _movementSettings.RecoilDuration)
+                    .SetEase(Ease.OutQuad)
+                    .OnComplete(() => onComplete?.Invoke());
+            });
+    }
     #endregion
 
     #region Charge
@@ -158,13 +174,13 @@ public class UnitMovement : MonoBehaviour
         Debug.Log("PlayCharge");
         if (_unit == null)
         {
-            Debug.LogError("UnitMovement: _unit è null!");
+            Debug.LogError("UnitMovement: _unit Ã¨ null!");
             onComplete?.Invoke();
             return;
         }
         if (cellDestination == null)
         {
-            Debug.LogError("UnitMovement: cellDestination è null!");
+            Debug.LogError("UnitMovement: cellDestination Ã¨ null!");
             onComplete?.Invoke();
             return;
         }

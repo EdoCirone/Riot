@@ -334,12 +334,19 @@ public class TurnManager : MonoBehaviour
         UnitMovement movement = atkGO.GetComponent<UnitMovement>();
         Vector3 defWorldPos = _map.transform.position + def.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
 
-        movement.PlaySkirmish(defWorldPos, () =>
-        {
-            _unitsRenderer.UpdateView(atk);
-            _unitsRenderer.UpdateView(def);
-            done = true;
-        });
+        // difensore reagisce
+        GameObject defGO = _unitsRenderer.GetGameObject(def);
+        UnitMovement defMovement = defGO != null ? defGO.GetComponent<UnitMovement>() : null;
+        Vector3 atkWorldPos = _map.transform.position + atk.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
+
+        movement.PlaySkirmish(defWorldPos,
+            onComplete: () =>
+            {
+                _unitsRenderer.UpdateView(atk);
+                _unitsRenderer.UpdateView(def);
+                done = true;
+            },
+            onImpact: () => defMovement?.PlayHitReaction(atkWorldPos));
 
         yield return new WaitUntil(() => done);
     }
