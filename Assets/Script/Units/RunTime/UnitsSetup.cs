@@ -2,29 +2,31 @@ using UnityEngine;
 
 public class UnitsSetup : MonoBehaviour
 {
-
     [SerializeField] private UnitsSO _unit;
     [SerializeField] private HexGrid _grid;
-
-
-    // in UnitsSetup — seeding provvisorio, sostituito dalla composizione corteo
-    [SerializeField] private StartingItem[] _startingInventory;   // provvisorio
+    [SerializeField] private StartingItem[] _startingInventory;
+    [SerializeField] private MoraleEventSO _moraleEvent;
 
     [System.Serializable]
-    public struct StartingItem { public ItemSO item; public int quantity; }
-
+    public struct StartingItem
+    {
+        public ItemSO item;
+        public int quantity;
+    }
 
     public AbstractUnitsRunTime Initialize()
     {
         if (_grid == null) return null;
         if (_unit == null) return null;
+        if (_moraleEvent == null)
+        {
+            Debug.LogError($"[UnitsSetup] MoraleEvent is null on {gameObject.name}!");
+            return null;
+        }
 
         HexCoordinates coord = HexCoordinates.FromWorldPosition(transform.position, _grid.CellSize);
-        //Debug.Log($"Setup {gameObject.name}: worldPos={transform.position}, coord={coord}");
-
         HexCell cell;
         bool found = _grid.TryGetCell(coord, out cell);
-        //Debug.Log($"TryGetCell result: {found}");
 
         if (cell == null)
         {
@@ -34,25 +36,36 @@ public class UnitsSetup : MonoBehaviour
 
         if (_unit is PoliceSO police)
         {
-            PoliceRuntime policeRuntime = new PoliceRuntime(cell, UnitsStatus.Alive, police, police.Mor, police.ActionPoints);
+            PoliceRuntime policeRuntime = new PoliceRuntime(
+                cell,
+                UnitsStatus.Alive,
+                police,
+                police.Mor,
+                police.ActionPoints,
+                _moraleEvent 
+            );
             return policeRuntime;
         }
         else if (_unit is SpezzoneSO spezzone)
         {
-            SpezzoneRuntime spezzoneRuntime = new SpezzoneRuntime(cell, UnitsStatus.Alive, spezzone, spezzone.Mor, spezzone.ActionPoints);
+            SpezzoneRuntime spezzoneRuntime = new SpezzoneRuntime(
+                cell,
+                UnitsStatus.Alive,
+                spezzone,
+                spezzone.Mor,
+                spezzone.ActionPoints,
+                _moraleEvent 
+            );
 
             foreach (var s in _startingInventory)
             {
-                spezzoneRuntime.Inventory.AddItem(s.item, s.quantity);
                 if (s.item == null || s.quantity <= 0) continue;
+                spezzoneRuntime.Inventory.AddItem(s.item, s.quantity);
             }
 
             return spezzoneRuntime;
         }
 
-
-
         return null;
     }
-
 }

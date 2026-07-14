@@ -2,17 +2,21 @@ using UnityEngine;
 
 public class PoliceRuntime : AbstractUnitsRunTime
 {
-    private PoliceSO _police;
+    private PoliceSO _data;
 
-    public override int Atk => _police.Atk;
-    public override int Def => _police.Def;
+    public override int Atk => _data.Atk;
+    public override int Def => _data.Def;
+    public override GameObject GraphicsPrefab => _data.GraphicsPrefab;
 
-    public PoliceRuntime(HexCell pos, UnitsStatus stato, PoliceSO police, int morale, int actionPoint)
-        : base(pos, stato, morale, actionPoint)
+    public PoliceRuntime(
+        HexCell positionCell,
+        UnitsStatus status,
+        PoliceSO data,
+        int morale,
+        int actionPoints,
+        MoraleEventSO moraleEvent) 
+        : base(positionCell, status, morale, actionPoints, moraleEvent)
     {
-        _police = police;
-        pos.TryOccupy(this);
+        _data = data;
     }
-    public override GameObject GraphicsPrefab => _police.GraphicsPrefab;
-
 }

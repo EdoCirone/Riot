@@ -2,20 +2,23 @@ using UnityEngine;
 
 public class SpezzoneRuntime : AbstractUnitsRunTime
 {
-    private SpezzoneSO _spezzone;
-    private Inventory _inventory = new();
+    private SpezzoneSO _data;
+    public Inventory Inventory { get; private set; }
 
-    public override int Atk => _spezzone.Atk;
-    public override int Def => _spezzone.Def + (_isSeated ? 5 : 0);
-    public Inventory Inventory => _inventory;
+    public override int Atk => _data.Atk;
+    public override int Def => _data.Def;
+    public override GameObject GraphicsPrefab => _data.GraphicsPrefab;
 
-    public SpezzoneRuntime(HexCell pos, UnitsStatus stato, SpezzoneSO spezzone, int morale, int actionPoints)
-     : base(pos, stato, morale, actionPoints)
+    public SpezzoneRuntime(
+        HexCell positionCell,
+        UnitsStatus status,
+        SpezzoneSO data,
+        int morale,
+        int actionPoints,
+        MoraleEventSO moraleEvent) 
+        : base(positionCell, status, morale, actionPoints, moraleEvent)
     {
-        _spezzone = spezzone;
-        pos.TryOccupy(this);
+        _data = data;
+        Inventory = new Inventory();
     }
-
-    public override GameObject GraphicsPrefab => _spezzone.GraphicsPrefab;
-
 }
