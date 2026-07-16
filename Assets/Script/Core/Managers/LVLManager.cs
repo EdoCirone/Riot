@@ -86,7 +86,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         _currentTurn--;
         foreach (var cell in _objectiveCells)
         {
-            if (cell.OccupiedBy != null)
+            if (cell.OccupiedBy is SpezzoneRuntime)
             {
                 _currentScore += _scoreForOccupation;
                 Debug.Log($"guadagni {_scoreForOccupation}, punteggio: {_currentScore}");

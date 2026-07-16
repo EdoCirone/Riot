@@ -18,9 +18,12 @@ public class InputHandler : MonoBehaviour
     [SerializeField] private UnitEventSO _policeSelectedEvent;
     [SerializeField] private GameEventSO _policeDeselectedEvent;
     [SerializeField] private ActionEventSO _actionSelectedEvent;
-    [SerializeField] private ActionEventSO _actionButtonClickedEvent;
     [SerializeField] private ItemEventSO _itemSelectedEvent;
+
+    [Header("UI Events")]
     [SerializeField] private StringEventSO _alertEvent;
+    [SerializeField] private GameEventSO _endTurnButtonClickedEvent;
+    [SerializeField] private ActionEventSO _actionButtonClickedEvent;
 
     private bool _isExecutingAction = false;
 
@@ -55,6 +58,7 @@ public class InputHandler : MonoBehaviour
         _inputSystem.UI.RightClick.performed += OnRightClick;
 
         _actionButtonClickedEvent.Subscribe(OnActionButtonClicked);
+        _endTurnButtonClickedEvent.Subscribe(OnEndTurnButtonClicked);
 
         _inputSystem.Game.EndTurn.performed += OnEndTurn;
         _inputSystem.Game.Charge.performed += OnChargeKey;
@@ -74,6 +78,8 @@ public class InputHandler : MonoBehaviour
         _inputSystem.UI.RightClick.performed -= OnRightClick;
 
         _actionButtonClickedEvent.Unsubscribe(OnActionButtonClicked);
+        _endTurnButtonClickedEvent.Unsubscribe(OnEndTurnButtonClicked);
+
 
         _inputSystem.Game.EndTurn.performed -= OnEndTurn;
         _inputSystem.Game.Charge.performed -= OnChargeKey;
@@ -211,6 +217,16 @@ public class InputHandler : MonoBehaviour
 
     private void OnEndTurn(InputAction.CallbackContext ctx)
     {
+        TryEndTurn();
+    }
+
+    private void OnEndTurnButtonClicked()
+    {
+        TryEndTurn();
+    }
+
+    private void TryEndTurn()
+    {
         if (_isExecutingAction) return;
         if (_lvlManager == null || !_lvlManager.IsGameActive) return;
 
@@ -225,6 +241,7 @@ public class InputHandler : MonoBehaviour
             _turnManager.EndTurn();
         }
     }
+
     private void FlipSelectedUnit(Vector3 targetWorldPos)
     {
         if (_selectedSpezzone == null) return;
