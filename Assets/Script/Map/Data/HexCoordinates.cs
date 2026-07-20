@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 ///Ho commentato molto questo script perchè è la prima volta che sviluppo un sistema di coordinate per griglia esagonale.

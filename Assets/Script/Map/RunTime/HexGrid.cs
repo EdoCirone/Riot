@@ -23,6 +23,9 @@ public class HexGrid : MonoBehaviour
     public HexMapSO HexMapData => _hexMapData;
     public float CellSize => _cellSize;
 
+    private Bounds _worldBounds;
+    public Bounds WorldBounds => _worldBounds;
+
     Dictionary<HexCoordinates, HexCell> _cells = new Dictionary<HexCoordinates, HexCell>();
 
     private void Awake()
@@ -49,6 +52,31 @@ public class HexGrid : MonoBehaviour
                 _cells[coords] = new HexCell(coords, type);
             }
         }
+
+        RecalculateWorldBounds();
+    }
+
+    private void RecalculateWorldBounds()
+    {
+        if (_cells.Count == 0)
+        {
+            _worldBounds = new Bounds(Vector3.zero, Vector3.zero);
+            return;
+        }
+        Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+        Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+        foreach (var cell in _cells.Values)
+        {
+            Vector3 worldPos = cell.Coordinates.ToWorldPosition(_cellSize) + transform.position;
+            min = Vector3.Min(min, worldPos);
+            max = Vector3.Max(max, worldPos);
+        }
+
+        Vector3 padding = new Vector3(_cellSize, _cellSize, 0f);
+        min -= padding;
+        max += padding;
+
+        _worldBounds = new Bounds((min + max) / 2f, max - min);
     }
 
     public bool IsCellWalkable(HexCoordinates coords)

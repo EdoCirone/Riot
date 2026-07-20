@@ -1607,27 +1607,28 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "OBIETTIVO\nHai 10 turni. Alla fine di ogni tuo turno, ogni cella obiettivo
-    occupata da un tuo spezzone vale 10 punti. Allo scadere del decimo turno, con
-    almeno 30 punti hai vinto.\nUno spezzone che arriva a 0 morale si disperde ed
-    esce dal gioco.\nIL TURNO\nClick sinistro su uno spezzone \u2192 lo selezioni.\nClick
-    su una cella libera \u2192 segna la destinazione. Secondo click sulla stessa
-    cella \u2192 conferma il movimento (1 PA a cella).\nClick su un poliziotto \u2192
-    lo segna come bersaglio. Secondo click \u2192 conferma lo scontro (si avvicina
-    se serve).\nClick destro \u2192 annulla l'azione armata e tiene l'unit\xE0 selezionata.
-    Se non c'\xE8 nessuna azione armata, deseleziona tutto.\nSpazio \u2192 fine turno.\nUno
-    spezzone che esaurisce i Punti Azione si deseleziona da solo.\nAZIONI SPECIALI\nPremi
-    il tasto per armare l'azione, poi clicca il bersaglio. Ripremere il tasto o click
-    destro annulla.\nC \u2014 Carica \xB7 un poliziotto a 3 celle esatte in linea
-    retta, con le 2 celle intermedie libere. 4 PA. Lo spinge.\nT \u2014 Lancio \xB7
-    un poliziotto a distanza 2. Serve un oggetto lanciabile selezionato dall'inventario.\nB
-    \u2014 Barricata \xB7 una cella libera. Serve una barricata nell'inventario.\nR
-    \u2014 Cori \xB7 clicca il tuo stesso spezzone. +1 morale a lui e agli spezzoni
-    adiacenti. 3 PA.\nG \u2014 Siediti / Alzati \xB7 clicca il tuo stesso spezzone.
-    Da seduto: +5 Difesa, le cariche non ti spostano, ma puoi solo alzarti o cantare.
-    Sedersi 1 PA, alzarsi 2 PA.\nCAMERA\nW A S D muovi \xB7 Q / E zoom.\nLO SCONTRO\nNessun
-    dado. Si confrontano Attacco e Difesa: chi perde il confronto perde 1 morale.
-    In parit\xE0 lo perdono entrambi."
+  m_text: "OBJECTIVE\nYou have 10 turns. At the end of each of your turns, every
+    objective cell occupied by one of your spezzoni is worth 10 points. When turn
+    10 ends, having at least 30 points means you've won.\nA spezzone that reaches
+    0 morale disperses and is removed from the game.\nTHE TURN\nLeft-click a spezzone
+    \u2192 select it.\nClick a free cell \u2192 mark the destination. Click the same
+    cell again \u2192 confirm the move (1 AP per cell).\nClick a police unit \u2192
+    mark it as target. Click again \u2192 confirm the clash (moves closer first if
+    needed).\nRight-click \u2192 cancels the armed action and keeps the unit selected.
+    If no action is armed, deselects everything.\nSpace \u2192 end turn.\nA spezzone
+    that runs out of Action Points deselects itself automatically.\nSPECIAL ACTIONS\nPress
+    the key to arm the action, then click the target. Press the key again or right-click
+    to cancel.\nC \u2014 Charge \xB7 a police unit 3 cells away in a straight line,
+    with the 2 cells in between free. 4 AP. Pushes them back.\nT \u2014 Throw \xB7
+    a police unit at distance 2. Requires a throwable item selected from the inventory.\nB
+    \u2014 Barricade \xB7 a free cell. Requires a barricade in the inventory.\nR
+    \u2014 Chant \xB7 click your own spezzone. +1 morale to it and to adjacent spezzoni.
+    3 AP.\nG \u2014 Sit / Stand \xB7 click your own spezzone. While seated: +5 Defense,
+    charges won't push you, but you can only stand up or chant. Sitting costs 1 AP,
+    standing up costs 2 AP.\nCAMERA\nWASD to move \xB7 hold the mouse's middle button
+    and drag to pan the view \xB7 Q / E or scroll wheel to zoom.\nTHE CLASH\nNo dice
+    rolls. Attack and Defense are compared directly: whoever loses the comparison
+    loses 1 morale. On a tie, both lose 1."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1654,7 +1655,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 19.6
+  m_fontSize: 18.9
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1

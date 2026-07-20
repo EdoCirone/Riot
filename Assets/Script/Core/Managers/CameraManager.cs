@@ -11,11 +11,10 @@ public class CameraManager : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float _cameraMoveMaxSpeed = 5f;
     [SerializeField] private float _cameraAcceleration = 10f;
-
-    [Header("EdgeScroll Settings")]
-    [SerializeField] private bool _edgeScrollEnabled = true;
-    [SerializeField] private float _edgeScrollMargin = 15f;
-
+    
+    [Header("Mouse Drag Settings")]
+    [SerializeField] private bool _mouseDragEnabled = true;
+    
     [Header("Follow Settings")]
     [SerializeField] private float _centerSelectionTime = 0.2f;
     [SerializeField] private Ease _easeType = Ease.InOutSine;
@@ -44,6 +43,7 @@ public class CameraManager : MonoBehaviour
     private Vector2 _moveInput;
     private float _currentMoveSpeed;
     private float _currentZoomSpeed;
+
 
     private void Awake()
     {
@@ -124,19 +124,23 @@ public class CameraManager : MonoBehaviour
             targetPos.z = _mainCamera.transform.position.z;
             _mainCamera.transform.position = Vector3.Lerp(
                 _mainCamera.transform.position, targetPos, _followSpeed * Time.deltaTime);
-            return;   // <-- salta il movimento manuale mentre segue
+            return;  
         }
 
-        // ---- MOVIMENTO ----
-        Vector2 edgeInput = _edgeScrollEnabled ? GetEdgeScrollInput() : Vector2.zero;
-        Vector2 combineInput = Vector2.ClampMagnitude(_moveInput + edgeInput, 1f);
+        // ---- DRAG MOUSE (tasto centrale, diretto) ----
+        Vector2 dragDelta = GetMouseDragInput();
+        if (dragDelta != Vector2.zero)
+        {
+            _mainCamera.transform.position += new Vector3(dragDelta.x, dragDelta.y, 0f);
+        }
 
-        float targetSpeed = combineInput.magnitude * _cameraMoveMaxSpeed;
+        // ---- MOVIMENTO (WASD) ----
+        float targetSpeed = _moveInput.magnitude * _cameraMoveMaxSpeed;
         _currentMoveSpeed = Mathf.MoveTowards(_currentMoveSpeed, targetSpeed, _cameraAcceleration * Time.deltaTime);
 
         if (_currentMoveSpeed > 0.01f)
         {
-            Vector3 moveDir = combineInput.normalized;
+            Vector3 moveDir = _moveInput.normalized;
             Vector3 delta = moveDir * _currentMoveSpeed * Time.deltaTime;
             _mainCamera.transform.position += delta;
         }
@@ -155,9 +159,53 @@ public class CameraManager : MonoBehaviour
                 Time.deltaTime * _zoomSpeed
             );
         }
+
+        ClampCameraToMapBounds();
     }
 
     #endregion
+
+    #region Mouse Drag
+
+    private Vector2 GetMouseDragInput()
+    {
+        if (!_mouseDragEnabled || Mouse.current == null || !_mainCamera.orthographic)
+            return Vector2.zero;
+
+        if (!Mouse.current.middleButton.isPressed)
+            return Vector2.zero;
+
+        Vector2 screenDelta = Mouse.current.delta.ReadValue();
+        if (screenDelta == Vector2.zero) return Vector2.zero;
+
+        float worldUnitsPerPixel = (_mainCamera.orthographicSize * 2f) / Screen.height;
+        Vector2 worldDelta = screenDelta * worldUnitsPerPixel;
+
+        return -worldDelta; // trascini la mappa nella direzione opposta al movimento del mouse
+    }
+
+    #endregion
+
+    private void ClampCameraToMapBounds()
+    {
+        if (_map == null || !_mainCamera.orthographic) return;
+
+        Bounds bounds = _map.WorldBounds;
+
+        float halfHeight = _mainCamera.orthographicSize;
+        float halfWidth = halfHeight * _mainCamera.aspect;
+
+        float minX = bounds.min.x + halfWidth;
+        float maxX = bounds.max.x - halfWidth;
+        float minY = bounds.min.y + halfHeight;
+        float maxY = bounds.max.y - halfHeight;
+
+        Vector3 pos = _mainCamera.transform.position;
+        pos.x = (minX <= maxX) ? Mathf.Clamp(pos.x, minX, maxX) : bounds.center.x;
+        pos.y = (minY <= maxY) ? Mathf.Clamp(pos.y, minY, maxY) : bounds.center.y;
+
+        _mainCamera.transform.position = pos;
+    }
 
     #region Zoom
 
@@ -197,25 +245,6 @@ public class CameraManager : MonoBehaviour
 
     #endregion
 
-    #region EdgeScroll
-
-    private Vector2 GetEdgeScrollInput()
-    {
-        if (Mouse.current == null) return Vector2.zero;
-
-        Vector2 mousePos = Mouse.current.position.ReadValue();
-        Vector2 dir = Vector2.zero;
-
-        if(mousePos.x <= _edgeScrollMargin) dir.x = -1f; 
-        else if(mousePos.x >= Screen.width - _edgeScrollMargin) dir.x = 1f;
-
-        if(mousePos.y <= _edgeScrollMargin) dir.y = -1f; 
-        else if(mousePos.y >= Screen.height - _edgeScrollMargin) dir.y = 1f; 
-
-        return dir.normalized;
-    }
-
-    #endregion
 
     #region Centratura su unità
 
