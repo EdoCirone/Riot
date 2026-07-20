@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SelectionOutline : MonoBehaviour
@@ -11,6 +12,9 @@ public class SelectionOutline : MonoBehaviour
     [SerializeField] private UnitEventSO _policeSelectedEvent;
     [SerializeField] private GameEventSO _unitDeselectedEvent;
     [SerializeField] private GameEventSO _policeDeselectedEvent;
+
+    private bool _isSelectedAsUnit;
+    private bool _isSelectedAsTarget;
 
     private AbstractUnitsRunTime _boundUnit;
     private List<GameObject> _outlineObjects = new();
@@ -30,13 +34,13 @@ public class SelectionOutline : MonoBehaviour
 
             SpriteRenderer outlineSr = go.AddComponent<SpriteRenderer>();
             outlineSr.sprite = sr.sprite;
-            outlineSr.sharedMaterial = _outlineMaterial;   
+            outlineSr.sharedMaterial = _outlineMaterial;
             outlineSr.sortingLayerID = sr.sortingLayerID;
             outlineSr.sortingOrder = sr.sortingOrder - 1;
 
             MaterialPropertyBlock mpb = new MaterialPropertyBlock();
-            outlineSr.GetPropertyBlock(mpb);                
-            mpb.SetColor("_OutlineColor", _outlineColor);   
+            outlineSr.GetPropertyBlock(mpb);
+            mpb.SetColor("_OutlineColor", _outlineColor);
             outlineSr.SetPropertyBlock(mpb);
             Debug.Log($"[SelectionOutline] {gameObject.name}: setting _OutlineColor to {_outlineColor}");
 
@@ -47,27 +51,47 @@ public class SelectionOutline : MonoBehaviour
 
     private void OnEnable()
     {
-        _unitSelectedEvent.Subscribe(OnAnyUnitSelected);
-        _policeSelectedEvent.Subscribe(OnAnyUnitSelected);
-        _unitDeselectedEvent.Subscribe(Hide);
-        _policeDeselectedEvent.Subscribe(Hide);
+        _unitSelectedEvent.Subscribe(OnUnitSelected);
+        _policeSelectedEvent.Subscribe(OnPoliceSelected);
+        _unitDeselectedEvent.Subscribe(OnUnitDeselected);
+        _policeDeselectedEvent.Subscribe(OnPoliceDeselected);
     }
 
     private void OnDisable()
     {
-        _unitSelectedEvent.Unsubscribe(OnAnyUnitSelected);
-        _policeSelectedEvent.Unsubscribe(OnAnyUnitSelected);
-        _unitDeselectedEvent.Unsubscribe(Hide);
-        _policeDeselectedEvent.Unsubscribe(Hide);
+        _unitSelectedEvent.Unsubscribe(OnUnitSelected);
+        _policeSelectedEvent.Unsubscribe(OnPoliceSelected);
+        _unitDeselectedEvent.Unsubscribe(OnUnitDeselected);
+        _policeDeselectedEvent.Unsubscribe(OnPoliceDeselected);
     }
 
-    private void OnAnyUnitSelected(AbstractUnitsRunTime unit)
+    private void OnUnitSelected(AbstractUnitsRunTime unit)
     {
-        bool isMe = unit == _boundUnit;
-        foreach (var go in _outlineObjects) go.SetActive(isMe);
+        _isSelectedAsUnit = (unit == _boundUnit);
+        UpdateVisibility();
     }
-    private void Hide()
+
+    private void OnPoliceSelected(AbstractUnitsRunTime unit)
     {
-        foreach (var go in _outlineObjects) go.SetActive(false);
+        _isSelectedAsTarget = (unit == _boundUnit);
+        UpdateVisibility();
+    }
+
+    private void OnUnitDeselected()
+    {
+        _isSelectedAsUnit = false;
+        UpdateVisibility();
+    }
+
+    private void OnPoliceDeselected()
+    {
+        _isSelectedAsTarget = false;
+        UpdateVisibility();
+    }
+
+    private void UpdateVisibility()
+    {
+        bool show = _isSelectedAsUnit || _isSelectedAsTarget;
+        foreach (var go in _outlineObjects) go.SetActive(show);
     }
 }

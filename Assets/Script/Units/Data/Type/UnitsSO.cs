@@ -5,12 +5,19 @@ public class UnitsSO : ScriptableObject
     [SerializeField] string _id;
     [SerializeField] string _displayName;
 
+    [SerializeField] Sprite _avatar;
+
     [SerializeField] int _atk;
     [SerializeField] int _def;
     [SerializeField] int _mor;
     [SerializeField] int _actionPoints;
 
     [SerializeField] GameObject _graphicsPrefab;
+
+    public string Id => _id;
+    public string DisplayName => _displayName;
+
+    public Sprite Avatar => _avatar;
 
     public int Atk => _atk;
     public int Def => _def;

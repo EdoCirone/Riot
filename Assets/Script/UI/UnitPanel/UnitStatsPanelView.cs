@@ -47,6 +47,7 @@ public class UnitStatsPanelView : MonoBehaviour
             Debug.LogWarning("Panel Root missing in UnitStatsPanelView");
             return;
         }
+        _avatarImage.preserveAspect = true;
         _isValid = true;
         _canvasGroup.alpha = 0;
         _canvasGroup.blocksRaycasts = false;   
@@ -93,15 +94,21 @@ public class UnitStatsPanelView : MonoBehaviour
     {
         if (_currentUnit == null) return;
 
+        _avatarImage.sprite = _currentUnit.Avatar;
+
         _morBar.value = _currentUnit.MaxMorale > 0
             ? (float)_currentUnit.Morale / _currentUnit.MaxMorale
             : 0f;
         _morValueText.text = _currentUnit.Morale.ToString();
 
-        _aptBar.value = _currentUnit.MaxActionPoints > 0
+        if (_aptBar != null)
+        {
+            _aptBar.value = _currentUnit.MaxActionPoints > 0
             ? (float)_currentUnit.ActionPoints / _currentUnit.MaxActionPoints
             : 0f;
-        _aptValueText.text = _currentUnit.ActionPoints.ToString();
+        }
+        if(_aptValueText != null)
+            _aptValueText.text = _currentUnit.ActionPoints.ToString();
 
         _atkText.text = $"{_currentUnit.Atk}";
         _defText.text = $"{_currentUnit.Def}";

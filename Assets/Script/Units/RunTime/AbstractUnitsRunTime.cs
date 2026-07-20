@@ -1,9 +1,11 @@
+using Unity.VectorGraphics;
 using UnityEngine;
 
 public abstract class AbstractUnitsRunTime 
 {
     protected HexCell _positionCell;
     protected UnitsStatus _status;
+
     protected int _morale;
     protected int _actionPoints;
     protected int _maxActionPoints;
@@ -17,6 +19,7 @@ public abstract class AbstractUnitsRunTime
     
     public bool IsSeated => _isSeated;
     
+    public abstract Sprite Avatar { get; }
     public abstract int Atk { get; }
     public abstract int Def { get; }
 

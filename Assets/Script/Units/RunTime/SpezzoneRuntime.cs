@@ -5,6 +5,7 @@ public class SpezzoneRuntime : AbstractUnitsRunTime
     private SpezzoneSO _spezzone;
     private Inventory _inventory = new();
 
+    public override Sprite Avatar => _spezzone.Avatar;
     public override int Atk => _spezzone.Atk;
     public override int Def => _spezzone.Def + (_isSeated ? 5 : 0);
     public Inventory Inventory => _inventory;

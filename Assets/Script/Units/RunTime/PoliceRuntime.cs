@@ -4,6 +4,7 @@ public class PoliceRuntime : AbstractUnitsRunTime
 {
     private PoliceSO _police;
 
+    public override Sprite Avatar => _police.Avatar;
     public override int Atk => _police.Atk;
     public override int Def => _police.Def;
 
