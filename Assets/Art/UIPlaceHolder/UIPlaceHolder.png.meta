@@ -1,0 +1,608 @@
+fileFormatVersion: 2
+guid: 0836c0db6bad8f548a5dd778844d498d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1887409380169761567
+    second: UIPlaceHolder_0
+  - first:
+      213: 2994199220832121613
+    second: UIPlaceHolder_1
+  - first:
+      213: -2458078045755547501
+    second: UIPlaceHolder_2
+  - first:
+      213: 1053453611813791038
+    second: UIPlaceHolder_3
+  - first:
+      213: 8802327626898621413
+    second: UIPlaceHolder_4
+  - first:
+      213: 3958940200854188809
+    second: UIPlaceHolder_5
+  - first:
+      213: 2341046486060498670
+    second: UIPlaceHolder_6
+  - first:
+      213: 5192133737763647206
+    second: UIPlaceHolder_7
+  - first:
+      213: -8775017763731413144
+    second: UIPlaceHolder_8
+  - first:
+      213: 7141006585621345810
+    second: UIPlaceHolder_9
+  - first:
+      213: -4921764296178450770
+    second: UIPlaceHolder_10
+  - first:
+      213: 1818451051536211362
+    second: UIPlaceHolder_11
+  - first:
+      213: 5019036317989837899
+    second: UIPlaceHolder_12
+  - first:
+      213: 1522210420697313897
+    second: UIPlaceHolder_13
+  - first:
+      213: 8154268533876922566
+    second: UIPlaceHolder_14
+  - first:
+      213: 5595029732101917192
+    second: UIPlaceHolder_15
+  - first:
+      213: -3059713507213753576
+    second: UIPlaceHolder_16
+  - first:
+      213: 3756026785827343095
+    second: UIPlaceHolder_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: UIPlaceHolder_0
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 814
+        width: 774
+        height: 192
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1342c2d4dc613a10800000000000000
+      internalID: 1887409380169761567
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_1
+      rect:
+        serializedVersion: 2
+        x: 807
+        y: 809
+        width: 547
+        height: 119
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 44, y: 34, z: 51, w: 30}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d033370d3588d8920800000000000000
+      internalID: 2994199220832121613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_2
+      rect:
+        serializedVersion: 2
+        x: 1390
+        y: 879
+        width: 117
+        height: 115
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 20, y: 21, z: 22, w: 19}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 390ed847a0723edd0800000000000000
+      internalID: -2458078045755547501
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_3
+      rect:
+        serializedVersion: 2
+        x: 27
+        y: 326
+        width: 741
+        height: 435
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 80, y: 102, z: 94, w: 88}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e35638f7a7e9e9e00800000000000000
+      internalID: 1053453611813791038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_4
+      rect:
+        serializedVersion: 2
+        x: 1118
+        y: 728
+        width: 378
+        height: 44
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 17, y: 15, z: 18, w: 14}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e346e50756282a70800000000000000
+      internalID: 8802327626898621413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_5
+      rect:
+        serializedVersion: 2
+        x: 805
+        y: 364
+        width: 144
+        height: 157
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 22, y: 21, z: 24, w: 23}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9037de6232bf0f630800000000000000
+      internalID: 3958940200854188809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_6
+      rect:
+        serializedVersion: 2
+        x: 805
+        y: 592
+        width: 700
+        height: 89
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 27, y: 22, z: 34, w: 23}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eeeff4c20611d7020800000000000000
+      internalID: 2341046486060498670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_7
+      rect:
+        serializedVersion: 2
+        x: 976
+        y: 418
+        width: 225
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 18, y: 19, z: 20, w: 14}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ee29b9102a2e0840800000000000000
+      internalID: 5192133737763647206
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_8
+      rect:
+        serializedVersion: 2
+        x: 1230
+        y: 418
+        width: 267
+        height: 68
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 16, y: 14, z: 21, w: 17}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 867eb0ff5dfd83680800000000000000
+      internalID: -8775017763731413144
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_9
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 49
+        width: 240
+        height: 230
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2167faaa7a3f91360800000000000000
+      internalID: 7141006585621345810
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_10
+      rect:
+        serializedVersion: 2
+        x: 307
+        y: 183
+        width: 440
+        height: 97
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 32, y: 26, z: 38, w: 22}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eae3512037162bbb0800000000000000
+      internalID: -4921764296178450770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_11
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 56
+        width: 127
+        height: 97
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 18, y: 18, z: 19, w: 15}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ad5048c89f6c3910800000000000000
+      internalID: 1818451051536211362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_12
+      rect:
+        serializedVersion: 2
+        x: 444
+        y: 55
+        width: 127
+        height: 98
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 14, y: 18, z: 15, w: 14}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4c919070f237a540800000000000000
+      internalID: 5019036317989837899
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_13
+      rect:
+        serializedVersion: 2
+        x: 722
+        y: 55
+        width: 133
+        height: 100
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 18, y: 17, z: 20, w: 21}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 962bf07005aff1510800000000000000
+      internalID: 1522210420697313897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_14
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 186
+        width: 151
+        height: 99
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 26, y: 26, z: 25, w: 27}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c811e44708c92170800000000000000
+      internalID: 8154268533876922566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_15
+      rect:
+        serializedVersion: 2
+        x: 863
+        y: 55
+        width: 137
+        height: 98
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 20, y: 16, z: 24, w: 17}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80a0fa9c5e985ad40800000000000000
+      internalID: 5595029732101917192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_16
+      rect:
+        serializedVersion: 2
+        x: 973
+        y: 334
+        width: 524
+        height: 59
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 21, y: 22, z: 21, w: 15}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8134f08b6c6b985d0800000000000000
+      internalID: -3059713507213753576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_17
+      rect:
+        serializedVersion: 2
+        x: 1009
+        y: 195
+        width: 487
+        height: 83
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 21, y: 22, z: 26, w: 19}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fa47102676102430800000000000000
+      internalID: 3756026785827343095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIPlaceHolder_18
+      rect:
+        serializedVersion: 2
+        x: 579
+        y: 54
+        width: 135
+        height: 98
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 14, y: 18, z: 15, w: 14}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 334c57e5131548b4bb3f082d7a95c5e7
+      internalID: -1711622282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: ad731ba67abfa8042934adb47a842581
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      UIPlaceHolder_0: 1887409380169761567
+      UIPlaceHolder_1: 2994199220832121613
+      UIPlaceHolder_10: -4921764296178450770
+      UIPlaceHolder_11: 1818451051536211362
+      UIPlaceHolder_12: 5019036317989837899
+      UIPlaceHolder_13: 1522210420697313897
+      UIPlaceHolder_14: 8154268533876922566
+      UIPlaceHolder_15: 5595029732101917192
+      UIPlaceHolder_16: -3059713507213753576
+      UIPlaceHolder_17: 3756026785827343095
+      UIPlaceHolder_18: -1711622282
+      UIPlaceHolder_2: -2458078045755547501
+      UIPlaceHolder_3: 1053453611813791038
+      UIPlaceHolder_4: 8802327626898621413
+      UIPlaceHolder_5: 3958940200854188809
+      UIPlaceHolder_6: 2341046486060498670
+      UIPlaceHolder_7: 5192133737763647206
+      UIPlaceHolder_8: -8775017763731413144
+      UIPlaceHolder_9: 7141006585621345810
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

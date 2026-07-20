@@ -12,6 +12,10 @@ public class CameraManager : MonoBehaviour
     [SerializeField] private float _cameraMoveMaxSpeed = 5f;
     [SerializeField] private float _cameraAcceleration = 10f;
 
+    [Header("EdgeScroll Settings")]
+    [SerializeField] private bool _edgeScrollEnabled = true;
+    [SerializeField] private float _edgeScrollMargin = 15f;
+
     [Header("Follow Settings")]
     [SerializeField] private float _centerSelectionTime = 0.2f;
     [SerializeField] private Ease _easeType = Ease.InOutSine;
@@ -22,6 +26,7 @@ public class CameraManager : MonoBehaviour
     [SerializeField] private float _minZoom = 3f;
     [SerializeField] private float _maxZoom = 10f;
     [SerializeField] private float _zoomSpeed = 3f;
+    [SerializeField] private float _scrollZoomStep = 0.5f;
 
     [Header("Events")]
     [SerializeField] private GameEventSO _startPlayerTurnEvent;
@@ -105,16 +110,6 @@ public class CameraManager : MonoBehaviour
         _moveInput = Vector2.zero;
     }
 
-    private void OnZoomPerformed(InputAction.CallbackContext ctx)
-    {
-        Vector2 zoomInput = ctx.ReadValue<Vector2>();
-        _currentZoomSpeed = zoomInput.y * _stepSize;
-    }
-
-    private void OnZoomCanceled(InputAction.CallbackContext ctx)
-    {
-        _currentZoomSpeed = 0f;
-    }
 
     #endregion
 
@@ -131,13 +126,17 @@ public class CameraManager : MonoBehaviour
                 _mainCamera.transform.position, targetPos, _followSpeed * Time.deltaTime);
             return;   // <-- salta il movimento manuale mentre segue
         }
+
         // ---- MOVIMENTO ----
-        float targetSpeed = _moveInput.magnitude * _cameraMoveMaxSpeed;
+        Vector2 edgeInput = _edgeScrollEnabled ? GetEdgeScrollInput() : Vector2.zero;
+        Vector2 combineInput = Vector2.ClampMagnitude(_moveInput + edgeInput, 1f);
+
+        float targetSpeed = combineInput.magnitude * _cameraMoveMaxSpeed;
         _currentMoveSpeed = Mathf.MoveTowards(_currentMoveSpeed, targetSpeed, _cameraAcceleration * Time.deltaTime);
 
         if (_currentMoveSpeed > 0.01f)
         {
-            Vector3 moveDir = _moveInput.normalized;
+            Vector3 moveDir = combineInput.normalized;
             Vector3 delta = moveDir * _currentMoveSpeed * Time.deltaTime;
             _mainCamera.transform.position += delta;
         }
@@ -156,6 +155,64 @@ public class CameraManager : MonoBehaviour
                 Time.deltaTime * _zoomSpeed
             );
         }
+    }
+
+    #endregion
+
+    #region Zoom
+
+    private void OnZoomPerformed(InputAction.CallbackContext ctx)
+    {
+        Vector2 zoomInput = ctx.ReadValue<Vector2>();
+    
+        if(ctx.control.device is Mouse)
+        {
+        
+            ApplyScrollZoomStep(zoomInput.y);
+            return;
+
+        }
+        
+        _currentZoomSpeed = zoomInput.y * _stepSize;
+    }
+
+    private void OnZoomCanceled(InputAction.CallbackContext ctx)
+    {
+        if(ctx.control.device is Mouse) return;
+        
+        _currentZoomSpeed = 0f;
+    }
+
+    private void ApplyScrollZoomStep(float scrollValue)
+    {
+        if (!_mainCamera.orthographic || Mathf.Approximately(scrollValue, 0f)) return;
+        
+        float direction = Mathf.Sign(scrollValue);
+        _mainCamera.orthographicSize = Mathf.Clamp(
+            _mainCamera.orthographicSize - direction * _scrollZoomStep,
+            _minZoom,
+            _maxZoom
+        );
+    }
+
+    #endregion
+
+    #region EdgeScroll
+
+    private Vector2 GetEdgeScrollInput()
+    {
+        if (Mouse.current == null) return Vector2.zero;
+
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+        Vector2 dir = Vector2.zero;
+
+        if(mousePos.x <= _edgeScrollMargin) dir.x = -1f; 
+        else if(mousePos.x >= Screen.width - _edgeScrollMargin) dir.x = 1f;
+
+        if(mousePos.y <= _edgeScrollMargin) dir.y = -1f; 
+        else if(mousePos.y >= Screen.height - _edgeScrollMargin) dir.y = 1f; 
+
+        return dir.normalized;
     }
 
     #endregion
