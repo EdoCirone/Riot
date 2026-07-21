@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d27a396fc4b257479e1a065561497f3, type: 3}
-  m_Name: SpezzoneSOBasic
+  m_Name: StudentiSOBasic
   m_EditorClassIdentifier: Assembly-CSharp::SpezzoneSO
-  _id: Basic
-  _displayName: Basic
-  _avatar: {fileID: 7675347922612928761, guid: 326a1c560f11c4a418e525e8aff1cc07, type: 3}
-  _atk: 5
-  _def: 6
-  _mor: 3
-  _actionPoints: 5
+  _id: _stu
+  _displayName: Students
+  _avatar: {fileID: -5325922419529146703, guid: 326a1c560f11c4a418e525e8aff1cc07, type: 3}
+  _atk: 2
+  _def: 5
+  _mor: 4
+  _actionPoints: 4
   _graphicsPrefab: {fileID: 7202665714183149607, guid: 6c4dde77afa2566459f4923de5ad8753, type: 3}

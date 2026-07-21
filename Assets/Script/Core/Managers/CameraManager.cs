@@ -40,6 +40,7 @@ public class CameraManager : MonoBehaviour
     private AbstractUnitsRunTime _lastCenteredUnit;
     private Tweener _cameraTween;
 
+    private bool _isCentering;
     private Vector2 _moveInput;
     private float _currentMoveSpeed;
     private float _currentZoomSpeed;
@@ -159,7 +160,7 @@ public class CameraManager : MonoBehaviour
                 Time.deltaTime * _zoomSpeed
             );
         }
-
+        if(!_isCentering)
         ClampCameraToMapBounds();
     }
 
@@ -186,12 +187,10 @@ public class CameraManager : MonoBehaviour
 
     #endregion
 
-    private void ClampCameraToMapBounds()
+    private Vector3 ClampToCameraBounds(Vector3 pos)
     {
-        if (_map == null || !_mainCamera.orthographic) return;
-
+        if (_map == null || !_mainCamera.orthographic) return pos;
         Bounds bounds = _map.WorldBounds;
-
         float halfHeight = _mainCamera.orthographicSize;
         float halfWidth = halfHeight * _mainCamera.aspect;
 
@@ -199,12 +198,15 @@ public class CameraManager : MonoBehaviour
         float maxX = bounds.max.x - halfWidth;
         float minY = bounds.min.y + halfHeight;
         float maxY = bounds.max.y - halfHeight;
-
-        Vector3 pos = _mainCamera.transform.position;
+        
         pos.x = (minX <= maxX) ? Mathf.Clamp(pos.x, minX, maxX) : bounds.center.x;
         pos.y = (minY <= maxY) ? Mathf.Clamp(pos.y, minY, maxY) : bounds.center.y;
+        return pos;
+    }
 
-        _mainCamera.transform.position = pos;
+    private void ClampCameraToMapBounds()
+    {
+        _mainCamera.transform.position = ClampToCameraBounds(_mainCamera.transform.position);
     }
 
     #region Zoom
@@ -258,15 +260,21 @@ public class CameraManager : MonoBehaviour
         if (unit == _lastCenteredUnit) return;
         _lastCenteredUnit = unit;
 
-        Vector3 targetPos = _map.transform.position + unit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
-        targetPos.z = _mainCamera.transform.position.z;
+        Vector3 rawTarget = _map.transform.position + unit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
+        rawTarget.z = _mainCamera.transform.position.z;
+
+        Vector3 targetPos = ClampToCameraBounds(rawTarget);
+        targetPos.z = rawTarget.z;
 
         if (Vector3.Distance(_mainCamera.transform.position, targetPos) < 0.1f) return;
 
         _cameraTween?.Kill();
+        _isCentering = true;
         _cameraTween = _mainCamera.transform
             .DOMove(targetPos, _centerSelectionTime)
-            .SetEase(_easeType);
+            .SetEase(_easeType)
+            .OnComplete(() => _isCentering = false)
+            .OnKill(() => _isCentering = false);
     }
 
     private void StartFollow(GameObject target)
