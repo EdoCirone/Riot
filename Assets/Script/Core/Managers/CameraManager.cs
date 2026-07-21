@@ -120,22 +120,20 @@ public class CameraManager : MonoBehaviour
     {
         if (_followTarget != null)
         {
-            // FOLLOW: insegue il transform, pan manuale sospeso
             Vector3 targetPos = _followTarget.position;
             targetPos.z = _mainCamera.transform.position.z;
-            _mainCamera.transform.position = Vector3.Lerp(
+            Vector3 lerpedPos = Vector3.Lerp(
                 _mainCamera.transform.position, targetPos, _followSpeed * Time.deltaTime);
-            return;  
+            _mainCamera.transform.position = ClampToCameraBounds(lerpedPos);
+            return;
         }
 
-        // ---- DRAG MOUSE (tasto centrale, diretto) ----
         Vector2 dragDelta = GetMouseDragInput();
         if (dragDelta != Vector2.zero)
         {
             _mainCamera.transform.position += new Vector3(dragDelta.x, dragDelta.y, 0f);
         }
 
-        // ---- MOVIMENTO (WASD) ----
         float targetSpeed = _moveInput.magnitude * _cameraMoveMaxSpeed;
         _currentMoveSpeed = Mathf.MoveTowards(_currentMoveSpeed, targetSpeed, _cameraAcceleration * Time.deltaTime);
 
