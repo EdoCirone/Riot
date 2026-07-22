@@ -15,6 +15,7 @@ public class BootManager : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private float _fadeDuration = 1f;
+    [SerializeField] private float _minLoadingDisplayTime = 2f; 
     [SerializeField] private string _sceneToLoad = "MainMenu";
 
     private Coroutine _loadingTextCoroutine;
@@ -35,9 +36,6 @@ public class BootManager : MonoBehaviour
         // --- fade bianco iniziale (da opaco a trasparente) ---
         yield return StartCoroutine(FadeCanvas(_fadeCanvas, 1f, 0f, _fadeDuration, Color.white));
 
-        // --- carica la scena in background ---
-        AsyncOperation loadOp = SceneManager.LoadSceneAsync(_sceneToLoad);
-        loadOp.allowSceneActivation = false;
 
         // --- prepara il video ---
         _videoPlayer.Prepare();
@@ -56,20 +54,23 @@ public class BootManager : MonoBehaviour
 
         Debug.Log("[BOOT] Video terminato → fade bianco");
 
-        _videoPlayer.Pause();
-        Debug.Log($"[BOOT] Video fermato a {_videoPlayer.time:F2}s → fade bianco");
-
         // --- fade bianco per transizione ---
         yield return StartCoroutine(FadeCanvas(_fadeCanvas, 0f, 1f, _fadeDuration, Color.white));
 
         // --- disattiva il video per evitare che rimanga visibile ---
         _videoPlayer.targetCameraAlpha = 0f;
 
+        // --- carica la scena in background ---
+        AsyncOperation loadOp = SceneManager.LoadSceneAsync(_sceneToLoad);
+        loadOp.allowSceneActivation = false;
+
         // --- mostra "loading" ---
         _loadingCanvas.gameObject.SetActive(true);
-        yield return StartCoroutine(FadeCanvas(_loadingCanvas, 0f, 1f, 0.5f, Color.clear));
+        yield return StartCoroutine(FadeCanvas(_loadingCanvas, 0f, 1f, 0.5f));
 
         _loadingTextCoroutine = StartCoroutine(AnimateLoadingText());
+
+        float loadingStartTime = Time.unscaledTime; 
 
         // --- attendi caricamento ---
         float timer = 0f;
@@ -80,12 +81,17 @@ public class BootManager : MonoBehaviour
         }
         Debug.Log($"[BOOT] Caricamento completato (progress={loadOp.progress:F2})");
 
+        // --- garantisci una durata minima visibile del loading --- 
+        float elapsed = Time.unscaledTime - loadingStartTime;
+        if (elapsed < _minLoadingDisplayTime)
+            yield return new WaitForSecondsRealtime(_minLoadingDisplayTime - elapsed);
+
         // --- stoppa animazione loading ---
         if (_loadingTextCoroutine != null)
             StopCoroutine(_loadingTextCoroutine);
 
         // --- fade out del loading canvas ---
-        yield return StartCoroutine(FadeCanvas(_loadingCanvas, 1f, 0f, 0.3f, Color.clear));
+        yield return StartCoroutine(FadeCanvas(_loadingCanvas, 1f, 0f, 0.3f));
 
         // --- fade nero e attiva scena ---
         _fadeCanvas.GetComponent<Image>().color = Color.black;
