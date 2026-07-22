@@ -6,6 +6,7 @@ public class PoliceAI : MonoBehaviour
 {
 
     [SerializeField] private LVLManager _lvlManager;
+    [SerializeField] private UnitEventSO _onSelectedEvent;
 
     private TurnManager _turnManager;
 
@@ -25,6 +26,8 @@ public class PoliceAI : MonoBehaviour
         foreach (var police in _lvlManager.Police)
         {
             if (police.Status == UnitsStatus.Disperse) continue;
+
+            _onSelectedEvent?.Raise(police);
 
             bool actedThisTurn = true;
 
@@ -109,5 +112,6 @@ public class PoliceAI : MonoBehaviour
         }
         return nearest;
     }
+
 
 }

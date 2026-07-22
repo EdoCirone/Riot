@@ -57,16 +57,22 @@ public class OrderPreviewRenderer : MonoBehaviour
 
     private void OnUnitSelected(AbstractUnitsRunTime unit)
     {
-        _selectedUnit = unit;
         ClearHighlight();
 
-        if(unit.IsSeated) return;
+        if (unit is not SpezzoneRuntime)
+        {
+            _selectedUnit = null;
+            return;
+        }
+
+        _selectedUnit = unit;
+
+        if (unit.IsSeated) return;
 
         var visited = TacticalQuery.GetReachable(
             unit.PositionCell.Coordinates, unit.ActionPoints, _grid);
         HighlightReachable(unit, visited);
         HighlightAttackable(unit, visited);
-
     }
 
     private void OnUnitDeselected()

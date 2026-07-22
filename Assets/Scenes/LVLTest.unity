@@ -4815,6 +4815,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoliceAI
   _lvlManager: {fileID: 2130109798}
+  _onSelectedEvent: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
 --- !u!114 &736496570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6817,7 +6818,6 @@ GameObject:
   - component: {fileID: 1144096843}
   - component: {fileID: 1144096842}
   - component: {fileID: 1144096844}
-  - component: {fileID: 1144096845}
   m_Layer: 0
   m_Name: MapManager
   m_TagString: Untagged
@@ -6887,32 +6887,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca77ed48af3d1844d894fca42dbaf0ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PathFinder
---- !u!114 &1144096845
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1144096840}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 578eab1d0bf4e164a8f787d2374e879d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OrderPreviewRenderer
-  _turnManager: {fileID: 736496568}
-  _hexGridRenderer: {fileID: 1144096842}
-  _grid: {fileID: 1144096843}
-  _reachableColor: {r: 0, g: 1, b: 0.13407832, a: 0.6431373}
-  _attackableColor: {r: 1, g: 0, b: 0, a: 0.68235296}
-  _chargeColor: {r: 0, g: 0.3140161, b: 1, a: 1}
-  _throwColor: {r: 1, g: 0.5, b: 0, a: 0.8}
-  _barricadeColor: {r: 0.55, g: 0.35, b: 0.15, a: 0.8}
-  _chantColor: {r: 1, g: 0.85, b: 0, a: 0.8}
-  _chantAreaColor: {r: 1, g: 0.85, b: 0, a: 0.35}
-  _sitStandColor: {r: 0.6, g: 0.6, b: 0.6, a: 0.8}
-  _unitSelectedEvent: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
-  _unitDeselectedEvent: {fileID: 11400000, guid: 6592294ff1c895a4cb56bba59c48821a, type: 2}
-  _actionSelectedEvent: {fileID: 11400000, guid: 0089b697a2e035f4c862ab4d8e41feb2, type: 2}
 --- !u!1 &1170314250
 GameObject:
   m_ObjectHideFlags: 0
@@ -10350,6 +10324,7 @@ GameObject:
   - component: {fileID: 1693072224}
   - component: {fileID: 1693072225}
   - component: {fileID: 1693072226}
+  - component: {fileID: 1693072227}
   m_Layer: 0
   m_Name: Renderer
   m_TagString: Untagged
@@ -10402,6 +10377,32 @@ MonoBehaviour:
   _throwObjectEvent: {fileID: 11400000, guid: b29de7a6fc5add94c88606d4aec6b7ef, type: 2}
   _unitSelected: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
   _itemSelectedEvent: {fileID: 11400000, guid: 0f77724e8995d784abb243b62087a4bf, type: 2}
+--- !u!114 &1693072227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1693072223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 578eab1d0bf4e164a8f787d2374e879d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrderPreviewRenderer
+  _turnManager: {fileID: 736496568}
+  _hexGridRenderer: {fileID: 1144096842}
+  _grid: {fileID: 1144096843}
+  _reachableColor: {r: 0, g: 1, b: 0.13407832, a: 0.6431373}
+  _attackableColor: {r: 1, g: 0, b: 0, a: 0.68235296}
+  _chargeColor: {r: 0, g: 0.3140161, b: 1, a: 1}
+  _throwColor: {r: 1, g: 0.5, b: 0, a: 0.8}
+  _barricadeColor: {r: 0.55, g: 0.35, b: 0.15, a: 0.8}
+  _chantColor: {r: 1, g: 0.85, b: 0, a: 0.8}
+  _chantAreaColor: {r: 1, g: 0.85, b: 0, a: 0.35}
+  _sitStandColor: {r: 0.6, g: 0.6, b: 0.6, a: 0.8}
+  _unitSelectedEvent: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
+  _unitDeselectedEvent: {fileID: 11400000, guid: 6592294ff1c895a4cb56bba59c48821a, type: 2}
+  _actionSelectedEvent: {fileID: 11400000, guid: 0089b697a2e035f4c862ab4d8e41feb2, type: 2}
 --- !u!4 &1725160843 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8032517326267897582, guid: dfb33167643d2cf48b89aa5456e7e054, type: 3}
@@ -10799,6 +10800,7 @@ MonoBehaviour:
   _scrollZoomStep: 0.5
   _startPlayerTurnEvent: {fileID: 11400000, guid: a82b422d354c8a64bb15021fed8e5b95, type: 2}
   _startFollowEvent: {fileID: 11400000, guid: b9cd032b448466f4392bfe32f9b91b83, type: 2}
+  _endPlayerTurnEvent: {fileID: 11400000, guid: f69733287b575af41bf2051f9e7cb894, type: 2}
   _stopFollowEvent: {fileID: 11400000, guid: 14bb41a0b251d904ebfcd4fd64b09b8c, type: 2}
   _onSelectedEvent: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
 --- !u!1 &1838237214
@@ -12572,11 +12574,11 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
     - target: {fileID: 8179120452198403956, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.53
+      value: 3.06
       objectReference: {fileID: 0}
     - target: {fileID: 8179120452198403956, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.4
+      value: 4.24
       objectReference: {fileID: 0}
     - target: {fileID: 8179120452198403956, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
       propertyPath: m_LocalPosition.z

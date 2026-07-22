@@ -11,10 +11,10 @@ public class CameraManager : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float _cameraMoveMaxSpeed = 5f;
     [SerializeField] private float _cameraAcceleration = 10f;
-    
+
     [Header("Mouse Drag Settings")]
     [SerializeField] private bool _mouseDragEnabled = true;
-    
+
     [Header("Follow Settings")]
     [SerializeField] private float _centerSelectionTime = 0.2f;
     [SerializeField] private Ease _easeType = Ease.InOutSine;
@@ -30,6 +30,7 @@ public class CameraManager : MonoBehaviour
     [Header("Events")]
     [SerializeField] private GameEventSO _startPlayerTurnEvent;
     [SerializeField] private GameObjectEventSO _startFollowEvent;
+    [SerializeField] private GameEventSO _endPlayerTurnEvent;
     [SerializeField] private GameEventSO _stopFollowEvent;
     [SerializeField] private UnitEventSO _onSelectedEvent;
 
@@ -41,6 +42,7 @@ public class CameraManager : MonoBehaviour
     private Tweener _cameraTween;
 
     private bool _isCentering;
+    private bool _isPoliceTurn;
     private Vector2 _moveInput;
     private float _currentMoveSpeed;
     private float _currentZoomSpeed;
@@ -73,9 +75,14 @@ public class CameraManager : MonoBehaviour
         // --- SEGUI UNITÀ ---
         if (_onSelectedEvent != null)
             _onSelectedEvent.Subscribe(CenterCamera);
-        _startPlayerTurnEvent.Subscribe(OnPlayerTurnStart);
-        _startFollowEvent.Subscribe(StartFollow);
-        _stopFollowEvent.Subscribe(StopFollow);
+        if (_startPlayerTurnEvent != null)
+            _startPlayerTurnEvent.Subscribe(OnPlayerTurnStart);
+        if (_endPlayerTurnEvent != null)
+            _endPlayerTurnEvent.Subscribe(OnPoliceTurnStart); 
+        if (_startFollowEvent != null)
+            _startFollowEvent.Subscribe(StartFollow);
+        if (_stopFollowEvent != null)
+            _stopFollowEvent.Subscribe(StopFollow);
     }
 
     private void OnDisable()
@@ -92,9 +99,14 @@ public class CameraManager : MonoBehaviour
 
         if (_onSelectedEvent != null)
             _onSelectedEvent.Unsubscribe(CenterCamera);
-        _startFollowEvent.Unsubscribe(StartFollow);
-        _stopFollowEvent.Unsubscribe(StopFollow);
-        _startPlayerTurnEvent.Unsubscribe(OnPlayerTurnStart);
+        if (_startFollowEvent != null)
+            _startFollowEvent.Unsubscribe(StartFollow);
+        if (_stopFollowEvent != null)
+            _stopFollowEvent.Unsubscribe(StopFollow);
+        if (_startPlayerTurnEvent != null)
+            _startPlayerTurnEvent.Unsubscribe(OnPlayerTurnStart);
+        if (_endPlayerTurnEvent != null)
+            _endPlayerTurnEvent.Unsubscribe(OnPoliceTurnStart);
 
 
     }
@@ -158,8 +170,8 @@ public class CameraManager : MonoBehaviour
                 Time.deltaTime * _zoomSpeed
             );
         }
-        if(!_isCentering)
-        ClampCameraToMapBounds();
+        if (!_isCentering)
+            ClampCameraToMapBounds();
     }
 
     #endregion
@@ -185,6 +197,7 @@ public class CameraManager : MonoBehaviour
 
     #endregion
 
+    #region CaneraBound
     private Vector3 ClampToCameraBounds(Vector3 pos)
     {
         if (_map == null || !_mainCamera.orthographic) return pos;
@@ -196,7 +209,7 @@ public class CameraManager : MonoBehaviour
         float maxX = bounds.max.x - halfWidth;
         float minY = bounds.min.y + halfHeight;
         float maxY = bounds.max.y - halfHeight;
-        
+
         pos.x = (minX <= maxX) ? Mathf.Clamp(pos.x, minX, maxX) : bounds.center.x;
         pos.y = (minY <= maxY) ? Mathf.Clamp(pos.y, minY, maxY) : bounds.center.y;
         return pos;
@@ -207,34 +220,36 @@ public class CameraManager : MonoBehaviour
         _mainCamera.transform.position = ClampToCameraBounds(_mainCamera.transform.position);
     }
 
+    #endregion
+
     #region Zoom
 
     private void OnZoomPerformed(InputAction.CallbackContext ctx)
     {
         Vector2 zoomInput = ctx.ReadValue<Vector2>();
-    
-        if(ctx.control.device is Mouse)
+
+        if (ctx.control.device is Mouse)
         {
-        
+
             ApplyScrollZoomStep(zoomInput.y);
             return;
 
         }
-        
+
         _currentZoomSpeed = zoomInput.y * _stepSize;
     }
 
     private void OnZoomCanceled(InputAction.CallbackContext ctx)
     {
-        if(ctx.control.device is Mouse) return;
-        
+        if (ctx.control.device is Mouse) return;
+
         _currentZoomSpeed = 0f;
     }
 
     private void ApplyScrollZoomStep(float scrollValue)
     {
         if (!_mainCamera.orthographic || Mathf.Approximately(scrollValue, 0f)) return;
-        
+
         float direction = Mathf.Sign(scrollValue);
         _mainCamera.orthographicSize = Mathf.Clamp(
             _mainCamera.orthographicSize - direction * _scrollZoomStep,
@@ -246,12 +261,15 @@ public class CameraManager : MonoBehaviour
     #endregion
 
 
-    #region Centratura su unità
+    #region Center On Units
 
     private void CenterCamera(AbstractUnitsRunTime unit)
     {
         if (unit is SpezzoneRuntime)
             _lastPlayerUnit = unit;
+
+        if (unit is PoliceRuntime && !_isPoliceTurn) 
+            return;
 
         if (_followTarget != null) return;
         if (unit == null || _mainCamera == null || _map == null) return;
@@ -286,13 +304,20 @@ public class CameraManager : MonoBehaviour
         _lastCenteredUnit = null;
     }
 
+    private void OnPoliceTurnStart() 
+    {
+        _isPoliceTurn = true;
+    }
+
     private void OnPlayerTurnStart()
     {
+        _isPoliceTurn = false; 
         if (_lastPlayerUnit == null) return;
-        if (_lastPlayerUnit.Status == UnitsStatus.Disperse) return;   
-        _lastCenteredUnit = null;              
+        if (_lastPlayerUnit.Status == UnitsStatus.Disperse) return;
+        _lastCenteredUnit = null;
         CenterCamera(_lastPlayerUnit);
     }
+
 
     #endregion
 }
