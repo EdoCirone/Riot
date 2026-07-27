@@ -15,10 +15,12 @@ public class BootManager : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private float _fadeDuration = 1f;
-    [SerializeField] private float _minLoadingDisplayTime = 2f; 
+    [SerializeField] private float _minLoadingDisplayTime = 2f;
     [SerializeField] private string _sceneToLoad = "MainMenu";
 
     private Coroutine _loadingTextCoroutine;
+    private bool _videoFinished;
+    private void OnVideoFinished(VideoPlayer vp) => _videoFinished = true;
 
     private void Start()
     {
@@ -33,46 +35,53 @@ public class BootManager : MonoBehaviour
     {
         Debug.Log("[BOOT] Avvio sequenza boot...");
 
-        // --- fade bianco iniziale (da opaco a trasparente) ---
+        // --- avvia il video PRIMA del fade, così il bianco lo scopre ---
+        // NON chiamare Prepare(): blocca la presentazione dei frame. Vedi CLAUDE.md.
+        _videoFinished = false;
+        _videoPlayer.loopPointReached += OnVideoFinished;
+        _videoPlayer.Play();
+
+        // frame vale -1 finché nulla è stato presentato: aspetta il primo frame reale
+        yield return new WaitUntil(() => _videoPlayer.frame >= 0);
+
+        // --- scopre il video sfumando via il bianco ---
         yield return StartCoroutine(FadeCanvas(_fadeCanvas, 1f, 0f, _fadeDuration, Color.white));
 
+        // durata letta dall'ASSET: VideoPlayer.length vale 0 senza Prepare()
+        float clipLength = _videoPlayer.clip != null ? (float)_videoPlayer.clip.length : 10f;
+        float maxWait = clipLength + 2f;
+        float videoTimer = 0f;
 
-        // --- prepara il video ---
-        _videoPlayer.Prepare();
-        while (!_videoPlayer.isPrepared)
+        // attesa fine video: evento (preciso) + fail-safe a tempo (non si blocca mai)
+        yield return new WaitUntil(() =>
         {
-            Debug.Log("[BOOT] Attendo preparazione video...");
-            yield return null;
-        }
+            videoTimer += Time.unscaledDeltaTime;
+            return _videoFinished || videoTimer > maxWait;
+        });
 
-        // --- avvia il video ---
-        _videoPlayer.Play();
-        Debug.Log("[BOOT] Video avviato");
+        _videoPlayer.loopPointReached -= OnVideoFinished;
+        Debug.Log($"[BOOT] Video: evento={_videoFinished} timer={videoTimer:F2}/{maxWait:F2} " +
+                  $"frame={_videoPlayer.frame}/{_videoPlayer.frameCount}");
+        _videoPlayer.Pause();
 
-        // il video è già tagliato alla lunghezza corretta in After Effects
-        yield return new WaitUntil(() => !_videoPlayer.isPlaying);
-
-        Debug.Log("[BOOT] Video terminato → fade bianco");
-
-        // --- fade bianco per transizione ---
+        // --- fade bianco per coprire il video ---
         yield return StartCoroutine(FadeCanvas(_fadeCanvas, 0f, 1f, _fadeDuration, Color.white));
 
-        // --- disattiva il video per evitare che rimanga visibile ---
+        // --- nasconde il video (valido solo nei render mode a camera) ---
         _videoPlayer.targetCameraAlpha = 0f;
 
         // --- carica la scena in background ---
         AsyncOperation loadOp = SceneManager.LoadSceneAsync(_sceneToLoad);
         loadOp.allowSceneActivation = false;
 
-        // --- mostra "loading" ---
+        // --- mostra "loading" sopra il bianco ---
         _loadingCanvas.gameObject.SetActive(true);
         yield return StartCoroutine(FadeCanvas(_loadingCanvas, 0f, 1f, 0.5f));
 
         _loadingTextCoroutine = StartCoroutine(AnimateLoadingText());
+        float loadingStartTime = Time.unscaledTime;
 
-        float loadingStartTime = Time.unscaledTime; 
-
-        // --- attendi caricamento ---
+        // --- attendi caricamento (progress si ferma a 0.9 con allowSceneActivation=false) ---
         float timer = 0f;
         while (loadOp.progress < 0.9f && timer < 30f)
         {
@@ -81,26 +90,49 @@ public class BootManager : MonoBehaviour
         }
         Debug.Log($"[BOOT] Caricamento completato (progress={loadOp.progress:F2})");
 
-        // --- garantisci una durata minima visibile del loading --- 
+        // --- durata minima visibile del loading ---
         float elapsed = Time.unscaledTime - loadingStartTime;
         if (elapsed < _minLoadingDisplayTime)
             yield return new WaitForSecondsRealtime(_minLoadingDisplayTime - elapsed);
 
         // --- stoppa animazione loading ---
         if (_loadingTextCoroutine != null)
+        {
             StopCoroutine(_loadingTextCoroutine);
+            _loadingTextCoroutine = null;
+        }
 
         // --- fade out del loading canvas ---
         yield return StartCoroutine(FadeCanvas(_loadingCanvas, 1f, 0f, 0.3f));
+        _loadingCanvas.gameObject.SetActive(false);
 
-        // --- fade nero e attiva scena ---
-        _fadeCanvas.GetComponent<Image>().color = Color.black;
-        yield return StartCoroutine(FadeCanvas(_fadeCanvas, 0f, 1f, _fadeDuration, Color.black));
+        // --- transizione bianco → nero animando il COLORE, non l'alpha ---
+        yield return StartCoroutine(FadeImageColor(_fadeCanvas, Color.white, Color.black, 0.5f));
 
         Debug.Log("[BOOT] Attivo MainMenu...");
         loadOp.allowSceneActivation = true;
     }
 
+    /// Sfuma il colore dell'Image mantenendo il canvas opaco.
+    /// Serve quando lo schermo è GIÀ coperto e devi cambiare tinta:
+    /// animare l'alpha in quel caso scoprirebbe ciò che sta sotto.
+    private IEnumerator FadeImageColor(CanvasGroup canvas, Color from, Color to, float duration)
+    {
+        Image img = canvas.GetComponent<Image>();
+        if (img == null) yield break;
+
+        canvas.alpha = 1f;
+        img.color = from;
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.unscaledDeltaTime;
+            img.color = Color.Lerp(from, to, t / duration);
+            yield return null;
+        }
+        img.color = to;
+    }
     private IEnumerator FadeCanvas(CanvasGroup canvas, float from, float to, float duration, Color? fadeColor = null)
     {
         float t = 0f;
@@ -137,5 +169,11 @@ public class BootManager : MonoBehaviour
             }
             yield return null;
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (_videoPlayer != null)
+            _videoPlayer.loopPointReached -= OnVideoFinished;
     }
 }
