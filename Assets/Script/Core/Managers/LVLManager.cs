@@ -17,6 +17,10 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     [SerializeField] private GameEventSO _winEvent;
     [SerializeField] private GameEventSO _loseEvent;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip _musicClip;
+    [SerializeField] private EventMusicSO _playMusicEvent;
+
     private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
     private List<PoliceRuntime> _policeOfLVL = new List<PoliceRuntime>();
     private List<HexCell> _objectiveCells = new List<HexCell>();
@@ -48,6 +52,19 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     private void Start()
     {
+        if (_playMusicEvent == null)
+        {
+            Debug.LogWarning("InsertMusicEvent");
+            return;
+        }
+        if (_musicClip == null)
+        {
+            Debug.LogWarning("Insert Music Clip");
+            return;
+        }
+
+        _playMusicEvent?.Raise(_musicClip);
+
         UnitsSetup[] allSetups = FindObjectsByType<UnitsSetup>(FindObjectsInactive.Exclude);
         foreach (var setup in allSetups)
         {
