@@ -56,13 +56,6 @@ public class TurnManager : MonoBehaviour
     private bool HasChargeRoom(HexCoordinates atkCoord, HexCoordinates defCoord, out HexCoordinates chargeDestination)
      => TacticalQuery.HasChargeRoom(atkCoord, defCoord, _map, out chargeDestination);
 
-    //Mi serve esposta publica per l'highlight di feedback
-    public bool CanCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
-    {
-        if (def.IsSeated) return false;
-        return HasChargeRoom(atk.PositionCell.Coordinates, def.PositionCell.Coordinates, out _);
-    }
-
     public bool ExecuteCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
         if (def.IsSeated)
@@ -107,7 +100,7 @@ public class TurnManager : MonoBehaviour
         return true;
     }
 
-    public HexCell CalculatePushDestination(HexCoordinates atkCoord, HexCoordinates defCoord)
+    private  HexCell CalculatePushDestination(HexCoordinates atkCoord, HexCoordinates defCoord)
     {
         int resultQ = (defCoord.Q - atkCoord.Q);
         int resultR = (defCoord.R - atkCoord.R);

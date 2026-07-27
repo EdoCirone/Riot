@@ -751,7 +751,7 @@ MonoBehaviour:
   _fadeCanvas: {fileID: 1246740295}
   _loadingCanvas: {fileID: 1120650393}
   _loadingText: {fileID: 65344440}
-  _fadeDuration: 1
+  _fadeDuration: 0.5
   _minLoadingDisplayTime: 2
   _sceneToLoad: MainMenu
 --- !u!1 &1609782290

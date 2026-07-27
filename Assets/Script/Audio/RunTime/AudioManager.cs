@@ -15,8 +15,6 @@ public class AudioManager : MonoBehaviour
     [SerializeField] SFXSO[] _sfxevents;
     [SerializeField] EventMusicSO _playMusicEvent;
 
-    private static AudioManager instance;
-    private static bool initialized = false;
     private Dictionary<string, AudioClip> _musicDictionary = new Dictionary<string, AudioClip>();
     private Dictionary<GameEventSO, AudioClip> _SFXDictionaries = new Dictionary<GameEventSO, AudioClip>();
 

@@ -4,7 +4,6 @@ using UnityEngine;
 public class OrderPreviewRenderer : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private TurnManager _turnManager;
     [SerializeField] private HexGridRenderer _hexGridRenderer;
     [SerializeField] private HexGrid _grid;
 
@@ -29,7 +28,7 @@ public class OrderPreviewRenderer : MonoBehaviour
 
     private void Awake()
     {
-        if (_hexGridRenderer == null || _grid == null || _turnManager == null ||
+        if (_hexGridRenderer == null || _grid == null || 
        _unitSelectedEvent == null || _unitDeselectedEvent == null)
         {
             Debug.LogWarning("OrderPreviewRenderer: missing References");
