@@ -201,37 +201,23 @@ public class TurnManager : MonoBehaviour
             return false;
         }
 
-        // Consuma PA
+        // Check PA
         int cost = path.Count;
-        if (!unit.TrySpendActionPoint(cost))
+        if (unit.ActionPoints < cost)
         {
-            Debug.Log($"Movimento non eseguito: PA insufficienti (servono {cost})");
+            Debug.Log($"Insufficent PA to move ({cost} PA needed)");
             onComplete?.Invoke();
             return false;
         }
 
-        // Rimuovi la cella corrente se presente
-        if (path.Count > 0 && path[0] == unit.PositionCell)
-            path.RemoveAt(0);
-
-        if (path.Count == 0)
-        {
-            onComplete?.Invoke();
-            return true;
-        }
-
-        // Ottieni il GameObject
         GameObject unitGO = _unitsRenderer.GetGameObject(unit);
-        if (unitGO == null)
+        if(unitGO == null)
         {
-            Debug.LogError($"GameObject non trovato per {unit}");
+            Debug.LogError($"GameObject don't found for {unit}");
             onComplete?.Invoke();
             return false;
         }
 
-
-
-        // Ottieni UnitMovement
         UnitMovement movement = unitGO.GetComponent<UnitMovement>();
         if (movement == null)
         {
@@ -246,8 +232,17 @@ public class TurnManager : MonoBehaviour
             return false;
         }
 
-        // AVVIA MOVIMENTO CON CALLBACK
-        
+        unit.TrySpendActionPoint(cost);
+
+        if (path[0] == unit.PositionCell)
+            path.RemoveAt(0);
+
+        if (path.Count == 0)
+        {
+            onComplete?.Invoke();
+            return true;
+        }
+
         _startFollowEvent?.Raise(unitGO);
         movement.MoveAlongPath(path, _lvlManager.Map, () =>
         {
@@ -348,20 +343,22 @@ public class TurnManager : MonoBehaviour
     #region Lancio
     public void ExecuteThrow(AbstractUnitsRunTime atk, PoliceRuntime target, ThrowItemSO item)
     {
-        if (item == null)
+        if (atk is not SpezzoneRuntime spezzone) return;
+        if(!spezzone.Inventory.HasItem(item))
         {
-            _alertEvent?.Raise("not selected Item");
+            _alertEvent?.Raise("No throw objects");
             return;
         }
-        if (!atk.TrySpendActionPoint(item.ActionPointCost)) 
+
+        if(spezzone.ActionPoints < item.ActionPointCost)
         {
             _alertEvent?.Raise($"Not enough PA, {item.ActionPointCost} needed");
             return;
         }
+        spezzone.TrySpendActionPoint(item.ActionPointCost);
+        spezzone.Inventory.ConsumeItem(item);
         _throwEvent.Raise(target);
         target.LoseMorale(item.MoralLost);
-        if (atk is SpezzoneRuntime spezzone)
-            spezzone.Inventory.ConsumeItem(item);
         _unitsRenderer.UpdateView(target);
     }
 
@@ -372,28 +369,30 @@ public class TurnManager : MonoBehaviour
 
     public bool ExecuteBarricade(AbstractUnitsRunTime atk, HexCell targetCell, BarricadeSO item)
     {
-        if (item == null)
+        if (item == null) return false;
+        if(atk is not SpezzoneRuntime spezzone) return false;
+
+        if (!spezzone.Inventory.HasItem(item))
         {
+            _alertEvent?.Raise("No barricade objects");
             return false;
         }
 
-
-        BarricadeRuntime barricade = new BarricadeRuntime(item);
-
-        if (!targetCell.TryPlaceBarricade(barricade))
+        if (!IsCellAvailable(targetCell))
         {
-            _alertEvent?.Raise("Barricata non piazzata: cella non disponibile");
+            _alertEvent?.Raise("Not available cell for barricade");
             return false;
         }
 
-        if (!atk.TrySpendActionPoint(item.ActionPointCost))
+        if(spezzone.ActionPoints < item.ActionPointCost)
         {
-            targetCell.RemoveBarricade();
             _alertEvent?.Raise($"Not enough PA, {item.ActionPointCost} needed");
             return false;
         }
-        if (atk is SpezzoneRuntime spezzone)
-            spezzone.Inventory.ConsumeItem(item);
+
+        spezzone.TrySpendActionPoint(item.ActionPointCost);
+        spezzone.Inventory.ConsumeItem(item);
+        targetCell.TryPlaceBarricade(new BarricadeRuntime(item));
 
         Vector3 worldPos = _map.transform.position + targetCell.Coordinates.ToWorldPosition(_map.CellSize);
         Instantiate(item.GraphicPrefab, worldPos, Quaternion.identity);
