@@ -15,8 +15,6 @@ public class AudioManager : MonoBehaviour
     [SerializeField] SFXSO[] _sfxevents;
     [SerializeField] EventMusicSO _playMusicEvent;
 
-    private Dictionary<string, AudioClip> _musicDictionary = new Dictionary<string, AudioClip>();
-    private Dictionary<GameEventSO, AudioClip> _SFXDictionaries = new Dictionary<GameEventSO, AudioClip>();
 
 
     private void Awake()
@@ -35,19 +33,10 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        InstantiateDictionarys();
         DontDestroyOnLoad(this);
     }
 
-    private void InstantiateDictionarys()
-    {
-
-        foreach (var sfx in _sfxevents)
-        {
-            _SFXDictionaries.Add(sfx.SoundEvent, sfx.Clip);
-        }
-    }
-
+  
     private void OnEnable()
     {
         _playMusicEvent.Subscribe(OnPlayMusic);
@@ -61,17 +50,17 @@ public class AudioManager : MonoBehaviour
 
     public void SetGeneralAudio(float value)
     {
-        _audioMixer.SetFloat("VolumeMaster", Mathf.Log10(value));
+        _audioMixer.SetFloat("VolumeMaster", Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f);
     }
 
     public void SetMusicVolume(float value)
     {
-        _audioMixer.SetFloat("VolumeMusic", Mathf.Log10(value));
+        _audioMixer.SetFloat("VolumeMusic", Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f);
     }
 
     public void SetSFXVolume(float value)
     {
-        _audioMixer.SetFloat("VolumeSFX", Mathf.Log10(value));
+        _audioMixer.SetFloat("VolumeSFX", Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f);
     }
     #endregion
 
