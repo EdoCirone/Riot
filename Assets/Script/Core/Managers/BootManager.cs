@@ -24,6 +24,16 @@ public class BootManager : MonoBehaviour
 
     private void Start()
     {
+    #if UNITY_EDITOR
+            string editorTargetPath = UnityEditor.EditorPrefs.GetString("PLAY_FROM_SCENE_PATH", "");
+            if (!string.IsNullOrEmpty(editorTargetPath))
+            {
+                _sceneToLoad = editorTargetPath; // SceneManager accetta il path della scena
+                Debug.Log($"[BOOT] Editor mode: target scena = '{_sceneToLoad}'");
+                UnityEditor.EditorPrefs.DeleteKey("PLAY_FROM_SCENE_PATH");
+            }
+    #endif
+
         // Assicurati che il loading canvas sia invisibile
         _loadingCanvas.alpha = 0f;
         _loadingCanvas.gameObject.SetActive(false);

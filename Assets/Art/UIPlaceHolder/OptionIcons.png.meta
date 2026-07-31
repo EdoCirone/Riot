@@ -1,0 +1,776 @@
+fileFormatVersion: 2
+guid: 211f55da15c3b3444a923a2d728de013
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7664804053114707993
+    second: OptionIcons_0
+  - first:
+      213: -5594354282424813526
+    second: OptionIcons_1
+  - first:
+      213: -9222271842632390342
+    second: OptionIcons_2
+  - first:
+      213: 8127490840570931153
+    second: OptionIcons_3
+  - first:
+      213: 1954541232404101158
+    second: OptionIcons_4
+  - first:
+      213: 6220819748696531917
+    second: OptionIcons_5
+  - first:
+      213: 848569668168931153
+    second: OptionIcons_6
+  - first:
+      213: 8708973474669532290
+    second: OptionIcons_7
+  - first:
+      213: -9172254932565878820
+    second: OptionIcons_8
+  - first:
+      213: 6969155057839528722
+    second: OptionIcons_9
+  - first:
+      213: 4277133934973451402
+    second: OptionIcons_10
+  - first:
+      213: -3554239546889644904
+    second: OptionIcons_11
+  - first:
+      213: -4078327252797776480
+    second: OptionIcons_12
+  - first:
+      213: 5840266106412143155
+    second: OptionIcons_13
+  - first:
+      213: 8798545744346511094
+    second: OptionIcons_14
+  - first:
+      213: 3163515385769603031
+    second: OptionIcons_15
+  - first:
+      213: -7169286836183153873
+    second: OptionIcons_16
+  - first:
+      213: 1094572740866133825
+    second: OptionIcons_17
+  - first:
+      213: -8962679389640807371
+    second: OptionIcons_18
+  - first:
+      213: -5111795554238605702
+    second: OptionIcons_19
+  - first:
+      213: 8508914239242495995
+    second: OptionIcons_20
+  - first:
+      213: -6037610599560227901
+    second: OptionIcons_21
+  - first:
+      213: 178896036081390598
+    second: OptionIcons_22
+  - first:
+      213: -1582364951437336366
+    second: OptionIcons_23
+  - first:
+      213: 8031339250559174667
+    second: OptionIcons_24
+  - first:
+      213: 904570612120252604
+    second: OptionIcons_25
+  - first:
+      213: 4127964612016942837
+    second: OptionIcons_26
+  - first:
+      213: 1396167659608994306
+    second: OptionIcons_27
+  - first:
+      213: 3608576273942304470
+    second: OptionIcons_28
+  - first:
+      213: 4930621723595802938
+    second: OptionIcons_29
+  - first:
+      213: 651609385000279755
+    second: OptionIcons_30
+  - first:
+      213: -1734252467182188659
+    second: OptionIcons_31
+  - first:
+      213: -7923524766766255053
+    second: OptionIcons_32
+  - first:
+      213: 5428878247919044237
+    second: OptionIcons_33
+  - first:
+      213: -5407553879074906734
+    second: OptionIcons_34
+  - first:
+      213: 9222631278171405932
+    second: OptionIcons_35
+  - first:
+      213: 4626887380019482703
+    second: OptionIcons_36
+  - first:
+      213: 4321853865577748701
+    second: OptionIcons_37
+  - first:
+      213: -3255330925894379003
+    second: OptionIcons_38
+  - first:
+      213: 1003774828982984112
+    second: OptionIcons_39
+  - first:
+      213: -2585814557193890736
+    second: OptionIcons_40
+  - first:
+      213: 6060099039537618065
+    second: OptionIcons_41
+  - first:
+      213: -4514187277481979057
+    second: OptionIcons_42
+  - first:
+      213: -5734771980112486929
+    second: OptionIcons_43
+  - first:
+      213: -6695013617568106746
+    second: OptionIcons_44
+  - first:
+      213: 6806774340499506307
+    second: OptionIcons_45
+  - first:
+      213: 8228496871115064839
+    second: OptionIcons_46
+  - first:
+      213: 2852547866062754344
+    second: OptionIcons_47
+  - first:
+      213: 5939889930673472869
+    second: OptionIcons_48
+  - first:
+      213: -7118003217194313012
+    second: OptionIcons_49
+  - first:
+      213: -3542594925146440766
+    second: OptionIcons_50
+  - first:
+      213: 7671190304718549490
+    second: OptionIcons_51
+  - first:
+      213: -7792186155738971790
+    second: OptionIcons_52
+  - first:
+      213: -792307807922833378
+    second: OptionIcons_53
+  - first:
+      213: 8775542773752961784
+    second: OptionIcons_54
+  - first:
+      213: -3648200870233520985
+    second: OptionIcons_55
+  - first:
+      213: 4383200017229624064
+    second: OptionIcons_56
+  - first:
+      213: 6630559665709653586
+    second: OptionIcons_57
+  - first:
+      213: -4488964477699521116
+    second: OptionIcons_58
+  - first:
+      213: 2095610699676678869
+    second: OptionIcons_59
+  - first:
+      213: 2726854077432303939
+    second: OptionIcons_60
+  - first:
+      213: -1157592273857358035
+    second: OptionIcons_61
+  - first:
+      213: 5835747545533306007
+    second: OptionIcons_62
+  - first:
+      213: 7347678756296414633
+    second: OptionIcons_63
+  - first:
+      213: -317657951996840383
+    second: OptionIcons_64
+  - first:
+      213: -8856546257787706517
+    second: OptionIcons_65
+  - first:
+      213: 4272678516870327321
+    second: OptionIcons_66
+  - first:
+      213: 8733423096634005646
+    second: OptionIcons_67
+  - first:
+      213: 8792398933956588674
+    second: OptionIcons_68
+  - first:
+      213: -4086842887314447446
+    second: OptionIcons_69
+  - first:
+      213: 6408968547378142912
+    second: OptionIcons_70
+  - first:
+      213: 1239816009172163100
+    second: OptionIcons_71
+  - first:
+      213: -1272960810487260510
+    second: OptionIcons_72
+  - first:
+      213: 8080065672945141602
+    second: OptionIcons_73
+  - first:
+      213: 1569523282176663120
+    second: OptionIcons_74
+  - first:
+      213: -7761390026490231686
+    second: OptionIcons_75
+  - first:
+      213: -708722621844088266
+    second: OptionIcons_76
+  - first:
+      213: 7130427246701636827
+    second: OptionIcons_77
+  - first:
+      213: -1235859827596912727
+    second: OptionIcons_78
+  - first:
+      213: -3210684428690063896
+    second: OptionIcons_79
+  - first:
+      213: -7412493385822510471
+    second: OptionIcons_80
+  - first:
+      213: 717294179990384857
+    second: OptionIcons_81
+  - first:
+      213: 2886482163125571899
+    second: OptionIcons_82
+  - first:
+      213: 690479612970323849
+    second: OptionIcons_83
+  - first:
+      213: -4630438810901421855
+    second: OptionIcons_84
+  - first:
+      213: 5294540859726435914
+    second: OptionIcons_85
+  - first:
+      213: 3331800449714284724
+    second: OptionIcons_86
+  - first:
+      213: -1757324650296671099
+    second: OptionIcons_87
+  - first:
+      213: 8348310766732005631
+    second: OptionIcons_88
+  - first:
+      213: 451987612684264990
+    second: OptionIcons_89
+  - first:
+      213: -1750766441054587462
+    second: OptionIcons_90
+  - first:
+      213: 1155643840129004642
+    second: OptionIcons_91
+  - first:
+      213: -3176822778418558993
+    second: OptionIcons_92
+  - first:
+      213: 5066816353996450463
+    second: OptionIcons_93
+  - first:
+      213: 8692765732562784308
+    second: OptionIcons_94
+  - first:
+      213: 1544986096758151156
+    second: OptionIcons_95
+  - first:
+      213: 9136524347849401429
+    second: OptionIcons_96
+  - first:
+      213: 6926145660609210504
+    second: OptionIcons_97
+  - first:
+      213: -1251716935288166874
+    second: OptionIcons_98
+  - first:
+      213: -5685387820372224520
+    second: OptionIcons_99
+  - first:
+      213: -7622048501005339182
+    second: OptionIcons_100
+  - first:
+      213: -5238058964508092326
+    second: OptionIcons_101
+  - first:
+      213: -7617247400044901776
+    second: OptionIcons_102
+  - first:
+      213: 1273485914622308536
+    second: OptionIcons_103
+  - first:
+      213: 6447710869226113156
+    second: OptionIcons_104
+  - first:
+      213: 1783405928560067197
+    second: OptionIcons_105
+  - first:
+      213: 7664129552222791918
+    second: OptionIcons_106
+  - first:
+      213: 1619152248448960005
+    second: OptionIcons_107
+  - first:
+      213: 8348651908423299665
+    second: OptionIcons_108
+  - first:
+      213: 1303811921711004028
+    second: OptionIcons_109
+  - first:
+      213: 1365779872884198942
+    second: OptionIcons_110
+  - first:
+      213: -1919475705939638415
+    second: OptionIcons_111
+  - first:
+      213: -2667352213988632214
+    second: OptionIcons_112
+  - first:
+      213: 8601215832659020977
+    second: OptionIcons_113
+  - first:
+      213: -2333650597966417407
+    second: OptionIcons_114
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: OptionIcons_1
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 686
+        width: 407
+        height: 293
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 42, y: 48, z: 47, w: 58}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2832689b6cdc52b0800000000000000
+      internalID: -5594354282424813526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OptionIcons_2
+      rect:
+        serializedVersion: 2
+        x: 545
+        y: 690
+        width: 445
+        height: 281
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 36, y: 40, z: 37, w: 31}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a392fcdee98e30080800000000000000
+      internalID: -9222271842632390342
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OptionIcons_3
+      rect:
+        serializedVersion: 2
+        x: 1011
+        y: 683
+        width: 502
+        height: 287
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d7a873bbd5aac070800000000000000
+      internalID: 8127490840570931153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OptionIcons_45
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 421
+        width: 394
+        height: 238
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 36, y: 36, z: 35, w: 33}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38487b7e235867e50800000000000000
+      internalID: 6806774340499506307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OptionIcons_46
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 415
+        width: 461
+        height: 247
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7060a3ece4e713270800000000000000
+      internalID: 8228496871115064839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OptionIcons_47
+      rect:
+        serializedVersion: 2
+        x: 1017
+        y: 421
+        width: 413
+        height: 244
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8221875bb29469720800000000000000
+      internalID: 2852547866062754344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OptionIcons_78
+      rect:
+        serializedVersion: 2
+        x: 532
+        y: 142
+        width: 458
+        height: 240
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a719efd80859dee0800000000000000
+      internalID: -1235859827596912727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OptionIcons_79
+      rect:
+        serializedVersion: 2
+        x: 1010
+        y: 142
+        width: 499
+        height: 242
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8edfc06e58b5173d0800000000000000
+      internalID: -3210684428690063896
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OptionIcons_82
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 149
+        width: 399
+        height: 232
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b31d99feb38de0820800000000000000
+      internalID: 2886482163125571899
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: a507c2348193c934fa1a1d2a2a4d775e
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      OptionIcons_0: -7664804053114707993
+      OptionIcons_1: -5594354282424813526
+      OptionIcons_10: 4277133934973451402
+      OptionIcons_100: -7622048501005339182
+      OptionIcons_101: -5238058964508092326
+      OptionIcons_102: -7617247400044901776
+      OptionIcons_103: 1273485914622308536
+      OptionIcons_104: 6447710869226113156
+      OptionIcons_105: 1783405928560067197
+      OptionIcons_106: 7664129552222791918
+      OptionIcons_107: 1619152248448960005
+      OptionIcons_108: 8348651908423299665
+      OptionIcons_109: 1303811921711004028
+      OptionIcons_11: -3554239546889644904
+      OptionIcons_110: 1365779872884198942
+      OptionIcons_111: -1919475705939638415
+      OptionIcons_112: -2667352213988632214
+      OptionIcons_113: 8601215832659020977
+      OptionIcons_114: -2333650597966417407
+      OptionIcons_115: 249909845
+      OptionIcons_12: -4078327252797776480
+      OptionIcons_13: 5840266106412143155
+      OptionIcons_14: 8798545744346511094
+      OptionIcons_15: 3163515385769603031
+      OptionIcons_16: -7169286836183153873
+      OptionIcons_17: 1094572740866133825
+      OptionIcons_18: -8962679389640807371
+      OptionIcons_19: -5111795554238605702
+      OptionIcons_2: -9222271842632390342
+      OptionIcons_20: 8508914239242495995
+      OptionIcons_21: -6037610599560227901
+      OptionIcons_22: 178896036081390598
+      OptionIcons_23: -1582364951437336366
+      OptionIcons_24: 8031339250559174667
+      OptionIcons_25: 904570612120252604
+      OptionIcons_26: 4127964612016942837
+      OptionIcons_27: 1396167659608994306
+      OptionIcons_28: 3608576273942304470
+      OptionIcons_29: 4930621723595802938
+      OptionIcons_3: 8127490840570931153
+      OptionIcons_30: 651609385000279755
+      OptionIcons_31: -1734252467182188659
+      OptionIcons_32: -7923524766766255053
+      OptionIcons_33: 5428878247919044237
+      OptionIcons_34: -5407553879074906734
+      OptionIcons_35: 9222631278171405932
+      OptionIcons_36: 4626887380019482703
+      OptionIcons_37: 4321853865577748701
+      OptionIcons_38: -3255330925894379003
+      OptionIcons_39: 1003774828982984112
+      OptionIcons_4: 1954541232404101158
+      OptionIcons_40: -2585814557193890736
+      OptionIcons_41: 6060099039537618065
+      OptionIcons_42: -4514187277481979057
+      OptionIcons_43: -5734771980112486929
+      OptionIcons_44: -6695013617568106746
+      OptionIcons_45: 6806774340499506307
+      OptionIcons_46: 8228496871115064839
+      OptionIcons_47: 2852547866062754344
+      OptionIcons_48: 5939889930673472869
+      OptionIcons_49: -7118003217194313012
+      OptionIcons_5: 6220819748696531917
+      OptionIcons_50: -3542594925146440766
+      OptionIcons_51: 7671190304718549490
+      OptionIcons_52: -7792186155738971790
+      OptionIcons_53: -792307807922833378
+      OptionIcons_54: 8775542773752961784
+      OptionIcons_55: -3648200870233520985
+      OptionIcons_56: 4383200017229624064
+      OptionIcons_57: 6630559665709653586
+      OptionIcons_58: -4488964477699521116
+      OptionIcons_59: 2095610699676678869
+      OptionIcons_6: 848569668168931153
+      OptionIcons_60: 2726854077432303939
+      OptionIcons_61: -1157592273857358035
+      OptionIcons_62: 5835747545533306007
+      OptionIcons_63: 7347678756296414633
+      OptionIcons_64: -317657951996840383
+      OptionIcons_65: -8856546257787706517
+      OptionIcons_66: 4272678516870327321
+      OptionIcons_67: 8733423096634005646
+      OptionIcons_68: 8792398933956588674
+      OptionIcons_69: -4086842887314447446
+      OptionIcons_7: 8708973474669532290
+      OptionIcons_70: 6408968547378142912
+      OptionIcons_71: 1239816009172163100
+      OptionIcons_72: -1272960810487260510
+      OptionIcons_73: 8080065672945141602
+      OptionIcons_74: 1569523282176663120
+      OptionIcons_75: -7761390026490231686
+      OptionIcons_76: -708722621844088266
+      OptionIcons_77: 7130427246701636827
+      OptionIcons_78: -1235859827596912727
+      OptionIcons_79: -3210684428690063896
+      OptionIcons_8: -9172254932565878820
+      OptionIcons_80: -7412493385822510471
+      OptionIcons_81: 717294179990384857
+      OptionIcons_82: 2886482163125571899
+      OptionIcons_83: 690479612970323849
+      OptionIcons_84: -4630438810901421855
+      OptionIcons_85: 5294540859726435914
+      OptionIcons_86: 3331800449714284724
+      OptionIcons_87: -1757324650296671099
+      OptionIcons_88: 8348310766732005631
+      OptionIcons_89: 451987612684264990
+      OptionIcons_9: 6969155057839528722
+      OptionIcons_90: -1750766441054587462
+      OptionIcons_91: 1155643840129004642
+      OptionIcons_92: -3176822778418558993
+      OptionIcons_93: 5066816353996450463
+      OptionIcons_94: 8692765732562784308
+      OptionIcons_95: 1544986096758151156
+      OptionIcons_96: 9136524347849401429
+      OptionIcons_97: 6926145660609210504
+      OptionIcons_98: -1251716935288166874
+      OptionIcons_99: -5685387820372224520
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

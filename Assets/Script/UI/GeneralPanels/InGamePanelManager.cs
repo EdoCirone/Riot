@@ -6,6 +6,7 @@ public class InGamePanelManager : MonoBehaviour
     [SerializeField] GameObject _losePanel;
     [SerializeField] GameObject _winPanel;
     [SerializeField] GameObject _menuPanel;
+    [SerializeField] GameObject _optionPanel;
 
     [Header("Events")]
     [SerializeField] GameEventSO _loseEvent;
@@ -26,9 +27,12 @@ public class InGamePanelManager : MonoBehaviour
             return;
         }
         _isValid = true;
-        CloseAllPanel();
     }
 
+    private void Start()
+    {
+        if (_isValid) CloseAllPanel();
+    }
     private void OnEnable()
     {
         if (!_isValid) return;
@@ -47,11 +51,23 @@ public class InGamePanelManager : MonoBehaviour
 
     public void OnMenuButtonClick() { _menuPanel.SetActive(true); }
 
+    public void OnOptionButtonClick()
+    {
+        CloseAllPanel();
+
+        _optionPanel.SetActive(true);
+        _optionPanel.GetComponent<OptionPanelView>()?.Open();
+        _optionPanel.GetComponent<MenuPanelView>()?.Show();
+    }
+
     public void CloseAllPanel()
     {
         _losePanel?.SetActive(false);
         _winPanel?.SetActive(false);
         _menuPanel?.SetActive(false);
+
+        _optionPanel?.GetComponent<OptionPanelView>()?.Close();
+        _optionPanel.GetComponent<MenuPanelView>()?.Hide();
     }
 }
 

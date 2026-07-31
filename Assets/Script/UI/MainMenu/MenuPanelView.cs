@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using Unity.VisualScripting;
+using UnityEngine.Events;
 
 public class MenuPanelView : MonoBehaviour
 {
@@ -15,6 +16,10 @@ public class MenuPanelView : MonoBehaviour
     [SerializeField] private float _hideDuration = 0.5f;
     [SerializeField] private Ease _showEase = Ease.OutCubic;
     [SerializeField] private Ease _hideEase = Ease.InCubic;
+
+    [Header("Events")]
+    public UnityEvent OnPanelShow;
+    public UnityEvent OnPanelHide;
 
     private Vector2 _showPosition;
     private Vector2 _hiddenPosition;
@@ -54,11 +59,13 @@ public class MenuPanelView : MonoBehaviour
     public void Show()
     {
         Slide(true);
+        OnPanelShow?.Invoke();
     }
 
     public void Hide()
     {
         Slide(false);
+        OnPanelHide?.Invoke();
     }
 
     private void Slide(bool visible)

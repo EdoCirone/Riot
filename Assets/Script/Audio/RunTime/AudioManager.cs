@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
 using UnityEngine;
-
 public class AudioManager : MonoBehaviour
 {
     [Header ("Reference")]
@@ -15,7 +14,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] SFXSO[] _sfxevents;
     [SerializeField] EventMusicSO _playMusicEvent;
 
-
+    private readonly List<(GameEventSO evt, System.Action handler)> _sfxHandlers = new();
 
     private void Awake()
     {
@@ -34,17 +33,37 @@ public class AudioManager : MonoBehaviour
         }
 
         DontDestroyOnLoad(this);
+        LoadAudioSettings();
     }
 
-  
+
     private void OnEnable()
     {
         _playMusicEvent.Subscribe(OnPlayMusic);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        foreach (SFXSO sfx in _sfxevents)
+        {
+            if (sfx == null || sfx.SoundEvent == null) continue;
+            System.Action handler = () => sfx.Play(_sfxSource);
+            sfx.SoundEvent.Subscribe(handler);
+            _sfxHandlers.Add((sfx.SoundEvent, handler));
+        }
     }
 
     private void OnDisable()
     {
         _playMusicEvent.Unsubscribe(OnPlayMusic);
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        foreach (var (evt, handler) in _sfxHandlers)
+            evt.Unsubscribe(handler);
+        _sfxHandlers.Clear();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        LoadAudioSettings();
     }
     #region VolumeSettings
 
@@ -75,6 +94,7 @@ public class AudioManager : MonoBehaviour
     #region Save & Load
     public void SaveAudioSettings(float masterVolume, float musicVolume, float sfxVolume)
     {
+        Debug.Log($"[AUDIO] Save: master={masterVolume:F2} music={musicVolume:F2} sfx={sfxVolume:F2}");
         PlayerPrefs.SetFloat("VolumeMaster", masterVolume);
         PlayerPrefs.SetFloat("VolumeMusic", musicVolume);
         PlayerPrefs.SetFloat("VolumeSFX", sfxVolume);
@@ -86,9 +106,24 @@ public class AudioManager : MonoBehaviour
         float masterVolume = PlayerPrefs.GetFloat("VolumeMaster", 0.75f);
         float musicVolume = PlayerPrefs.GetFloat("VolumeMusic", 0.75f);
         float sfxVolume = PlayerPrefs.GetFloat("VolumeSFX", 0.75f);
+        Debug.Log($"[AUDIO] Load: master={masterVolume:F2} music={musicVolume:F2} sfx={sfxVolume:F2}");
         SetGeneralAudio(masterVolume);
         SetMusicVolume(musicVolume);
         SetSFXVolume(sfxVolume);
     }
+
+    private float GetLinearVolume(string parameterName)
+    {
+        bool found = _audioMixer.GetFloat(parameterName, out float db);
+        float linear = found ? Mathf.Pow(10f, db / 20f) : 1f;
+        Debug.Log($"[AUDIO] Get {parameterName}: found={found} db={db:F2} linear={linear:F2}");
+        return linear;
+    }
+
+    public float GetGeneralVolume() => GetLinearVolume("VolumeMaster");
+    public float GetMusicVolume() => GetLinearVolume("VolumeMusic");
+    public float GetSFXVolume() => GetLinearVolume("VolumeSFX");
+
+
     #endregion
 }
