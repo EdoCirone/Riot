@@ -14,8 +14,10 @@ Build settings, in quest'ordine: Boot → MainMenu → LVLTest.
 - Assets/Scenes/MainMenu.unity — menu principale
 - Assets/Scenes/LVLTest.unity — scena di gioco (è quella che il documento chiamava
   erroneamente Main.unity)
-- Assets/_Recovery/0.unity — file di recupero da un crash dell'Editor, fuori dalle
-  build settings. Da cancellare dopo aver controllato che non contenga lavoro.
+- Assets/_Recovery/0.unity e 0 (1).unity — copie create dal recupero dell'Editor
+  dopo un crash e fuori dalle build settings. `0 (1).unity` è identica a LVLTest;
+  `0.unity` è una versione precedente. Non sono scene di progetto e possono
+  essere rimosse insieme ai rispettivi file `.meta`.
 
 ---
 
@@ -73,9 +75,12 @@ RunManager: VERIFICATO 27/07/26 — NON esiste, zero riferimenti nel codice.
 - `AudioManager` (DontDestroyOnLoad) tiene un `AudioMixer` con tre parametri
   esposti: `VolumeMaster`, `VolumeMusic`, `VolumeSFX`. Due AudioSource distinti
   per musica e SFX. Volumi salvati in PlayerPrefs con gli stessi nomi.
-- `SFXSO` mappa un `GameEventSO` a un `AudioClip`. All'Awake l'array `_sfxevents`
-  viene riversato in un Dictionary<GameEventSO, AudioClip>.
+- `SFXSO` mappa un `GameEventSO` a un `AudioClip`. In `OnEnable`, `AudioManager`
+  sottoscrive un handler per ogni elemento di `_sfxevents`; in `OnDisable`
+  annulla le sottoscrizioni usando `_sfxHandlers`.
 - `EventMusicSO` è l'event channel che veicola un AudioClip da riprodurre in loop.
+- I volumi lineari sono convertiti correttamente in decibel con
+  `Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f`.
 
 ## Naming Convention
 - Classi: PascalCase. Campi privati serializzati: _camelCase.
@@ -233,15 +238,7 @@ poi svuotare questa sezione.
   GetAttackOption il riferimento serve solo a comparire in un null-check di guardia
   (riga 32). Da rimuovere insieme al null-check.
 - **GameManager.instance è un singleton statico pubblico**: viola la regola
-  architetturale "zero singleton". `AudioManager` ha in più due campi statici
-  (`instance`, `initialized`) mai letti né scritti — dead code residuo di un
-  singleton mai completato.
-- **AudioManager: conversione volume sbagliata**: `SetFloat(param, Mathf.Log10(value))`.
-  I parametri di un AudioMixer sono in **decibel**, e la formula corretta è
-  `Mathf.Log10(value) * 20`. Senza il fattore 20 uno slider 0→1 copre appena 1 dB
-  invece di 20: il cursore sembra non fare niente. In più `value == 0` produce
-  `-Infinity` — va usato un `Mathf.Max(value, 0.0001f)`. Tre metodi coinvolti:
-  SetGeneralAudio, SetMusicVolume, SetSFXVolume.
+  architetturale "zero singleton".
 - **Campi Bump in MovementSettingsSO sono dead code** (ChargeBumpDistance/Duration,
   SkirmishBumpDistance/Duration): definiti, esposti, mai letti da nessuno.
   NON è perché manchi l'animazione di ricezione colpo — quella ESISTE:
