@@ -5255,6 +5255,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 655876674706507188, guid: 96cce73563e4e8f46abe856148c7b95c, type: 3}
+      propertyPath: OnPanelHide.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 655876674706507188, guid: 96cce73563e4e8f46abe856148c7b95c, type: 3}
+      propertyPath: OnPanelShow.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1162924672401893151, guid: 96cce73563e4e8f46abe856148c7b95c, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -5483,7 +5491,7 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 4362539884615034642, guid: 96cce73563e4e8f46abe856148c7b95c, type: 3}
-      insertIndex: 0
+      insertIndex: -1
       addedObject: {fileID: 889679706}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 96cce73563e4e8f46abe856148c7b95c, type: 3}

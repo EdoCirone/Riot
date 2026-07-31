@@ -70,16 +70,19 @@ public class AudioManager : MonoBehaviour
     public void SetGeneralAudio(float value)
     {
         _audioMixer.SetFloat("VolumeMaster", Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f);
+        PlayerPrefs.SetFloat("VolumeMaster", value);
     }
 
     public void SetMusicVolume(float value)
     {
         _audioMixer.SetFloat("VolumeMusic", Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f);
+        PlayerPrefs.SetFloat("VolumeMusic", value);
     }
 
     public void SetSFXVolume(float value)
     {
         _audioMixer.SetFloat("VolumeSFX", Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f);
+        PlayerPrefs.SetFloat("VolumeSFX", value);
     }
     #endregion
 
@@ -92,13 +95,10 @@ public class AudioManager : MonoBehaviour
     }
 
     #region Save & Load
-    public void SaveAudioSettings(float masterVolume, float musicVolume, float sfxVolume)
+    public void SaveAudioSettings()
     {
-        Debug.Log($"[AUDIO] Save: master={masterVolume:F2} music={musicVolume:F2} sfx={sfxVolume:F2}");
-        PlayerPrefs.SetFloat("VolumeMaster", masterVolume);
-        PlayerPrefs.SetFloat("VolumeMusic", musicVolume);
-        PlayerPrefs.SetFloat("VolumeSFX", sfxVolume);
         PlayerPrefs.Save();
+        Debug.Log("[AUDIO] Save su disco");
     }
 
     public void LoadAudioSettings()

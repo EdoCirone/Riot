@@ -32,17 +32,14 @@ public class OptionPanelView : MonoBehaviour
 
     public void Close()
     {
-        Debug.Log("Close chiamato");
-
         if (_audioManager == null) return;
 
         _masterSlider.onValueChanged.RemoveListener(_audioManager.SetGeneralAudio);
         _musicSlider.onValueChanged.RemoveListener(_audioManager.SetMusicVolume);
         _sfxSlider.onValueChanged.RemoveListener(_audioManager.SetSFXVolume);
 
-        _audioManager.SaveAudioSettings(_masterSlider.value, _musicSlider.value, _sfxSlider.value);
+        _audioManager.SaveAudioSettings();
         _audioManager = null;
-
     }
 
 }
