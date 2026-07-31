@@ -1,38 +1,102 @@
-# DISSENSO (RIOT)
+## README.v0.18.1.md
 
-Hex-grid tactical combat game in development (Unity, C#).
 
-**Status:** core gameplay loop is playable end-to-end (winnable/losable), no public build yet.
+## DISSENSO
+A turn-based political tactics game played on a hex grid.
 
-## Concept
+# Play DISSENSO on itch.io
 
-A turn-based tactical game on a hexagonal grid where you lead a protest march ("corteo") 
-of demonstrator units against police lines. The core resource is Morale rather than 
-straightforward HP, and units can choose between confrontational tactics and non-violent 
-ones that trade mobility for resilience.
+Current version: v0.18.1
+Status: playable early prototype, under active development
 
-## Implemented systems
+# About
+DISSENSO is a 2D turn-based tactics game in which you lead a political march through police lines and toward strategic objectives.
 
-- **Hex grid** (flat-top, axial coordinates) with unified BFS-based pathfinding and 
-  adjacency logic, shared across movement, attack targeting, and highlight rendering
-- **Four core unit stats**: Attack, Defense, Morale, Action Points
-- **Deterministic combat resolution** — no randomness
-- **Arm-then-target action system**: select a unit, arm a special action, then click a 
-  valid target to execute
-  - **Charge** — fast dash into an enemy with knockback
-  - **Throw** — ranged attack at fixed distance, unobstructed by units in its path
-  - **Chant** — restores morale to the caster and all adjacent allies
-  - **Sit/Stand** — trade the ability to move or attack for a defense bonus and immunity 
-    to charges
-- **5-slot action panel UI** with keyboard shortcuts
-- **Inventory system** (polymorphic item data, stack-based) powering consumable actions
-- **Turn structure**: player phase → basic police AI (approach + attack) → player phase
-- **Visual feedback**: shader-based selection outline, camera follow/centering on the 
-  selected unit
-- **Win/lose conditions** based on objective-cell control and turn limits
+Units spend Action Points to move and act, while Morale replaces conventional health. Combat is deterministic: positioning, available actions and unit statistics decide the outcome. Confrontational and non-violent tactics serve different purposes and can change how a turn develops.
 
-## Known open issues
+The current build focuses on the tactical layer. It contains one complete scenario with win and loss conditions, but it is not yet representative of the planned campaign structure.
 
-- Police AI still evaluates movement by straight-line distance rather than real path 
-  cost (already fixed on the player side)
-- Defender has no bump/recoil animation yet on charge or melee
+DISSENSO is an independent project inspired in part by the 1980 Italian board game Corteo. It is not an official adaptation.
+
+# Current prototype
+Flat-top hex grid using axial coordinates
+
+A* pathfinding and shared tactical legality checks
+
+Turn structure: player actions followed by a sequential police phase
+
+Action Points, Attack, Defense and Morale
+
+Deterministic skirmishes with morale loss
+
+Movement, automatic move-and-attack and charges with knockback
+
+Throwable items and placeable barricades
+
+Chant action for restoring group morale
+
+Sit/Stand action, trading mobility for additional defense
+
+Inventory-based consumable actions
+
+Basic police AI
+
+Objective control and turn-limit win/loss conditions
+
+Reachable-cell and valid-target previews
+
+Boot sequence, scene transitions and loading screen
+
+Separate Master, Music and SFX controls with saved settings
+
+# Controls
+Input	Action
+Left mouse button	Select units, choose destinations or targets, and confirm
+Right mouse button	Cancel the current action or deselect
+Space	End the player turn
+C	Charge
+T	Throw
+B	Place barricade
+R	Chant
+G	Sit or stand
+WASD	Move the camera
+Mouse wheel or Q/E	Zoom
+Actions can also be selected through the on-screen action panel. Throwing and placing a barricade require the corresponding inventory item.
+
+# Development direction
+The long-term game is intended to extend beyond isolated tactical battles. Planned systems include:
+
+A persistent movement roster
+
+Recruitment, arrests, desertions and unit recovery
+
+Political groups with distinct roles and internal tensions
+
+Aggressiveness, repression and cohesion across missions
+
+A campaign played across a larger city map
+
+Consequences for violent and non-violent choices
+
+These systems are development goals and are not part of the current public prototype.
+
+# Technology
+Unity 6000.4.5f1
+
+C#
+
+Universal Render Pipeline, 2D
+
+Unity Input System
+
+DOTween
+
+ScriptableObject-based data and event channels
+
+# Music credits
+Main Menu: Furious by FASS, available through Uppbeat
+
+Gameplay: music from Three Red Hearts by Abstraction, released under CC0
+
+# Developer
+Game design and development by Edoardo Cirone.
