@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8179120452198403956}
   - component: {fileID: 512491741121408142}
   m_Layer: 0
-  m_Name: BasicUnit
+  m_Name: BlackBlock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SelectionOutline
   _outlineMaterial: {fileID: 2100000, guid: 79fe66d90f9bec547bac57d980ba6ca3, type: 2}
-  _outlineColor: {r: 0.860515, g: 0, b: 1, a: 1}
+  _outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   _unitSelectedEvent: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
   _policeSelectedEvent: {fileID: 11400000, guid: 93aeb65fcb4a88444b8f15479fbd1575, type: 2}
   _unitDeselectedEvent: {fileID: 11400000, guid: 6592294ff1c895a4cb56bba59c48821a, type: 2}

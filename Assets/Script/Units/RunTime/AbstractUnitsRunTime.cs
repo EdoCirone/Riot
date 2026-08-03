@@ -52,6 +52,7 @@ public abstract class AbstractUnitsRunTime
 
     #endregion
 
+    public abstract bool CanPerformAction(ActionType action);
     public bool SetPosition(HexCell arriveCell)
     {
         bool isSucces = arriveCell.TryOccupy(this);

@@ -49,8 +49,11 @@ autorevole per qualunque check di coerenza codice/documento.
   sottoscrivono direttamente agli asset SO. Channel presenti: GameEventSO,
   UnitEventSO, ActionEventSO, ItemEventSO, GameObjectEventSO, StringEventSO,
   EventMusicSO, sopra la base EventChannelSO.
-- "Zero singleton statici" era la regola, ma NON è più vera nel codice:
-  `GameManager.instance` è un `public static` (vedi bug noti).
+- "Zero singleton statici": regola RISPETTATA. (Il documento affermava il
+  contrario fino al 03/08/26 — era falso, vedi bug noti.) Unica eccezione di
+  fatto: `AudioManager` è `DontDestroyOnLoad`, quindi è unico per costruzione, ma
+  non espone nessun accesso statico — chi gli serve lo trova con
+  `FindAnyObjectByType`.
 - **Confine elaboratore/esecutore** (chiave architetturale):
   - `TacticalQuery` (classe STATICA pura, senza stato) = ELABORATORE. Risponde a
     domande di legalità/raggiungibilità. Non muta nulla. La griglia è sempre
@@ -69,13 +72,67 @@ obiettivo) / TurnManager (esecuzione azioni, ciclo turni) / CameraManager
 (bootscene). PoliceAI orchestra il turno polizia.
 RunManager: VERIFICATO 27/07/26 — NON esiste, zero riferimenti nel codice.
 
-## Audio (AudioManager + SFXSO)
+## Audio (VERIFICATO 03/08/26 — sezione riscritta, la precedente era obsoleta)
+File: `Assets/Script/Audio/RunTime/AudioManager.cs`, `SceneMusicHandler.cs`,
+`Assets/Script/Audio/Data/SFXSO.cs`,
+`Assets/Script/UI/GeneralPanels/OptionPanelView.cs`.
+
 - `AudioManager` (DontDestroyOnLoad) tiene un `AudioMixer` con tre parametri
-  esposti: `VolumeMaster`, `VolumeMusic`, `VolumeSFX`. Due AudioSource distinti
-  per musica e SFX. Volumi salvati in PlayerPrefs con gli stessi nomi.
-- `SFXSO` mappa un `GameEventSO` a un `AudioClip`. All'Awake l'array `_sfxevents`
-  viene riversato in un Dictionary<GameEventSO, AudioClip>.
+  esposti: `VolumeMaster`, `VolumeMusic`, `VolumeSFX`. Due AudioSource serializzati
+  (`_musicSource`, `_sfxSource`), che devono essere **figli** del GameObject
+  protetto: `DontDestroyOnLoad` protegge la gerarchia a partire dall'oggetto su cui
+  è chiamato, non i fratelli.
+- **Conversione volume**: i parametri di un AudioMixer sono in decibel.
+  lineare→dB `Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f`; dB→lineare
+  `Mathf.Pow(10f, db / 20f)`. Il `Mathf.Max` evita `-Infinity` a valore 0. Il
+  fattore 20 non è opzionale: senza, uno slider 0→1 copre 1 dB invece di 20.
+- **Persistenza — due meccanismi, entrambi necessari**:
+  1. I setter `SetGeneralAudio` / `SetMusicVolume` / `SetSFXVolume` scrivono SIA
+     sul mixer SIA in `PlayerPrefs.SetFloat`. Il salvataggio è agganciato al DATO
+     (il valore cambia → è salvato), non a un evento di UI. È questo che rende il
+     sistema robusto: nessuna strada d'uscita dal pannello — tasto, cambio scena,
+     alt-F4 — può più perdere l'impostazione. `SaveAudioSettings()` fa solo
+     `PlayerPrefs.Save()` (flush su disco).
+  2. `SceneManager.sceneLoaded` → `LoadAudioSettings()`. **Serve davvero**: i
+     parametri esposti di un AudioMixer si resettano al valore autorale (0 dB) a
+     ogni cambio scena. Accertato coi log: valore corretto applicato in Awake,
+     riletto `db=0,00` subito dopo la transizione.
+- `SFXSO` = un `GameEventSO` (trigger) + array di `AudioClip` + range di pitch.
+  `Play(AudioSource)` sorteggia pitch e clip e fa `PlayOneShot`. `PickClip` usa un
+  `do...while` con sentinella `_lastIndex = -1` per non ripetere due volte di fila
+  la stessa clip (con una sola clip esce prima del loop, che sarebbe infinito).
+- `AudioManager` si iscrive agli SFX in `OnEnable` costruendo
+  `List<(GameEventSO evt, System.Action handler)>`: serve a conservare il
+  riferimento all'handler lambda per disiscriverlo simmetricamente in `OnDisable`.
+  Non è un dizionario perché non serve mai cercare per chiave, solo iterare tutto
+  in fase di pulizia.
 - `EventMusicSO` è l'event channel che veicola un AudioClip da riprodurre in loop.
+  `SceneMusicHandler` (MonoBehaviour da mettere in scena) lo alza in `Start`.
+- `OptionPanelView` NON apre né chiude nulla: `Open()` legge i volumi correnti dal
+  mixer e li mette negli slider (con `SetValueWithoutNotify`, per non far scattare
+  gli handler durante l'inizializzazione), poi aggancia i listener; `Close()` li
+  sgancia e fa il flush. Chi decide la visibilità del pannello è tutt'altro codice.
+  `Close()` ha un null-check d'ingresso perché viene chiamato anche prima che
+  `Open()` sia mai girato (es. da `InGamePanelManager.Start`).
+
+## UI — pannelli (VERIFICATO 03/08/26)
+Esistono DUE meccanismi di visibilità distinti, che non vanno mescolati:
+- `MenuPanelView` (MainMenu): il pannello resta **sempre attivo** e scivola dentro
+  e fuori schermo via DOTween (`Show()`/`Hide()`), regolando
+  `CanvasGroup.interactable/blocksRaycasts`. `MenuPanelView.Awake` calcola la
+  posizione nascosta: chi chiama `Hide()` all'avvio deve farlo da `Start()`, non da
+  `Awake()`, altrimenti c'è una corsa fra i due Awake e la posizione non è pronta.
+- `SetActive(true/false)` (InGamePanelManager, per Win/Lose/Menu).
+Se un pannello ha `MenuPanelView`, NON va anche disattivato con `SetActive(false)`:
+`Show()` non riattiva un GameObject spento, e il pannello sparirebbe per sempre.
+- `MenuPanelView` espone `OnPanelShown`/`OnPanelHidden` (UnityEvent). Cablaggio
+  **asimmetrico fra le due scene, ed è voluto**: nel MainMenu sono collegati a
+  `OptionPanelView.Open/Close`, perché `MainMenuPanelManager` passa da un pannello
+  all'altro senza un tasto "chiudi" dedicato e così la chiusura scatta da qualunque
+  strada; nel LVL vanno lasciati **vuoti**, perché `InGamePanelManager` li chiama
+  esplicitamente — se sono collegati, `Open()`/`Close()` girano due volte per click
+  (`UnityEvent.AddListener` non deduplica, a differenza di `GameEventSO.Subscribe`
+  che usa `Contains`).
 
 ## Naming Convention
 - Classi: PascalCase. Campi privati serializzati: _camelCase.
@@ -232,16 +289,57 @@ poi svuotare questa sezione.
 - **OrderPreviewRenderer._turnManager è un campo inutile**: dopo il passaggio a
   GetAttackOption il riferimento serve solo a comparire in un null-check di guardia
   (riga 32). Da rimuovere insieme al null-check.
-- **GameManager.instance è un singleton statico pubblico**: viola la regola
-  architetturale "zero singleton". `AudioManager` ha in più due campi statici
-  (`instance`, `initialized`) mai letti né scritti — dead code residuo di un
-  singleton mai completato.
-- **AudioManager: conversione volume sbagliata**: `SetFloat(param, Mathf.Log10(value))`.
-  I parametri di un AudioMixer sono in **decibel**, e la formula corretta è
-  `Mathf.Log10(value) * 20`. Senza il fattore 20 uno slider 0→1 copre appena 1 dB
-  invece di 20: il cursore sembra non fare niente. In più `value == 0` produce
-  `-Infinity` — va usato un `Mathf.Max(value, 0.0001f)`. Tre metodi coinvolti:
-  SetGeneralAudio, SetMusicVolume, SetSFXVolume.
+- ~~GameManager.instance è un singleton statico pubblico~~ — **AFFERMAZIONE FALSA,
+  corretta il 03/08/26**. `GameManager.cs` non ha nessun campo statico: contiene
+  solo `ResetLevel`, `PlayNewRun`, `BackToMain`, `OnApplicationQuit`. Grep di
+  `GameManager.instance` e `static GameManager` su tutto `Assets/Script`: zero
+  risultati. La regola "zero singleton statici" NON è violata da nessuna parte.
+  Rimossi anche i campi statici morti di `AudioManager`.
+  *Nota di metodo: questa voce è sopravvissuta a due check perché veniva riletta
+  invece che riverificata. Vale la stessa regola del Documento di Progetto: per
+  nomi, numeri e binding il documento riporta ciò che si è LETTO, e dice dove.*
+- **`GameManager.OnApplicationQuit()` ha un nome riservato Unity** (aperto,
+  verificato 03/08/26). Attenzione: **non è un bug attivo, è un rischio latente** —
+  una prima stesura di questa voce lo dava per più grave di quanto sia.
+  Il comportamento voluto (premendo X l'Editor esce dal Play) è corretto e va
+  MANTENUTO. Il problema è solo il nome: Unity chiama da sé qualunque metodo
+  chiamato `OnApplicationQuit` su ogni MonoBehaviour alla chiusura. Quindi premendo
+  il bottone il corpo gira due volte (una dal bottone, una dal messaggio Unity
+  scatenato dall'uscita dal Play). Oggi è innocuo — `PlayerPrefs.Save()` due volte
+  non fa nulla e `Application.Quit()` in Editor è un no-op — ma il giorno che
+  dentro finisce un salvataggio di run o un evento di analytics, quello parte due
+  volte e la causa sarà invisibile. Fix: rinominare in `QuitGame()`, separare i
+  rami con `#if UNITY_EDITOR / #else`, e riagganciare il bottone nell'Inspector
+  (Unity non aggiorna da solo il collegamento quando rinomini).
+- ~~AudioManager: conversione volume sbagliata~~ — **RISOLTO 31/07/26**: i tre
+  setter usano `Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f`.
+- **AudioManager.Awake: guardia con `&&` invece di `||`** (aperto al 03/08/26):
+  `if (_musicSource == null && _sfxSource == null)` avvisa solo se mancano
+  ENTRAMBE le source. Se ne manca una sola passa liscio e crasha dopo, lontano
+  dalla causa. Va messo `||`. Stesso metodo: se la guardia scatta, `Awake` esce
+  PRIMA di `DontDestroyOnLoad`, ma `OnEnable` si iscrive lo stesso agli eventi —
+  l'AudioManager muore al cambio scena lasciando iscrizioni pendenti. Conviene il
+  pattern `_isValid` già usato da `InGamePanelManager`.
+- **Asset evento orfani** (verificato 31/07/26): `WinCombactEvent.asset`,
+  `LoseCombactEvent.asset`, `ParCombactEvent.asset` in
+  `ScriptableObjects/Events/Turn/` hanno **zero riferimenti nel codice**. Nessuno
+  li alza, nessuno li ascolta. Sono i canali che servono per gli SFX di scontro:
+  vanno collegati, non cancellati.
+- **SFXSO: `using UnityEngine.LightTransport;` è un import spurio** — inserito
+  dall'IDE, nessun tipo di quel namespace è usato. Da togliere.
+- **SFXSO._lastIndex è stato mutabile su uno ScriptableObject**: gli SO sono asset
+  condivisi e in Editor il valore sopravvive fra una sessione di Play e l'altra.
+  Qui è innocuo (serve solo a non ripetere una clip), ma è un'eccezione alla regola
+  "SO = dati statici", da tenere d'occhio se l'asset venisse usato da più
+  AudioSource in parallelo.
+- **UI: elementi che rubano i click** (lezione del 31/07/26, non un bug di codice
+  ma la causa più probabile di "il tasto non risponde"). In un Canvas l'ordine dei
+  figli è ordine di disegno: chi viene DOPO sta davanti e riceve il raycast per
+  primo. Due casi reali già incontrati: (a) un pannello di alert con
+  `Raycast Target` attivo su un Canvas superiore che copriva uno slider; (b) il
+  titolo TextMeshPro del pannello Opzioni, ultimo figlio, che copriva il tasto X
+  (primo figlio). Regola: decorazioni con `Raycast Target` spento, controlli
+  interattivi in fondo alla lista dei figli.
 - **Campi Bump in MovementSettingsSO sono dead code** (ChargeBumpDistance/Duration,
   SkirmishBumpDistance/Duration): definiti, esposti, mai letti da nessuno.
   NON è perché manchi l'animazione di ricezione colpo — quella ESISTE:
@@ -249,8 +347,16 @@ poi svuotare questa sezione.
   `onImpact`, e usa campi diversi (`HitReactionDistance`, `RecoilDuration`,
   `SkirmishAtkDuration`). I campi Bump sono residui di una nomenclatura
   precedente. Verificato 27/07/26.
-- **PathFinder è MonoBehaviour ma senza stato**: potrebbe/dovrebbe essere classe
-  statica come CombatResolver/TacticalQuery. Incoerenza da sanare.
+- **TurnManager è diventato un god script** (registrato 03/08/26, refactor da fare).
+  Oggi contiene: ciclo turni, carica, spinta, ricerca celle adiacenti, movimento,
+  scontro, lancio, barricata, coro, sedersi, più otto canali evento serializzati.
+  Sono responsabilità diverse impilate nello stesso file per comodità. Direzione
+  probabile del refactor: estrarre gli esecutori per famiglia d'azione
+  (`CombatExecutor`, `MovementExecutor`, `SpecialActionExecutor`), lasciando a
+  `TurnManager` il solo ciclo dei turni e l'inoltro. Attenzione: `PushResolution`,
+  `CalculatePushDestination` e `FoundNearCellAvailable` formano un blocco coeso —
+  vanno spostati insieme. **Non farlo mentre si aggiungono feature**: il refactor
+  va fatto a bocce ferme, con il gioco funzionante prima e dopo.
 - ~~Dead code TurnPhases.cs / AttackOrder.cs / MovementOrder.cs~~ — **GIÀ RIMOSSI**,
   i file non esistono più sul disco (verificato 27/07/26).
 - **Modello d'attacco a distanze fisse**: scontro solo a distanza 1, carica solo a
@@ -275,13 +381,103 @@ poi svuotare questa sezione.
   Warning innocuo, playback corretto. Se un giorno desse fastidio: transcodifica
   (flag Transcode nell'Inspector del VideoClip). Il nome file ha un doppio spazio.
 
+# PRIORITÀ DI DESIGN (analisi 03/08/26)
+
+Analisi completa in `D:\GDDRIOT\16-Priorita-Identita-Ludica.md`. Sintesi per chi
+scrive codice, perché condiziona COSA vale la pena implementare:
+
+**Il problema.** Il pilastro di design del GDD dice: "se una regola potrebbe stare
+in un gioco qualsiasi senza perdere senso, è sospetta". Oggi NESSUNA meccanica
+implementata supera quel test — movimento, scontro a distanza 1, carica a distanza
+3, morale che scende: tutto trasportabile in un tattico fantasy senza cambiare
+niente. Il Coro è un buff ad area, Sedersi è un buff difensivo. Inoltre il gioco
+non sa distinguere un'occupazione pacifica da una violenta: stesso esito, stessi
+numeri. Manca il sistema che dà SIGNIFICATO alle azioni, non mancano azioni.
+
+**Ordine di lavoro consigliato** (dettaglio e costi nel cap. 16 del GDD):
+1. **Coesione** — valore su LVLManager derivato dalla dispersione delle unità, che
+   alimenta il modificatore di Difesa già tabellato nel GDD 5.4. È ciò che rende il
+   corteo un corteo e non una squadra, e dà senso tematico a Coro e Sedersi.
+2. **Zona Rossa** — flag su HexTypeSO + regola di priorità bersaglio in PoliceAI.
+   Già "deciso in design" nel GDD 5.6: nulla da progettare, solo da costruire.
+3. **Contatori di violenza locali al livello + schermo di conto** — scontri
+   ingaggiati, spezzoni persi, obiettivo preso con/senza violenza. Logica banale,
+   il lavoro è UI. NON è l'Aggressività cross-level (quella richiede lo strato run
+   che non esiste: costruirla ora è una trappola).
+4. **IA polizia repressiva** (cordone, blocco, escalation) — costo alto e incerto,
+   va DOPO le prime tre.
+
+**Da non costruire adesso**: roster persistente, ComposeCorteo, Aggressività e
+Repressione cross-level, campagna. Dipendono tutti da uno strato run inesistente.
+
+---
+
 # DA FARE (concordato)
-1. Animazione ricezione colpo del difensore: FATTA per lo scontro
+
+## Prossimo passo: SFX — c'è un blocco da sciogliere prima
+Il sistema audio è pronto e testato, ma **non ci sono eventi a cui agganciare gli
+SFX di gameplay**. Accertato il 03/08/26: gli unici `GameEventSO` che qualcuno alza
+sono `StartPlayerTurn`, `EndPlayerTurn`, `StopFollow`, `Win/LoseLVL` e i deselect.
+`TurnManager` risolve scontro, carica, coro, sedersi, lancio e barricata **senza
+alzare nessun evento**: i `case CombatResult.Win/Lose/Par` (righe ~127-165 e
+~312-317) modificano solo il Morale.
+Ordine di lavoro:
+1. Aggiungere i campi `[SerializeField] GameEventSO` in `TurnManager` e alzarli nei
+   punti giusti, riusando gli asset già esistenti e orfani
+   (`WinCombactEvent`, `LoseCombactEvent`, `ParCombactEvent`).
+2. Creare i canali mancanti (movimento, carica, coro, sedersi, lancio, barricata,
+   dispersione) come asset in `ScriptableObjects/Events/`.
+3. Solo allora creare gli `SFXSO` e infilarli nell'array `_sfxevents`. Il
+   collegamento è tutto da Inspector, zero codice nuovo.
+Nota di design: conviene un evento per *esito* (Win/Lose/Par) più che per *azione*,
+così lo stesso scontro può suonare diverso a seconda di come va.
+⚠ Licenze: freesound NON è tutto CC0, è un misto CC0/CC-BY/CC-BY-NC. "Placeholder"
+non è una categoria che esiste nel diritto d'autore: se la build è pubblica,
+l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
+
+## Correzioni rapide già individuate (mezz'ora in tutto)
+4. `AudioManager.Awake`: `&&` → `||` nella guardia delle AudioSource.
+5. `SFXSO`: togliere `using UnityEngine.LightTransport;`.
+6. Togliere i `Debug.Log` diagnostici `[AUDIO]` da `AudioManager` (in particolare
+   quello dentro `GetLinearVolume`, che spara tre righe a ogni apertura pannello).
+7. `GameManager.OnApplicationQuit()` → `QuitGame()` e riagganciare il bottone
+   nell'Inspector. Il comportamento (X esce dal Play in Editor) va mantenuto:
+   si rinomina solo per evitare la doppia esecuzione, vedi bug noti.
+8. Separare i tre AudioSource in GameObject figli distinti (`MusicSource`,
+   `SFXSource`, `VideoSource`) sotto l'AudioManager: oggi sono componenti impilati
+   sullo stesso oggetto, indistinguibili nell'Inspector, e il VideoPlayer della
+   bootscene condivide una source con la musica.
+
+## Arretrato precedente
+9. Animazione ricezione colpo del difensore: FATTA per lo scontro
    (`PlayHitReaction` via `onImpact` in ExecuteSkirmish). MANCANO la versione per
    la carica e la distinzione win/lose. Verificato 27/07/26.
-2. Animazione scontro polizia (stessa logica attaccante).
-3. Riprodurre e fixare il bug muovi+attacca combinato (catturare quale dei tre
-   messaggi di ConfirmAttack esce: cella adiacente / percorso / PA insufficienti).
+10. Animazione scontro polizia (stessa logica attaccante).
+11. Riprodurre e fixare il bug muovi+attacca combinato lato AI (lato player è già
+    chiuso da `GetAttackOption`).
+12. Azioni per tipo di unità: spostare l'elenco delle azioni consentite nell'SO
+    dell'unità, così non tutti gli spezzoni possono fare tutto (richiesta esplicita).
+13. Impedire la barricata sulle celle obiettivo: `ExecuteBarricade` non guarda
+    `cell.Type.IsObjective`.
+(Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
+03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
+quella voce è obsoleta.)
+
+## Changelog sessione 26 (03/08/26) — bootscene e audio
+- 🟢 **Bootscene completa**: video intro → fade bianco → caricamento asincrono →
+  fade a nero → MainMenu, con fail-safe a tempo su ogni attesa.
+- 🟢 **`PlayFromAnyScene`** (Editor): Play da qualsiasi scena parte da Boot e poi
+  carica la scena di partenza.
+- 🟢 **Sistema audio completo**: AudioManager persistente, mixer a tre canali,
+  SFXSO, musica per scena, persistenza dei volumi.
+- 🟢 **Pannello Opzioni funzionante** in MainMenu e in LVLTest.
+- 🟢 **TurnManager**: `ExecuteThrow` / `ExecuteBarricade` / `ExecuteMovement`
+  passati al pattern "verifica tutto, poi applica tutto" — niente mutazioni prima
+  che tutti i controlli passino, niente rollback manuale. Corretto un doppio
+  consumo di PA in `ExecuteMovement`.
+- 🔴 **Correzione del documento**: la voce "GameManager.instance è un singleton
+  statico" era falsa (vedi bug noti). Il pannello Opzioni del MainMenu non è più
+  un bottone morto.
 
 # Dipendenze Unity
 - com.unity.feature.2d 2.0.1

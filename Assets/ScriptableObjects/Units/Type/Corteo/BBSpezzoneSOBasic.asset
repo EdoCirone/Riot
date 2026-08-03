@@ -15,8 +15,9 @@ MonoBehaviour:
   _id: _bb
   _displayName: BlackBlock
   _avatar: {fileID: 7675347922612928761, guid: 326a1c560f11c4a418e525e8aff1cc07, type: 3}
+  _graphicsPrefab: {fileID: 7202665714183149607, guid: 6c4dde77afa2566459f4923de5ad8753, type: 3}
   _atk: 5
   _def: 6
   _mor: 3
   _actionPoints: 5
-  _graphicsPrefab: {fileID: 7202665714183149607, guid: 6c4dde77afa2566459f4923de5ad8753, type: 3}
+  _allowedActions: 7

@@ -10,12 +10,29 @@ public class TurnManager : MonoBehaviour
     [SerializeField] private PathFinder _pathFinder;
     [SerializeField] private PoliceAI _policeAI;
 
-    [Header("Events")]
+    [Space]
+    [Header("TurnEvents")]
     [SerializeField] private GameEventSO _startPlayerTurnEvent;
     [SerializeField] private GameEventSO _endPlayerTurnEvent;
+
+    [Space]
+    [Header("FightEvents")]
     [SerializeField] private UnitEventSO _throwEvent;
+    [SerializeField] private GameEventSO _skirmishWinEvent;
+    [SerializeField] private GameEventSO _skirmishLoseEvent;
+    [SerializeField] private GameEventSO _skirmishParEvent;
+    [Header("ChargeEvents")]
+    [SerializeField] private GameEventSO _chargeWinEvent;
+    [SerializeField] private GameEventSO _chargeLoseEvent;
+    [SerializeField] private GameEventSO _chargeParEvent;
+
+    [Space]
+    [Header("CameraEvents")]
     [SerializeField] private GameObjectEventSO _startFollowEvent;
     [SerializeField] private GameEventSO _stopFollowEvent;
+
+    [Space]
+    [Header("AlertEvents")]
     [SerializeField] private StringEventSO _alertEvent;
 
 
@@ -122,6 +139,16 @@ public class TurnManager : MonoBehaviour
         return null;
     }
 
+    private void RaiseChargeResult(CombatResult result)
+    {
+        switch (result)
+        {
+            case CombatResult.Win: _chargeWinEvent?.Raise(); break;
+            case CombatResult.Lose: _chargeLoseEvent?.Raise(); break;
+            case CombatResult.Par: _chargeParEvent?.Raise(); break;
+        }
+    }
+
     private void PushResolution(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
         CombatResult result = CombatResolver.Resolve(atk, def);
@@ -160,6 +187,8 @@ public class TurnManager : MonoBehaviour
             case CombatResult.Par:
                 break;
         }
+        RaiseChargeResult(result);
+
         _unitsRenderer.UpdateView(atk);
         _unitsRenderer.UpdateView(def);
     }
@@ -291,6 +320,16 @@ public class TurnManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
+    private void RaiseCombactResult(CombatResult result)
+    {
+        switch (result)
+        {
+            case CombatResult.Win: _skirmishWinEvent?.Raise(); break;
+            case CombatResult.Lose: _skirmishLoseEvent?.Raise(); break;
+            case CombatResult.Par: _skirmishParEvent?.Raise(); break;
+        }
+    }
+
     public IEnumerator ExecuteSkirmish(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
         HexCoordinates atkCoord = atk.PositionCell.Coordinates;
@@ -328,15 +367,20 @@ public class TurnManager : MonoBehaviour
         Vector3 atkWorldPos = _map.transform.position + atk.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
 
         movement.PlaySkirmish(defWorldPos,
-            onComplete: () =>
-            {
-                _unitsRenderer.UpdateView(atk);
-                _unitsRenderer.UpdateView(def);
-                done = true;
-            },
-            onImpact: () => defMovement?.PlayHitReaction(atkWorldPos));
+             onComplete: () =>
+             {
+                 _unitsRenderer.UpdateView(atk);
+                 _unitsRenderer.UpdateView(def);
+                 done = true;
+             },
+             onImpact: () =>
+             {
+                 defMovement?.PlayHitReaction(atkWorldPos);
+                 RaiseCombactResult(result);
+             });
 
         yield return new WaitUntil(() => done);
+
     }
     #endregion
 

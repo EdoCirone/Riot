@@ -671,7 +671,8 @@ MonoBehaviour:
   _audioMixer: {fileID: 24100000, guid: 734dff429e05cb543b7823fdd114cb53, type: 2}
   _musicSource: {fileID: 780674994}
   _sfxSource: {fileID: 780674993}
-  _sfxevents: []
+  _sfxevents:
+  - {fileID: 11400000, guid: 33d2c50ba06ae3b439c30ceafcd944c3, type: 2}
   _playMusicEvent: {fileID: 11400000, guid: f6fd4f22c5c00074195a077a43086b0d, type: 2}
 --- !u!1 &1120650389
 GameObject:

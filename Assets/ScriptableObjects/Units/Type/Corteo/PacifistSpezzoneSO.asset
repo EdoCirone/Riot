@@ -15,8 +15,9 @@ MonoBehaviour:
   _id: _pax
   _displayName: Pacifist
   _avatar: {fileID: 8232303029190539061, guid: 326a1c560f11c4a418e525e8aff1cc07, type: 3}
+  _graphicsPrefab: {fileID: 7202665714183149607, guid: 9024fa7b63732464f9da2d1176bf45a5, type: 3}
   _atk: 1
   _def: 1
   _mor: 10
   _actionPoints: 5
-  _graphicsPrefab: {fileID: 7202665714183149607, guid: 6c4dde77afa2566459f4923de5ad8753, type: 3}
+  _allowedActions: 25

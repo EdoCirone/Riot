@@ -14,6 +14,11 @@ public class PoliceRuntime : AbstractUnitsRunTime
         _police = police;
         pos.TryOccupy(this);
     }
+
+    public override bool CanPerformAction(ActionType action)
+    {
+        return _police.CanPerformAction(action);
+    }
     public override GameObject GraphicsPrefab => _police.GraphicsPrefab;
 
 }

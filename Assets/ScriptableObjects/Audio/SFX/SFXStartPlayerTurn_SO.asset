@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60fdb7257eaf60a49b5e59e3fbf27650, type: 3}
+  m_Name: SFXStartPlayerTurn_SO
+  m_EditorClassIdentifier: Assembly-CSharp::SFXSO
+  _soundEvent: {fileID: 11400000, guid: a82b422d354c8a64bb15021fed8e5b95, type: 2}
+  _clips:
+  - {fileID: 8300000, guid: 46aa5a793089aa04d8c649e3c0bb1448, type: 3}
+  - {fileID: 8300000, guid: e2bba86e3104fb446b09734a8eb0c176, type: 3}
+  - {fileID: 8300000, guid: d82e958e3fe8bc445a1b630fef135528, type: 3}
+  - {fileID: 8300000, guid: e05fba60777894a4b9b6582d4c27def8, type: 3}
+  - {fileID: 8300000, guid: 79f3e5796af4d4a499215ea058399884, type: 3}
+  - {fileID: 8300000, guid: 6cf9cf19807ad9c45a9e0c02ee3d299a, type: 3}
+  _pitchMin: 0.95
+  _pitchMax: 1.02

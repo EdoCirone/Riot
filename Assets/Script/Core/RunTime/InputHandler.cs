@@ -124,9 +124,9 @@ public class InputHandler : MonoBehaviour
         {
             if (clickCell.OccupiedBy is SpezzoneRuntime spezzone)
             {
-                _policeDeselectedEvent?.Raise();          
+                _policeDeselectedEvent?.Raise();
                 _selectedSpezzone = spezzone;
-                _unitSelectedEvent?.Raise(_selectedSpezzone);  
+                _unitSelectedEvent?.Raise(_selectedSpezzone);
             }
             else if (clickCell.OccupiedBy is PoliceRuntime police)
             {
@@ -540,9 +540,18 @@ public class InputHandler : MonoBehaviour
             return;
         }
 
+        if (action != ActionType.None
+            && _selectedSpezzone != null
+            && !_selectedSpezzone.CanPerformAction(action))
+        {
+            _alertEvent?.Raise("this unit can not doing this action");
+            return;
+        }
         _selectedAction = action;
+
         if (action == ActionType.None)
             _selectedItem = null;
+
         _actionSelectedEvent?.Raise(action);
     }
 }

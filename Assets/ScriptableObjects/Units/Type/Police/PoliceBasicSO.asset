@@ -15,8 +15,9 @@ MonoBehaviour:
   _id: PoliceBasic
   _displayName: PoliceBasic
   _avatar: {fileID: 8052589032686312023, guid: 6877ba3c5c56c0246be47f2c8d068ed9, type: 3}
+  _graphicsPrefab: {fileID: 3385265451044002913, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
   _atk: 8
   _def: 4
   _mor: 5
   _actionPoints: 5
-  _graphicsPrefab: {fileID: 5428298278659759717, guid: bd58c5f9af849ce4ca963c1024d1083b, type: 3}
+  _allowedActions: 1

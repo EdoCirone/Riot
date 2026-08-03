@@ -17,6 +17,11 @@ public class SpezzoneRuntime : AbstractUnitsRunTime
         pos.TryOccupy(this);
     }
 
+    public override bool CanPerformAction(ActionType action)
+    {
+        return _spezzone.CanPerformAction(action);
+    }
+
     public override GameObject GraphicsPrefab => _spezzone.GraphicsPrefab;
 
 }

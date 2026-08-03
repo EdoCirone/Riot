@@ -15,8 +15,9 @@ MonoBehaviour:
   _id: _wor
   _displayName: Workers
   _avatar: {fileID: 3772955857597130969, guid: 326a1c560f11c4a418e525e8aff1cc07, type: 3}
+  _graphicsPrefab: {fileID: 7202665714183149607, guid: ce482a84a9ddbb1469bd53d66e1f8204, type: 3}
   _atk: 8
   _def: 8
   _mor: 2
   _actionPoints: 3
-  _graphicsPrefab: {fileID: 7202665714183149607, guid: 6c4dde77afa2566459f4923de5ad8753, type: 3}
+  _allowedActions: 13

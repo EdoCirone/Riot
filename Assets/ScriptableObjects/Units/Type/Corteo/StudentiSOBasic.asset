@@ -15,8 +15,9 @@ MonoBehaviour:
   _id: _stu
   _displayName: Students
   _avatar: {fileID: -5325922419529146703, guid: 326a1c560f11c4a418e525e8aff1cc07, type: 3}
+  _graphicsPrefab: {fileID: 6735075582338964078, guid: 167590df1c99b174088430d8e46acae2, type: 3}
   _atk: 2
   _def: 5
   _mor: 4
   _actionPoints: 4
-  _graphicsPrefab: {fileID: 7202665714183149607, guid: 6c4dde77afa2566459f4923de5ad8753, type: 3}
+  _allowedActions: 27
