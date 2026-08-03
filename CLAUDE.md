@@ -332,6 +332,24 @@ poi svuotare questa sezione.
   Qui è innocuo (serve solo a non ripetere una clip), ma è un'eccezione alla regola
   "SO = dati statici", da tenere d'occhio se l'asset venisse usato da più
   AudioSource in parallelo.
+- **⚠ Gli enum serializzati sono NUMERI, non nomi** (lezione costosa del 03/08/26).
+  Passando `ActionType` da sequenziale a `[System.Flags]` con potenze di due, tutti
+  i valori già salvati in scene/prefab/asset sono rimasti identici sul disco e hanno
+  **cambiato significato**. I cinque `ActionSlotUI` del pannello azioni in
+  `LVLTest.unity` avevano `_action` = 4, 1, 3, 5, 2 (numerazione vecchia:
+  Chant, Charge, Barricade, SitStand, Throw). Con la nuova numerazione quegli stessi
+  numeri valgono Barricade, Charge, **Charge+Throw**, **Charge+Barricade**, Throw:
+  tre bottoni su cinque mandavano richieste combinate che nessuno aveva mai chiesto.
+  **Fallimento silenzioso**: nessun errore, tutto compila, e il caso peggiore
+  (`4 → Barricade`) sembra perfino un valore legittimo. Diagnosticato solo mettendo
+  un log in `SetSelectedAction` che stampava l'azione richiesta: la riga
+  "chiede Charge, Throw" da un click su un bottone singolo ha chiuso il caso.
+  Da tastiera funzionava, perché lì si passano costanti del codice, non dati salvati.
+  **Regola: quando si cambia la numerazione di un enum già serializzato, si
+  ricontrolla e si riassegna a mano OGNI campo di quel tipo in scene, prefab e
+  ScriptableObject.** Non fidarsi di ciò che l'Inspector mostra come plausibile.
+  (Gli `ItemSO` erano immuni: lì `Action` è una proprietà astratta calcolata nel
+  codice, non un campo serializzato.)
 - **UI: elementi che rubano i click** (lezione del 31/07/26, non un bug di codice
   ma la causa più probabile di "il tasto non risponde"). In un Canvas l'ordine dei
   figli è ordine di disegno: chi viene DOPO sta davanti e riceve il raycast per
@@ -455,8 +473,12 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
 10. Animazione scontro polizia (stessa logica attaccante).
 11. Riprodurre e fixare il bug muovi+attacca combinato lato AI (lato player è già
     chiuso da `GetAttackOption`).
-12. Azioni per tipo di unità: spostare l'elenco delle azioni consentite nell'SO
-    dell'unità, così non tutti gli spezzoni possono fare tutto (richiesta esplicita).
+12. ~~Azioni per tipo di unità~~ — **FATTO 03/08/26**. `ActionType` è `[Flags]`,
+    `UnitsSO._allowedActions` è la maschera, il filtro è in
+    `InputHandler.SetSelectedAction`. Maschere attuali: Anarky 3, BlackBlock 7,
+    Operai 13, Pacifisti 25, Studenti 27, Police 0. Manca solo l'ingrigimento dei
+    bottoni non disponibili nel pannello azioni (serve agganciare
+    `ActionButtonPanel` a `SelectedUnitsEvent`).
 13. Impedire la barricata sulle celle obiettivo: `ExecuteBarricade` non guarda
     `cell.Type.IsObjective`.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il

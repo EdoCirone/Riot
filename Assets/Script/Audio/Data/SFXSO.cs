@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.LightTransport;
 
 [CreateAssetMenu(fileName = "SFXSO", menuName = "RIOT/Audio/SFXSO")]
 public class SFXSO : ScriptableObject

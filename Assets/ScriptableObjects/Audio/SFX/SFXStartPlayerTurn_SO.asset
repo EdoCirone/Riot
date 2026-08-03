@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SFXSO
   _soundEvent: {fileID: 11400000, guid: a82b422d354c8a64bb15021fed8e5b95, type: 2}
   _clips:
-  - {fileID: 8300000, guid: 46aa5a793089aa04d8c649e3c0bb1448, type: 3}
-  - {fileID: 8300000, guid: e2bba86e3104fb446b09734a8eb0c176, type: 3}
-  - {fileID: 8300000, guid: d82e958e3fe8bc445a1b630fef135528, type: 3}
-  - {fileID: 8300000, guid: e05fba60777894a4b9b6582d4c27def8, type: 3}
-  - {fileID: 8300000, guid: 79f3e5796af4d4a499215ea058399884, type: 3}
-  - {fileID: 8300000, guid: 6cf9cf19807ad9c45a9e0c02ee3d299a, type: 3}
-  _pitchMin: 0.95
+  - {fileID: 8300000, guid: 466d1bd2a9da0f4409d6666b3808cfe6, type: 3}
+  - {fileID: 8300000, guid: 65de16e4fb773df4aa89216eb2a84003, type: 3}
+  - {fileID: 8300000, guid: 6b75c725da489314aa23afebdb0e482a, type: 3}
+  - {fileID: 8300000, guid: 9f720a147b4d3e841b5e2dd351f75348, type: 3}
+  - {fileID: 8300000, guid: d7db9cc732d9ee34298e9bd4904ca311, type: 3}
+  - {fileID: 8300000, guid: 207084d10f110aa45a8e8fccfe84075c, type: 3}
+  _pitchMin: 0.97
   _pitchMax: 1.02

@@ -9,15 +9,21 @@ subito. Ricostruire la provenienza a posteriori con quaranta clip è un pomerigg
 
 ---
 
-## ⚠ Da sostituire prima di qualunque build pubblica
+## ✅ Nessun file a licenza problematica
 
-| File | Fonte | Problema |
-|---|---|---|
-| `Crowd/oneMoreRound/SFX_StartTurn_01..06.wav` | ElevenLabs (piano **Free**) | Il piano gratuito **non include licenza commerciale**. Verificato il 3/8/2026. Usabili solo come segnaposto interni. |
-| `Crowd/SFX_Long_Chant_01..02.wav` | ElevenLabs (piano **Free**) | Idem. Candidati per il Coro, ma da rigenerare da altra fonte. |
+Il 3/8/2026 **tutti i file ElevenLabs sono stati cancellati dal progetto** (8 wav in
+`Assets` + 11 mp3 sorgente in `_RawAudio`). Motivo: il piano Free di ElevenLabs non
+include licenza commerciale e richiede l'attribuzione nel titolo del contenuto
+pubblicato — condizioni incompatibili con una build distribuita, anche gratuita.
 
-Opzioni per sostituirli: rigenerare da Mixkit (sezioni Human / Warfare), oppure
-passare al piano Starter di ElevenLabs, che include l'uso commerciale.
+**Oggi il progetto è interamente Mixkit.** Se in futuro rientra materiale da altre
+fonti, va aggiunta qui una sezione "da sostituire" prima che finisca in una build.
+
+Nota di metodo: i file erano stati nominati per **uso** (`SFX_StartTurn_01`) e non
+per **provenienza**, e dopo qualche ora nessuno ricordava più quali fossero di quale
+fonte. Se un domani entra materiale con vincoli, dargli un prefisso visibile
+(es. `TMP_`) è più efficace di una riga in questo file: il promemoria deve stare
+dove si lavora, non dove si documenta.
 
 ---
 
@@ -29,6 +35,8 @@ passare al piano Starter di ElevenLabs, che include l'uso commerciale.
 | `Crowd/Ambience/AMB_CrowdRiot.wav` | Mixkit (`rioting-crowd-376`) | Mixkit Free License | idem | ago 2026 |
 | `Crowd/Ambience/AMB_RiotWindowsSiren.wav` | Mixkit (`rioting-crowd-breaking-windows-and-police-siren-445`) | Mixkit Free License | idem | ago 2026 |
 | `Crowd/Chant/SFX_Chant_Sports.wav` | Mixkit (`chanting-sports-crowd-433`) | Mixkit Free License | idem | ago 2026 |
+| `Crowd/oneMoreRound/SFX_StartTurn_01..03_riot.wav` | Mixkit (`rioting-crowd-376`), ritagli a 0.50s / 14.52s / 28.54s | Mixkit Free License | idem | ago 2026 |
+| `Crowd/oneMoreRound/SFX_StartTurn_04..06_angry.wav` | Mixkit (`angry-male-crowd-ambience-458`), ritagli a 0.50s / 10.74s / 20.99s | Mixkit Free License | idem | ago 2026 |
 | `Crowd/Chant/SFX_Chant_Revolution.wav` | Mixkit (`male-crowd-chanting-revolution-440`) | Mixkit Free License | idem | ago 2026 |
 | Musica MainMenu — "Furious" di Fass | Uppbeat — uppbeat.io | Uppbeat free tier | **OBBLIGATORIA**, nella forma esatta indicata sotto | — |
 

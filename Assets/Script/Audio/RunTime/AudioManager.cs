@@ -26,7 +26,7 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        if (_musicSource == null && _sfxSource == null)
+        if (_musicSource == null || _sfxSource == null)
         {
             Debug.LogWarning("Set the audioSources");
             return;
