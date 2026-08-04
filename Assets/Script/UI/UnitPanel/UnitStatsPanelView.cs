@@ -41,6 +41,12 @@ public class UnitStatsPanelView : MonoBehaviour
 
     private void Awake()
     {
+        if (_lvlManager == null)
+        {
+            Debug.LogWarning("LVLManager missing in UnitStatsPanelView");
+            return;
+        }
+
         if (_unitSelectedEvent == null || _unitDeselectedEvent == null || _startPlayerTurnEvent == null || _endPlayerTurnEvent == null)
         {
             Debug.LogWarning("Events missing in UnitStatsPanelView");

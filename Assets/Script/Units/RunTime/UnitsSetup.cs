@@ -16,8 +16,8 @@ public class UnitsSetup : MonoBehaviour
 
     public AbstractUnitsRunTime Initialize()
     {
-        if (_grid == null) return null;
-        if (_unit == null) return null;
+        if (_grid == null) { Debug.LogWarning($"{name}: Grid non assegnato"); return null; }
+        if (_unit == null) { Debug.LogWarning($"{name}: Unit (SO) non assegnato"); return null; }
 
         HexCoordinates coord = HexCoordinates.FromWorldPosition(transform.position, _grid.CellSize);
         //Debug.Log($"Setup {gameObject.name}: worldPos={transform.position}, coord={coord}");

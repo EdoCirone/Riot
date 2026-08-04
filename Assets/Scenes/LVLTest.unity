@@ -2285,6 +2285,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0e2d54502d862048b2e48cc331a54f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStatsPanelView
+  _lvlManager: {fileID: 2130109798}
   _panelRoot: {fileID: 455244780}
   _canvasGroup: {fileID: 455244785}
   _avatarImage: {fileID: 1682674591}
@@ -4331,6 +4332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0e2d54502d862048b2e48cc331a54f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStatsPanelView
+  _lvlManager: {fileID: 2130109798}
   _panelRoot: {fileID: 719236375}
   _canvasGroup: {fileID: 719236380}
   _avatarImage: {fileID: 421068747}
@@ -6331,6 +6333,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1223380818050418741, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _grid
+      value: 
+      objectReference: {fileID: 1144096843}
     - target: {fileID: 3385265451044002913, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_Name
       value: PoliceBasic (1)
@@ -7063,6 +7069,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1223380818050418741, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _grid
+      value: 
+      objectReference: {fileID: 1144096843}
     - target: {fileID: 3385265451044002913, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_Name
       value: PoliceBasic (2)
@@ -11582,6 +11592,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1223380818050418741, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _grid
+      value: 
+      objectReference: {fileID: 1144096843}
     - target: {fileID: 3385265451044002913, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_Name
       value: PoliceBasic
@@ -12783,7 +12797,7 @@ MonoBehaviour:
   _turnManager: {fileID: 736496568}
   _map: {fileID: 1144096843}
   _unitsRenderer: {fileID: 1693072225}
-  _numbersOfTurns: 10
+  _numbersOfTurns: 20
   _scoreToWin: 30
   _scoreForOccupation: 10
   _winEvent: {fileID: 11400000, guid: a0a8fcf3c2315ec4b936579de826bca6, type: 2}
