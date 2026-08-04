@@ -42,6 +42,11 @@ public class PoliceAI : MonoBehaviour
 
                 if (distance == 1)
                 {
+                    int atk = CombatResolver.GetEffectiveAtk(police, _lvlManager.Map);
+                    int def = CombatResolver.GetEffectiveDef(nearestSpezzone, _lvlManager.Map);
+
+                    if (atk <= def) break;  
+
                     yield return StartCoroutine(_turnManager.ExecuteSkirmish(police, nearestSpezzone));
                     actedThisTurn = true;
                 }

@@ -1452,9 +1452,9 @@ RectTransform:
   m_Father: {fileID: 1128788416}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -10, y: -10}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &869815668
 MonoBehaviour:
@@ -1476,28 +1476,42 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "OBJECTIVE\nYou have 10 turns. At the end of each of your turns, every
-    objective cell occupied by one of your spezzoni is worth 10 points. When turn
-    10 ends, having at least 30 points means you've won.\nA spezzone that reaches
-    0 morale disperses and is removed from the game.\nTHE TURN\nLeft-click a spezzone
-    \u2192 select it.\nClick a free cell \u2192 mark the destination. Click the same
-    cell again \u2192 confirm the move (1 AP per cell).\nClick a police unit \u2192
-    mark it as target. Click again \u2192 confirm the clash (moves closer first if
-    needed).\nRight-click \u2192 cancels the armed action and keeps the unit selected.
-    If no action is armed, deselects everything.\nSpace \u2192 end turn.\nA spezzone
-    that runs out of Action Points deselects itself automatically.\nSPECIAL ACTIONS\nPress
-    the key to arm the action, then click the target. Press the key again or right-click
-    to cancel.\nC \u2014 Charge \xB7 a police unit 3 cells away in a straight line,
-    with the 2 cells in between free. 4 AP. Pushes them back.\nT \u2014 Throw \xB7
-    a police unit at distance 2. Requires a throwable item selected from the inventory.\nB
-    \u2014 Barricade \xB7 a free cell. Requires a barricade in the inventory.\nR
-    \u2014 Chant \xB7 click your own spezzone. +1 morale to it and to adjacent spezzoni.
-    3 AP.\nG \u2014 Sit / Stand \xB7 click your own spezzone. While seated: +5 Defense,
-    charges won't push you, but you can only stand up or chant. Sitting costs 1 AP,
-    standing up costs 2 AP.\nCAMERA\nWASD to move \xB7 hold the mouse's middle button
-    and drag to pan the view \xB7 Q / E or scroll wheel to zoom.\nTHE CLASH\nNo dice
-    rolls. Attack and Defense are compared directly: whoever loses the comparison
-    loses 1 morale. On a tie, both lose 1."
+  m_text: "OBJECTIVE\r\nYou have 10 turns. At the end of each of your turns, every
+    objective tile held by one\r\nof your blocs is worth 10 points. When the last
+    turn ends, 30 points or more wins.\r\n\r\nYOUR MARCH\r\nBlocs are not interchangeable
+    soldiers. Each one does different things.\r\n  Pacifists    \xB7 Chant, Sit down             
+    \xB7 cannot throw or barricade\r\n  Workers      \xB7 Barricade, Chant\r\n  Students    
+    \xB7 Throw, Chant, Sit down\r\n  Anarchists   \xB7 Throw\r\n  Black Bloc   \xB7
+    Throw, Barricade             \xB7 cannot chant or sit down\r\nEveryone can move,
+    clash and charge.\r\n\r\nSTANDING TOGETHER\r\nEvery bloc strengthens the ones
+    next to it. What it gives depends on who it is:\r\n  Anarchists  +2 Attack          
+    Workers   +2 Defence\r\n  Black Bloc  +1 Attack +1 Defence   Students  +1 Attack
+    +1 Defence\r\n  Pacifists   +2 Morale\r\nIn the unit panel the bonus is shown
+    in brackets: \"5 (+2)\".\r\nMorale from Pacifists is a LOAN. If the Pacifist
+    walks away those points go with\r\nthem \u2014 and a bloc that was already low
+    can break.\r\n\r\nCOHESION\r\nThe counter at the top is Cohesion: 10 points for
+    every pair of adjacent blocs.\r\nIf it reads ZERO when you end your turn, the
+    march has scattered and you lose.\r\nDuring your turn you can spread out as much
+    as you like. What counts is how you finish.\r\n\r\nLOST AND TAKEN\r\nA bloc at
+    0 morale leaves the game \u2014 but not in the same way:\r\n  struck by the police  
+    \u2192 ARRESTED\r\n  panic, collapse        \u2192 SCATTERED\r\n\r\nYOUR TURN\r\nLeft
+    click a bloc to select it.\r\nClick an empty tile to mark a destination. Click
+    again to confirm (1 AP per tile).\r\nClick a police unit to mark a target. Click
+    again to confirm the clash.\r\nRight click cancels the armed action. With nothing
+    armed, it deselects.\r\nSpace, or the End Turn button, hands over to the police.\r\n\r\nACTIONS\r\nPress
+    the key to arm the action, then click the target.\r\n  C \u2014 Charge     \xB7
+    police exactly 3 tiles away in a straight line, the 2 tiles\r\n                  
+    between them clear. 4 AP. Pushes them back.\r\n  T \u2014 Throw      \xB7 police
+    exactly 2 tiles away, clear line. Requires an object. 2 AP.\r\n  B \u2014 Barricade 
+    \xB7 an empty adjacent tile. Requires a barricade in the inventory.\r\n  R \u2014
+    Chant      \xB7 click your own bloc. +1 morale to it and to adjacent blocs. 3
+    AP.\r\n  G \u2014 Sit down   \xB7 click your own bloc. +5 Defence, and you CANNOT
+    be charged.\r\n                   While seated you may only stand up or chant.
+    Sit 1 AP, stand 2 AP.\r\n\r\nTHE CLASH\r\nNo dice. The attacker's Attack is compared
+    with the defender's Defence, adjacency\r\nbonuses included:\r\n  Attack higher 
+    \u2192 the defender loses 1 morale\r\n  Attack lower   \u2192 you lose it instead\r\n 
+    Equal          \u2192 both lose 1\r\n\r\nCAMERA\r\nW A S D to pan \xB7 Q / E
+    to zoom"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1524,10 +1538,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18.9
-  m_fontSizeBase: 36
+  m_fontSize: 25
+  m_fontSizeBase: 25
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -2234,6 +2248,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1128788416}
+  - component: {fileID: 1128788417}
+  - component: {fileID: 1128788418}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -2259,8 +2275,48 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 2164.251}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
+--- !u!114 &1128788417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1128788415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 20
+  m_ChildAlignment: 0
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
+--- !u!114 &1128788418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1128788415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &1130059038
 GameObject:
   m_ObjectHideFlags: 0
@@ -4523,7 +4579,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 723223993}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.13399555
+  m_Size: 0.049288798
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
