@@ -15,6 +15,8 @@ public class SpezzoneRuntime : AbstractUnitsRunTime
     public override int AuraDef => _spezzone.AuraDef;
     public override int AuraMor => _spezzone.AuraMor;
 
+    protected override bool CanBeArrested => true;
+
     public Inventory Inventory => _inventory;
 
     public SpezzoneRuntime(HexCell pos, UnitsStatus stato, SpezzoneSO spezzone, int morale, int actionPoints)

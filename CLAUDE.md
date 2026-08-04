@@ -161,12 +161,68 @@ Se un pannello ha `MenuPanelView`, NON va anche disattivato con `SetActive(false
 - SpezzoneRuntime e PoliceRuntime differiscono per la fonte SO di Atk/Def,
   l'avatar e il prefab grafico.
 
-## Scontro (CombatResolver — REALE)
-- **Deterministico, nessun dado.** Confronto secco:
-  - Atk attaccante > Def difensore → Win
-  - Atk attaccante < Def difensore → Lose
-  - uguali → Par
-- Nessun modificatore (no Coesione, no fasce, no malus distacco, no Zona Rossa).
+## Scontro (CombatResolver — REALE, aggiornato 03/08/26)
+- **Deterministico, nessun dado.** Confronto secco fra **valori effettivi**:
+  `CombatResolver.Resolve(atk, def, map)` confronta `GetEffectiveAtk` e
+  `GetEffectiveDef`, cioè statistica base **più aura di adiacenza**.
+- I due metodi `GetEffectiveAtk/Def` sono pubblici di proposito: li usa anche la UI.
+  Se un giorno l'interfaccia calcolasse i valori per conto suo si riaprirebbe la
+  divergenza fra ciò che si vede e ciò che accade, già combattuta con `GetAttackOption`.
+- Nessun altro modificatore (no fasce di Coesione, no malus distacco, no Zona Rossa).
+
+## Aure di adiacenza (VERIFICATO 03/08/26) — GDD cap. 17
+Ogni unità **trasmette** un bonus alle unità adiacenti **della stessa parte**; non a
+sé stessa. `UnitsSO` dichiara `_auraAtk`, `_auraDef`, `_auraMor`; il Runtime li espone
+con tre proprietà astratte; `TacticalQuery.GetAuraBonus(unit, map)` somma i sei vicini
+e restituisce la struct annidata `TacticalQuery.AuraBonus`.
+
+- **Atk e Def**: si leggono al volo dentro `CombatResolver`. Nessuno stato da mantenere.
+- **Morale: è un PRESTITO**, non un aumento del massimale. `ApplyAuraMorale(bonus)`
+  sposta **corrente e massimo insieme** di `delta`; quando il donatore si allontana il
+  prestito rientra e **può uccidere** un'unità già bassa. Non è sfruttabile: attaccare
+  e staccare è a somma zero, perché il prestito viene restituito per intero.
+  `BaseMorale` (= `_morale - _auraMoraleBonus`) serve alla UI per mostrare
+  "tuo (+prestato)" nella stessa forma di Atk e Def.
+- Valori attuali: Anarchici 2/0/0, Black Bloc 2/1/0, Operai 0/2/0, Studenti 1/1/0,
+  Pacifisti 0/0/2, Police 0/0/0.
+- **Principio di design**: nessuna aura deve essere il sovrainsieme di un'altra,
+  altrimenti il gruppo dominato non ha più motivo di essere portato.
+
+## Coesione (VERIFICATO 03/08/26) — GDD cap. 17
+- `LVLManager.Cohesion` = 10 per ogni adiacenza fra spezzoni vivi (= legami × 20).
+  Due unità adiacenti 20, tre in fila 40, tre a triangolo 60.
+- **Non alimenta nessun modificatore**: serve solo alla sconfitta e allo schermo di
+  fine livello. I modificatori passano dalle aure.
+- **Sconfitta a Coesione 0, controllata SOLO a fine turno del giocatore**
+  (`TurnManager.EndTurn` → `LVLManager.CheckCohesionDefeat`). Mai durante il turno:
+  con due unità, muovere la prima romperebbe l'unico legame e si perderebbe a metà
+  mossa. Regola che ne discende: la dispersione temporanea è consentita, quella
+  permanente no.
+- `RefreshBoardState()` è il punto unico di riallineamento: applica le aure,
+  ricalcola la Coesione, alza `BoardChangedEvent`. Va chiamato **ovunque cambi
+  posizione o stato** — la regola pratica è "dove chiami `UpdateView`, chiama anche
+  `RefreshBoardState`".
+- `ApplyAuras()` è a **due fasi** (prima calcola tutto in una lista, poi applica) e
+  dentro un `do...while`. Le due fasi rendono l'esito indipendente dall'ordine della
+  lista; il ciclo implementa il **crollo a catena**: se qualcuno cade la griglia è
+  cambiata, quindi si rifà il giro. Termina sempre perché ogni ripetizione richiede
+  almeno una morte.
+- ⚠ `ApplyAuras` può uccidere: deve chiamare `_unitsRenderer.UpdateView(unit)` sui
+  caduti, altrimenti restano sprite fantasma sulla griglia. Fino a oggi solo
+  `TurnManager` poteva far morire qualcuno, e lì `UpdateView` c'era già.
+
+## Disperso e Arrestato (VERIFICATO 03/08/26) — GDD cap. 18
+- `UnitsStatus` = `Alive`, `Arrested`, `Disperse`.
+- **La causa decide il destino**: `LoseMorale(amount, MoraleLossCause)` inoltra a
+  `RemoveFromBoard(cause)`, che è **l'unico punto** dove si decide fra arresto e
+  dispersione. `PoliceContact` + `CanBeArrested` → `Arrest()`, tutto il resto →
+  `Disperse()`. `CanBeArrested` è `virtual false` sulla base, `true` su
+  `SpezzoneRuntime`: un poliziotto non viene mai arrestato, si ritira.
+- `TurnManager.CauseFrom(source)` traduce "chi ha colpito" in causa.
+- **Regola di stile obbligatoria**: mai confrontare con un singolo stato "morto".
+  Si usa `unit.IsAlive` (= `_status == Alive`). Elencare gli stati morti significa
+  che ogni stato aggiunto in futuro passa per vivo — è esattamente il bug della
+  polizia dispersa che continuava ad attaccare, moltiplicato per ogni nuovo stato.
 
 ## Azioni e loro effetti
 - **Scontro (Skirmish)**: richiede distanza esattamente 1. Costa 1 PA. Non sposta
@@ -409,6 +465,21 @@ poi svuotare questa sezione.
   logga "Unexpected timestamp values detected" e riallinea i timestamp da sé.
   Warning innocuo, playback corretto. Se un giorno desse fastidio: transcodifica
   (flag Transcode nell'Inspector del VideoClip). Il nome file ha un doppio spazio.
+
+# DA FARE PRIMA DI PROVARE SUL SERIO
+
+**La scala del Morale è quella vecchia e ora è sbilanciata.** Operai 2, Anarchici 3,
+Black Bloc 3, Studenti 4, Pacifisti 10. Con le aure che prestano fino a 4 punti quei
+numeri sono già fuori scala, e quando arriverà il panico del GDD 17.4 (shock 3/2/1)
+tre gruppi su cinque morirebbero al primo urto. Proposta del cap. 17.8: Operai 6,
+Anarchici 9, Black Bloc 9, Studenti 12, Pacifisti 18–24 — stesse proporzioni, ma 3
+punti diventano una ferita e non una condanna.
+
+**Il pannello How to Play è obsoleto.** Non menziona le azioni per gruppo, le aure,
+la Coesione, né la differenza fra arrestato e disperso. Sono tutte regole che il
+giocatore deve conoscere per giocare, non dettagli interni.
+
+---
 
 # PRIORITÀ DI DESIGN (analisi 03/08/26)
 

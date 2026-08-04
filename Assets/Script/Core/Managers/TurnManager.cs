@@ -49,6 +49,10 @@ public class TurnManager : MonoBehaviour
     private bool IsCellAvailable(HexCell cell) => TacticalQuery.IsCellAvailable(cell);
     public bool IsPoliceTurn => _waitingForPolice;
 
+    //Helper method to determine the cause of morale loss based on the source unit type
+    private static MoraleLossCause CauseFrom(AbstractUnitsRunTime source)
+    => source is PoliceRuntime ? MoraleLossCause.PoliceContact : MoraleLossCause.Other;
+
     private void Start()
     {
         if (_lvlManager == null)
@@ -159,7 +163,7 @@ public class TurnManager : MonoBehaviour
                     HexCell target = CalculatePushDestination(atk.PositionCell.Coordinates, def.PositionCell.Coordinates);
                     if (target != null)
                     {
-                        def.SetPosition(target);
+                        def.RemoveFromBoard(CauseFrom(atk));   
                     }
                     else
                     {
@@ -179,9 +183,8 @@ public class TurnManager : MonoBehaviour
                     else
                     {
                         Debug.Log("Police Disperse");
-                        atk.Disperse();
-                    }
-                    break;
+                        atk.RemoveFromBoard(CauseFrom(def));               }
+                        break;
                 }
 
             case CombatResult.Par:
@@ -353,9 +356,11 @@ public class TurnManager : MonoBehaviour
         CombatResult result = CombatResolver.Resolve(atk, def, _map);
         switch (result)
         {
-            case CombatResult.Win: def.LoseMorale(1); break;
-            case CombatResult.Lose: atk.LoseMorale(1); break;
-            case CombatResult.Par: atk.LoseMorale(1); def.LoseMorale(1); break;
+            case CombatResult.Win: def.LoseMorale(1, CauseFrom(atk)); break;
+            case CombatResult.Lose: atk.LoseMorale(1, CauseFrom(def)); break;
+            case CombatResult.Par:
+                atk.LoseMorale(1, CauseFrom(def));
+                def.LoseMorale(1, CauseFrom(atk)); break;
         }
 
         bool done = false;

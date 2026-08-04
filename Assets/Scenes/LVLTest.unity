@@ -5094,7 +5094,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 819720194}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnApplicationQuit
+        m_MethodName: QuitGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -12956,7 +12956,7 @@ MonoBehaviour:
   _scoreForOccupation: 10
   _winEvent: {fileID: 11400000, guid: a0a8fcf3c2315ec4b936579de826bca6, type: 2}
   _loseEvent: {fileID: 11400000, guid: 9f2e74c24576edc4db87ac001db19051, type: 2}
-  _boardChangedEvent: {fileID: 0}
+  _boardChangedEvent: {fileID: 11400000, guid: 28827dbfca004774faaac84e3e68ee1b, type: 2}
 --- !u!114 &2130109799
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -20,15 +20,15 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    public void OnApplicationQuit()
+    public void QuitGame()
     {
+        PlayerPrefs.Save();
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
+#else
+    Application.Quit();
 #endif
-
-        PlayerPrefs.Save();
-        Application.Quit();
     }
 
 

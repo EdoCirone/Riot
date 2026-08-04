@@ -147,13 +147,32 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     private void ApplyAuras()
     {
-        foreach (var unit in _spezzoniOfLVL)
-            if (unit.Status == UnitsStatus.Alive)
-                unit.ApplyAuraMorale(TacticalQuery.GetAuraBonus(unit, _map).Mor);
+        bool someoneFell;
+        do
+        {
+            someoneFell = false;
 
-        foreach (var police in _policeOfLVL)
-            if (police.Status == UnitsStatus.Alive)
-                police.ApplyAuraMorale(TacticalQuery.GetAuraBonus(police, _map).Mor);
+            var pending = new List<(AbstractUnitsRunTime unit, int bonus)>();
+
+            foreach (var unit in _spezzoniOfLVL)
+                if (unit.IsAlive)
+                    pending.Add((unit, TacticalQuery.GetAuraBonus(unit, _map).Mor));
+
+            foreach (var police in _policeOfLVL)
+                if (police.IsAlive)
+                    pending.Add((police, TacticalQuery.GetAuraBonus(police, _map).Mor));
+
+            foreach (var (unit, bonus) in pending)
+            {
+                unit.ApplyAuraMorale(bonus);
+                if (!unit.IsAlive)
+                {
+                    someoneFell = true;
+                    _unitsRenderer.UpdateView(unit);
+                }
+            }
+
+        } while (someoneFell);
     }
 
     private void RecalculateCohesion()
@@ -161,11 +180,11 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         int total = 0;
         foreach (var unit in _spezzoniOfLVL)
         {
-            if (unit.Status != UnitsStatus.Alive) continue;
+            if (!unit.IsAlive) continue;
             foreach (HexCoordinates n in unit.PositionCell.Coordinates.GetNeighbors())
             {
                 if (!_map.TryGetCell(n, out HexCell cell)) continue;
-                if (cell.OccupiedBy is SpezzoneRuntime other && other.Status == UnitsStatus.Alive)
+                if (cell.OccupiedBy is SpezzoneRuntime other && other.IsAlive)
                     total += 10;
             }
         }

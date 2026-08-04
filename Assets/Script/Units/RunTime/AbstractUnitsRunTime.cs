@@ -14,6 +14,7 @@ public abstract class AbstractUnitsRunTime
     protected int _auraMoraleBonus;
 
     protected bool _isSeated;
+    protected virtual bool CanBeArrested => false;
 
     public abstract string DisplayName { get; }
 
@@ -93,21 +94,32 @@ public abstract class AbstractUnitsRunTime
         _morale += delta;
 
         if (_morale > MaxMorale) _morale = MaxMorale;
-        if (_morale <= 0) Disperse();
+        if (_morale <= 0) RemoveFromBoard(MoraleLossCause.AuraWithdrawn);
     }
 
-    public void LoseMorale(int amount)
+    public void LoseMorale(int amount, MoraleLossCause cause = MoraleLossCause.Other)
     {
         _morale = Mathf.Max(_morale - amount, 0);
-        if (_morale == 0)
-        {
-            Disperse();
-        }
+        if (_morale == 0) RemoveFromBoard(cause);
     }
 
     public void Disperse()
     {
         _status = UnitsStatus.Disperse;
         _positionCell.Vacate();
+    }
+
+    public void Arrest()
+    {
+        _status = UnitsStatus.Arrested;
+        _positionCell.Vacate();
+    }
+
+    public void RemoveFromBoard(MoraleLossCause cause)
+    {
+        if (cause == MoraleLossCause.PoliceContact && CanBeArrested) Arrest();
+        else Disperse();
+
+        Debug.Log($"[FUORI GIOCO] {this} -> {_status} (causa: {cause})");
     }
 }
