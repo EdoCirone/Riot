@@ -112,10 +112,9 @@ public class AudioManager : MonoBehaviour
 
     private float GetLinearVolume(string parameterName)
     {
-        bool found = _audioMixer.GetFloat(parameterName, out float db);
-        float linear = found ? Mathf.Pow(10f, db / 20f) : 1f;
-        Debug.Log($"[AUDIO] Get {parameterName}: found={found} db={db:F2} linear={linear:F2}");
-        return linear;
+        if (_audioMixer.GetFloat(parameterName, out float db))
+            return Mathf.Pow(10f, db / 20f);
+        return 1f;
     }
 
     public float GetGeneralVolume() => GetLinearVolume("VolumeMaster");

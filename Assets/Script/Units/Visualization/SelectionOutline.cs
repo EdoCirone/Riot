@@ -22,7 +22,6 @@ public class SelectionOutline : MonoBehaviour
     {
         _boundUnit = unit;
         BuildOutlineRenderers();
-        Debug.Log($"[SelectionOutline] Initialize chiamato su {gameObject.name}, creati {_outlineObjects.Count} outline object");
     }
 
     private void BuildOutlineRenderers()

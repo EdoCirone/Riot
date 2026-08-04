@@ -89,7 +89,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     public void OnEventRaised()
     {
         _currentTurn--;
-        Debug.Log($"[TURNO] fine turno giocatore — rimasti {_currentTurn} di {_numbersOfTurns}");
 
         foreach (var cell in _objectiveCells)
         {
