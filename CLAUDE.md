@@ -332,6 +332,17 @@ poi svuotare questa sezione.
   Qui è innocuo (serve solo a non ripetere una clip), ma è un'eccezione alla regola
   "SO = dati statici", da tenere d'occhio se l'asset venisse usato da più
   AudioSource in parallelo.
+- ~~**PoliceAI: un poliziotto disperso continuava ad agire**~~ — **RISOLTO 03/08/26.**
+  `ExecutePoliceActions` controllava `Status == Disperse` solo all'inizio del turno di
+  ogni unità, non dentro il `while (actedThisTurn && police.ActionPoints > 0)`. Un
+  poliziotto che perdeva uno scontro e si disperdeva a metà del proprio turno spariva
+  dalla vista ma continuava ad attaccare finché aveva PA. Fix: aggiunta la condizione
+  `&& police.Status == UnitsStatus.Alive` al `while`.
+  ⚠ **Causa profonda ancora presente**: `Disperse()` fa `_positionCell.Vacate()` ma
+  lascia `_positionCell` che punta alla cella ormai vuota. Tutto il codice a valle
+  continua a girare senza eccezioni calcolando distanze da una posizione che non
+  esiste più — per questo il bug non produceva nessun errore. Ogni ciclo che itera
+  unità deve verificare `Status` esplicitamente, non fidarsi della posizione.
 - **⚠ Gli enum serializzati sono NUMERI, non nomi** (lezione costosa del 03/08/26).
   Passando `ActionType` da sequenziale a `[System.Flags]` con potenze di due, tutti
   i valori già salvati in scene/prefab/asset sono rimasti identici sul disco e hanno
@@ -465,6 +476,24 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
    `SFXSource`, `VideoSource`) sotto l'AudioManager: oggi sono componenti impilati
    sullo stesso oggetto, indistinguibili nell'Inspector, e il VideoPlayer della
    bootscene condivide una source con la musica.
+
+## Rifiniture rimandate consapevolmente (chiedere sempre quando si fa il punto)
+- **Nessun indicatore visivo di unità seduta.** Il sedersi è diventato una scelta
+  tattica centrale (blocca le cariche, ancora la formazione contro il panico), ma
+  sulla griglia non si distingue chi è seduto da chi è in piedi — quindi non si può
+  pianificare. Rimandato da Edoardo il 03/08/26 alla fase di rifinitura.
+  Vie possibili, dalla più economica: riga o icona "SEDUTO" nel pannello unità (dice
+  anche perché la Difesa mostra un numero più alto, visto che il +5 da seduto è dentro
+  il valore base); schiacciamento del `graphicsTransform`; sprite dedicato — la
+  soluzione giusta, ma dipende dalla direzione artistica.
+- **Il pannello statistiche non si aggiorna quando cambia il vicinato.** `Refresh`
+  scatta alla selezione e ai cambi turno, non quando un'altra unità si sposta: se
+  muovi un Operaio accanto allo spezzone selezionato, il bonus d'aura mostrato resta
+  vecchio finché non deselezioni. Si risolve chiamando `Refresh` dallo stesso punto in
+  cui si ricalcolerà la Coesione (dopo movimento, spinta, dispersione).
+- **Il bonus da seduto è invisibile nel pannello**: `SpezzoneRuntime.Def` restituisce
+  `Def + 5` da seduto, quindi il +5 è dentro il numero base e non è distinguibile
+  dall'aura. Per separarlo servirebbe scomporlo alla fonte.
 
 ## Arretrato precedente
 9. Animazione ricezione colpo del difensore: FATTA per lo scontro

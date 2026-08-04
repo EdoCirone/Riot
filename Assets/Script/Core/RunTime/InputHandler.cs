@@ -39,6 +39,11 @@ public class InputHandler : MonoBehaviour
     private HexCell _pendingDestination;
     private PoliceRuntime _pendingTarget;
 
+    //Costanti utili per la gestione dello stato seduto in modo che se volessi aggiungere un'azione non dovrei riscriverla più volte
+    private const string SeatedAlert = "you are sitting, can only stand up or chant";
+    private static readonly ActionType SeatedActions =
+    ActionType.None | ActionType.SitStand | ActionType.Chant;
+
     private void Awake()
     {
         _inputSystem = new InputSystem_Actions();
@@ -140,7 +145,7 @@ public class InputHandler : MonoBehaviour
         // Seduto: nessuna azione implicita (movimento/scontro) mentre non stai già rialzandoti
         if (_selectedSpezzone.IsSeated)
         {
-            _alertEvent?.Raise("you are sitting, can only stand up");
+            _alertEvent?.Raise(SeatedAlert);
             return;
         }
 
@@ -532,13 +537,11 @@ public class InputHandler : MonoBehaviour
 
     private void SetSelectedAction(ActionType action)
     {
-        bool allowedWhileSeated = action == ActionType.None
-            || action == ActionType.SitStand
-            || action == ActionType.Chant;
+        bool allowedWhileSeated = (SeatedActions & action) != 0 || action == ActionType.None;
 
         if (!allowedWhileSeated && _selectedSpezzone != null && _selectedSpezzone.IsSeated)
         {
-            _alertEvent?.Raise("you are sitting, can only stand up or chant");
+            _alertEvent?.Raise(SeatedAlert);
             return;
         }
 
