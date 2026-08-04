@@ -151,7 +151,7 @@ public class TurnManager : MonoBehaviour
 
     private void PushResolution(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
-        CombatResult result = CombatResolver.Resolve(atk, def);
+        CombatResult result = CombatResolver.Resolve(atk, def, _map);
         switch (result)
         {
             case CombatResult.Win:
@@ -348,7 +348,7 @@ public class TurnManager : MonoBehaviour
             yield break;
         }
 
-        CombatResult result = CombatResolver.Resolve(atk, def);
+        CombatResult result = CombatResolver.Resolve(atk, def, _map);
         switch (result)
         {
             case CombatResult.Win: def.LoseMorale(1); break;

@@ -2,9 +2,13 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static TacticalQuery;
 
 public class UnitStatsPanelView : MonoBehaviour
 {
+    [Header("Reference")]
+    [SerializeField] private LVLManager _lvlManager;
+
     [Header("Panel Root")]
     [SerializeField] private GameObject _panelRoot;   
     [SerializeField] private CanvasGroup _canvasGroup;
@@ -110,7 +114,16 @@ public class UnitStatsPanelView : MonoBehaviour
         if(_aptValueText != null)
             _aptValueText.text = _currentUnit.ActionPoints.ToString();
 
-        _atkText.text = $"{_currentUnit.Atk}";
-        _defText.text = $"{_currentUnit.Def}";
+        AuraBonus aura = TacticalQuery.GetAuraBonus(_currentUnit, _lvlManager.Map);
+
+        _atkText.text = FormatStat(_currentUnit.Atk, aura.Atk);
+        _defText.text = FormatStat(_currentUnit.Def, aura.Def);
+    }
+
+    private string FormatStat(int baseValue, int auraValue)
+    {
+        if (auraValue == 0) return baseValue.ToString();
+        string sign = auraValue > 0 ? "+" : "";
+        return $"{baseValue} <color=#7CFF7C>({sign}{auraValue})</color>";
     }
 }
