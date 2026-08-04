@@ -10,6 +10,9 @@ public abstract class AbstractUnitsRunTime
     protected int _actionPoints;
     protected int _maxActionPoints;
     protected int _maxMorale;
+
+    protected int _auraMoraleBonus;
+
     protected bool _isSeated;
 
     public abstract string DisplayName { get; }
@@ -19,8 +22,7 @@ public abstract class AbstractUnitsRunTime
     public int ActionPoints => _actionPoints;
     public int MaxActionPoints => _maxActionPoints;
     public int Morale => _morale;
-    public int MaxMorale => _maxMorale;
-    
+    public int MaxMorale => _maxMorale + _auraMoraleBonus;
     public bool IsSeated => _isSeated;
     
     public abstract Sprite Avatar { get; }
@@ -77,7 +79,13 @@ public abstract class AbstractUnitsRunTime
 
     public void GainMorale(int amount)
     {
-        _morale = Mathf.Min(_morale + amount, _maxMorale);
+        _morale = Mathf.Min(_morale + amount, MaxMorale);
+    }
+
+    public void ApplyAuraMorale(int bonus)
+    {
+        _auraMoraleBonus = bonus;
+        if (_morale > MaxMorale) _morale = MaxMorale;
     }
 
     public void LoseMorale(int amount)

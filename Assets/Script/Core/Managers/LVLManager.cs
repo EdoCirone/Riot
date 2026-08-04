@@ -16,6 +16,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     [Header("Events")]
     [SerializeField] private GameEventSO _winEvent;
     [SerializeField] private GameEventSO _loseEvent;
+    [SerializeField] private GameEventSO _boardChangedEvent;
 
     private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
     private List<PoliceRuntime> _policeOfLVL = new List<PoliceRuntime>();
@@ -36,6 +37,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     public int CurrentTurn => _currentTurn;
     public float CurrentScore => _currentScore;
 
+    public int Cohesion { get; private set; }
 
     private void OnEnable()
     {
@@ -74,6 +76,8 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             }
 
         }
+
+        RefreshBoardState();
     }
 
 
@@ -132,5 +136,51 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(
         UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
+
+    public void RefreshBoardState()
+    {
+        ApplyAuras();
+        RecalculateCohesion();
+        _boardChangedEvent?.Raise();
+    }
+
+    private void ApplyAuras()
+    {
+        foreach (var unit in _spezzoniOfLVL)
+            if (unit.Status == UnitsStatus.Alive)
+                unit.ApplyAuraMorale(TacticalQuery.GetAuraBonus(unit, _map).Mor);
+
+        foreach (var police in _policeOfLVL)
+            if (police.Status == UnitsStatus.Alive)
+                police.ApplyAuraMorale(TacticalQuery.GetAuraBonus(police, _map).Mor);
+    }
+
+    private void RecalculateCohesion()
+    {
+        int total = 0;
+        foreach (var unit in _spezzoniOfLVL)
+        {
+            if (unit.Status != UnitsStatus.Alive) continue;
+            foreach (HexCoordinates n in unit.PositionCell.Coordinates.GetNeighbors())
+            {
+                if (!_map.TryGetCell(n, out HexCell cell)) continue;
+                if (cell.OccupiedBy is SpezzoneRuntime other && other.Status == UnitsStatus.Alive)
+                    total += 10;
+            }
+        }
+        Cohesion = total;
+    }
+
+    public bool CheckCohesionDefeat()
+    {
+        if (_gameOver) return true;
+        if (Cohesion > 0) return false;
+
+        Debug.Log("Corteo disperso: coesione a zero");
+        _loseEvent.Raise();
+        _gameOver = true;
+        _turnManager.enabled = false;
+        return true;
     }
 }

@@ -191,6 +191,7 @@ public class TurnManager : MonoBehaviour
 
         _unitsRenderer.UpdateView(atk);
         _unitsRenderer.UpdateView(def);
+        _lvlManager.RefreshBoardState();
     }
     #endregion
 
@@ -276,6 +277,7 @@ public class TurnManager : MonoBehaviour
         movement.MoveAlongPath(path, _lvlManager.Map, () =>
         {
             _unitsRenderer.UpdateView(unit);
+            _lvlManager.RefreshBoardState();
             _stopFollowEvent?.Raise();
             onComplete?.Invoke();
         });
@@ -371,6 +373,7 @@ public class TurnManager : MonoBehaviour
              {
                  _unitsRenderer.UpdateView(atk);
                  _unitsRenderer.UpdateView(def);
+                 _lvlManager.RefreshBoardState();
                  done = true;
              },
              onImpact: () =>
@@ -404,6 +407,7 @@ public class TurnManager : MonoBehaviour
         _throwEvent.Raise(target);
         target.LoseMorale(item.MoralLost);
         _unitsRenderer.UpdateView(target);
+        _lvlManager.RefreshBoardState();
     }
 
     #endregion
@@ -471,6 +475,7 @@ public class TurnManager : MonoBehaviour
                 Debug.Log($"Coro: {spezzone} +1 morale (ora {spezzone.Morale}/{spezzone.MaxMorale})");
             }
         }
+        _lvlManager.RefreshBoardState();
         return true;
     }
 
@@ -507,6 +512,9 @@ public class TurnManager : MonoBehaviour
     public void EndTurn()
     {
         if (_waitingForPolice) return;
+
+        _lvlManager.RefreshBoardState();
+        if (_lvlManager.CheckCohesionDefeat()) return;
 
         _waitingForPolice = true;
         _endPlayerTurnEvent.Raise();
