@@ -28,7 +28,7 @@ public class UnitsRenderer : MonoBehaviour
 
     public void UpdateView(AbstractUnitsRunTime unit)
     {
-        if (unit.Status == UnitsStatus.Disperse)
+        if (!unit.IsAlive)
         {
             if (_unitsDict.TryGetValue(unit, out GameObject go))
                 go.transform.root.gameObject.SetActive(false);

@@ -25,7 +25,7 @@ public class PoliceAI : MonoBehaviour
     {
         foreach (var police in _lvlManager.Police)
         {
-            if (police.Status == UnitsStatus.Disperse) continue;
+            if (!police.IsAlive) continue;
 
             _onSelectedEvent?.Raise(police);
 
@@ -102,7 +102,7 @@ public class PoliceAI : MonoBehaviour
         int minDistance = int.MaxValue;
         foreach (var spezzone in _lvlManager.Spezzoni)
         {
-            if (spezzone.Status == UnitsStatus.Disperse) continue;
+            if (!spezzone.IsAlive) continue;
             int distance = police.PositionCell.Coordinates.Distance(spezzone.PositionCell.Coordinates);
             if (distance < minDistance)
             {

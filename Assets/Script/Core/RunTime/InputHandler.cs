@@ -337,7 +337,7 @@ public class InputHandler : MonoBehaviour
                 _isExecutingAction = true;
                 _turnManager.ExecuteMovement(_selectedSpezzone, path, () =>
                 {
-                    if (_pendingTarget != null && _pendingTarget.Status != UnitsStatus.Disperse)
+                    if (_pendingTarget != null && _pendingTarget.IsAlive)
                         _turnManager.StartSkirmish(_selectedSpezzone, _pendingTarget, () => OnActionComplete());
                     else
                         OnActionComplete();
@@ -446,7 +446,7 @@ public class InputHandler : MonoBehaviour
 
     private void OnActionComplete()
     {
-        if (_selectedSpezzone != null && _selectedSpezzone.Status == UnitsStatus.Disperse)
+        if (_selectedSpezzone != null && !_selectedSpezzone.IsAlive)
         {
             _selectedSpezzone = null;
             SetSelectedAction(ActionType.None);
@@ -466,7 +466,7 @@ public class InputHandler : MonoBehaviour
 
         if (_lastAttackedPolice != null)
         {
-            if (_lastAttackedPolice.Status == UnitsStatus.Disperse)
+            if (!_lastAttackedPolice.IsAlive)
                 _policeDeselectedEvent?.Raise();
             else
             {

@@ -313,7 +313,7 @@ public class CameraManager : MonoBehaviour
     {
         _isPoliceTurn = false; 
         if (_lastPlayerUnit == null) return;
-        if (_lastPlayerUnit.Status == UnitsStatus.Disperse) return;
+        if (!_lastPlayerUnit.IsAlive) return;
         _lastCenteredUnit = null;
         CenterCamera(_lastPlayerUnit);
     }

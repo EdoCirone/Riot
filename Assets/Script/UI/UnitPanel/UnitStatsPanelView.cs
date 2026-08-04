@@ -109,7 +109,6 @@ public class UnitStatsPanelView : MonoBehaviour
         _morBar.value = _currentUnit.MaxMorale > 0
             ? (float)_currentUnit.Morale / _currentUnit.MaxMorale
             : 0f;
-        _morValueText.text = _currentUnit.Morale.ToString();
 
         if (_aptBar != null)
         {
@@ -124,6 +123,7 @@ public class UnitStatsPanelView : MonoBehaviour
 
         _atkText.text = FormatStat(_currentUnit.Atk, aura.Atk);
         _defText.text = FormatStat(_currentUnit.Def, aura.Def);
+        _morValueText.text = FormatStat(_currentUnit.BaseMorale, aura.Mor);
     }
 
     private string FormatStat(int baseValue, int auraValue)

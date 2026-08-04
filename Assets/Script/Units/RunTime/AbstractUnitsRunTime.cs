@@ -22,6 +22,7 @@ public abstract class AbstractUnitsRunTime
     public int ActionPoints => _actionPoints;
     public int MaxActionPoints => _maxActionPoints;
     public int Morale => _morale;
+    public int BaseMorale => _morale - _auraMoraleBonus;
     public int MaxMorale => _maxMorale + _auraMoraleBonus;
     public bool IsSeated => _isSeated;
     
@@ -35,6 +36,7 @@ public abstract class AbstractUnitsRunTime
 
     public HexCell PositionCell => _positionCell;
     public UnitsStatus Status => _status;
+    public bool IsAlive => _status == UnitsStatus.Alive;
 
     public abstract GameObject GraphicsPrefab { get; }
 
@@ -84,8 +86,14 @@ public abstract class AbstractUnitsRunTime
 
     public void ApplyAuraMorale(int bonus)
     {
+        int delta = bonus - _auraMoraleBonus;
+        if (delta == 0) return;
+
         _auraMoraleBonus = bonus;
+        _morale += delta;
+
         if (_morale > MaxMorale) _morale = MaxMorale;
+        if (_morale <= 0) Disperse();
     }
 
     public void LoseMorale(int amount)

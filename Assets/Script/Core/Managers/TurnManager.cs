@@ -523,7 +523,7 @@ public class TurnManager : MonoBehaviour
 
         foreach (var police in _lvlManager.Police)
         {
-            if (police.Status == UnitsStatus.Disperse) continue;
+            if (!police.IsAlive) continue;
             police.RefillActionPoints();
         }
 
@@ -539,7 +539,7 @@ public class TurnManager : MonoBehaviour
 
         foreach (var spezzone in _lvlManager.Spezzoni)
         {
-            if (spezzone.Status == UnitsStatus.Disperse) continue;
+            if (!spezzone.IsAlive) continue;
             spezzone.RefillActionPoints();
         }
 
