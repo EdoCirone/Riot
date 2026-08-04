@@ -3716,7 +3716,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 000000000163e3ca
+  m_ApplyToSortingLayers: 000000000163e3ca356f9cb21349ffebb3f2cd42715eb9b133102b51
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -6278,6 +6278,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 512491741121408142, guid: 822dc7f1f30e7014e95a014b42b9d860, type: 3}
+      propertyPath: _outlineColor.b
+      value: 0.015686275
+      objectReference: {fileID: 0}
+    - target: {fileID: 512491741121408142, guid: 822dc7f1f30e7014e95a014b42b9d860, type: 3}
+      propertyPath: _outlineColor.g
+      value: 0.92156863
+      objectReference: {fileID: 0}
+    - target: {fileID: 512491741121408142, guid: 822dc7f1f30e7014e95a014b42b9d860, type: 3}
+      propertyPath: _outlineColor.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1315868516837607815, guid: 822dc7f1f30e7014e95a014b42b9d860, type: 3}
       propertyPath: m_Name
       value: StudentsUnit
@@ -6482,11 +6494,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4887271961500227207, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 12.020728
+      value: 12.045
       objectReference: {fileID: 0}
     - target: {fileID: 4887271961500227207, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.6281958
+      value: 2.544
       objectReference: {fileID: 0}
     - target: {fileID: 4887271961500227207, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_LocalPosition.z
@@ -7218,11 +7230,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4887271961500227207, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 12.829807
+      value: 12.794
       objectReference: {fileID: 0}
     - target: {fileID: 4887271961500227207, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.1545882
+      value: 2.106
       objectReference: {fileID: 0}
     - target: {fileID: 4887271961500227207, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_LocalPosition.z
@@ -11575,7 +11587,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57
+  m_fontSize: 56.85
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13003,7 +13015,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57
+  m_fontSize: 56.85
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1

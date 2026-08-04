@@ -35,14 +35,13 @@ public class SelectionOutline : MonoBehaviour
             SpriteRenderer outlineSr = go.AddComponent<SpriteRenderer>();
             outlineSr.sprite = sr.sprite;
             outlineSr.sharedMaterial = _outlineMaterial;
-            outlineSr.sortingLayerID = sr.sortingLayerID;
-            outlineSr.sortingOrder = sr.sortingOrder - 1;
+            outlineSr.sortingLayerName = "Outline";
+            outlineSr.sortingOrder = 0;
 
             MaterialPropertyBlock mpb = new MaterialPropertyBlock();
             outlineSr.GetPropertyBlock(mpb);
             mpb.SetColor("_OutlineColor", _outlineColor);
             outlineSr.SetPropertyBlock(mpb);
-            Debug.Log($"[SelectionOutline] {gameObject.name}: setting _OutlineColor to {_outlineColor}");
 
             go.SetActive(false);
             _outlineObjects.Add(go);

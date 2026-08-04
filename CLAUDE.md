@@ -134,6 +134,34 @@ Se un pannello ha `MenuPanelView`, NON va anche disattivato con `SetActive(false
   (`UnityEvent.AddListener` non deduplica, a differenza di `GameEventSO.Subscribe`
   che usa `Contains`).
 
+## Rendering 2D — sorting layer e luci (VERIFICATO 03/08/26)
+Ordine dei Sorting Layer, che è l'ordine di disegno (il primo è il più arretrato):
+`Default → BackGround → Ground → Outline → Characters → Building → Objects`.
+
+- **Esagoni** su `Ground` (prefab `HexBase`, condiviso da tutti e tre gli `HexTypeSO`).
+- **Outline di selezione** su `Outline`, ordine 0 — assegnato da codice in
+  `SelectionOutline.BuildOutlineRenderers`.
+- **Unità** su `Characters` (tutti i prefab `*Graphics`).
+
+Il layer ha la precedenza sull'ordine, quindi con questa disposizione la gerarchia
+regge sempre e non serve calcolare ordini relativi. Prima erano tutti su `Default`
+con esagoni a 0 e outline a 0: a parità di layer **e** ordine il pareggio si rompe
+sulla distanza dalla camera, entrambi a z=0, quindi l'esito era arbitrario e
+cambiava spostando le celle — l'outline appariva a chiazze.
+
+⚠ **La `Global Light 2D` ha una lista `Target Sorting Layers`.** I materiali sono
+`Sprite-Lit-Default`: uno sprite su un layer fuori da quella lista **non riceve luce
+e diventa nero**. Ogni volta che si aggiunge un layer va aggiunto anche lì. È
+l'impostazione più lontana dal sintomo che produce, e "gli sprite sono diventati
+neri" non fa pensare a una luce.
+
+⚠ **Import degli sprite per l'outline**: lo shader disegna il bordo campionando i
+texel dentro il quad, quindi serve **Mesh Type: Full Rect** (con `Tight` la mesh è
+ritagliata sulla sagoma e il bordo non ha dove essere disegnato) ed **Extrude Edges
+basso, ~4**. `PoliceStandardUnit.png` aveva Extrude **26** e Sprite Mode `Multiple`:
+il primo riempiva di colore ventisei pixel di margine, il secondo faceva campionare
+pixel fuori dal rettangolo dello sprite. Risultato: un blocco pieno invece di un bordo.
+
 ## Naming Convention
 - Classi: PascalCase. Campi privati serializzati: _camelCase.
 - Proprietà pubbliche: PascalCase. Metodi: PascalCase, verbo chiaro.
@@ -549,6 +577,14 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
    bootscene condivide una source con la musica.
 
 ## Rifiniture rimandate consapevolmente (chiedere sempre quando si fa il punto)
+- **`PoliceAI._onSelectedEvent` punta a `SelectedUnitsEvent`**: nel turno polizia si
+  apre il pannello degli spezzoni con i dati del poliziotto. Va spostato su
+  `SelectedPolice` + un secondo canale sul `CameraManager` per non perdere il follow.
+- **PoliceAI non cerca bersagli alternativi**: se lo scontro più vicino è perdente
+  rinuncia e resta ferma, invece di valutare un altro spezzone o riposizionarsi.
+- **Tre Operai adiacenti sono imbattibili** (Def 8 + 2 di aura a testa contro Atk 8
+  della polizia). Non è un bug dell'IA: è l'assenza del tetto alle adiacenze del
+  GDD 17.8, che ora ha un caso concreto a supporto.
 - **Nessun indicatore visivo di unità seduta.** Il sedersi è diventato una scelta
   tattica centrale (blocca le cariche, ancora la formazione contro il panico), ma
   sulla griglia non si distingue chi è seduto da chi è in piedi — quindi non si può
