@@ -98,7 +98,6 @@ public class AudioManager : MonoBehaviour
     public void SaveAudioSettings()
     {
         PlayerPrefs.Save();
-        Debug.Log("[AUDIO] Save su disco");
     }
 
     public void LoadAudioSettings()
@@ -106,7 +105,6 @@ public class AudioManager : MonoBehaviour
         float masterVolume = PlayerPrefs.GetFloat("VolumeMaster", 0.75f);
         float musicVolume = PlayerPrefs.GetFloat("VolumeMusic", 0.75f);
         float sfxVolume = PlayerPrefs.GetFloat("VolumeSFX", 0.75f);
-        Debug.Log($"[AUDIO] Load: master={masterVolume:F2} music={musicVolume:F2} sfx={sfxVolume:F2}");
         SetGeneralAudio(masterVolume);
         SetMusicVolume(musicVolume);
         SetSFXVolume(sfxVolume);

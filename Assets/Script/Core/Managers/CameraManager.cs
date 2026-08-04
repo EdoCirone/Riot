@@ -33,6 +33,7 @@ public class CameraManager : MonoBehaviour
     [SerializeField] private GameEventSO _endPlayerTurnEvent;
     [SerializeField] private GameEventSO _stopFollowEvent;
     [SerializeField] private UnitEventSO _onSelectedEvent;
+    [SerializeField] private UnitEventSO _policeSelectedEvent;
 
     private Transform _followTarget;
     private AbstractUnitsRunTime _lastPlayerUnit;
@@ -75,6 +76,8 @@ public class CameraManager : MonoBehaviour
         // --- SEGUI UNITÀ ---
         if (_onSelectedEvent != null)
             _onSelectedEvent.Subscribe(CenterCamera);
+        if (_policeSelectedEvent != null)
+            _policeSelectedEvent.Subscribe(CenterCamera);
         if (_startPlayerTurnEvent != null)
             _startPlayerTurnEvent.Subscribe(OnPlayerTurnStart);
         if (_endPlayerTurnEvent != null)
@@ -99,6 +102,8 @@ public class CameraManager : MonoBehaviour
 
         if (_onSelectedEvent != null)
             _onSelectedEvent.Unsubscribe(CenterCamera);
+        if (_policeSelectedEvent != null)
+            _policeSelectedEvent.Unsubscribe(CenterCamera);
         if (_startFollowEvent != null)
             _startFollowEvent.Unsubscribe(StartFollow);
         if (_stopFollowEvent != null)

@@ -133,7 +133,6 @@ public class InputHandler : MonoBehaviour
                 _selectedSpezzone = spezzone;
                 _unitSelectedEvent?.Raise(_selectedSpezzone);
                 AuraBonus aura = TacticalQuery.GetAuraBonus(_selectedSpezzone, _grid);
-                Debug.Log($"[AURA] {_selectedSpezzone}: +{aura.Atk} atk, +{aura.Def} def, +{aura.Mor} mor max");
             }
             else if (clickCell.OccupiedBy is PoliceRuntime police)
             {

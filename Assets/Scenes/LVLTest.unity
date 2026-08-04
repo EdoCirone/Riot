@@ -4714,7 +4714,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoliceAI
   _lvlManager: {fileID: 2130109798}
-  _onSelectedEvent: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
+  _onSelectedEvent: {fileID: 11400000, guid: 93aeb65fcb4a88444b8f15479fbd1575, type: 2}
 --- !u!114 &736496570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11503,6 +11503,7 @@ MonoBehaviour:
   _endPlayerTurnEvent: {fileID: 11400000, guid: f69733287b575af41bf2051f9e7cb894, type: 2}
   _stopFollowEvent: {fileID: 11400000, guid: 14bb41a0b251d904ebfcd4fd64b09b8c, type: 2}
   _onSelectedEvent: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
+  _policeSelectedEvent: {fileID: 11400000, guid: 93aeb65fcb4a88444b8f15479fbd1575, type: 2}
 --- !u!1 &1838237214
 GameObject:
   m_ObjectHideFlags: 0
