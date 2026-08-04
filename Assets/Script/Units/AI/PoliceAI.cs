@@ -31,7 +31,7 @@ public class PoliceAI : MonoBehaviour
 
             bool actedThisTurn = true;
 
-            while (actedThisTurn && police.ActionPoints > 0)
+            while (actedThisTurn && police.ActionPoints > 0 && police.Status == UnitsStatus.Alive)
             {
                 actedThisTurn = false;
 
