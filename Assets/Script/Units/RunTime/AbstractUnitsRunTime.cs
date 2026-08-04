@@ -11,7 +11,11 @@ public abstract class AbstractUnitsRunTime
     protected int _maxActionPoints;
     protected int _maxMorale;
     protected bool _isSeated;
-    
+
+    public abstract string DisplayName { get; }
+
+    public override string ToString() => DisplayName;
+
     public int ActionPoints => _actionPoints;
     public int MaxActionPoints => _maxActionPoints;
     public int Morale => _morale;
@@ -22,6 +26,10 @@ public abstract class AbstractUnitsRunTime
     public abstract Sprite Avatar { get; }
     public abstract int Atk { get; }
     public abstract int Def { get; }
+
+    public abstract int AuraAtk { get; }
+    public abstract int AuraDef { get; }
+    public abstract int AuraMor { get; }
 
     public HexCell PositionCell => _positionCell;
     public UnitsStatus Status => _status;

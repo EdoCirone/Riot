@@ -107,6 +107,39 @@ public static class TacticalQuery
         public int MoveCost;
     }
 
+    public struct AuraBonus
+    {
+        public int Atk;
+        public int Def;
+        public int Mor;
+    }
+
+    public static AuraBonus GetAuraBonus(AbstractUnitsRunTime unit, HexGrid map)
+    {
+        AuraBonus total = new AuraBonus();
+        if (unit == null || unit.PositionCell == null || map == null) return total;
+
+        foreach (HexCoordinates dir in HexCoordinates.Directions)
+        {
+            HexCoordinates neighborCoord = unit.PositionCell.Coordinates + dir;
+            if (!map.TryGetCell(neighborCoord, out HexCell cell)) continue;
+
+            AbstractUnitsRunTime neighbor = cell.OccupiedBy;
+            if (neighbor == null) continue;
+            if (neighbor.Status != UnitsStatus.Alive) continue;
+
+            // l'aura passa solo fra unità della stessa parte
+            if (unit is SpezzoneRuntime && neighbor is not SpezzoneRuntime) continue;
+            if (unit is PoliceRuntime && neighbor is not PoliceRuntime) continue;
+
+            total.Atk += neighbor.AuraAtk;
+            total.Def += neighbor.AuraDef;
+            total.Mor += neighbor.AuraMor;
+        }
+
+        return total;
+    }
+
     public static AttackOption GetAttackOption(HexCoordinates from, HexCoordinates targetCoord, int budget, HexGrid map,
      Dictionary<HexCoordinates, int> precomputedVisited = null)
     {

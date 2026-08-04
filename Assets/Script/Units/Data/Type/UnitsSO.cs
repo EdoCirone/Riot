@@ -19,6 +19,13 @@ public class UnitsSO : ScriptableObject
     [SerializeField] int _actionPoints;
     [Space]
 
+    [Header("Unit Aura")]
+    [Tooltip("The aura is a passive effect that affects its allies within a certain range.")]
+    [SerializeField] private int _auraAtk;
+    [SerializeField] private int _auraDef;
+    [SerializeField] private int _auraMor;
+    [Space]
+
     [Header("Unit Actions")]
     [SerializeField] private ActionType _allowedActions;
 
@@ -32,6 +39,10 @@ public class UnitsSO : ScriptableObject
     public int Def => _def;
     public int ActionPoints => _actionPoints;
     public int Mor => _mor;
+
+    public int AuraAtk => _auraAtk;
+    public int AuraDef => _auraDef;
+    public int AuraMor => _auraMor;
 
     public ActionType AllowedActions => _allowedActions;
     public bool CanPerformAction(ActionType action) => action == ActionType.None || (_allowedActions & action) != 0;
