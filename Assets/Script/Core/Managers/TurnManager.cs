@@ -53,6 +53,10 @@ public class TurnManager : MonoBehaviour
     private static MoraleLossCause CauseFrom(AbstractUnitsRunTime source)
     => source is PoliceRuntime ? MoraleLossCause.PoliceContact : MoraleLossCause.Other;
 
+    //Due unità sono della stessa parte se sono entrambe polizia o entrambe corteo
+    private static bool IsSameSide(AbstractUnitsRunTime a, AbstractUnitsRunTime b)
+    => (a is PoliceRuntime) == (b is PoliceRuntime);
+
     private void Start()
     {
         if (_lvlManager == null)
@@ -74,73 +78,163 @@ public class TurnManager : MonoBehaviour
     }
 
     #region Charge
+
+    // il costo vive in TacticalQuery: è la stessa cifra che decide l'highlight
     private bool HasChargeRoom(HexCoordinates atkCoord, HexCoordinates defCoord, out HexCoordinates chargeDestination)
      => TacticalQuery.HasChargeRoom(atkCoord, defCoord, _map, out chargeDestination);
 
-    public bool ExecuteCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
+    /// <summary>
+    /// Predicato silenzioso: la carica è legale e sostenibile?
+    /// Non muta niente e non logga — lo interroga la PoliceAI prima di impegnare il turno.
+    /// </summary>
+    public bool CanCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, out HexCell destinationCell)
     {
-        if (def.IsSeated)
-        {
-            Debug.Log("Carica non valida: bersaglio seduto (barricata umana)");
-            return false;
-        }
+        destinationCell = null;
 
-        HexCoordinates atkCoord = atk.PositionCell.Coordinates;
-        HexCoordinates defCoord = def.PositionCell.Coordinates;
-        Vector3 defenderWorldPos = _map.transform.position + def.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
-        
+        if (atk == null || def == null) return false;
+        if (!atk.IsAlive || !def.IsAlive) return false;
+        if (def.IsSeated) return false;                       // barricata umana
+        if (atk.ActionPoints < TacticalQuery.ChargeCost) return false;
 
-        if (!HasChargeRoom(atkCoord, defCoord, out HexCoordinates chargeDestination))
-        {
-            Debug.Log("Carica non valida: distanza o spazio di rincorsa insufficienti");
-            return false;
-        }
+        if (!HasChargeRoom(atk.PositionCell.Coordinates, def.PositionCell.Coordinates,
+                           out HexCoordinates chargeDestination)) return false;
 
-        const int chargeCost = 4; // 2 fissi + 2 celle percorse in rincorsa
-        if (!atk.TrySpendActionPoint(chargeCost))
+        return _map.TryGetCell(chargeDestination, out destinationCell);
+    }
+
+    /// <summary>
+    /// Entry point per chi non è una coroutine (InputHandler).
+    /// Stesso schema di StartSkirmish: avvia e richiama onComplete a carica RISOLTA.
+    /// </summary>
+    public void StartCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
+    {
+        StartCoroutine(ChargeWithCallback(atk, def, onComplete));
+    }
+
+    private IEnumerator ChargeWithCallback(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
+    {
+        yield return StartCoroutine(ExecuteCharge(atk, def));
+        onComplete?.Invoke();
+    }
+
+    /// <summary>
+    /// Non ritorna prima che PushResolution sia girata: chi la chiama deve aspettarla,
+    /// altrimenti agisce su uno stato che la carica non ha ancora aggiornato.
+    /// </summary>
+    public IEnumerator ExecuteCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
+    {
+        if (!CanCharge(atk, def, out HexCell destinationCell))
         {
-            Debug.Log($"Carica non eseguita: punti azione insufficienti (servono {chargeCost})");
-            return false;
+            Debug.Log("Carica non valida: bersaglio, allineamento, spazio di rincorsa o PA insufficienti");
+            yield break;
         }
 
         GameObject atkGO = _unitsRenderer.GetGameObject(atk);
+        if (atkGO == null)
+        {
+            Debug.LogError($"GameObject non trovato per {atk}");
+            yield break;
+        }
+
         UnitMovement movement = atkGO.GetComponent<UnitMovement>();
+        if (movement == null)
+        {
+            Debug.LogError($"UnitMovement non trovato su {atkGO.name}");
+            yield break;
+        }
 
-        _map.TryGetCell(chargeDestination, out HexCell destinationCell);
+        Vector3 defenderWorldPos = _map.transform.position + def.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
 
-        Action onComplete = () =>
+        atk.TrySpendActionPoint(TacticalQuery.ChargeCost);
+
+        bool done = false;
+        atk.SetPosition(destinationCell);
+        movement.PlayCharge(destinationCell, defenderWorldPos, _map, () =>
         {
             PushResolution(atk, def);
+            done = true;
+        });
 
-        };
-
-        atk.SetPosition(destinationCell);
-        movement.PlayCharge(destinationCell, defenderWorldPos, def.PositionCell, def, _map, onComplete);
-
-
-        return true;
+        yield return new WaitUntil(() => done);
     }
 
-    private  HexCell CalculatePushDestination(HexCoordinates atkCoord, HexCoordinates defCoord)
+    /// <summary>
+    /// Cammina all'indietro sulla direzione della spinta raccogliendo la catena di unità
+    /// da spostare. Si ferma alla prima cella libera.
+    /// Restituisce false — nessuno si muove e il difensore esce di scena — se la catena
+    /// incontra qualcosa di non spingibile: bordo mappa, cella non calpestabile, barricata,
+    /// cella obiettivo, unità avversaria, unità seduta.
+    /// Termina sempre: la direzione è fissa e la mappa è finita.
+    /// </summary>
+    private bool TryBuildPushChain(
+        AbstractUnitsRunTime pusher,
+        AbstractUnitsRunTime pushed,
+        out List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
     {
-        int resultQ = (defCoord.Q - atkCoord.Q);
-        int resultR = (defCoord.R - atkCoord.R);
-        HexCoordinates pushCoord = new HexCoordinates(defCoord.Q + resultQ, defCoord.R + resultR);
+        moves = new List<(AbstractUnitsRunTime, HexCell)>();
 
-        HexCell returnCell;
+        HexCoordinates pusherCoord = pusher.PositionCell.Coordinates;
+        HexCoordinates current = pushed.PositionCell.Coordinates;
 
-        if (_map.TryGetCell(pushCoord, out returnCell))
+        // pusher e pushed sono adiacenti: il delta è già la direzione unitaria
+        int dirQ = current.Q - pusherCoord.Q;
+        int dirR = current.R - pusherCoord.R;
+
+        AbstractUnitsRunTime unitToMove = pushed;
+
+        while (true)
         {
-            if (IsCellAvailable(returnCell))
-            {
-                return returnCell;
-            }
-            else
-            {
-                return FoundNearCellAvailable(defCoord, pushCoord);
-            }
+            HexCoordinates behind = new HexCoordinates(current.Q + dirQ, current.R + dirR);
+
+            if (!_map.TryGetCell(behind, out HexCell behindCell)) return false;  // bordo mappa
+            if (!behindCell.Type.IsWalkable) return false;                       // muro
+            if (behindCell.Type.IsObjective) return false;                       // un obiettivo non si prende per spinta
+            if (behindCell.Barricade != null) return false;                      // barricata
+
+            moves.Add((unitToMove, behindCell));
+
+            AbstractUnitsRunTime blocker = behindCell.OccupiedBy;
+            if (blocker == null) return true;                                    // catena chiusa
+
+            if (blocker.IsSeated) return false;                                  // il seduto non si sposta
+            if (!IsSameSide(blocker, unitToMove)) return false;                  // il nemico fa muro
+
+            unitToMove = blocker;                                                // il domino prosegue
+            current = behind;
         }
-        return null;
+    }
+
+    /// <summary>
+    /// Applica la catena dall'ultimo al primo: SetPosition passa da TryOccupy,
+    /// che fallisce se la cella è ancora occupata.
+    /// </summary>
+    private void ApplyPushChain(List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
+    {
+        for (int i = moves.Count - 1; i >= 0; i--)
+        {
+            (AbstractUnitsRunTime unit, HexCell destination) = moves[i];
+
+            if (!unit.SetPosition(destination))
+            {
+                Debug.LogError($"[SPINTA] {unit} non ha potuto occupare {destination.Coordinates}: catena incoerente");
+                return;
+            }
+
+            _unitsRenderer.UpdateView(unit);
+        }
+    }
+
+    private void ResolvePushOrRemove(AbstractUnitsRunTime pusher, AbstractUnitsRunTime pushed)
+    {
+        if (TryBuildPushChain(pusher, pushed, out var moves))
+        {
+            ApplyPushChain(moves);
+        }
+        else
+        {
+            Debug.Log($"[SPINTA] Catena bloccata: {pushed} fuori gioco su {pushed.PositionCell.Coordinates}");
+            pushed.RemoveFromBoard(CauseFrom(pusher));
+        }
     }
 
     private void RaiseChargeResult(CombatResult result)
@@ -156,40 +250,21 @@ public class TurnManager : MonoBehaviour
     private void PushResolution(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
         CombatResult result = CombatResolver.Resolve(atk, def, _map);
+
         switch (result)
         {
             case CombatResult.Win:
-                {
-                    HexCell target = CalculatePushDestination(atk.PositionCell.Coordinates, def.PositionCell.Coordinates);
-                    if (target != null)
-                    {
-                        def.RemoveFromBoard(CauseFrom(atk));   
-                    }
-                    else
-                    {
-                        Debug.Log($"Spezzone arrestato su {def.PositionCell.Coordinates}");
-                        def.Disperse();
-                    }
-                    break;
-                }
+                ResolvePushOrRemove(pusher: atk, pushed: def);
+                break;
 
             case CombatResult.Lose:
-                {
-                    HexCell target = CalculatePushDestination(def.PositionCell.Coordinates, atk.PositionCell.Coordinates);
-                    if (target != null)
-                    {
-                        atk.SetPosition(target);
-                    }
-                    else
-                    {
-                        Debug.Log("Police Disperse");
-                        atk.RemoveFromBoard(CauseFrom(def));               }
-                        break;
-                }
+                ResolvePushOrRemove(pusher: def, pushed: atk);
+                break;
 
             case CombatResult.Par:
                 break;
         }
+
         RaiseChargeResult(result);
 
         _unitsRenderer.UpdateView(atk);
@@ -199,31 +274,6 @@ public class TurnManager : MonoBehaviour
     #endregion
 
     #region Moviment
-
-    private HexCell FoundNearCellAvailable(HexCoordinates startPushCell, HexCoordinates endPushCell)
-    {
-        HexCoordinates[] startCellNeighbors = startPushCell.GetNeighbors();
-        HexCoordinates[] endCellNeighbors = endPushCell.GetNeighbors();
-
-        List<HexCoordinates> common = new List<HexCoordinates>();
-        foreach (var n in startCellNeighbors)
-            foreach (var m in endCellNeighbors)
-                if (n == m) common.Add(n);
-
-        if (common.Count > 1 && UnityEngine.Random.value > 0.5f)
-        {
-            var tmp = common[0];
-            common[0] = common[1];
-            common[1] = tmp;
-        }
-
-        foreach (var coord in common)
-        {
-            if (_map.TryGetCell(coord, out HexCell cell) && IsCellAvailable(cell))
-                return cell;
-        }
-        return null;
-    }
 
     public bool ExecuteMovement(AbstractUnitsRunTime unit, List<HexCell> path, System.Action onComplete = null)
     {

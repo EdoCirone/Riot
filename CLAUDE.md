@@ -257,16 +257,40 @@ e restituisce la struct annidata `TacticalQuery.AuraBonus`.
   nessuno, intacca solo il Morale. Win → difensore -1 Morale; Lose → attaccante
   -1; Par → entrambi -1.
 - **Carica (Charge)**: richiede distanza esattamente 3 IN LINEA RETTA PURA
-  (HexDirectionFinder), con le 2 celle intermedie libere. Costa 4 PA. L'attaccante
-  si sposta adiacente al difensore, poi si risolve la spinta:
-  Win → difensore spinto di 1 oltre; se la cella è occupata cerca una laterale
-  comune; se nessuna → difensore Disperse. Lose → simmetrico sull'attaccante.
-  Par → nessuno si muove.
+  (HexDirectionFinder), con le 2 celle intermedie libere. Costa 4 PA
+  (`TacticalQuery.ChargeCost`). L'attaccante si sposta adiacente al difensore, poi
+  si risolve la spinta a domino (sotto). Par → nessuno si muove.
+  **`ExecuteCharge` è una `IEnumerator` e va aspettata** — vedi bug noti.
 - **Muovi+attacca**: per police a distanza diversa da 1 e 3, lo spezzone si
   avvicina (FindBestAdjacentCell + A*) e poi fa scontro. Richiede PA per il
   percorso + 1. Sfocia SOLO in scontro, mai in carica.
-- Spinta: CalculatePushDestination proietta oltre il difensore nella direzione
-  attaccante→difensore.
+
+## Spinta a domino (VERIFICATO 05/08/26) — sostituisce CalculatePushDestination
+`TurnManager.TryBuildPushChain` + `ApplyPushChain` + `ResolvePushOrRemove`.
+`CalculatePushDestination` e `FoundNearCellAvailable` sono stati **rimossi**: la spinta
+laterale su cella comune non esiste più.
+
+- Si cammina all'indietro sulla direzione della spinta (delta fra pusher e pushed, che
+  sono sempre adiacenti) raccogliendo la catena. **Nessun tetto alla lunghezza**: ci si
+  ferma alla prima cella libera.
+- **Fanno muro e interrompono la catena**: bordo mappa, `!IsWalkable`, barricata,
+  **cella obiettivo**, **unità avversaria**, **unità seduta**.
+- Catena chiusa → si spostano tutte, **dall'ultima alla prima** (obbligatorio:
+  `SetPosition` passa da `TryOccupy`, che fallisce su cella ancora occupata).
+- Catena bloccata → **nessuno si muove** e chi ha perso lo scontro esce di scena via
+  `RemoveFromBoard(CauseFrom(pusher))`, quindi arresto se l'ha spinto la polizia,
+  dispersione altrimenti. **Esce il difensore, non l'ultimo della fila**: chi viene
+  schiacciato contro la linea di polizia è chi viene preso.
+- `Lose` è simmetrico: la catena si costruisce dietro l'attaccante, fra i suoi.
+- Il limite è lo **spazio alle spalle**, non la lunghezza della fila. Un corteo stretto
+  fra due poliziotti non ha uscite: è voluto.
+- ⚠ **Obiettivo = muro** significa che un corteo schierato davanti a una cella obiettivo
+  ha la fila che finisce contro di essa, quindi si fa arrestare. Regola tematica scelta
+  il 05/08/26 ("il ministero non si prende per spinta"): da confermare in playtest.
+- ⚠ La **cella obiettivo blocca anche se libera**. Ci si cammina sopra, non ci si viene
+  spinti.
+- ⚠ `ApplyPushChain` teletrasporta N unità: l'animazione della spinta non esiste.
+  Quando si farà, il gancio va **dopo** `PushResolution` (vedi bug noti, PlayCharge).
 - **Coro (Chant)**: costa 3 PA. +1 Morale a chi lo lancia e a ogni SpezzoneRuntime
   vivo nelle 6 celle adiacenti. Nessun effetto sulla polizia.
 - **Sedersi/Alzarsi (SitStand)**: sedersi costa 1 PA, alzarsi 2. Da seduto
@@ -453,6 +477,56 @@ poi svuotare questa sezione.
   titolo TextMeshPro del pannello Opzioni, ultimo figlio, che copriva il tasto X
   (primo figlio). Regola: decorazioni con `Raycast Target` spento, controlli
   interattivi in fondo alla lista dei figli.
+- ~~**PushResolution girava mentre l'IA continuava ad agire**~~ — **RISOLTO 05/08/26,
+  ma la lezione va tenuta.** `ExecuteCharge` era un metodo normale: spendeva i PA,
+  faceva `SetPosition` **subito**, lanciava l'animazione e **ritornava**. `PushResolution`
+  stava nella callback, quindi girava ~30 frame dopo. `PoliceAI` non la aspettava
+  (a differenza di `ExecuteSkirmish`, che è `yield return StartCoroutine`), e con 5 PA
+  meno i 4 della carica ne restava 1: il `while` ripartiva, trovava distanza 1 e
+  infilava uno scontro **prima** che la carica fosse risolta. Se quello scontro portava
+  il difensore a Morale 0, `PushResolution` girava poi su un morto — e siccome
+  `Disperse()`/`Arrest()` fanno `Vacate()` ma **non azzerano `_positionCell`**,
+  `ApplyPushChain` poteva **rimetterlo sulla griglia**. Col domino, insieme a lui
+  tornavano su anche gli altri della catena.
+  Effetto collaterale silenzioso: `PlaySkirmish` vedeva `_isMoving == true` (carica in
+  corso), invocava `onComplete` e usciva — quindi `onImpact` non partiva mai e
+  `RaiseCombactResult` non alzava nessun evento. Nessun errore, SFX persi.
+  **Fix strutturale**: `ExecuteCharge` è `IEnumerator`, `CanCharge` è il predicato
+  silenzioso separato, `StartCharge`/`ChargeWithCallback` sono l'entry point per
+  `InputHandler` (stesso schema di `StartSkirmish`).
+  ⚠ **Regola: chi chiama `ExecuteCharge` DEVE aspettarla.** In `InputHandler` il
+  `case ActionType.Charge` finisce con `return`, non con `break`: cadere sul
+  `OnActionComplete()` in fondo allo switch sbloccherebbe l'input prima della
+  risoluzione, cioè lo stesso bug spostato dalla polizia al giocatore.
+- ~~**PoliceAI si piantava a distanza 3 non allineata**~~ — **RISOLTO 05/08/26** dallo
+  stesso fix. Il ramo era `else if (distance == 3)` secco: se `HasChargeRoom` falliva,
+  `actedThisTurn` restava false e il `while` usciva — il poliziotto chiudeva il turno
+  con 5 PA intatti, senza nemmeno provare ad avvicinarsi, perché il ramo `else` era
+  irraggiungibile. Su esagoni l'anello a distanza 3 ha 18 celle e solo 6 sono
+  allineate: succedeva **due volte su tre**. Ora la condizione è
+  `else if (distance == 3 && _turnManager.CanCharge(...))`, quindi una carica illegale
+  cade sull'avvicinamento.
+  ⚠ Il guardiano `CanCharge` **non è opzionale**: senza, `ExecuteCharge` farebbe
+  `yield break` immediato, `actedThisTurn` resterebbe true, nessun PA verrebbe speso e
+  la distanza resterebbe 3 → **il turno polizia non finirebbe più**.
+- **Il costo della carica vive in `TacticalQuery.ChargeCost`**, non in `TurnManager`.
+  Motivo: lo legge sia `GetValidTargets` (che decide l'highlight del giocatore) sia
+  `CanCharge`/`ExecuteCharge`. Erano tre literal `4` in due file. Non rimetterlo locale
+  e non usare `using static`: la qualificazione esplicita è ciò che rende visibile che
+  highlight ed esecuzione leggono la stessa cifra.
+- **`PlayCharge` non anima il difensore, e non può.** Fino al 05/08/26 riceveva
+  `defenderDestination` e `defender` e non li leggeva (rimossi). Il punto non è la
+  pulizia: **quando `PlayCharge` parte, la destinazione del difensore non esiste
+  ancora** — la decide `PushResolution`, che gira in `onComplete`, cioè a animazione
+  finita. Qualunque parametro passato prima contiene la posizione vecchia, e col domino
+  è sbagliata quasi sempre. Quando si farà la reazione al colpo per la carica, il gancio
+  va dentro `PushResolution`/`ApplyPushChain`, sul modello di `onImpact` nello scontro.
+- **`TacticalQuery.cs` non è salvato in UTF-8** (verificato 05/08/26): è ANSI/cp1252,
+  con un byte `0xe0` (la `à` di "unità") in un commento a riga ~132. Tutti gli altri
+  file del progetto sono UTF-8. Non rompe niente — è in un commento e Unity ricade
+  sulla codepage di sistema — ma nel flusso a due macchine basta che un editor lo
+  risalvi in UTF-8 perché git segni la riga come modificata senza che nessuno
+  l'abbia toccata. Da risalvare in UTF-8 quando capita sotto mano, in un commit suo.
 - **Campi Bump in MovementSettingsSO sono dead code** (ChargeBumpDistance/Duration,
   SkirmishBumpDistance/Duration): definiti, esposti, mai letti da nessuno.
   NON è perché manchi l'animazione di ricezione colpo — quella ESISTE:
@@ -542,7 +616,82 @@ Repressione cross-level, campagna. Dipendono tutti da uno strato run inesistente
 
 # DA FARE (concordato)
 
-## Prossimo passo: SFX — c'è un blocco da sciogliere prima
+## ORDINE DI LAVORO CONCORDATO (04/08/26, aggiornato 05/08/26)
+**spinta a domino (FATTA 05/08/26) → panico → scena Assemblea → refactoring obiettivi
+→ IA polizia.**
+Gli SFX più sotto restano validi ma NON sono il prossimo passo: si fanno quando
+esisteranno gli eventi di gameplay da agganciare.
+
+### 1. Panico — design CHIUSO, codice da scrivere
+Design completo in `D:\GDDRIOT\17-Coesione-Adiacenza-e-Panico.md` §17.4 e §17.6.
+Riassunto operativo:
+- Va in panico **chi PERDE** lo scontro di carica (simmetrico, vale anche per la
+  polizia). Si propaga **per contatto** lungo le adiacenze della stessa parte:
+  **-3** a chi ha perso, **-2** agli adiacenti, **-1** agli adiacenti di quelli, poi
+  si spegne. Il decadimento si misura in **passi attraverso la folla**, NON in
+  distanza esagonale — è quello che fa contare la forma del corteo.
+- Perdita di Morale **una tantum**, all'ingresso. Ordine obbligato: prima lo shock
+  con le aure ancora attive, **poi** si tolgono le aure e si tronca al nuovo
+  massimale. L'ordine inverso fa pagare due volte.
+- Durante il panico l'unità **non dà e non riceve aure**. Si muove e agisce
+  normalmente (versione permissiva, si stringe solo se serve).
+- **Durata: 3 turni il corteo, 1 turno la polizia** (loro sono organizzati, si
+  riformano). Si contano i **turni di polizia**, decremento in un **punto unico**:
+  `ExecutePoliceTurn`, dove già si ricaricano i PA degli spezzoni.
+- **Seduto = frangifuoco**: non entra in panico e **interrompe la catena**.
+- **Chi è in panico NON può sedersi.** Senza questa regola siediti+rialzati (3 PA)
+  azzera tre turni di panico. Il Coro resta l'unica cura anticipata.
+- Serve la **visualizzazione**: sull'unità (`UnitStatusView`, già esistente) **e**
+  come testo nel pannello unità. Fa coppia con l'indicatore di unità seduta, che
+  manca anch'esso.
+
+~~**DA FIXARE PRIMA DI SCRIVERE IL PANICO**: `TurnManager.PushResolution`~~ —
+**CHIUSO 05/08/26.** I bracci invertiti del ramo `Win` erano già stati sistemati da
+Edoardo nel working tree; le graffe del ramo `Lose` non erano mai state rotte (solo
+indentate male). Poi l'intero metodo è stato riscritto per la **spinta a domino** (vedi
+sezione dedicata) e la corsa fra carica e turno IA è stata chiusa rendendo
+`ExecuteCharge` una coroutine (vedi bug noti). I due log bugiardi
+(`"Police Disperse"`, `"...arrested on..."`) sono spariti con la riscrittura.
+*Nota di metodo, due volte in una sessione: questa voce descriveva uno stato superato da
+una modifica non committata. Prima di fidarsi di una voce "da fixare", `git diff` sul file.*
+
+**Il terreno per il panico adesso è pronto.** `PushResolution` decide `Win`/`Lose`/`Par`
+in un punto solo, la catena di adiacenze è già percorsa da `TryBuildPushChain`, e
+`ExecuteCharge` non ritorna prima che la risoluzione sia avvenuta — quindi il panico può
+essere agganciato senza domandarsi se lo stato che legge sia quello giusto.
+
+⚠ **Prima di scrivere il panico va decisa una cosa lasciata aperta**: `CombatResolver.Resolve`
+gira **dopo** che l'attaccante si è già spostato (`atk.SetPosition(destinationCell)` precede
+`PushResolution`, che sta nella callback). Quindi le aure dell'attaccante sono calcolate
+dalla cella d'arrivo, non da quella di partenza: chi carica in profondità arriva **solo** e
+combatte senza il bonus dei suoi. Le due letture sono entrambe difendibili — "l'impeto viene
+dal gruppo dietro" contro "all'urto sei solo" — ma oggi è un effetto collaterale
+dell'ordine delle righe, non una scelta. E decide chi perde, quindi **chi va in panico**.
+Va deciso apposta, e l'highlight deve dire la stessa cosa dell'esecuzione.
+
+⚠ **Il domino e il panico si sovrappongono, tenerlo d'occhio.** Stesso evento scatenante,
+stessa propagazione per contatto, stesso istante; il panico si irradia in tutte le
+direzioni, il domino solo sull'asse della spinta. Nel gioco da tavolo *Corteo* (1979) sono
+**un sistema solo**: il grappolo che va in panico si sposta di un esa a scelta
+dell'avversario, e chi non può spostarsi è arrestato. Se in playtest i due si pestano i
+piedi, quella è la strada già percorsa da altri.
+
+⚠ **La scala del Morale va alzata insieme al panico**, non prima: i valori attuali
+(Operai 2, Anarchici 3, BB 3, Studenti 4, Pacifisti 10) contro uno shock da 3
+uccidono tre gruppi su cinque al primo urto. Proposta cap. 17.8: 6/9/9/12/18-24.
+Edoardo vuole tararli **testandoli col panico**.
+
+### 2. Scena Assemblea — quattro prerequisiti mancanti
+Composizione del corteo prima del livello: 1000 punti fissi, roster di 3 unità per
+gruppo politico, equipaggiamento comprato per il corteo e assegnato alle unità.
+Non esiste ancora nulla di: campi costo sugli SO, inventario a livello di corteo,
+passaggio di stato fra scene, istanziazione a runtime delle unità.
+
+### 3. Obiettivi — design chiuso e PARCHEGGIATO
+`D:\GDDRIOT\19-Obiettivi-e-Occupazione.md`. Occupazione per turni consecutivi,
+obiettivo rivendicato che non paga più, obiettivi configurabili. Non lavorarci ora.
+
+## Poi: SFX — c'è un blocco da sciogliere prima
 Il sistema audio è pronto e testato, ma **non ci sono eventi a cui agganciare gli
 SFX di gameplay**. Accertato il 03/08/26: gli unici `GameEventSO` che qualcuno alza
 sono `StartPlayerTurn`, `EndPlayerTurn`, `StopFollow`, `Win/LoseLVL` e i deselect.
@@ -589,6 +738,10 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
   tattica centrale (blocca le cariche, ancora la formazione contro il panico), ma
   sulla griglia non si distingue chi è seduto da chi è in piedi — quindi non si può
   pianificare. Rimandato da Edoardo il 03/08/26 alla fase di rifinitura.
+  ⚠ **Dal 05/08/26 pesa di più**: un seduto interrompe la catena del domino, quindi
+  può far arrestare chi gli sta davanti. È l'unica regola del gioco in cui una scelta
+  di un'unità uccide un'altra unità, e oggi non è visibile sulla griglia. Se in
+  playtest qualcuno perde uno spezzone senza capire perché, la causa è questa.
   Vie possibili, dalla più economica: riga o icona "SEDUTO" nel pannello unità (dice
   anche perché la Difesa mostra un numero più alto, visto che il +5 da seduto è dentro
   il valore base); schiacciamento del `graphicsTransform`; sprite dedicato — la
@@ -620,6 +773,30 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 28 (05/08/26) — spinta a domino e carica asincrona
+- 🟢 **Spinta a domino**: `CalculatePushDestination` + `FoundNearCellAvailable` rimossi,
+  sostituiti da `TryBuildPushChain` / `ApplyPushChain` / `ResolvePushOrRemove`. Catena
+  senza tetto, muro su nemico/obiettivo/seduto/barricata/bordo, catena bloccata → esce
+  chi ha perso lo scontro. Vedi la sezione "Spinta a domino".
+- 🟢 **`ExecuteCharge` è diventata `IEnumerator`**, con `CanCharge` (predicato silenzioso)
+  e `StartCharge`/`ChargeWithCallback` (entry point per `InputHandler`). Chiude la corsa
+  fra la carica e il resto del turno IA, e con essa la resurrezione di unità già uscite.
+- 🟢 **`PoliceAI` non si pianta più a distanza 3 non allineata**: `CanCharge` nella
+  condizione fa cadere la carica illegale sul ramo dell'avvicinamento.
+- 🟢 **Costo della carica accentrato** in `TacticalQuery.ChargeCost`: erano tre literal
+  `4` sparsi fra due file, uno dei quali decideva l'highlight.
+- 🟢 **`PlayCharge` ripulita** dei tre parametri che non leggeva.
+- 🔴 **Correzione del documento (due volte)**: la voce "PushResolution ha i bracci
+  invertiti" descriveva codice già corretto nel working tree, e le graffe del ramo
+  `Lose` non erano mai state rotte. Entrambe erano sopravvissute perché rilette invece
+  che riverificate. `git diff` prima di fidarsi.
+- 📖 **Letto il regolamento di *Corteo* (1979)**, il gioco da tavolo di riferimento:
+  la ritirata è di una sola unità, e a propagarsi per contatto è il **panico**, che
+  *è* lo spostamento. Chi non può ritirarsi — per ritirata o per panico — è arrestato.
+  Nessun tetto, nessun decadimento. Il panico della polizia dura fino alla loro fase
+  di spostamento successiva, cioè un turno: la stessa asimmetria decisa in GDD 17.4
+  senza conoscerla.
 
 ## Changelog sessione 26 (03/08/26) — bootscene e audio
 - 🟢 **Bootscene completa**: video intro → fade bianco → caricamento asincrono →

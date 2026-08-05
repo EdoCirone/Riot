@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public static class TacticalQuery
 {
 
+    public const int ChargeCost = 4;
 
     public static Dictionary<HexCoordinates, int> GetReachable(
        HexCoordinates start, int budget, HexGrid map)
@@ -41,7 +42,7 @@ public static class TacticalQuery
         switch (action)
         {
             case ActionType.Charge:
-                if (budget < 4) break;
+                if (budget < ChargeCost) break;
 
                 foreach (HexCell cell in map.GetAllCells())
                 {

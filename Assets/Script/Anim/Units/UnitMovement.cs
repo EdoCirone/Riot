@@ -169,7 +169,7 @@ public class UnitMovement : MonoBehaviour
 
     #region Charge
 
-    public void PlayCharge(HexCell cellDestination, Vector3 defenderWorldPos, HexCell defenderDestination, AbstractUnitsRunTime defender, HexGrid grid, Action onComplete)
+    public void PlayCharge(HexCell cellDestination, Vector3 defenderWorldPos, HexGrid grid, Action onComplete)
     {
         Debug.Log("PlayCharge");
         if (_unit == null)
@@ -190,13 +190,13 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
+        // defenderWorldPos serve solo qui: orienta lo sprite e la direzione del caricamento.
         MustFlip(defenderWorldPos);
 
         Vector3 windupDir = (_rootTransform.position - defenderWorldPos).normalized;
         Vector3 windupTarget = _rootTransform.position + windupDir * _movementSettings.WindupDistance;
 
-        StartCoroutine(ChargeSequence(windupTarget, cellDestination, defenderWorldPos,
-            defenderDestination, defender, grid, onComplete));
+        StartCoroutine(ChargeSequence(windupTarget, cellDestination, grid, onComplete));
 
         Debug.Log("PlayCharge: StartCoroutine");
 
@@ -204,13 +204,10 @@ public class UnitMovement : MonoBehaviour
 
 
     private IEnumerator ChargeSequence(
-    Vector3 windupTarget,
-    HexCell cellDestination,
-    Vector3 defenderWorldPos,
-    HexCell defenderDestination,
-    AbstractUnitsRunTime defender,
-    HexGrid grid,
-    Action onComplete)
+     Vector3 windupTarget,
+     HexCell cellDestination,
+     HexGrid grid,
+     Action onComplete)
     {
         Debug.Log("ChargeSequence: Start windup");
         _isMoving = true;

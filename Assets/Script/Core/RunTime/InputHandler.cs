@@ -494,9 +494,10 @@ public class InputHandler : MonoBehaviour
         {
             case ActionType.Charge:
                 PoliceRuntime chargeTarget = clickCell.OccupiedBy as PoliceRuntime;
-                _turnManager.ExecuteCharge(_selectedSpezzone, chargeTarget);
                 _lastAttackedPolice = chargeTarget;
-                break;
+                SetSelectedAction(ActionType.None);
+                _turnManager.StartCharge(_selectedSpezzone, chargeTarget, () => OnActionComplete());
+                return;
 
             case ActionType.Throw:
                 if (_selectedItem == null)

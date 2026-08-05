@@ -31,7 +31,7 @@ public class PoliceAI : MonoBehaviour
 
             bool actedThisTurn = true;
 
-            while (actedThisTurn && police.ActionPoints > 0 && police.Status == UnitsStatus.Alive)
+            while (actedThisTurn && police.ActionPoints > 0 && police.IsAlive)
             {
                 actedThisTurn = false;
 
@@ -45,14 +45,15 @@ public class PoliceAI : MonoBehaviour
                     int atk = CombatResolver.GetEffectiveAtk(police, _lvlManager.Map);
                     int def = CombatResolver.GetEffectiveDef(nearestSpezzone, _lvlManager.Map);
 
-                    if (atk <= def) break;  
+                    if (atk <= def) break;
 
                     yield return StartCoroutine(_turnManager.ExecuteSkirmish(police, nearestSpezzone));
                     actedThisTurn = true;
                 }
-                else if (distance == 3)
+                else if (distance == 3 && _turnManager.CanCharge(police, nearestSpezzone, out _))
                 {
-                    actedThisTurn = _turnManager.ExecuteCharge(police, nearestSpezzone);
+                    yield return StartCoroutine(_turnManager.ExecuteCharge(police, nearestSpezzone));
+                    actedThisTurn = true;
                 }
                 else
                 {
