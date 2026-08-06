@@ -24,6 +24,12 @@ public class HexCell
 
     public bool TryOccupy(AbstractUnitsRunTime unit)
     {
+        if(_barricade != null)
+        {
+            Debug.Log("try to occupy a cell with a barricade");
+            return false;
+        }
+
         if (_occupiedBy == null)
         {
             _occupiedBy = unit;

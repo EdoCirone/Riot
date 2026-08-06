@@ -28,8 +28,9 @@ public class OrderPreviewRenderer : MonoBehaviour
 
     private void Awake()
     {
-        if (_hexGridRenderer == null || _grid == null || 
-       _unitSelectedEvent == null || _unitDeselectedEvent == null)
+        if (_hexGridRenderer == null || _grid == null ||
+    _unitSelectedEvent == null || _unitDeselectedEvent == null ||
+    _actionSelectedEvent == null)
         {
             Debug.LogWarning("OrderPreviewRenderer: missing References");
             return;

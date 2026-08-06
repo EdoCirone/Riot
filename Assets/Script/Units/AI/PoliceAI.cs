@@ -92,11 +92,12 @@ public class PoliceAI : MonoBehaviour
                     {
                         finishMovement = true;
                     });
-                   
-                    yield return new WaitUntil(() => finishMovement);
-                    actedThisTurn = success;
+
+                    float elapsed = 0f;
+                    yield return new WaitUntil(() => finishMovement || (elapsed += Time.deltaTime) > 5f);
+                    if (!finishMovement) Debug.LogWarning($"[IA]  {police} movement not complete, i continue"); actedThisTurn = success;
                 
-                    Debug.Log(success ? $"Police: Movimento riuscito ({path.Count} celle)" : "Police: Movimento fallito");
+                    Debug.Log(success ? $"Police: Movement Accomplish ({path.Count} cells)" : "Police: Moviment fail");
                 }
             }
         }

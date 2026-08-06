@@ -15,6 +15,7 @@ public class SelectionOutline : MonoBehaviour
 
     private bool _isSelectedAsUnit;
     private bool _isSelectedAsTarget;
+    private bool _isValid;
 
     private AbstractUnitsRunTime _boundUnit;
     private List<GameObject> _outlineObjects = new();
@@ -22,6 +23,18 @@ public class SelectionOutline : MonoBehaviour
     {
         _boundUnit = unit;
         BuildOutlineRenderers();
+    }
+
+    private void Awake()
+    {
+        if (_unitSelectedEvent == null || _policeSelectedEvent == null
+            || _unitDeselectedEvent == null || _policeDeselectedEvent == null)
+        {
+            Debug.LogWarning($"SelectionOutline: there is no events in {name}");
+            return;
+        }
+
+        _isValid = true;
     }
 
     private void BuildOutlineRenderers()
@@ -49,6 +62,8 @@ public class SelectionOutline : MonoBehaviour
 
     private void OnEnable()
     {
+        if (!_isValid) return;
+
         _unitSelectedEvent.Subscribe(OnUnitSelected);
         _policeSelectedEvent.Subscribe(OnPoliceSelected);
         _unitDeselectedEvent.Subscribe(OnUnitDeselected);
@@ -57,6 +72,8 @@ public class SelectionOutline : MonoBehaviour
 
     private void OnDisable()
     {
+        if (!_isValid) return;
+
         _unitSelectedEvent.Unsubscribe(OnUnitSelected);
         _policeSelectedEvent.Unsubscribe(OnPoliceSelected);
         _unitDeselectedEvent.Unsubscribe(OnUnitDeselected);

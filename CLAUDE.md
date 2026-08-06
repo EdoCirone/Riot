@@ -579,10 +579,22 @@ modo di ragionare sul codice.
   setter usano `Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f`.
 - ~~**AudioManager.Awake: guardia con `&&` invece di `||`**~~ — **RISOLTO**, la riga
   dice `if (_musicSource == null || _sfxSource == null)` (verificato 06/08/26).
-  ⚠ **La seconda metà della voce è ancora aperta**: se la guardia scatta, `Awake`
-  esce PRIMA di `DontDestroyOnLoad`, ma `OnEnable` si iscrive lo stesso agli eventi —
-  l'AudioManager muore al cambio scena lasciando iscrizioni pendenti. Serve il
-  pattern `_isValid` già usato da `InGamePanelManager` e `CohesionHUDView`.
+  ⚠ **Anche la seconda metà è RISOLTA il 06/08/26** col pattern `_isValid`, ma la
+  vecchia diagnosi era SBAGLIATA e vale la pena sapere perché.
+  Diceva: "l'AudioManager muore al cambio scena lasciando iscrizioni pendenti".
+  **Falso**: quando Unity distrugge un GameObject allo scarico della scena chiama
+  `OnDisable` prima di `OnDestroy`, quindi la disiscrizione avviene. Nessun leak.
+  Il problema vero era più concreto: `Awake` e `OnEnable` sono **messaggi indipendenti**
+  — un `return` dentro `Awake` non impedisce a `OnEnable` di girare. Quindi un
+  AudioManager senza mixer si iscriveva lo stesso a `SceneManager.sceneLoaded`, e a
+  ogni cambio scena `LoadAudioSettings()` andava in `NullReferenceException` su un
+  mixer nullo — eccezione che arriva in una scena DIVERSA da quella dove è stato
+  loggato il warning. In più `_playMusicEvent` non era controllato da nessuna guardia:
+  se vuoto, `OnEnable` esplodeva sulla prima riga (ora è nel check).
+  **Regola generale che resta**: un componente che non è in condizione di funzionare
+  deve fallire *in modo chiuso* — non iscriversi a niente — non funzionare a metà.
+  *Nota di metodo: questa voce l'ho ripetuta due volte prima di verificarla. Terza
+  occorrenza dello stesso errore in una giornata.*
 - **I sei canali evento di combattimento sono SCOLLEGATI in scena** (verificato nel
   YAML di `LVLTest.unity` il 06/08/26). `TurnManager` dichiara `_skirmishWin/Lose/Par`
   e `_chargeWin/Lose/Par`: **tutti e sei valgono `fileID: 0`**. Il codice li alza con

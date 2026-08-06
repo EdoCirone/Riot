@@ -14,6 +14,8 @@ public class AudioManager : MonoBehaviour
     [SerializeField] SFXSO[] _sfxevents;
     [SerializeField] EventMusicSO _playMusicEvent;
 
+    private bool _isValid;
+
     private readonly List<(GameEventSO evt, System.Action handler)> _sfxHandlers = new();
 
     private void Awake()
@@ -32,13 +34,17 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
+        if (_playMusicEvent == null) { Debug.LogWarning("Set the music event"); return; }
+
         DontDestroyOnLoad(this);
         LoadAudioSettings();
+        _isValid = true;
     }
 
 
     private void OnEnable()
     {
+        if (!_isValid) return;
         _playMusicEvent.Subscribe(OnPlayMusic);
         SceneManager.sceneLoaded += OnSceneLoaded;
 
@@ -53,6 +59,8 @@ public class AudioManager : MonoBehaviour
 
     private void OnDisable()
     {
+        if(!_isValid) return;
+
         _playMusicEvent.Unsubscribe(OnPlayMusic);
         SceneManager.sceneLoaded -= OnSceneLoaded;
 

@@ -26,6 +26,7 @@ public class InputHandler : MonoBehaviour
     [SerializeField] private ActionEventSO _actionButtonClickedEvent;
 
     private bool _isExecutingAction = false;
+    private bool _isValid;
 
     private TurnManager _turnManager;
     private InputSystem_Actions _inputSystem;
@@ -54,17 +55,21 @@ public class InputHandler : MonoBehaviour
     {
         _inputSystem = new InputSystem_Actions();
 
-        if (_lvlManager == null)
+        if (_lvlManager == null || _actionButtonClickedEvent == null
+            || _endTurnButtonClickedEvent == null || _itemSelectedEvent == null)
         {
-            Debug.LogWarning("LVL manager not assigned in InputHandler");
+            Debug.LogWarning("InputHandler: riferimenti mancanti");
             return;
         }
 
         _turnManager = _lvlManager.TurnManager;
+        _isValid = true;
     }
 
     private void OnEnable()
     {
+        if(!_isValid) return;
+
         _inputSystem.UI.LeftClick.performed += OnLeftClick;
         _inputSystem.UI.RightClick.performed += OnRightClick;
 
@@ -85,6 +90,8 @@ public class InputHandler : MonoBehaviour
 
     private void OnDisable()
     {
+        if(!_isValid) return;
+
         _inputSystem.UI.LeftClick.performed -= OnLeftClick;
         _inputSystem.UI.RightClick.performed -= OnRightClick;
 

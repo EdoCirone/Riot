@@ -42,7 +42,7 @@ public class UnitMovement : MonoBehaviour
 
         if (_currentMove != null)
         {
-            if (_movementLoopTween!= null && _movementLoopTween.IsActive())
+            if (_movementLoopTween != null && _movementLoopTween.IsActive())
             {
                 _movementLoopTween.Kill();
             }
@@ -77,7 +77,14 @@ public class UnitMovement : MonoBehaviour
             _rootTransform.position = endPos;
 
             // Aggiorna la posizione logica DOPO aver raggiunto la cella
-            _unit.SetPosition(cell);
+
+            if (!_unit.SetPosition(cell))
+            {
+                Debug.LogWarning($"[MOVIMENTO] {_unit} non può occupare {cell.Coordinates}: percorso interrotto");
+                _rootTransform.position = grid.transform.position
+                    + _unit.PositionCell.Coordinates.ToWorldPosition(grid.CellSize);
+                break;
+            }
         }
 
         KillBobLoop();
@@ -97,7 +104,7 @@ public class UnitMovement : MonoBehaviour
 
     private void StartBobLoop()
     {
-        KillBobLoop(); 
+        KillBobLoop();
         Vector3 basePos = _graphicsTransform.localPosition;
         _movementLoopTween = _graphicsTransform
             .DOLocalMoveY(basePos.y + _movementSettings.BobAmplitude, _movementSettings.BobDuration)

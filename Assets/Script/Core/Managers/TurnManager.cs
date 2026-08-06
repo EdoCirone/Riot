@@ -79,14 +79,9 @@ public class TurnManager : MonoBehaviour
 
     #region Charge
 
-    // il costo vive in TacticalQuery: è la stessa cifra che decide l'highlight
     private bool HasChargeRoom(HexCoordinates atkCoord, HexCoordinates defCoord, out HexCoordinates chargeDestination)
      => TacticalQuery.HasChargeRoom(atkCoord, defCoord, _map, out chargeDestination);
 
-    /// <summary>
-    /// Predicato silenzioso: la carica è legale e sostenibile?
-    /// Non muta niente e non logga — lo interroga la PoliceAI prima di impegnare il turno.
-    /// </summary>
     public bool CanCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, out HexCell destinationCell)
     {
         destinationCell = null;
@@ -102,10 +97,6 @@ public class TurnManager : MonoBehaviour
         return _map.TryGetCell(chargeDestination, out destinationCell);
     }
 
-    /// <summary>
-    /// Entry point per chi non è una coroutine (InputHandler).
-    /// Stesso schema di StartSkirmish: avvia e richiama onComplete a carica RISOLTA.
-    /// </summary>
     public void StartCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
     {
         StartCoroutine(ChargeWithCallback(atk, def, onComplete));
@@ -117,10 +108,6 @@ public class TurnManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    /// <summary>
-    /// Non ritorna prima che PushResolution sia girata: chi la chiama deve aspettarla,
-    /// altrimenti agisce su uno stato che la carica non ha ancora aggiornato.
-    /// </summary>
     public IEnumerator ExecuteCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
         if (!CanCharge(atk, def, out HexCell destinationCell))
@@ -155,17 +142,12 @@ public class TurnManager : MonoBehaviour
             done = true;
         });
 
-        yield return new WaitUntil(() => done);
+        float elapsed = 0f;
+        yield return new WaitUntil(() => done || (elapsed += Time.deltaTime) > 5f);
+        if (!done) Debug.LogWarning($"[CARICA] animazione non completata da {atk}: proseguo comunque");
     }
 
-    /// <summary>
-    /// Cammina all'indietro sulla direzione della spinta raccogliendo la catena di unità
-    /// da spostare. Si ferma alla prima cella libera.
-    /// Restituisce false — nessuno si muove e il difensore esce di scena — se la catena
-    /// incontra qualcosa di non spingibile: bordo mappa, cella non calpestabile, barricata,
-    /// cella obiettivo, unità avversaria, unità seduta.
-    /// Termina sempre: la direzione è fissa e la mappa è finita.
-    /// </summary>
+
     private bool TryBuildPushChain(
         AbstractUnitsRunTime pusher,
         AbstractUnitsRunTime pushed,
@@ -204,10 +186,7 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Applica la catena dall'ultimo al primo: SetPosition passa da TryOccupy,
-    /// che fallisce se la cella è ancora occupata.
-    /// </summary>
+
     private void ApplyPushChain(List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
     {
         for (int i = moves.Count - 1; i >= 0; i--)
@@ -392,14 +371,14 @@ public class TurnManager : MonoBehaviour
 
         if (atkCoord.Distance(defCoord) != 1)
         {
-            Debug.Log("Scontro non valido: le unità non sono adiacenti");
+            Debug.Log("Not Valid Skirmish units are not adicent");
             yield break;
         }
 
         const int skirmishCost = 1;
         if (!atk.TrySpendActionPoint(skirmishCost))
         {
-            Debug.Log($"Scontro non eseguito: punti azione insufficienti (servono {skirmishCost})");
+            Debug.Log($"skirmish not able to be execute, {skirmishCost}AP needed)");
             yield break;
         }
 
@@ -437,8 +416,9 @@ public class TurnManager : MonoBehaviour
                  RaiseCombactResult(result);
              });
 
-        yield return new WaitUntil(() => done);
-
+        float elapsed = 0f;
+        yield return new WaitUntil(() => done || (elapsed += Time.deltaTime) > 5f);
+        if (!done) Debug.LogWarning($"[SCONTRO] animation not complete from {atk}: i still continue");
     }
     #endregion
 
@@ -574,6 +554,12 @@ public class TurnManager : MonoBehaviour
         _waitingForPolice = true;
         _endPlayerTurnEvent.Raise();
 
+        if(!_lvlManager.IsGameActive)
+        {
+            _waitingForPolice = false;
+            return;
+        }
+
         Debug.Log("--- TURNO POLIZIA ---");
 
         foreach (var police in _lvlManager.Police)
@@ -591,6 +577,11 @@ public class TurnManager : MonoBehaviour
 
         Debug.Log("--- FINE TURNO POLIZIA ---");
         _waitingForPolice = false;
+
+        if(!_lvlManager.IsGameActive)
+        {
+            yield break;
+        }
 
         foreach (var spezzone in _lvlManager.Spezzoni)
         {
