@@ -29,7 +29,7 @@ public class UnitMovement : MonoBehaviour
 
         if (_unit == null)
         {
-            Debug.LogError("UnitMovement: _unit è null! Chiama Initialize() prima.");
+            Debug.LogError("UnitMovement: _unit is null. Call Initialize() first.");
             onComplete?.Invoke();
             return;
         }
@@ -80,7 +80,7 @@ public class UnitMovement : MonoBehaviour
 
             if (!_unit.SetPosition(cell))
             {
-                Debug.LogWarning($"[MOVIMENTO] {_unit} non può occupare {cell.Coordinates}: percorso interrotto");
+                Debug.LogWarning($"[MOVEMENT] {_unit} cannot occupy {cell.Coordinates}: path interrupted");
                 _rootTransform.position = grid.transform.position
                     + _unit.PositionCell.Coordinates.ToWorldPosition(grid.CellSize);
                 break;
@@ -178,16 +178,16 @@ public class UnitMovement : MonoBehaviour
 
     public void PlayCharge(HexCell cellDestination, Vector3 defenderWorldPos, HexGrid grid, Action onComplete)
     {
-        Debug.Log("PlayCharge");
+
         if (_unit == null)
         {
-            Debug.LogError("UnitMovement: _unit è null!");
+            Debug.LogError("UnitMovement: _unit is null!");
             onComplete?.Invoke();
             return;
         }
         if (cellDestination == null)
         {
-            Debug.LogError("UnitMovement: cellDestination è null!");
+            Debug.LogError("UnitMovement: cellDestination is null!");
             onComplete?.Invoke();
             return;
         }
@@ -205,8 +205,6 @@ public class UnitMovement : MonoBehaviour
 
         StartCoroutine(ChargeSequence(windupTarget, cellDestination, grid, onComplete));
 
-        Debug.Log("PlayCharge: StartCoroutine");
-
     }
 
 
@@ -216,7 +214,6 @@ public class UnitMovement : MonoBehaviour
      HexGrid grid,
      Action onComplete)
     {
-        Debug.Log("ChargeSequence: Start windup");
         _isMoving = true;
 
         // Windup
@@ -226,7 +223,6 @@ public class UnitMovement : MonoBehaviour
             .WaitForCompletion();
 
         // Rincorsa
-        Debug.Log("ChargeSequence: Start Run");
         Vector3 chargeEndPos = grid.transform.position + cellDestination.Coordinates.ToWorldPosition(grid.CellSize);
         float elapsed = 0f;
         while (elapsed < _movementSettings.ChargeDuration)

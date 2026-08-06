@@ -45,7 +45,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         _currentTurn = _numbersOfTurns;
         _turnManager.EndPlayerTurnEvent.Subscribe(this);
 
-        RefreshObjectiveCells();
     }
 
     private void Start()
@@ -77,6 +76,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
         }
 
+        RefreshObjectiveCells();
         RefreshBoardState();
     }
 
@@ -95,7 +95,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             if (cell.OccupiedBy is SpezzoneRuntime)
             {
                 _currentScore += _scoreForOccupation;
-                Debug.Log($"guadagni {_scoreForOccupation}, punteggio: {_currentScore}");
             }
         }
 
@@ -129,7 +128,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             if (cell.Type != null && cell.Type.IsObjective)
                 _objectiveCells.Add(cell);
         }
-        Debug.Log($"Trovate {_objectiveCells.Count} celle obiettivo nella mappa.");
+        Debug.Log($"[LVL] Found {_objectiveCells.Count} objective cells in the map");
     }
 
 
@@ -197,7 +196,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         if (_gameOver) return true;
         if (Cohesion > 0) return false;
 
-        Debug.Log("Corteo disperso: coesione a zero");
+        Debug.Log("[LVL] Corteo dispersed: cohesion at zero");
         _loseEvent.Raise();
         _gameOver = true;
         _turnManager.enabled = false;

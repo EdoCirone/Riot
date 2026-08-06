@@ -178,14 +178,14 @@ public class InputHandler : MonoBehaviour
         {
             if (clickCell.OccupiedBy == _pendingTarget)
             {
-                Debug.Log("Attacco confermato,Eseguo");
+                Debug.Log("Attack confirmed, executing");
                 ConfirmAttack();
             }
             else
             {
                 _pendingTarget = null;
                 _policeDeselectedEvent?.Raise();
-                Debug.Log("Attacco annullato");
+                Debug.Log("Attack cancelled");
             }
             return;
         }
@@ -200,7 +200,7 @@ public class InputHandler : MonoBehaviour
             _pendingTarget = police;
             _policeSelectedEvent?.Raise(police);
             FlipSelectedUnit(_grid.transform.position + police.PositionCell.Coordinates.ToWorldPosition(_grid.CellSize));
-            Debug.Log($"Bersaglio marcato: {clickCell.Coordinates}");
+            Debug.Log($"Target marked: {clickCell.Coordinates}");
         }
         else if (clickCell.OccupiedBy is SpezzoneRuntime other)
         {
@@ -304,8 +304,7 @@ public class InputHandler : MonoBehaviour
 
         if (!success)
         {
-            OnActionComplete();
-            Debug.Log("Movimento non eseguito");
+            Debug.Log("Movement not executed");
         }
     }
 
@@ -357,7 +356,7 @@ public class InputHandler : MonoBehaviour
         }
         if (!success)
         {
-            Debug.Log("Attacco non eseguito");
+            Debug.Log("Attack not executed");
             OnActionComplete();
             return;
         }

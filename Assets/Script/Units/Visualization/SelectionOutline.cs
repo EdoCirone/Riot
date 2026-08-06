@@ -30,7 +30,7 @@ public class SelectionOutline : MonoBehaviour
         if (_unitSelectedEvent == null || _policeSelectedEvent == null
             || _unitDeselectedEvent == null || _policeDeselectedEvent == null)
         {
-            Debug.LogWarning($"SelectionOutline: there is no events in {name}");
+            Debug.LogWarning($"SelectionOutline: missing event references on {name}");
             return;
         }
 

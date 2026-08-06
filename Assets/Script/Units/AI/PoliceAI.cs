@@ -57,12 +57,11 @@ public class PoliceAI : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log($"Police a {police.PositionCell.Coordinates}, spezzone a {nearestSpezzone.PositionCell.Coordinates}, distanza: {distance}");
 
                     HexCoordinates? targetCell = _turnManager.FindBestAdjacentCell(police.PositionCell.Coordinates, nearestSpezzone.PositionCell.Coordinates);
                     if (targetCell == null)
                     {
-                        Debug.Log($"Police a {police.PositionCell.Coordinates}: nessuna cella adiacente libera verso lo spezzone");
+                        Debug.Log($"{police} has no free adjacent cell toward the target");
                         break;
                     }
 
@@ -74,7 +73,7 @@ public class PoliceAI : MonoBehaviour
 
                     if (pathCoords.Count <= 1)
                     {
-                        Debug.Log($"Police a {police.PositionCell.Coordinates} non trova percorso verso lo spezzone");
+                        Debug.Log($"{police} found no path toward the target");
                         break;
                     }
 
@@ -95,9 +94,11 @@ public class PoliceAI : MonoBehaviour
 
                     float elapsed = 0f;
                     yield return new WaitUntil(() => finishMovement || (elapsed += Time.deltaTime) > 5f);
-                    if (!finishMovement) Debug.LogWarning($"[IA]  {police} movement not complete, i continue"); actedThisTurn = success;
+                    if (!finishMovement) Debug.LogWarning($"[AI] {police} movement not completed: continuing"); 
+                    
+                    actedThisTurn = success;
                 
-                    Debug.Log(success ? $"Police: Movement Accomplish ({path.Count} cells)" : "Police: Moviment fail");
+                    Debug.Log(success ? $"[AI] {police} moved {path.Count} cells" : $"[AI] {police} movement failed");
                 }
             }
         }

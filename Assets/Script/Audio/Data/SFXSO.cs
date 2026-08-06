@@ -21,7 +21,7 @@ public class SFXSO : ScriptableObject
         if (source == null) return;
         if(_clips == null|| _clips.Length == 0)
         {
-            Debug.LogWarning($"[SFX] {name}: nessuna clip assegnata");
+            Debug.LogWarning($"[SFX] {name}: no clip assigned");
             return;
         }
         source.pitch = Random.Range( _pitchMin, _pitchMax );

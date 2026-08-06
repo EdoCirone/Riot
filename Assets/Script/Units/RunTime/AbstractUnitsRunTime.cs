@@ -120,6 +120,6 @@ public abstract class AbstractUnitsRunTime
         if (cause == MoraleLossCause.PoliceContact && CanBeArrested) Arrest();
         else Disperse();
 
-        Debug.Log($"[FUORI GIOCO] {this} -> {_status} (causa: {cause})");
+        Debug.Log($"[REMOVED] {this} -> {_status} (cause: {cause})");
     }
 }

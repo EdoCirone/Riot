@@ -104,8 +104,6 @@ public class HexGridEditor : Editor
             if (col < 0 || col >= hexGrid.HexMapData.Width) return;
             if (row < 0 || row >= hexGrid.HexMapData.Height) return;
 
-            Debug.Log($"Mouse clicked at world position: {worldPos}");
-
             HexTypeSO[] palette = hexGrid.PaintPalette;
             if (palette == null || palette.Length == 0) return;
             HexTypeSO selectedType = palette[_selectedTypeIndex];
@@ -116,7 +114,7 @@ public class HexGridEditor : Editor
             hexGrid.GenerateGrid();
             EditorUtility.SetDirty(hexGrid.HexMapData);
 
-            Debug.Log($"Painted ({col}, {row}) whit {selectedType.name}");
+            Debug.Log($"Painted ({col}, {row}) with {selectedType.name}");
             SceneView.RepaintAll();
 
         }

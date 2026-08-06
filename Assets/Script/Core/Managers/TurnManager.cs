@@ -70,7 +70,7 @@ public class TurnManager : MonoBehaviour
 
         if (_pathFinder == null)
         {
-            Debug.LogWarning("PathFinder non assegnato in TurnManager");
+            Debug.LogWarning("PathFinder not assigned in TurnManager");
             return;
         }
 
@@ -112,21 +112,21 @@ public class TurnManager : MonoBehaviour
     {
         if (!CanCharge(atk, def, out HexCell destinationCell))
         {
-            Debug.Log("Carica non valida: bersaglio, allineamento, spazio di rincorsa o PA insufficienti");
+            Debug.Log("Invalid charge: target, alignment, run-up space or AP");
             yield break;
         }
 
         GameObject atkGO = _unitsRenderer.GetGameObject(atk);
         if (atkGO == null)
         {
-            Debug.LogError($"GameObject non trovato per {atk}");
+            Debug.LogError($"GameObject not found for {atk}");
             yield break;
         }
 
         UnitMovement movement = atkGO.GetComponent<UnitMovement>();
         if (movement == null)
         {
-            Debug.LogError($"UnitMovement non trovato su {atkGO.name}");
+            Debug.LogError($"UnitMovement not found on {atkGO.name}");
             yield break;
         }
 
@@ -144,7 +144,7 @@ public class TurnManager : MonoBehaviour
 
         float elapsed = 0f;
         yield return new WaitUntil(() => done || (elapsed += Time.deltaTime) > 5f);
-        if (!done) Debug.LogWarning($"[CARICA] animazione non completata da {atk}: proseguo comunque");
+        if (!done) Debug.LogWarning($"[CHARGE] animation not completed by {atk}: continuing anyway");
     }
 
 
@@ -195,7 +195,7 @@ public class TurnManager : MonoBehaviour
 
             if (!unit.SetPosition(destination))
             {
-                Debug.LogError($"[SPINTA] {unit} non ha potuto occupare {destination.Coordinates}: catena incoerente");
+                Debug.LogError($"[PUSH] {unit} could not occupy {destination.Coordinates}: inconsistent chain");
                 return;
             }
 
@@ -211,7 +211,7 @@ public class TurnManager : MonoBehaviour
         }
         else
         {
-            Debug.Log($"[SPINTA] Catena bloccata: {pushed} fuori gioco su {pushed.PositionCell.Coordinates}");
+            Debug.Log($"[PUSH] Chain blocked: {pushed} removed at {pushed.PositionCell.Coordinates}");
             pushed.RemoveFromBoard(CauseFrom(pusher));
         }
     }
@@ -283,7 +283,7 @@ public class TurnManager : MonoBehaviour
         UnitMovement movement = unitGO.GetComponent<UnitMovement>();
         if (movement == null)
         {
-            Debug.LogError($"UnitMovement non trovato su {unitGO.name}");
+            Debug.LogError($"UnitMovement not found on {unitGO.name}");
             onComplete?.Invoke();
             return false;
         }
@@ -418,7 +418,7 @@ public class TurnManager : MonoBehaviour
 
         float elapsed = 0f;
         yield return new WaitUntil(() => done || (elapsed += Time.deltaTime) > 5f);
-        if (!done) Debug.LogWarning($"[SCONTRO] animation not complete from {atk}: i still continue");
+        if (!done) Debug.LogWarning($"[Skirmish] animation not complete from {atk}: i still continue");
     }
     #endregion
 
@@ -491,14 +491,14 @@ public class TurnManager : MonoBehaviour
         const int chantCost = 3;
         if (!caster.TrySpendActionPoint(chantCost))
         {
-            Debug.Log($"Coro non eseguito: PA insufficienti (servono {chantCost})");
+            Debug.Log($"Chant not executed: {chantCost} AP needed)");
             _alertEvent?.Raise($"Not enough PA, {chantCost} needed");
             return false;
         }
 
         caster.GainMorale(1);
         _unitsRenderer.UpdateView(caster);
-        Debug.Log($"Coro: {caster} +1 morale (ora {caster.Morale}/{caster.MaxMorale})");
+        Debug.Log($"Chant: {caster} +1 morale (now {caster.Morale}/{caster.MaxMorale}))");
 
         foreach (HexCoordinates n in caster.PositionCell.Coordinates.GetNeighbors())
         {
@@ -507,7 +507,7 @@ public class TurnManager : MonoBehaviour
             {
                 spezzone.GainMorale(1);
                 _unitsRenderer.UpdateView(spezzone);
-                Debug.Log($"Coro: {spezzone} +1 morale (ora {spezzone.Morale}/{spezzone.MaxMorale})");
+                Debug.Log($"Chant: {spezzone} +1 morale (now {spezzone.Morale}/{spezzone.MaxMorale})");
             }
         }
         _lvlManager.RefreshBoardState();
@@ -521,24 +521,24 @@ public class TurnManager : MonoBehaviour
             const int sitCost = 1;
             if (!unit.TrySpendActionPoint(sitCost))
             {
-                Debug.Log($"Seduta non eseguita: PA insufficienti (servono {sitCost})");
+                Debug.Log($"Sits down not executed: {sitCost} AP needed");
                 _alertEvent?.Raise($"Not enough PA, {sitCost} needed");
                 return false;
             }
             unit.SitDown();
-            Debug.Log($"{unit} si siede. Def ora {unit.Def}, PA rimasti {unit.ActionPoints}");
+            Debug.Log($"{unit} sits down. Def now {unit.Def}, AP left {unit.ActionPoints}");
             return true;
         }
 
         const int standCost = 2;
         if (!unit.TrySpendActionPoint(standCost))
         {
-            Debug.Log($"Rialzata non eseguita: PA insufficienti (servono {standCost})");
+            Debug.Log($"Stand up not executed: {standCost} AP needed");
             _alertEvent?.Raise($"Not enough PA, {standCost} needed");
             return false;
         }
         unit.StandUp();
-        Debug.Log($"{unit} si rialza. Def ora {unit.Def}, PA rimasti {unit.ActionPoints}");
+        Debug.Log($"{unit} stands up. Def now {unit.Def}, AP left {unit.ActionPoints}");
         return true;
     }
 

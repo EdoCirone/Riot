@@ -26,7 +26,7 @@ public class HexCell
     {
         if(_barricade != null)
         {
-            Debug.Log("try to occupy a cell with a barricade");
+            Debug.Log($"try to occupy a cell with a barricade {_coordinates}");
             return false;
         }
 
@@ -37,7 +37,7 @@ public class HexCell
         }
         else
         {
-            Debug.Log("try to occupy a not empty cell");
+            Debug.Log($"try to occupy a not empty cell {_coordinates}");
             return false;
         }
     }
@@ -56,7 +56,7 @@ public class HexCell
         }
         else
         {
-            Debug.Log("try to place a barricade on a cell that already has one");
+            Debug.Log($"try to place a barricade on a cell that already has one {_coordinates}");
             return false;
         }
     }

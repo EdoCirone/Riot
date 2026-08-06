@@ -40,7 +40,7 @@ public class UnitsRenderer : MonoBehaviour
         }
         else
         {
-            Debug.Log("try to update a null unit");
+            Debug.Log("UpdateView: unit not registered in the renderer");
         }
     }
 }
