@@ -69,7 +69,7 @@ public class InventoryView : MonoBehaviour
         if (action == ActionType.None)
         {
             foreach (var slot in _slots)
-                slot.SetHighlighted(true);   // o uno stato "neutro" — vedi sotto
+                slot.SetHighlighted(true);   // o uno stato "neutro" â€” vedi sotto
             return;
         }
 

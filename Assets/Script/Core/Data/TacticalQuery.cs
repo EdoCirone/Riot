@@ -129,7 +129,7 @@ public static class TacticalQuery
             if (neighbor == null) continue;
             if (neighbor.Status != UnitsStatus.Alive) continue;
 
-            // l'aura passa solo fra unit‡ della stessa parte
+            // l'aura passa solo fra unit√† della stessa parte
             if (unit is SpezzoneRuntime && neighbor is not SpezzoneRuntime) continue;
             if (unit is PoliceRuntime && neighbor is not PoliceRuntime) continue;
 

@@ -21,7 +21,7 @@ public static class PlayFromAnyScene
         {
             Scene activeScene = SceneManager.GetActiveScene();
 
-            // Se sei gi‡ nella BootScene, non salvare target
+            // Se sei gi√† nella BootScene, non salvare target
             if (activeScene.path == BootScenePath)
             {
                 EditorPrefs.DeleteKey(TargetScenePathKey);

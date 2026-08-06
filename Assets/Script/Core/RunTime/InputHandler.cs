@@ -44,6 +44,12 @@ public class InputHandler : MonoBehaviour
     private static readonly ActionType SeatedActions =
     ActionType.None | ActionType.SitStand | ActionType.Chant;
 
+    //Check for blocking player input, for example when the police are executing their turn or when an action is being executed
+    private bool CanAcceptPlayerInput =>
+    !_isExecutingAction
+    && _lvlManager != null && _lvlManager.IsGameActive
+    && _turnManager != null && !_turnManager.IsPoliceTurn;
+
     private void Awake()
     {
         _inputSystem = new InputSystem_Actions();
@@ -100,9 +106,7 @@ public class InputHandler : MonoBehaviour
 
     private void OnLeftClick(InputAction.CallbackContext ctx)
     {
-        if (_isExecutingAction) return;
-
-        if (_lvlManager == null || !_lvlManager.IsGameActive) return;
+        if (!CanAcceptPlayerInput) return;
 
         if (IsPointerOverUI()) return;
 
@@ -202,7 +206,7 @@ public class InputHandler : MonoBehaviour
 
     private void OnRightClick(InputAction.CallbackContext ctx)
     {
-        if (_isExecutingAction) return;
+        if (!CanAcceptPlayerInput) return;
 
         // if in action mode, cancel the action and keep the spezzone selected
         if (_selectedAction != ActionType.None)
@@ -371,7 +375,7 @@ public class InputHandler : MonoBehaviour
     }
     private void OnChargeKey(InputAction.CallbackContext ctx)
     {
-        if (_isExecutingAction) return;
+        if (!CanAcceptPlayerInput) return;
         if (_selectedSpezzone == null) return;
 
         SetSelectedAction(_selectedAction == ActionType.Charge ? ActionType.None : ActionType.Charge);
@@ -381,7 +385,7 @@ public class InputHandler : MonoBehaviour
 
     private void OnThrowKey(InputAction.CallbackContext ctx)
     {
-        if (_isExecutingAction) return;
+        if (!CanAcceptPlayerInput) return;
         if (_selectedSpezzone == null) return;
         SetSelectedAction(_selectedAction == ActionType.Throw ? ActionType.None : ActionType.Throw);
         _pendingDestination = null;
@@ -390,7 +394,7 @@ public class InputHandler : MonoBehaviour
 
     private void OnBarricadeKey(InputAction.CallbackContext ctx)
     {
-        if (_isExecutingAction) return;
+        if (!CanAcceptPlayerInput) return;
         if (_selectedSpezzone == null) return;
         SetSelectedAction(_selectedAction == ActionType.Barricade ? ActionType.None : ActionType.Barricade);
         _pendingDestination = null;
@@ -399,7 +403,7 @@ public class InputHandler : MonoBehaviour
 
     private void OnChantKey(InputAction.CallbackContext ctx)
     {
-        if (_isExecutingAction) return;
+        if (!CanAcceptPlayerInput) return;
         if (_selectedSpezzone == null) return;
         SetSelectedAction(_selectedAction == ActionType.Chant ? ActionType.None : ActionType.Chant);
         _pendingDestination = null;
@@ -408,7 +412,7 @@ public class InputHandler : MonoBehaviour
 
     private void OnSitStandKey(InputAction.CallbackContext ctx)
     {
-        if (_isExecutingAction) return;
+        if (!CanAcceptPlayerInput) return;
         if (_selectedSpezzone == null) return;
         SetSelectedAction(_selectedAction == ActionType.SitStand ? ActionType.None : ActionType.SitStand);
         _pendingDestination = null;
@@ -417,7 +421,7 @@ public class InputHandler : MonoBehaviour
 
     private void OnItemSelected(ItemSO item)
     {
-        if (_isExecutingAction) return;
+        if (!CanAcceptPlayerInput) return;
         if (_selectedSpezzone == null) return;
         _selectedItem = item;
         SetSelectedAction(item.Action);
@@ -436,7 +440,7 @@ public class InputHandler : MonoBehaviour
     }
     private void OnActionButtonClicked(ActionType action)
     {
-        if (_isExecutingAction) return;
+        if (!CanAcceptPlayerInput) return;
         if (_selectedSpezzone == null) return;
         SetSelectedAction(_selectedAction == action ? ActionType.None : action);
         _pendingDestination = null;

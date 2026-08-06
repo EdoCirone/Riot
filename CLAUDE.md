@@ -296,9 +296,17 @@ laterale su cella comune non esiste più.
 - **Sedersi/Alzarsi (SitStand)**: sedersi costa 1 PA, alzarsi 2. Da seduto
   `SpezzoneRuntime.Def` vale `Def + 5` (il bonus vive nell'override di Def, non
   in AbstractUnitsRunTime: PoliceRuntime non lo ha).
-- **Lancio (Throw) e Barricata**: `ExecuteThrow` / `ExecuteBarricade` esistono in
-  TurnManager, gittate e costi NON ancora verificati riga per riga — da leggere
-  in una sessione dedicata prima di documentarli qui.
+- **Lancio (Throw)** (letto riga per riga il 06/08/26): costo e danno vivono
+  sull'asset — `item.ActionPointCost` e `item.MoralLost`. `ExecuteThrow` verifica
+  possesso dell'oggetto e PA, consuma entrambi, alza `ThrowEvent` e toglie Morale al
+  bersaglio. ⚠ **Non verifica affatto la gittata**: si fida di `HandleActionClick`.
+  Il vincolo di distanza esattamente 2 con un vicino calpestabile
+  (`HasThrowPath`) vive solo in `TacticalQuery.GetValidTargets`, che però assume un
+  costo fisso di 2 PA. Vedi bug noti: le due decisioni vanno unificate.
+- **Barricata** (letta riga per riga il 06/08/26): costo su `item.ActionPointCost`,
+  bersaglio una delle 6 celle adiacenti, `IsCellAvailable`. ⚠ `GetValidTargets` **non
+  controlla i PA**, quindi l'highlight compare anche a 0 PA. ⚠ E non guarda
+  `cell.Type.IsObjective`: si può barricare un obiettivo.
 
 ## Highlight (OrderPreviewRenderer)
 - Alla selezione di uno spezzone: una sola BFS via `TacticalQuery.GetReachable`
@@ -378,6 +386,147 @@ poi svuotare questa sezione.
 
 # BUG NOTI / DEBITO TECNICO
 
+## Trovati nel triple check del 06/08/26 (Claude + ChatGPT + DeepSeek)
+Lista completa con dove/cosa/perché e ordine di lavoro in
+`D:\UnityProject\GDDRIOT\FIXLIST_2026-08-06.md`. Qui solo quelli che cambiano il
+modo di ragionare sul codice.
+
+- **⚠ ATTIVO E GRAVE — il giocatore può agire durante il turno della polizia.**
+  `TurnManager.IsPoliceTurn` esiste ed è pubblico, ma **`InputHandler` non lo guarda
+  mai**: `OnLeftClick` controlla solo `_isExecutingAction` e `IsGameActive`, le nove
+  hotkey e i bottoni azione solo `_isExecutingAction`. Premuto Fine turno si può
+  quindi selezionare uno spezzone e muoverlo mentre `PoliceAI` sta iterando e mutando
+  la stessa griglia. Conseguenze: PA spesi nel turno avversario, percorsi calcolati su
+  uno stato che cambia sotto, `SetPosition` che fallisce a metà catena.
+  Fix: un predicato unico `CanAcceptPlayerInput` che includa `!_turnManager.IsPoliceTurn`,
+  in cima a tutti e nove i punti d'ingresso.
+  ⚠ **È questo bug che rende raggiungibile quello sotto**: due difetti innocui separati
+  che, composti, corrompono la griglia. Regola generale che ne discende: **un bug di
+  sincronizzazione non è mai "solo" di sincronizzazione** — apre la porta a tutti i
+  controlli che qualcun altro ha dato per garantiti a monte.
+
+- **⚠ ATTIVO in combinazione — un'unità può finire SOPRA una barricata.**
+  `HexCell.TryOccupy` controlla solo `_occupiedBy == null`, mai `_barricade != null`.
+  Tutti i percorsi normali filtrano a monte (`IsCellAvailable`, `HasChargeRoom`,
+  `TryBuildPushChain` controllano la barricata), quindi da solo non è sfruttabile. Ma
+  `UnitMovement.MoveCoroutine` **non rivalida la cella all'ingresso** e `ExecuteMovement`
+  accetta una `List<HexCell>` calcolata prima: se il giocatore piazza una barricata su
+  una cella del percorso mentre la polizia lo sta già percorrendo (possibile per il bug
+  sopra), la polizia ci sale sopra.
+  Fix a due livelli: `if (_barricade != null) return false;` in `TryOccupy`, e in
+  `MoveCoroutine` **usare il valore di ritorno di `SetPosition`** (oggi buttato) per
+  interrompere il movimento. Il secondo è quello che conta: la forma generale del
+  problema è "percorso calcolato prima, applicato dopo, mai rivalidato", e tornerà col
+  panico, che sposta più unità insieme.
+
+- **⚠ ATTIVO — `EndTurn` prosegue dopo il game over.** `_endPlayerTurnEvent.Raise()` è
+  **sincrono**: dentro, `LVLManager.OnEventRaised` può decretare fine partita, alzare
+  win/lose e fare `_turnManager.enabled = false`. Al ritorno del listener, `EndTurn`
+  **continua**: ricarica i PA della polizia e chiama `StartCoroutine(ExecutePoliceTurn())`,
+  che a fine coroutine rialza `_startPlayerTurnEvent` su una partita conclusa.
+  `enabled = false` non interrompe un metodo già in esecuzione — questo è certo e vale
+  come regola generale. Fix: `if (!_lvlManager.IsGameActive) { _waitingForPolice = false; return; }`
+  subito dopo il `Raise`, e la stessa guardia in `ExecutePoliceTurn`.
+
+- **⚠ ATTIVO — divergenza highlight/esecuzione su SitStand, Throw e Barricade.**
+  La chiusura fatta a luglio con `GetAttackOption` valeva solo per l'attacco; le altre
+  azioni non hanno mai avuto lo stesso trattamento e `GetValidTargets` decide con numeri
+  fissi che l'esecutore non usa:
+  - `SitStand`: la query chiede `budget < 1`, ma **rialzarsi costa 2**. Unità seduta con
+    1 PA → cella colorata, clic accettato, esecuzione rifiutata.
+  - `Throw`: query `budget < 2` fisso, esecuzione `item.ActionPointCost`.
+  - `Barricade`: la query **non controlla i PA affatto**.
+  - `ExecuteThrow` per giunta **non verifica la gittata**: si fida di `HandleActionClick`.
+  Fix: query che ricevano l'**unità** (e l'oggetto), non solo coordinata e budget —
+  `GetSitStandCost(unit)`, `CanThrow(unit, target, item, map)`,
+  `CanPlaceBarricade(unit, cell, item)` — e che gli esecutori chiamino le stesse.
+  È un cambio di firma: farlo in una volta sola per tutte e tre.
+
+- **`SelectionOutline` si iscrive a quattro eventi senza guardie** (né `_isValid` né
+  null-check). È l'unico posto del progetto senza rete, e sta sui **prefab delle unità**:
+  un campo non assegnato si moltiplica per ogni unità che spawna, e l'eccezione arriva
+  dentro il `Start` di `LVLManager`, mentre sta costruendo il livello.
+  (`CameraManager` non usa `_isValid` ma protegge ogni `Subscribe` con `if (event != null)`:
+  quello va bene.)
+
+- **`UnitsSetup.Initialize`: la guardia sta DOPO l'uso.** Nel `foreach` sull'inventario
+  iniziale, `AddItem(s.item, s.quantity)` viene chiamato **prima** del `if (s.item == null
+  || ...) continue`, che quindi non salta più niente. Una riga vuota nell'array inserisce
+  uno slot con `Item = null`, che poi `InventorySlotUI.SetItem` dereferenzia.
+
+- **Nessun `WaitUntil` ha un fail-safe.** `ExecuteCharge`, `ExecuteSkirmish` e
+  `PoliceAI` aspettano un flag alzato da una callback di animazione. Se la callback non
+  arriva (tween ucciso, GameObject disattivato), lato giocatore `_isExecutingAction`
+  resta `true` e input e Fine turno si bloccano per sempre; lato IA `_waitingForPolice`
+  resta `true` e il turno non torna mai. **Nessun errore, nessun log: il gioco si pianta.**
+  In `BootManager` ogni attesa ha un timeout proprio per questo; qui no.
+
+- **I costruttori Runtime ignorano `TryOccupy`, e `Vacate()` non controlla chi libera.**
+  Due `UnitsSetup` sulla stessa coordinata → la seconda unità esiste in lista e in scena
+  ma la cella indica la prima; quando la seconda si muove, il suo `Vacate()` **cancella
+  dalla griglia la prima**. Fix: `UnitsSetup.Initialize` deve restituire `null` con un
+  `LogError` se l'occupazione fallisce, e `Vacate(unit)` deve liberare solo se
+  `_occupiedBy == unit`.
+
+- **`LVLManager.OnEnable` legge la griglia prima che `HexGrid.Awake` l'abbia generata.**
+  Unity garantisce `Awake` prima di `OnEnable` **sullo stesso componente**, non l'ordine
+  incrociato fra GameObject. Se perde la corsa, `_objectiveCells` resta vuota: il punteggio
+  non sale mai e si perde ogni livello per scadenza turni. Il log
+  `Trovate N celle obiettivo nella mappa.` lo dice — se N è 0, è questo.
+  Fix: spostare `RefreshObjectiveCells()` in `Start`.
+
+- **La conversione coordinate è sparsa e non uniforme.** `UnitsRenderer.UpdateView` usa
+  `Coordinates.ToWorldPosition(cellSize)` **senza** `_grid.transform.position`; `UnitsSetup`
+  e `InputHandler` passano posizioni mondo a `FromWorldPosition` senza sottrarre l'offset;
+  `TurnManager`, `UnitMovement`, `ThrowObjectVFX` e `HexGridRenderer` invece lo sommano.
+  Oggi invisibile perché `MapManager` è a `(0,0,0)` (verificato in scena). Il giorno che si
+  trasla la griglia si rompono tre cose diverse — clic, spawn e `UpdateView` — e sembreranno
+  causate dallo spostamento. Fix: `GridToWorld`/`WorldToGrid` su `HexGrid`, e nessun altro
+  script che somma `transform.position` a mano.
+
+- **La regola `IsAlive` è già violata in quattro punti**: `TacticalQuery.GetAuraBonus`,
+  `TurnManager.ExecuteChant`, `OrderPreviewRenderer.OnActionSelected` e `HighlightChantArea`
+  confrontano con `UnitsStatus.Alive`. Con gli stati attuali il comportamento è identico,
+  ma **il panico è il prossimo stato non-vivo in arrivo**: sostituzione meccanica, da fare
+  ora che è gratis.
+
+- **`Inventory.ConsumeItem` rimuove mentre itera.** `_slots.Remove(slot)` dentro un
+  `foreach` su `_slots`. **Non lancia oggi**, e vale la pena sapere perché: l'eccezione
+  arriva alla successiva `MoveNext()`, e il `return true;` sulla riga dopo esce prima che
+  ci sia una successiva iterazione. Un `break` sarebbe altrettanto sicuro; un `continue`,
+  o togliere il `return`, la fa esplodere. Da convertire in un `for` a indice decrescente.
+
+- **`PlaySkirmish` e `PlayHitReaction` non impostano mai `_isMoving`.** Quindi `_isMoving`
+  non significa "questa unità è occupata da un'animazione", significa "sta eseguendo
+  `MoveCoroutine` o `ChargeSequence`". La guardia in cima a `PlaySkirmish` non protegge da
+  due scontri sovrapposti né impedisce di avviare un movimento durante un tween di scontro.
+  Oggi copre `_isExecutingAction` in `InputHandler`: cioè la protezione dipende da chi
+  chiama, non dall'oggetto animato.
+
+- **`PathFinder`: `if (minFCell != null)` su uno struct.** `HexCoordinates` è uno `struct`
+  con `operator !=` sovraccaricato: compila (l'operatore viene sollevato alla forma nullable)
+  ed è **sempre vero**. In più `FoundMinimumF` non ha un percorso che rappresenti "nessun
+  risultato" — parte da `foundcells[0]` ed è chiamato solo dentro `while (foundCell.Count > 0)`.
+  Dead code, il blocco si appiattisce senza cambiare niente.
+
+- **`BootManager`: la PRIMA attesa non ha fail-safe.** Il `WaitUntil(frame >= 0)` che attende
+  il primo frame presentato precede la costruzione del timer di sicurezza. Se la clip manca o
+  non produce un frame, la bootscene resta sul nero e non arriva mai al timeout su
+  `clipLength + 2`. Il commento "una bootscene non deve poter restare bloccata" quindi non è
+  ancora vero per quel punto.
+
+- **DECLASSATO — `ExecuteSitStand` / `ExecuteBarricade` senza `RefreshBoardState`.** Il primo
+  check del 06/08/26 lo dava per bug attivo: **sbagliato**. `HandleActionClick` finisce con
+  `SetSelectedAction(None)` e `OnActionComplete()`, che rialza `_unitSelectedEvent`, a cui
+  `UnitStatsPanelView` è iscritto e su cui fa `Refresh()`. E né sedersi né barricare cambiano
+  le adiacenze, quindi aura e coesione restano identiche. Resta **un'omissione architetturale**:
+  manca solo `_boardChangedEvent`, che oggi ha un unico ascoltatore su un valore che qui non
+  cambia. Diventerà un bug quando un altro sistema userà `BoardChanged` per invalidare percorsi
+  o overlay. *Nota di metodo: la regola "dove chiami `UpdateView` chiama `RefreshBoardState`"
+  resta valida, ma non basta a classificare la gravità — va guardato chi ascolta davvero.*
+
+## Precedenti
+
 - **Muovi+attacca combinato subottimale**: il comando combinato può rifiutare per
   costo-path quando FindBestAdjacentCell sceglie una cella adiacente per distanza
   diretta e non per costo di percorso reale (l'A* gira intorno agli ostacoli).
@@ -392,11 +541,16 @@ poi svuotare questa sezione.
   GetReachable, GetValidTargets, IsCellAvailable, GetAttackOption, HasChargeRoom.
   `FindBestAdjacentCell` è rimasta in TurnManager (usata da PoliceAI) — il
   documento diceva erroneamente che era stata spostata.
-- **TurnManager.CanCharge è DEAD CODE**: nessun chiamante nell'intero progetto
-  (grep 27/07/26). Rimpiazzata da GetAttackOption. Sicura da cancellare.
-- **OrderPreviewRenderer._turnManager è un campo inutile**: dopo il passaggio a
-  GetAttackOption il riferimento serve solo a comparire in un null-check di guardia
-  (riga 32). Da rimuovere insieme al null-check.
+- ~~**TurnManager.CanCharge è DEAD CODE, sicura da cancellare**~~ — **AFFERMAZIONE
+  FALSA E PERICOLOSA, corretta il 06/08/26.** Era vera al 27/07/26; dal fix della
+  carica asincrona (05/08/26) `CanCharge` è il **predicato che `PoliceAI` interroga
+  prima di impegnare il turno** (`else if (distance == 3 && _turnManager.CanCharge(...))`).
+  Cancellarla riaprirebbe il blocco del turno polizia a distanza 3 non allineata.
+  *Nota di metodo: la voce è sopravvissuta perché descriveva uno stato vero al momento
+  della scrittura e nessuno l'ha riverificata dopo il refactor. Una voce "sicura da
+  cancellare" va riverificata con un grep PRIMA di agire, sempre.*
+- ~~**OrderPreviewRenderer._turnManager è un campo inutile**~~ — **GIÀ RIMOSSO**,
+  zero occorrenze nel file (verificato 06/08/26).
 - ~~GameManager.instance è un singleton statico pubblico~~ — **AFFERMAZIONE FALSA,
   corretta il 03/08/26**. `GameManager.cs` non ha nessun campo statico: contiene
   solo `ResetLevel`, `PlayNewRun`, `BackToMain`, `OnApplicationQuit`. Grep di
@@ -406,8 +560,10 @@ poi svuotare questa sezione.
   *Nota di metodo: questa voce è sopravvissuta a due check perché veniva riletta
   invece che riverificata. Vale la stessa regola del Documento di Progetto: per
   nomi, numeri e binding il documento riporta ciò che si è LETTO, e dice dove.*
-- **`GameManager.OnApplicationQuit()` ha un nome riservato Unity** (aperto,
-  verificato 03/08/26). Attenzione: **non è un bug attivo, è un rischio latente** —
+- ~~**`GameManager.OnApplicationQuit()` ha un nome riservato Unity**~~ — **RISOLTO**,
+  il metodo si chiama `QuitGame()` (verificato 06/08/26). La spiegazione resta qui
+  perché la lezione vale per qualunque metodo con nome-messaggio Unity:
+  ~~(aperto, verificato 03/08/26). Attenzione: **non è un bug attivo, è un rischio latente** —
   una prima stesura di questa voce lo dava per più grave di quanto sia.
   Il comportamento voluto (premendo X l'Editor esce dal Play) è corretto e va
   MANTENUTO. Il problema è solo il nome: Unity chiama da sé qualunque metodo
@@ -421,20 +577,24 @@ poi svuotare questa sezione.
   (Unity non aggiorna da solo il collegamento quando rinomini).
 - ~~AudioManager: conversione volume sbagliata~~ — **RISOLTO 31/07/26**: i tre
   setter usano `Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f`.
-- **AudioManager.Awake: guardia con `&&` invece di `||`** (aperto al 03/08/26):
-  `if (_musicSource == null && _sfxSource == null)` avvisa solo se mancano
-  ENTRAMBE le source. Se ne manca una sola passa liscio e crasha dopo, lontano
-  dalla causa. Va messo `||`. Stesso metodo: se la guardia scatta, `Awake` esce
-  PRIMA di `DontDestroyOnLoad`, ma `OnEnable` si iscrive lo stesso agli eventi —
-  l'AudioManager muore al cambio scena lasciando iscrizioni pendenti. Conviene il
-  pattern `_isValid` già usato da `InGamePanelManager`.
-- **Asset evento orfani** (verificato 31/07/26): `WinCombactEvent.asset`,
-  `LoseCombactEvent.asset`, `ParCombactEvent.asset` in
-  `ScriptableObjects/Events/Turn/` hanno **zero riferimenti nel codice**. Nessuno
-  li alza, nessuno li ascolta. Sono i canali che servono per gli SFX di scontro:
-  vanno collegati, non cancellati.
-- **SFXSO: `using UnityEngine.LightTransport;` è un import spurio** — inserito
-  dall'IDE, nessun tipo di quel namespace è usato. Da togliere.
+- ~~**AudioManager.Awake: guardia con `&&` invece di `||`**~~ — **RISOLTO**, la riga
+  dice `if (_musicSource == null || _sfxSource == null)` (verificato 06/08/26).
+  ⚠ **La seconda metà della voce è ancora aperta**: se la guardia scatta, `Awake`
+  esce PRIMA di `DontDestroyOnLoad`, ma `OnEnable` si iscrive lo stesso agli eventi —
+  l'AudioManager muore al cambio scena lasciando iscrizioni pendenti. Serve il
+  pattern `_isValid` già usato da `InGamePanelManager` e `CohesionHUDView`.
+- **I sei canali evento di combattimento sono SCOLLEGATI in scena** (verificato nel
+  YAML di `LVLTest.unity` il 06/08/26). `TurnManager` dichiara `_skirmishWin/Lose/Par`
+  e `_chargeWin/Lose/Par`: **tutti e sei valgono `fileID: 0`**. Il codice li alza con
+  `?.Raise()`, quindi non crasha e non logga — fallimento silenzioso. A disco esistono
+  solo i tre dello scontro (`WinCombactEvent`, `LoseCombactEvent`, `ParCombactEvent`,
+  ancora orfani); i tre della carica **non esistono affatto** e vanno creati.
+  Finché sono vuoti nessun SFX di combattimento è agganciabile: è il prerequisito di
+  tutto il lavoro audio in coda.
+  *(Questa voce sostituisce la vecchia "Asset evento orfani" del 31/07/26: i campi nel
+  codice adesso ci sono, manca solo il cablaggio.)*
+- ~~**SFXSO: `using UnityEngine.LightTransport;` è un import spurio**~~ — **GIÀ TOLTO**,
+  zero occorrenze (verificato 06/08/26). Idem i `Debug.Log [AUDIO]` diagnostici.
 - **SFXSO._lastIndex è stato mutabile su uno ScriptableObject**: gli SO sono asset
   condivisi e in Editor il valore sopravvive fra una sessione di Play e l'altra.
   Qui è innocuo (serve solo a non ripetere una clip), ma è un'eccezione alla regola
@@ -521,12 +681,14 @@ poi svuotare questa sezione.
   finita. Qualunque parametro passato prima contiene la posizione vecchia, e col domino
   è sbagliata quasi sempre. Quando si farà la reazione al colpo per la carica, il gancio
   va dentro `PushResolution`/`ApplyPushChain`, sul modello di `onImpact` nello scontro.
-- **`TacticalQuery.cs` non è salvato in UTF-8** (verificato 05/08/26): è ANSI/cp1252,
-  con un byte `0xe0` (la `à` di "unità") in un commento a riga ~132. Tutti gli altri
-  file del progetto sono UTF-8. Non rompe niente — è in un commento e Unity ricade
-  sulla codepage di sistema — ma nel flusso a due macchine basta che un editor lo
-  risalvi in UTF-8 perché git segni la riga come modificata senza che nessuno
-  l'abbia toccata. Da risalvare in UTF-8 quando capita sotto mano, in un commit suo.
+- **CINQUE file non sono salvati in UTF-8** (riverificato 06/08/26 con `file --mime-encoding`
+  su tutto `Assets/Script`; la voce precedente ne elencava uno solo ed era incompleta):
+  `TacticalQuery.cs`, `CameraManager.cs`, `PlayFromAnyScene.cs` (ISO-8859-1) e
+  `InventoryView.cs`, `UnitsSetup.cs` (cp1252). Sono byte accentati dentro commenti.
+  Non rompono niente — Unity ricade sulla codepage di sistema — ma nel flusso a due
+  macchine basta che un editor ne risalvi uno perché git segni righe modificate che
+  nessuno ha toccato. **Da fare per primo, in un commit dedicato**, prima di aprire
+  qualunque altro lavoro dal portatile.
 - **Campi Bump in MovementSettingsSO sono dead code** (ChargeBumpDistance/Duration,
   SkirmishBumpDistance/Duration): definiti, esposti, mai letti da nessuno.
   NON è perché manchi l'animazione di ricezione colpo — quella ESISTE:
@@ -616,9 +778,18 @@ Repressione cross-level, campagna. Dipendono tutti da uno strato run inesistente
 
 # DA FARE (concordato)
 
-## ORDINE DI LAVORO CONCORDATO (04/08/26, aggiornato 05/08/26)
-**spinta a domino (FATTA 05/08/26) → panico → scena Assemblea → refactoring obiettivi
-→ IA polizia.**
+## ORDINE DI LAVORO CONCORDATO (04/08/26, aggiornato 06/08/26)
+**spinta a domino (FATTA 05/08/26) → PASSATA DI FIX (06/08/26) → panico → scena
+Assemblea → refactoring obiettivi → IA polizia.**
+
+⚠ **La passata di fix si è infilata davanti al panico ed è concordata.** Il triple
+check del 06/08/26 ha trovato quattro bug attivi, uno dei quali (input del giocatore
+durante il turno polizia) corrompe lo stato della griglia e ne rende raggiungibile un
+altro. Scrivere il panico sopra una griglia che può essere mutata da due parti
+contemporaneamente significa non poter distinguere un bug del panico da un bug
+preesistente. Lista e ordine in `D:\UnityProject\GDDRIOT\FIXLIST_2026-08-06.md`;
+le prime otto voci sono mezza giornata e chiudono tutto ciò che è attivo.
+
 Gli SFX più sotto restano validi ma NON sono il prossimo passo: si fanno quando
 esisteranno gli eventi di gameplay da agganciare.
 
@@ -691,19 +862,20 @@ passaggio di stato fra scene, istanziazione a runtime delle unità.
 `D:\GDDRIOT\19-Obiettivi-e-Occupazione.md`. Occupazione per turni consecutivi,
 obiettivo rivendicato che non paga più, obiettivi configurabili. Non lavorarci ora.
 
-## Poi: SFX — c'è un blocco da sciogliere prima
-Il sistema audio è pronto e testato, ma **non ci sono eventi a cui agganciare gli
-SFX di gameplay**. Accertato il 03/08/26: gli unici `GameEventSO` che qualcuno alza
-sono `StartPlayerTurn`, `EndPlayerTurn`, `StopFollow`, `Win/LoseLVL` e i deselect.
-`TurnManager` risolve scontro, carica, coro, sedersi, lancio e barricata **senza
-alzare nessun evento**: i `case CombatResult.Win/Lose/Par` (righe ~127-165 e
-~312-317) modificano solo il Morale.
+## Poi: SFX — il blocco è mezzo sciolto (aggiornato 06/08/26)
+Il sistema audio è pronto e testato. **Il punto 1 qui sotto è già stato fatto lato
+codice**: `TurnManager` dichiara e alza `_skirmishWin/Lose/Par` (in `RaiseCombactResult`,
+dentro `onImpact`) e `_chargeWin/Lose/Par` (in `RaiseChargeResult`, dentro
+`PushResolution`). **Ma tutti e sei gli slot sono vuoti in scena** (`fileID: 0`),
+quindi oggi non parte niente e non lo si vede perché sono alzati con `?.`.
+Restano senza evento: movimento, coro, sedersi, lancio, barricata, dispersione.
 Ordine di lavoro:
-1. Aggiungere i campi `[SerializeField] GameEventSO` in `TurnManager` e alzarli nei
-   punti giusti, riusando gli asset già esistenti e orfani
-   (`WinCombactEvent`, `LoseCombactEvent`, `ParCombactEvent`).
-2. Creare i canali mancanti (movimento, carica, coro, sedersi, lancio, barricata,
-   dispersione) come asset in `ScriptableObjects/Events/`.
+1. ~~Aggiungere i campi `[SerializeField] GameEventSO` in `TurnManager` e alzarli~~ —
+   **FATTO per scontro e carica.** Manca solo **creare i tre asset della carica**
+   (`ChargeWinEvent`, `ChargeLoseEvent`, `ChargeParEvent`) e **collegare i sei slot
+   nell'Inspector**, riusando i tre orfani già a disco per lo scontro.
+2. Creare i canali mancanti (movimento, coro, sedersi, lancio, barricata,
+   dispersione) come asset in `ScriptableObjects/Events/`, e i campi corrispondenti.
 3. Solo allora creare gli `SFXSO` e infilarli nell'array `_sfxevents`. Il
    collegamento è tutto da Inspector, zero codice nuovo.
 Nota di design: conviene un evento per *esito* (Win/Lose/Par) più che per *azione*,
@@ -712,23 +884,21 @@ così lo stesso scontro può suonare diverso a seconda di come va.
 non è una categoria che esiste nel diritto d'autore: se la build è pubblica,
 l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
 
-## Correzioni rapide già individuate (mezz'ora in tutto)
-4. `AudioManager.Awake`: `&&` → `||` nella guardia delle AudioSource.
-5. `SFXSO`: togliere `using UnityEngine.LightTransport;`.
-6. Togliere i `Debug.Log` diagnostici `[AUDIO]` da `AudioManager` (in particolare
-   quello dentro `GetLinearVolume`, che spara tre righe a ogni apertura pannello).
-7. `GameManager.OnApplicationQuit()` → `QuitGame()` e riagganciare il bottone
-   nell'Inspector. Il comportamento (X esce dal Play in Editor) va mantenuto:
-   si rinomina solo per evitare la doppia esecuzione, vedi bug noti.
+## Correzioni rapide già individuate
+4. ~~`AudioManager.Awake`: `&&` → `||`~~ — **FATTO** (verificato 06/08/26).
+5. ~~`SFXSO`: togliere `using UnityEngine.LightTransport;`~~ — **FATTO**.
+6. ~~Togliere i `Debug.Log` diagnostici `[AUDIO]`~~ — **FATTO**.
+7. ~~`GameManager.OnApplicationQuit()` → `QuitGame()`~~ — **FATTO**.
 8. Separare i tre AudioSource in GameObject figli distinti (`MusicSource`,
    `SFXSource`, `VideoSource`) sotto l'AudioManager: oggi sono componenti impilati
    sullo stesso oggetto, indistinguibili nell'Inspector, e il VideoPlayer della
-   bootscene condivide una source con la musica.
+   bootscene condivide una source con la musica. **ANCORA APERTA.**
 
 ## Rifiniture rimandate consapevolmente (chiedere sempre quando si fa il punto)
-- **`PoliceAI._onSelectedEvent` punta a `SelectedUnitsEvent`**: nel turno polizia si
-  apre il pannello degli spezzoni con i dati del poliziotto. Va spostato su
-  `SelectedPolice` + un secondo canale sul `CameraManager` per non perdere il follow.
+- ~~**`PoliceAI._onSelectedEvent` punta a `SelectedUnitsEvent`**~~ — **RISOLTO**: in
+  `LVLTest.unity` il campo punta a `SelectedPolice` (guid `93aeb65f…`, verificato nel
+  YAML il 06/08/26). Resta da valutare il secondo canale sul `CameraManager` per non
+  perdere il follow durante il turno polizia.
 - **PoliceAI non cerca bersagli alternativi**: se lo scontro più vicino è perdente
   rinuncia e resta ferma, invece di valutare un altro spezzone o riposizionarsi.
 - **Tre Operai adiacenti sono imbattibili** (Def 8 + 2 di aura a testa contro Atk 8
@@ -773,6 +943,43 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 29 (06/08/26) — triple check, nessuna riga di codice toccata
+Sessione dal portatile. Working tree pulito su `518220952`; niente è stato modificato
+nel codice, solo letto e documentato.
+
+- 📖 **Dump completo dei 67 script** in `D:\UnityProject\GDDRIOT\DISSENSO_SourceDump_2026-08-06.md`,
+  con contesto, regole architetturali e lista "già noto" in testa. Serve per far
+  rileggere il progetto da revisori esterni senza doverglielo rispiegare ogni volta.
+- 📖 **Revisione incrociata a tre** (Claude sul repo e sulla scena, ChatGPT e DeepSeek
+  sul dump). Risultato in `D:\UnityProject\GDDRIOT\FIXLIST_2026-08-06.md`: 4 bug attivi,
+  1 attivo solo in combinazione, 11 rischi latenti, 8 questioni di design.
+- 🔴 **Nove voci del documento erano più vecchie del codice** e sono state corrette qui
+  (audio, `QuitGame`, `_onSelectedEvent`, `_turnManager`, `ActionSlotUI`, eventi di
+  combattimento, `CanCharge`, file non-UTF8, `SelectionOutline`).
+  La peggiore era **"`TurnManager.CanCharge` è dead code, sicura da cancellare"**: vera
+  il 27/07, falsa dal 05/08, e seguirla avrebbe rotto il turno polizia.
+- 🔴 **Correzione di una mia diagnosi**: avevo classificato `ExecuteSitStand` /
+  `ExecuteBarricade` senza `RefreshBoardState` come bug attivo. È solo un'omissione
+  architetturale — il pannello si aggiorna comunque via `_unitSelectedEvent`, e quelle
+  due azioni non cambiano le adiacenze.
+
+**Tre lezioni di metodo che valgono oltre questa sessione:**
+
+1. **Una voce "già noto / sicura da cancellare" invecchia più in fretta del codice.**
+   Tre voci su nove erano vere quando scritte. Prima di agire su una voce del documento,
+   un grep. Prima di fidarsi di una voce "da fixare", `git diff`.
+2. **Due bug innocui separati possono essere un bug grave insieme.** L'input durante il
+   turno polizia e `TryOccupy` che ignora le barricate sono entrambi non sfruttabili da
+   soli; composti mettono un poliziotto sopra una barricata. Un difetto di
+   sincronizzazione non è mai *solo* di sincronizzazione: annulla tutti i controlli che
+   qualcun altro ha dato per garantiti a monte.
+3. **Un revisore che sbaglia i numeri di riga sbaglia anche il resto.** DeepSeek citava
+   righe a memoria (`TryBuildPushChain` a 305 invece di 169) e ha prodotto due
+   affermazioni sicure e false, fra cui "questo codice non compila" su codice che
+   compila. ChatGPT citava righe esatte e, messo alla prova, ha separato da solo quello
+   che sapeva da quello che stava deducendo. **La precisione delle citazioni è il
+   predittore migliore dell'affidabilità del resto.**
 
 ## Changelog sessione 28 (05/08/26) — spinta a domino e carica asincrona
 - 🟢 **Spinta a domino**: `CalculatePushDestination` + `FoundNearCellAvailable` rimossi,

@@ -73,7 +73,7 @@ public class CameraManager : MonoBehaviour
         _inputSystem.Camera.Zoom.performed += OnZoomPerformed;
         _inputSystem.Camera.Zoom.canceled += OnZoomCanceled;
 
-        // --- SEGUI UNITÀ ---
+        // --- SEGUI UNITÃ€ ---
         if (_onSelectedEvent != null)
             _onSelectedEvent.Subscribe(CenterCamera);
         if (_policeSelectedEvent != null)
