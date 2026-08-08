@@ -138,6 +138,7 @@ public static class TacticalQuery
             AbstractUnitsRunTime neighbor = cell.OccupiedBy;
             if (neighbor == null) continue;
             if (neighbor.Status != UnitsStatus.Alive) continue;
+            if (neighbor.IsPanicked) continue;
 
             // l'aura passa solo fra unità della stessa parte
             if (unit is SpezzoneRuntime && neighbor is not SpezzoneRuntime) continue;

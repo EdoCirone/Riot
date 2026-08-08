@@ -156,11 +156,11 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
             foreach (var unit in _spezzoniOfLVL)
                 if (unit.IsAlive)
-                    pending.Add((unit, TacticalQuery.GetAuraBonus(unit, _map).Mor));
+                    pending.Add((unit, unit.IsPanicked ? 0 : TacticalQuery.GetAuraBonus(unit, _map).Mor));
 
             foreach (var police in _policeOfLVL)
                 if (police.IsAlive)
-                    pending.Add((police, TacticalQuery.GetAuraBonus(police, _map).Mor));
+                    pending.Add((police, police.IsPanicked ? 0 : TacticalQuery.GetAuraBonus(police, _map).Mor));
 
             foreach (var (unit, bonus) in pending)
             {

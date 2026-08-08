@@ -201,6 +201,37 @@ di "Not enough AP".
   testo impreciso — mai un'azione eseguita a torto o rifiutata a torto. È la differenza
   fra duplicare una decisione e duplicare una descrizione.
 
+## La carica non confronta più Atk e Def (deciso 08/08/26)
+Cambio di design. `PushResolution` non chiama più `CombatResolver`: **chi subisce la
+carica viene spinto, punto.** L'unica eccezione è il seduto, già filtrato da `CanCharge`.
+Spariti `RaiseChargeResult` e i tre canali Win/Lose/Par, sostituiti da un solo
+`_chargeEvent`. `CombatResolver.Resolve` resta usato solo da `ExecuteSkirmish`.
+
+**I due ruoli si separano**: lo scontro logora e vuole statistiche favorevoli, la carica
+sposta e funziona sempre. Un muro non si sfonda a spallate, lo si attraversa caricando.
+
+Tre problemi che si chiudono insieme:
+- **Gli Operai imbattibili** (Def 8 + 4 di aura contro Atk 8): erano invulnerabili a
+  *entrambe* le azioni perché entrambe passavano dallo stesso confronto.
+- **Il panico torna a "chi subisce la carica"**, com'era nella prima stesura del GDD 17.4.
+  Era stata scartata perché una carica fallita sarebbe stata gratis: adesso non esiste
+  una carica fallita, e comunque costa 4 PA e toglie 1 di Morale.
+- ⚫ **La decisione E1 evapora.** "Le aure dell'attaccante in carica si calcolano dalla
+  cella d'arrivo" era aperta solo perché decideva chi *vince* la carica. Senza confronto,
+  la domanda non ha più oggetto. Era il prerequisito del panico.
+
+⚠ **Da fare, non ancora fatto: `PoliceAI` non sa della nuova regola.** A distanza 1 fa
+ancora `if (atk <= def) break;` e rinuncia al turno invece di arretrare e caricare. Il
+muro di Operai è quindi risolto nelle regole ma non nel comportamento. Va insieme alla
+voce "PoliceAI non cerca bersagli alternativi".
+
+⚠ **Da decidere: chi può caricare.** Oggi tutti — le maschere `_allowedActions` sono
+Anarky 3, BlackBlock 7, Operai 13, Pacifisti 25, Studenti 27, Police 1, e il bit `Charge`
+(=1) c'è in tutte. Un Pacifista che carica la polizia è tematicamente storto: basta
+portare la sua maschera a **24**. Da valutare insieme al resto del bilanciamento.
+*(Nota: `CanPerformAction` è controllato solo in `InputHandler.SetSelectedAction`, quindi
+la maschera della polizia oggi non ha effetto — `PoliceAI` non la guarda.)*
+
 ## Debito registrato l'08/08/26
 - **I costi in `TacticalQuery` sono `const`.** Immutabili, ma **non tarabili**: non si
   vedono in Inspector e cambiarli richiede una ricompilazione. Per numeri strutturali
@@ -1034,6 +1065,22 @@ un −1 a chi tocca la carica, che nessuno dei cinque gruppi rischia di non sopr
 6/9/9/12/18-24) ma **per il bilanciamento dello scontro**, e si può fare dopo, avendo il
 panico in mano per misurarlo. Erano due cambiamenti rischiosi legati insieme e nessuno
 dei due provabile da solo: adesso sono separati.
+
+### 1-bis. Refactor di PoliceAI — DOPO la scena Assemblea (concordato 08/08/26)
+L'IA della polizia va rifatta **con azioni e tipi di unità diversi**, non ritoccata.
+Motivo del rinvio: la scena Assemblea introduce la composizione del corteo e
+l'istanziazione a runtime, quindi cambia cosa l'IA si trova davanti. Rifarla prima
+significherebbe rifarla due volte.
+
+Quello che si accumula fino ad allora, da affrontare in blocco:
+- **La polizia non sa che la carica è diventata incondizionata**: a distanza 1 fa
+  `if (atk <= def) break;` e rinuncia al turno, invece di arretrare e caricare. È il
+  motivo per cui il muro di Operai in gioco è ancora imbattibile.
+- **Non cerca bersagli alternativi**: se `FindBestAdjacentCell` torna null, rinuncia.
+- **Non guarda `_allowedActions`**: la maschera della polizia (oggi 1 = Charge) non ha
+  nessun effetto, perché `CanPerformAction` è controllato solo in `InputHandler`.
+- **Nessuna nozione di formazione**: cordone, blocco, escalation sono la priorità 4 del
+  cap. 16 e non esistono.
 
 ### 2. Scena Assemblea — quattro prerequisiti mancanti
 Composizione del corteo prima del livello: 1000 punti fissi, roster di 3 unità per

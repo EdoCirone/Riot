@@ -22,9 +22,7 @@ public class TurnManager : MonoBehaviour
     [SerializeField] private GameEventSO _skirmishLoseEvent;
     [SerializeField] private GameEventSO _skirmishParEvent;
     [Header("ChargeEvents")]
-    [SerializeField] private GameEventSO _chargeWinEvent;
-    [SerializeField] private GameEventSO _chargeLoseEvent;
-    [SerializeField] private GameEventSO _chargeParEvent;
+    [SerializeField] private GameEventSO _chargeEvent;
 
     [Space]
     [Header("CameraEvents")]
@@ -165,53 +163,100 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-
     private bool TryBuildPushChain(
-        AbstractUnitsRunTime pusher,
-        AbstractUnitsRunTime pushed,
-        out List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
+     AbstractUnitsRunTime pusher,
+     AbstractUnitsRunTime pushed,
+     out List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
     {
         moves = new List<(AbstractUnitsRunTime, HexCell)>();
 
         HexCoordinates pusherCoord = pusher.PositionCell.Coordinates;
         HexCoordinates current = pushed.PositionCell.Coordinates;
 
-        // pusher e pushed sono adiacenti: il delta è già la direzione unitaria
         int dirQ = current.Q - pusherCoord.Q;
         int dirR = current.R - pusherCoord.R;
 
+        // La colonna compressa, dal difensore all'ultimo della fila.
+        List<AbstractUnitsRunTime> column = new() { pushed };
         AbstractUnitsRunTime unitToMove = pushed;
 
         while (true)
         {
             HexCoordinates behind = new HexCoordinates(current.Q + dirQ, current.R + dirR);
 
-            if (!_map.TryGetCell(behind, out HexCell behindCell)) return false;  // bordo mappa
-            if (!behindCell.Type.IsWalkable) return false;                       // muro
-            if (behindCell.Type.IsObjective) return false;                       // un obiettivo non si prende per spinta
-            if (behindCell.Barricade != null) return false;                      // barricata
+            if (_map.TryGetCell(behind, out HexCell behindCell)
+                && behindCell.Type.IsWalkable
+                && !behindCell.Type.IsObjective
+                && behindCell.Barricade == null)
+            {
+                AbstractUnitsRunTime blocker = behindCell.OccupiedBy;
 
-            moves.Add((unitToMove, behindCell));
+                if (blocker == null)
+                {
+                    BuildMovesFromColumn(column, behindCell, moves);   // catena chiusa
+                    return true;
+                }
 
-            AbstractUnitsRunTime blocker = behindCell.OccupiedBy;
-            if (blocker == null) return true;                                    // catena chiusa
+                if (!blocker.IsSeated && IsSameSide(blocker, unitToMove))
+                {
+                    column.Add(blocker);
+                    unitToMove = blocker;
+                    current = behind;
+                    continue;                                          // il domino prosegue
+                }
+            }
 
-            if (blocker.IsSeated) return false;                                  // il seduto non si sposta
-            if (!IsSameSide(blocker, unitToMove)) return false;                  // il nemico fa muro
-
-            unitToMove = blocker;                                                // il domino prosegue
-            current = behind;
+            // Tappo: si cerca uno sfogo laterale partendo da chi è più indietro.
+            return TryReleaseSideways(column, dirQ, dirR, moves);
         }
     }
 
-    private bool TryStepAside(AbstractUnitsRunTime pusher, AbstractUnitsRunTime pushed)
+    /// <summary>
+    /// Catena chiusa: ognuno entra nella cella di chi lo segue, l'ultimo nella cella libera.
+    /// </summary>
+    private void BuildMovesFromColumn(
+        List<AbstractUnitsRunTime> column, HexCell tail,
+        List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
     {
-        HexCoordinates pusherCoord = pusher.PositionCell.Coordinates;
-        HexCoordinates pushedCoord = pushed.PositionCell.Coordinates;
+        for (int i = 0; i < column.Count; i++)
+            moves.Add((column[i], i + 1 < column.Count ? column[i + 1].PositionCell : tail));
+    }
 
-        int dirQ = pushedCoord.Q - pusherCoord.Q;
-        int dirR = pushedCoord.R - pusherCoord.R;
+    /// <summary>
+    /// Cerca la prima unità — partendo dal FONDO della colonna — che possa scartare di lato.
+    /// Chi scarta libera la propria cella e tutta la fila davanti a lui arretra di uno;
+    /// chi sta dietro di lui resta fermo.
+    /// ⚠ L'ordine di `moves` conta: ApplyPushChain applica dall'ultimo al primo, quindi
+    /// chi scarta deve essere l'ULTIMO elemento della lista.
+    /// </summary>
+    private bool TryReleaseSideways(
+        List<AbstractUnitsRunTime> column, int dirQ, int dirR,
+        List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
+    {
+        for (int i = column.Count - 1; i >= 0; i--)
+        {
+            HexCell side = FindSideCell(column[i], dirQ, dirR);
+            if (side == null) continue;
 
+            for (int j = 0; j < i; j++)
+                moves.Add((column[j], column[j + 1].PositionCell));
+
+            moves.Add((column[i], side));
+
+            Debug.Log($"[PUSH] {column[i]} steps aside to {side.Coordinates}, {i} unit(s) shift back");
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Le due celle che confinano sia con quella dell'unità sia con quella dove sarebbe
+    /// stata spinta: su esagoni sono sempre e solo due, e sono le direzioni che affiancano
+    /// quella della spinta. Fra le due, quella con meno alleati adiacenti: la spinta disgrega.
+    /// </summary>
+    private HexCell FindSideCell(AbstractUnitsRunTime unit, int dirQ, int dirR)
+    {
         int dirIndex = -1;
         for (int i = 0; i < HexCoordinates.Directions.Length; i++)
         {
@@ -221,22 +266,27 @@ public class TurnManager : MonoBehaviour
                 break;
             }
         }
-        if (dirIndex < 0) return false;   // pusher e pushed non adiacenti: non dovrebbe accadere
 
+        if (dirIndex < 0)
+        {
+            Debug.LogError($"[PUSH] ({dirQ},{dirR}) is not a hex direction: cannot find side cells");
+            return null;
+        }
+
+        HexCoordinates from = unit.PositionCell.Coordinates;
         HexCell best = null;
         int bestAllies = int.MaxValue;
 
-        // le due direzioni che affiancano quella della spinta
         for (int offset = -1; offset <= 1; offset += 2)
         {
             HexCoordinates side = HexCoordinates.Directions[(dirIndex + offset + 6) % 6];
-            HexCoordinates candidateCoord = new HexCoordinates(pushedCoord.Q + side.Q, pushedCoord.R + side.R);
+            HexCoordinates candidateCoord = new HexCoordinates(from.Q + side.Q, from.R + side.R);
 
             if (!_map.TryGetCell(candidateCoord, out HexCell candidate)) continue;
             if (!IsCellAvailable(candidate)) continue;
-            if (candidate.Type.IsObjective) continue;   // stessa regola della catena
+            if (candidate.Type.IsObjective) continue;
 
-            int allies = CountAdjacentAllies(pushed, candidateCoord);
+            int allies = CountAdjacentAllies(unit, candidateCoord);
             if (allies < bestAllies)
             {
                 bestAllies = allies;
@@ -244,17 +294,7 @@ public class TurnManager : MonoBehaviour
             }
         }
 
-        if (best == null) return false;
-
-        if (!pushed.SetPosition(best))
-        {
-            Debug.LogError($"[PUSH] {pushed} could not step aside to {best.Coordinates}");
-            return false;
-        }
-
-        _unitsRenderer.UpdateView(pushed);
-        Debug.Log($"[PUSH] {pushed} steps aside to {best.Coordinates} ({bestAllies} allies adjacent)");
-        return true;
+        return best;
     }
 
     private int CountAdjacentAllies(AbstractUnitsRunTime unit, HexCoordinates from)
@@ -283,9 +323,9 @@ public class TurnManager : MonoBehaviour
                 Debug.LogError($"[PUSH] {unit} could not occupy {destination.Coordinates}: inconsistent chain");
                 return;
             }
-
             _unitsRenderer.UpdateView(unit);
         }
+        Debug.Log($"[PUSH] applied: {moves.Count} unit(s) moved");
     }
 
     private void ResolvePushOrRemove(AbstractUnitsRunTime pusher, AbstractUnitsRunTime pushed)
@@ -302,43 +342,17 @@ public class TurnManager : MonoBehaviour
             return;
         }
 
-        // La folla prima si comprime, poi sbanda: il passo di lato è l'ultima risorsa,
-        // non un'alternativa alla catena.
-        if (TryStepAside(pusher, pushed)) return;
-
-        Debug.Log($"[PUSH] Chain blocked: {pushed} removed at {pushed.PositionCell.Coordinates}");
+        Debug.Log($"[PUSH] no way back and no way out: {pushed} removed at {pushed.PositionCell.Coordinates}");
         pushed.RemoveFromBoard(CauseFrom(pusher));
-    }
-
-    private void RaiseChargeResult(CombatResult result)
-    {
-        switch (result)
-        {
-            case CombatResult.Win: _chargeWinEvent?.Raise(); break;
-            case CombatResult.Lose: _chargeLoseEvent?.Raise(); break;
-            case CombatResult.Par: _chargeParEvent?.Raise(); break;
-        }
     }
 
     private void PushResolution(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
-        CombatResult result = CombatResolver.Resolve(atk, def, _map);
+        // La carica non confronta Atk e Def: chi la subisce viene spinto, punto.
+        // Lo scontro resta l'azione che logora e che si può perdere.
+        ResolvePushOrRemove(pusher: atk, pushed: def);
 
-        switch (result)
-        {
-            case CombatResult.Win:
-                ResolvePushOrRemove(pusher: atk, pushed: def);
-                break;
-
-            case CombatResult.Lose:
-                ResolvePushOrRemove(pusher: def, pushed: atk);
-                break;
-
-            case CombatResult.Par:
-                break;
-        }
-
-        RaiseChargeResult(result);
+        _chargeEvent?.Raise();
 
         _unitsRenderer.UpdateView(atk);
         _unitsRenderer.UpdateView(def);
@@ -367,7 +381,7 @@ public class TurnManager : MonoBehaviour
         }
 
         GameObject unitGO = _unitsRenderer.GetGameObject(unit);
-        if(unitGO == null)
+        if (unitGO == null)
         {
             Debug.LogError($"GameObject don't found for {unit}");
             onComplete?.Invoke();
@@ -640,7 +654,7 @@ public class TurnManager : MonoBehaviour
         _waitingForPolice = true;
         _endPlayerTurnEvent.Raise();
 
-        if(!_lvlManager.IsGameActive)
+        if (!_lvlManager.IsGameActive)
         {
             _waitingForPolice = false;
             return;
@@ -664,7 +678,7 @@ public class TurnManager : MonoBehaviour
         Debug.Log("--- FINE TURNO POLIZIA ---");
         _waitingForPolice = false;
 
-        if(!_lvlManager.IsGameActive)
+        if (!_lvlManager.IsGameActive)
         {
             yield break;
         }

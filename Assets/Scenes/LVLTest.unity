@@ -4695,9 +4695,7 @@ MonoBehaviour:
   _skirmishWinEvent: {fileID: 11400000, guid: 30daf8697c582e742bb0391e35c0bf11, type: 2}
   _skirmishLoseEvent: {fileID: 11400000, guid: 2c4d5f717647c8b46acd5808d882dbda, type: 2}
   _skirmishParEvent: {fileID: 11400000, guid: ff1b99c87707832488917b13804448eb, type: 2}
-  _chargeWinEvent: {fileID: 11400000, guid: cae3f1f79ccdc384a86892f31cf8a744, type: 2}
-  _chargeLoseEvent: {fileID: 11400000, guid: d23a2b2e1ba2f9b4aa4984ee977666e0, type: 2}
-  _chargeParEvent: {fileID: 11400000, guid: 5019c047ead2a6d49b4e5209a81e0187, type: 2}
+  _chargeEvent: {fileID: 11400000, guid: cae3f1f79ccdc384a86892f31cf8a744, type: 2}
   _startFollowEvent: {fileID: 11400000, guid: b9cd032b448466f4392bfe32f9b91b83, type: 2}
   _stopFollowEvent: {fileID: 11400000, guid: 14bb41a0b251d904ebfcd4fd64b09b8c, type: 2}
   _alertEvent: {fileID: 11400000, guid: 98237ffa724a85e42b560437c6bd4613, type: 2}
@@ -10123,7 +10121,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -14.595, y: -52.408}
+  m_AnchoredPosition: {x: -14.594971, y: -52.40799}
   m_SizeDelta: {x: 120.81, y: 35.4081}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1547289632

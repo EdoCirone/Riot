@@ -22,12 +22,7 @@ public struct HexCoordinates : System.IEquatable<HexCoordinates>
 
     // Le 6 direzioni flat-top in coordinate axial.
     // Ordine: E, NE, NW, W, SW, SE
-    // ⚠ L'ORDINE È CICLICO (rotazione oraria) E CI SI FA AFFIDAMENTO.
-    // TurnManager.TryStepAside ricava le due celle laterali alla spinta come
-    // Directions[(i±1) % 6]: vale solo se indici consecutivi sono direzioni
-    // adiacenti sull'esagono. Riordinare questo array rompe la spinta laterale
-    // in silenzio — nessun errore, nessun log, solo unità che sbandano nel posto sbagliato.
-
+   
     public static readonly HexCoordinates[] Directions = new HexCoordinates[]
     {
         new HexCoordinates( 1,  0), // Est
