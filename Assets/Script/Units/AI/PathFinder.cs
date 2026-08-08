@@ -22,45 +22,43 @@ public class PathFinder : MonoBehaviour
         List<HexCoordinates> path = new List<HexCoordinates>();
         while (foundCell.Count > 0)
         {
-
+            // FoundMinimumF restituisce sempre un valore: parte da foundcells[0] ed è
+            // chiamata solo qui, dove la lista è garantita non vuota dal while.
             HexCoordinates minFCell = FoundMinimumF(foundCell, end, gCost);
-            if (minFCell != null)
+
+            checkedCell.Add(minFCell);
+            foundCell.Remove(minFCell);
+
+            foreach (HexCoordinates neighbor in minFCell.GetNeighbors())
             {
-                checkedCell.Add(minFCell);
-                foundCell.Remove(minFCell);
+                if (checkedCell.Contains(neighbor)) continue;
+                if (!grid.TryGetCell(neighbor, out HexCell neighborCell)) continue;
+                if (!TacticalQuery.IsCellAvailable(neighborCell)) continue;
 
-                foreach (HexCoordinates neighbor in minFCell.GetNeighbors())
+                int tentativeGCost = gCost[minFCell] + 1;
+                if (!foundCell.Contains(neighbor))
                 {
-                    if (checkedCell.Contains(neighbor)) continue;
-                    if (!grid.TryGetCell(neighbor, out HexCell neighborCell)) continue;
-                    if (!TacticalQuery.IsCellAvailable(neighborCell)) continue;
-
-                    int tentativeGCost = gCost[minFCell] + 1;
-                    if (!foundCell.Contains(neighbor))
-                    {
-                        gCost[neighbor] = tentativeGCost;
-                        cameFrom[neighbor] = minFCell;
-                        foundCell.Add(neighbor);
-                    }
-                    else if (tentativeGCost < gCost[neighbor])
-                    {
-                        gCost[neighbor] = tentativeGCost;
-                        cameFrom[neighbor] = minFCell;
-                    }
-
+                    gCost[neighbor] = tentativeGCost;
+                    cameFrom[neighbor] = minFCell;
+                    foundCell.Add(neighbor);
                 }
-
-                if (minFCell.Equals(end))
+                else if (tentativeGCost < gCost[neighbor])
                 {
-                    HexCoordinates current = end;
-                    while (!current.Equals(start))
-                    {
-                        current = cameFrom[current];
-                        path.Add(current);
-                    }
-                    pathFound = true;
-                    break;
+                    gCost[neighbor] = tentativeGCost;
+                    cameFrom[neighbor] = minFCell;
                 }
+            }
+
+            if (minFCell.Equals(end))
+            {
+                HexCoordinates current = end;
+                while (!current.Equals(start))
+                {
+                    current = cameFrom[current];
+                    path.Add(current);
+                }
+                pathFound = true;
+                break;
             }
         }
         if (pathFound)

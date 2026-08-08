@@ -15,6 +15,11 @@ public class HexTypeSO : ScriptableObject
     [Header("Properties")]
     [SerializeField] private bool _isWalkable;
     [SerializeField] private bool _isObjective;
+
+    // ⚠ Riservati: dichiarati ed esposti, nessun lettore in tutto Assets/Script.
+    // Sono i dati della Zona Rossa (GDD 5.6, priorità 2 del cap. 16). Non sono codice
+    // morto: non cancellare. E non usarli in un punto isolato prima di implementare la
+    // regola, o ti ritrovi un decimo di meccanica dove nessuno andrà a cercarla.
     [SerializeField] private bool _isRedZone;
 
     //two generic modifiers that can be usefull

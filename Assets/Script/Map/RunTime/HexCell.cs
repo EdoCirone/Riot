@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class HexCell
 {
@@ -60,7 +60,9 @@ public class HexCell
             return false;
         }
     }
-
+    // ⚠ Riservato: nessun chiamante oggi. Servirà quando la polizia potrà spendere
+    // punti azione per rimuovere una barricata (non ancora progettato come costo).
+    // Non è codice morto: non cancellare.
     public void RemoveBarricade()
     {
         _barricade = null;

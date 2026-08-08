@@ -104,7 +104,7 @@ public class PoliceAI : MonoBehaviour
         }
     }
 
-    public SpezzoneRuntime FoundNearestSpezzone(PoliceRuntime police)
+    private SpezzoneRuntime FoundNearestSpezzone(PoliceRuntime police)
     {
         SpezzoneRuntime nearest = null;
         int minDistance = int.MaxValue;

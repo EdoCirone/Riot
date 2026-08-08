@@ -79,15 +79,6 @@ public class HexGrid : MonoBehaviour
         _worldBounds = new Bounds((min + max) / 2f, max - min);
     }
 
-    public bool IsCellWalkable(HexCoordinates coords)
-    {
-        if (_cells.TryGetValue(coords, out HexCell cell))
-        {
-            return cell.Type.IsWalkable;
-        }
-        return false; // If the cell doesn't exist, consider it not walkable
-    }
-
     public bool TryGetCell(HexCoordinates coords, out HexCell cell)
         => _cells.TryGetValue(coords, out cell);
 

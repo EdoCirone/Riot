@@ -99,16 +99,6 @@ public class UnitMovement : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    public void StopMovement()
-    {
-        if (_currentMove != null)
-        {
-            StopCoroutine(_currentMove);
-            _currentMove = null;
-        }
-        _isMoving = false;
-    }
-
     private void StartBobLoop()
     {
         KillBobLoop();
@@ -297,9 +287,5 @@ public class UnitMovement : MonoBehaviour
         }
     }
     #endregion
-    public void StopEveryMovement()
-    {
-        StopAllCoroutines();
-    }
 
 }

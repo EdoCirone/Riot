@@ -118,13 +118,13 @@ public abstract class AbstractUnitsRunTime
         if (_morale == 0) RemoveFromBoard(cause);
     }
 
-    public void Disperse()
+    private void Disperse()
     {
         _status = UnitsStatus.Disperse;
         _positionCell.Vacate();
     }
 
-    public void Arrest()
+    private void Arrest()
     {
         _status = UnitsStatus.Arrested;
         _positionCell.Vacate();
