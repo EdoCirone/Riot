@@ -250,6 +250,8 @@ public class TurnManager : MonoBehaviour
         return false;
     }
 
+
+
     /// <summary>
     /// Le due celle che confinano sia con quella dell'unità sia con quella dove sarebbe
     /// stata spinta: su esagoni sono sempre e solo due, e sono le direzioni che affiancano
@@ -348,15 +350,52 @@ public class TurnManager : MonoBehaviour
 
     private void PushResolution(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
-        // La carica non confronta Atk e Def: chi la subisce viene spinto, punto.
-        // Lo scontro resta l'azione che logora e che si può perdere.
+        // 1. La spinta per prima: può togliere di mezzo il difensore (catena tappata
+        //    e nessuno sfogo laterale), e non ha senso far perdere Morale a chi è
+        //    già stato arrestato.
         ResolvePushOrRemove(pusher: atk, pushed: def);
+
+        // 2. La cella va catturata ORA. Se il -1 qui sotto lo uccide, _positionCell
+        //    punterà a una cella già liberata: ci si appoggerebbe a un bug noto
+        //    (Disperse/Arrest non azzerano il campo) invece che a una garanzia.
+        HexCell impactCell = def.PositionCell;
+
+        // 3. Il Morale lo perde solo chi tocca la carica, ed è la causa del
+        //    COMBATTIMENTO: se questo punto lo porta a zero dev'essere un arresto,
+        //    non una dispersione.
+        if (def.IsAlive)
+            def.LoseMorale(1, CauseFrom(atk));
+
+        // 4. L'onda parte comunque, anche se il difensore è caduto: il corteo
+        //    l'ha visto cadere.
+        ApplyPanicWave(impactCell, def);
 
         _chargeEvent?.Raise();
 
         _unitsRenderer.UpdateView(atk);
         _unitsRenderer.UpdateView(def);
         _lvlManager.RefreshBoardState();
+    }
+
+    /// <summary>
+    /// Applica l'onda. NON chiama RefreshBoardState: lo fa il chiamante, che di solito
+    /// sta risolvendo qualcosa di più grande (la carica) e deve ricalcolare una volta sola.
+    /// </summary>
+    private void ApplyPanicWave(HexCell origin, AbstractUnitsRunTime epicentre)
+    {
+        var wave = TacticalQuery.GetPanicWave(origin, epicentre, _map);
+
+        int baseTurns = epicentre is PoliceRuntime
+            ? TacticalQuery.PanicTurnsPolice
+            : TacticalQuery.PanicTurnsCorteo;
+
+        foreach (var (unit, steps) in wave)
+        {
+            unit.ApplyPanic(Mathf.Max(1, baseTurns - steps));
+            _unitsRenderer.UpdateView(unit);
+        }
+
+        Debug.Log($"[PANIC] wave from {origin.Coordinates}: {wave.Count} unit(s) affected");
     }
     #endregion
 
@@ -602,19 +641,20 @@ public class TurnManager : MonoBehaviour
         }
 
         caster.GainMorale(1);
+        caster.ClearPanic();
         _unitsRenderer.UpdateView(caster);
-        Debug.Log($"Chant: {caster} +1 morale (now {caster.Morale}/{caster.MaxMorale}))");
 
         foreach (HexCoordinates n in caster.PositionCell.Coordinates.GetNeighbors())
         {
             if (!_map.TryGetCell(n, out HexCell cell)) continue;
-            if (cell.OccupiedBy is SpezzoneRuntime spezzone && spezzone.Status == UnitsStatus.Alive)
+            if (cell.OccupiedBy is SpezzoneRuntime spezzone && spezzone.IsAlive)
             {
                 spezzone.GainMorale(1);
+                spezzone.ClearPanic();
                 _unitsRenderer.UpdateView(spezzone);
-                Debug.Log($"Chant: {spezzone} +1 morale (now {spezzone.Morale}/{spezzone.MaxMorale})");
             }
         }
+
         _lvlManager.RefreshBoardState();
         return true;
     }
@@ -668,6 +708,16 @@ public class TurnManager : MonoBehaviour
             police.RefillActionPoints();
         }
 
+        // Il panico degli SPEZZONI scala qui: il giocatore sta chiudendo il proprio turno.
+        foreach (var spezzone in _lvlManager.Spezzoni)
+        {
+            if (!spezzone.IsAlive) continue;
+            spezzone.TickPanic();
+            _unitsRenderer.UpdateView(spezzone);
+        }
+
+        _lvlManager.RefreshBoardState();
+
         StartCoroutine(ExecutePoliceTurn());
     }
 
@@ -689,6 +739,15 @@ public class TurnManager : MonoBehaviour
             spezzone.RefillActionPoints();
         }
 
+        // Il panico della POLIZIA scala qui: hanno appena finito il loro turno.
+        foreach (var police in _lvlManager.Police)
+        {
+            if (!police.IsAlive) continue;
+            police.TickPanic();
+            _unitsRenderer.UpdateView(police);
+        }
+
+        _lvlManager.RefreshBoardState();
         _startPlayerTurnEvent.Raise();
     }
 }

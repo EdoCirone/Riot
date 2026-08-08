@@ -322,6 +322,60 @@ e restituisce la struct annidata `TacticalQuery.AuraBonus`.
   caduti, altrimenti restano sprite fantasma sulla griglia. Fino a oggi solo
   `TurnManager` poteva far morire qualcuno, e lì `UpdateView` c'era già.
 
+## Panico (IMPLEMENTATO 08/08/26) — GDD cap. 17.4
+`AbstractUnitsRunTime._panicTurnsLeft` + `TacticalQuery.GetPanicWave` +
+`TurnManager.ApplyPanicWave` + `UnitMovement.SetPanicVisual`.
+
+- **Non è uno stato di `UnitsStatus`**: un'unità in panico è **viva**, si muove e agisce.
+  È un campo a parte, con `IsPanicked => _panicTurnsLeft > 0`. Metterlo nell'enum avrebbe
+  fatto sì che ogni `IsAlive` del progetto la considerasse morta.
+- **Chi subisce la carica**: −1 Morale (causa `CauseFrom(atk)`, quindi arresto se l'ha
+  caricato la polizia) e 3 turni di panico. **La propagazione non toglie Morale a nessuno**,
+  porta solo lo stato: il gradiente è sulla durata (3 / 2 / 1 per passo).
+- **`GetPanicWave` è una BFS pura** in `TacticalQuery`: riceve una **cella** e l'unità
+  epicentro, restituisce `(unit, steps)` e non muta niente. L'origine è una cella e non
+  un'unità perché **chi ha subito la carica può essere già uscito di gioco**: il corteo
+  l'ha visto cadere lo stesso.
+- **Propagazione per contatto, non per raggio**: le celle vuote non entrano nella coda,
+  quindi due unità a distanza 2 separate da una cella vuota non si contagiano. È ciò che
+  fa contare la **forma** del corteo. Massimo 2 passi (`PanicSteps`).
+- **Il seduto è frangifuoco**: non entra in panico e non trasmette.
+- **Chi è già in panico non ha trattamento speciale**: entra nell'onda come tutti (la
+  durata si aggiorna col `Mathf.Max` dentro `ApplyPanic`) e l'onda **lo attraversa**,
+  occupando il suo passo. Che non paghi due volte è garantito dal fatto che solo il
+  passo 0 perde Morale.
+- **Durata**: corteo `Mathf.Max(1, 3 - steps)` = 3/2/1, polizia = **1/1/1** (con la
+  sottrazione secca sarebbe 1/0/-1, cioè nessuna propagazione). Scelta implicita che il
+  GDD non esplicitava.
+- **Decremento a fine turno della propria parte**: spezzoni in `EndTurn`, polizia in
+  `ExecutePoliceTurn` — cioè dove si ricaricano i PA di quella parte. ⚠ Il "punto unico"
+  del GDD era sbagliato di un turno intero.
+  ⚠ **`RefreshBoardState()` dopo il decremento non è opzionale**: uscire dal panico
+  rimette in circolo le aure, e senza ricalcolo resterebbero spente per sempre.
+- **In panico non si danno né si ricevono aure.** `GetAuraBonus` salta i vicini in panico;
+  `ApplyAuras` passa **bonus 0** (non salta l'unità: è `ApplyAuraMorale(0)` a far rientrare
+  il prestito). **È così che il panico uccide**: non colpisce, toglie il sostegno, e cade
+  chi reggeva solo grazie ai vicini. Il `do...while` di `ApplyAuras` gestisce il crollo
+  a catena senza codice nuovo.
+- **Il Coro cura**: `ExecuteChant` chiama `ClearPanic()` su chi canta e sui sei vicini,
+  accanto a `GainMorale`. ⚠ Nota numerica: in panico `MaxMorale` è quello base, quindi
+  il `+1` può essere troncato e solo dopo `RefreshBoardState` il prestito risale.
+  ⚠ Da guardare in playtest: 3 PA curano fino a sette unità mentre la carica ne costa 4 —
+  la cura è più economica dell'attacco.
+- **Ordine obbligato in `PushResolution`**: spinta → cattura della cella → −1 Morale se
+  ancora vivo → onda → `RefreshBoardState`. La cella va catturata **prima** del −1: se
+  quel punto uccide, `_positionCell` punta a una cella già liberata e ci si appoggerebbe
+  a un bug noto invece che a una garanzia.
+- **Visualizzazione**: tremore laterale via DOTween su `_graphicsTransform` in **X**
+  (`DOLocalMoveX`, yoyo, `Ease.Linear`), campo `_panicTween` **separato** da
+  `_movementLoopTween` — altrimenti `StartBobLoop` lo ucciderebbe al primo movimento.
+  L'asse X è libero: i movimenti scrivono su `_rootTransform`, il bob su
+  `_graphicsTransform` in Y, il flip sulla scala. Sincronizzato da
+  `UnitsRenderer.UpdateView`, che lo spegne anche nel ramo `!IsAlive` **prima** di
+  `SetActive(false)`.
+- ⚠ **Manca solo la riga nel pannello unità**: a schermo il panico si vede dal tremore
+  ma il pannello non lo nomina.
+
 ## Disperso e Arrestato (VERIFICATO 03/08/26) — GDD cap. 18
 - `UnitsStatus` = `Alive`, `Arrested`, `Disperse`.
 - **La causa decide il destino**: `LoseMorale(amount, MoraleLossCause)` inoltra a
@@ -360,46 +414,73 @@ laterale su cella comune non esiste più.
   **cella obiettivo**, **unità avversaria**, **unità seduta**.
 - Catena chiusa → si spostano tutte, **dall'ultima alla prima** (obbligatorio:
   `SetPosition` passa da `TryOccupy`, che fallisce su cella ancora occupata).
-- Catena bloccata → si prova lo **sbandamento laterale** (sotto). Se fallisce anche
-  quello, chi ha perso lo scontro esce di scena via `RemoveFromBoard(CauseFrom(pusher))`,
-  quindi arresto se l'ha spinto la polizia, dispersione altrimenti. **Esce il difensore,
-  non l'ultimo della fila**: chi viene schiacciato contro la linea di polizia è chi
-  viene preso.
+- Catena tappata → si prova lo **sfogo laterale** (sotto), risalendo la colonna dal
+  fondo. Se non ce l'ha nessuno, chi ha subito la carica esce di scena via
+  `RemoveFromBoard(CauseFrom(pusher))` — arresto se l'ha spinto la polizia, dispersione
+  altrimenti. **Esce il difensore, non l'ultimo della fila**: chi viene schiacciato
+  contro la linea di polizia è chi viene preso.
+- ⚠ **Non c'è più un ramo `Lose`**: dall'08/08 la carica non confronta Atk e Def, quindi
+  la spinta va sempre nella stessa direzione e la catena si costruisce sempre fra i
+  compagni di chi la subisce. Vedi la sezione dedicata più sotto.
 
-## Sbandamento laterale (AGGIUNTO 06/08/26) — `TurnManager.TryStepAside`
-Ultima risorsa fra la catena bloccata e l'arresto. Il difensore scarta in una delle
-**due** celle che confinano sia con la sua sia con quella dove sarebbe stato spinto.
+## Sfogo laterale (AGGIUNTO 06/08, RIDISEGNATO 08/08/26)
+`TryBuildPushChain` + `BuildMovesFromColumn` + `TryReleaseSideways` + `FindSideCell`.
+`TryStepAside` **non esiste più**: la sua logica è dentro questi.
 
-- Su esagoni due celle adiacenti condividono sempre e solo due vicini, e sono quelli
-  delle **direzioni che affiancano** quella della spinta: `Directions[(i ± 1) % 6]`.
-  ⚠ **Questo dipende dal fatto che `HexCoordinates.Directions` sia in ordine ciclico**
-  (E, NE, NW, W, SW, SE). Riordinare quell'array rompe lo sbandamento in silenzio —
+**Come funziona.** La catena si costruisce come prima, raccogliendo la `column` di unità
+che la spinta comprime. Quando trova un tappo, invece di fallire subito si risale la
+colonna **dal fondo verso il difensore** cercando il primo che abbia una cella laterale
+libera. Quello scarta, **libera la sua cella**, e tutta la fila davanti a lui arretra di
+uno; chi sta dietro di lui resta fermo. Solo se nessuno della colonna ha uno sfogo, chi
+ha subito la carica esce di scena.
+
+Lo sbandamento è quindi **la valvola di sfogo della compressione**, non un'alternativa
+alla catena: la folla si comprime finché può, poi qualcuno in fondo sguscia di lato.
+
+⚠ **La versione del 06/08 faceva scartare solo il difensore** e solo a catena fallita.
+Cambiata l'08/08 su richiesta di Edoardo: adesso può scartare **chiunque** nella colonna.
+
+- Le due celle candidate sono quelle delle **direzioni che affiancano** quella della
+  spinta: `Directions[(i ± 1) % 6]`. Su esagoni due celle adiacenti condividono sempre e
+  solo due vicini, e sono esattamente quelli.
+  ⚠ **Dipende dal fatto che `HexCoordinates.Directions` sia in ordine ciclico**
+  (E, NE, NW, W, SW, SE). Riordinare quell'array rompe lo sfogo in silenzio —
   `GetNeighbors` continuerebbe a funzionare, quindi movimento e pathfinding non se ne
-  accorgerebbero.
+  accorgerebbero. C'è un commento di avviso sopra la dichiarazione dell'array.
 - Fra le due si sceglie quella con **meno alleati adiacenti**: la spinta disgrega.
   Deterministico di proposito: un domino casuale non è diagnosticabile.
-- `CountAdjacentAllies` **deve escludere l'unità stessa** (`if (other == unit) continue`):
-  al momento del conteggio il difensore non si è ancora spostato e confina con entrambe
-  le candidate, quindi si conterebbe da solo in tutti e due i casi.
-  ⚠ Questo è corretto **solo perché `TryBuildPushChain` è puramente esplorativa** e non
-  muove nessuno quando fallisce. Se un giorno la catena mutasse lo stato mentre esplora,
-  il conteggio smetterebbe di simulare lo stato futuro e nessuno se ne accorgerebbe.
-- Filtri: bordo mappa, `!IsWalkable`, barricata, cella occupata (via `IsCellAvailable`)
-  e **cella obiettivo** — la stessa esclusione della catena, altrimenti "l'obiettivo non
-  si prende per spinta" varrebbe solo in una direzione.
+- ⚠ **L'ordine dentro `moves` è la parte fragile.** `ApplyPushChain` applica
+  dall'ultimo al primo perché `SetPosition` passa da `TryOccupy` e fallisce su cella
+  ancora occupata. Quindi chi scarta dev'essere l'**ultimo** elemento della lista: si
+  sposta per primo e libera la cella in tempo. Invertire i due `for` in
+  `TryReleaseSideways` fa fallire la catena a metà con un `LogError`.
+- ⚠ **`CountAdjacentAllies` ora è un'approssimazione.** Conta i vicini nello stato
+  attuale, ma le unità davanti a chi scarta stanno per spostarsi. Esatto per chi sta
+  dietro, ottimistico per chi sta davanti. Serve solo a scegliere fra due celle, quindi
+  il danno massimo è una scelta subottimale — mai una posizione illegale. Con la versione
+  del 06/08 era esatto perché si muoveva una sola unità.
+  `if (other == unit) continue` resta necessario: al momento del conteggio l'unità non si
+  è ancora spostata e confina con entrambe le candidate.
+- Filtri identici a quelli della catena: bordo mappa, `!IsWalkable`, barricata, cella
+  occupata (via `IsCellAvailable`) e **cella obiettivo** — altrimenti "l'obiettivo non si
+  prende per spinta" varrebbe solo in una direzione.
 - **Non esiste un domino laterale**: chi scarta si toglie dai piedi da solo, quelli
   dietro e di fianco non si muovono. Deciso, non emerso.
-- ⚠ **Ha reso la carica molto meno letale**: prima bastava una cella bloccata per
-  arrestare, ora ne servono tre. Su campo aperto l'arresto non avviene quasi più.
-- ⚠ **Anche lo sbandamento teletrasporta**: nessuna animazione, come per la catena.
+- ⚠ **L'arresto per schiacciamento è diventato raro.** Prima bastava una cella bloccata;
+  con la versione del 06/08 ne servivano tre; adesso serve che **tutta la colonna** sia
+  tappata — nessuno spazio dietro e nessun fianco libero per nessuno, cioè `2N+1` celle
+  bloccate per una colonna di N. Su campo aperto non succede praticamente mai: serve un
+  corridoio stretto o una fila di seduti sui fianchi.
+- ⚠ **Tutto teletrasporta**: né la catena né lo sfogo hanno animazione.
 - `ResolvePushOrRemove` ha in cima una **guardia di adiacenza** (`Distance != 1` →
-  `LogError` e return). Serve a entrambi: sia `TryStepAside` sia `TryBuildPushChain`
-  ricavano la direzione dalla differenza fra le coordinate, che è una direzione valida
-  solo se i due sono adiacenti. Senza la guardia, `TryBuildPushChain` costruirebbe una
-  catena **a salti di due celle** senza dire niente.
-- `Lose` è simmetrico: la catena si costruisce dietro l'attaccante, fra i suoi.
-- Il limite è lo **spazio alle spalle**, non la lunghezza della fila. Un corteo stretto
-  fra due poliziotti non ha uscite: è voluto.
+  `LogError` e return). La direzione della spinta è la differenza fra le coordinate, che
+  è una direzione valida solo se i due sono adiacenti. Senza la guardia,
+  `TryBuildPushChain` costruirebbe una catena **a salti di due celle** senza dire niente.
+- Il limite è lo **spazio attorno alla colonna**, non la lunghezza della fila.
+- **I log dicono quale ramo è scattato**: `applied: N unit(s) moved`,
+  `steps aside to (q,r), N unit(s) shift back`, `column of N blocked at (q,r): <motivo>`,
+  `no way back and no way out`. Il motivo del tappo è nominato per esteso (bordo mappa,
+  obiettivo, barricata, seduto, nemico): serve perché a schermo un tappo è invisibile.
 - ⚠ **Obiettivo = muro** significa che un corteo schierato davanti a una cella obiettivo
   ha la fila che finisce contro di essa, quindi si fa arrestare. Regola tematica scelta
   il 05/08/26 ("il ministero non si prende per spinta"): da confermare in playtest.
@@ -959,9 +1040,14 @@ Repressione cross-level, campagna. Dipendono tutti da uno strato run inesistente
 
 # DA FARE (concordato)
 
-## ORDINE DI LAVORO CONCORDATO (04/08/26, aggiornato 06/08/26)
-**spinta a domino (FATTA 05/08/26) → PASSATA DI FIX (06/08/26) → panico → scena
-Assemblea → refactoring obiettivi → IA polizia.**
+## ORDINE DI LAVORO CONCORDATO (04/08/26, aggiornato 08/08/26)
+**spinta a domino (FATTA 05/08) → passata di fix (FATTA 06/08) → B3+B7, query condivise
+(FATTE 08/08) → panico (FATTO 08/08) → scena Assemblea → refactor PoliceAI →
+refactoring obiettivi.**
+
+⚠ **Il refactor di `PoliceAI` si è spostato DOPO la scena Assemblea** (concordato
+08/08/26): l'Assemblea cambia cosa l'IA si trova davanti, quindi rifarla prima
+significherebbe rifarla due volte. Vedi la sezione 1-bis.
 
 ⚠ **La passata di fix si è infilata davanti al panico ed è concordata.** Il triple
 check del 06/08/26 ha trovato quattro bug attivi, uno dei quali (input del giocatore
@@ -974,14 +1060,23 @@ le prime otto voci sono mezza giornata e chiudono tutto ciò che è attivo.
 Gli SFX più sotto restano validi ma NON sono il prossimo passo: si fanno quando
 esisteranno gli eventi di gameplay da agganciare.
 
-### 1. Panico — design CHIUSO, codice da scrivere
-Design completo in `D:\GDDRIOT\17-Coesione-Adiacenza-e-Panico.md` §17.4 e §17.6.
-Riassunto operativo:
-⚠ **Il design è stato rivisto il 06/08/26**: il danno è uscito dalla propagazione. Il
-testo qui sotto è quello aggiornato; il capitolo 17 riporta anche il perché.
+### 1. ~~Panico~~ — ✅ **IMPLEMENTATO l'08/08/26**
+Il comportamento reale è documentato in **PARTE 1, sezione "Panico"**. Quello che segue
+è il piano di design con cui è stato scritto: si tiene perché contiene i *perché*, ma
+per sapere cosa fa il codice si guarda la PARTE 1.
 
-- Va in panico **chi PERDE** lo scontro di carica (simmetrico, vale anche per la
-  polizia). Si propaga **per contatto** lungo le adiacenze della stessa parte. Il
+Differenze fra il piano e ciò che è stato fatto:
+- **Chi va in panico è chi SUBISCE la carica, non chi la perde.** L'08/08 la carica ha
+  smesso di confrontare Atk e Def, quindi un perdente non esiste più. È la prima stesura
+  del GDD 17.4, che era stata scartata perché una carica fallita sarebbe stata gratis:
+  senza carica fallita, il buco non c'è.
+- **Manca solo la riga nel pannello unità.**
+
+Design originale in `D:\UnityProject\GDDRIOT\17-Coesione-Adiacenza-e-Panico.md` §17.4 e §17.6:
+⚠ **Il design è stato rivisto il 06/08/26**: il danno è uscito dalla propagazione.
+
+- Va in panico **chi PERDE** lo scontro di carica (superato l'08/08, vedi sopra).
+  Si propaga **per contatto** lungo le adiacenze della stessa parte. Il
   decadimento si misura in **passi attraverso la folla**, NON in distanza esagonale —
   è quello che fa contare la forma del corteo.
 - **Il Morale lo perde solo chi tocca la carica: −1**, la stessa cifra dello scontro.
@@ -1092,18 +1187,19 @@ passaggio di stato fra scene, istanziazione a runtime delle unità.
 `D:\GDDRIOT\19-Obiettivi-e-Occupazione.md`. Occupazione per turni consecutivi,
 obiettivo rivendicato che non paga più, obiettivi configurabili. Non lavorarci ora.
 
-## Poi: SFX — il blocco è mezzo sciolto (aggiornato 06/08/26)
-Il sistema audio è pronto e testato. **Il punto 1 qui sotto è già stato fatto lato
-codice**: `TurnManager` dichiara e alza `_skirmishWin/Lose/Par` (in `RaiseCombactResult`,
-dentro `onImpact`) e `_chargeWin/Lose/Par` (in `RaiseChargeResult`, dentro
-`PushResolution`). **Ma tutti e sei gli slot sono vuoti in scena** (`fileID: 0`),
-quindi oggi non parte niente e non lo si vede perché sono alzati con `?.`.
-Restano senza evento: movimento, coro, sedersi, lancio, barricata, dispersione.
+## Poi: SFX — il blocco è sciolto (aggiornato 08/08/26)
+Il sistema audio è pronto e testato, e i canali di combattimento adesso sono **collegati
+in scena**. `TurnManager` alza `_skirmishWin/Lose/Par` (in `RaiseCombactResult`, dentro
+`onImpact`) e **un solo `_chargeEvent`** in `PushResolution` — dall'08/08 la carica non
+ha più esiti, quindi i tre canali Win/Lose/Par della carica sono spariti insieme a
+`RaiseChargeResult`.
+⚠ **Due asset restano orfani a disco**: `LoseChargeEvent` e `ParChargeEvent`, che nessuno
+usa più. Da cancellare, e `WinChargeEvent` da rinominare in `ChargeEvent` (Unity mantiene
+il guid quando rinomini, quindi lo slot in scena non si scollega).
+Restano senza evento: movimento, coro, sedersi, lancio, barricata, dispersione, **panico**.
 Ordine di lavoro:
-1. ~~Aggiungere i campi `[SerializeField] GameEventSO` in `TurnManager` e alzarli~~ —
-   **FATTO per scontro e carica.** Manca solo **creare i tre asset della carica**
-   (`ChargeWinEvent`, `ChargeLoseEvent`, `ChargeParEvent`) e **collegare i sei slot
-   nell'Inspector**, riusando i tre orfani già a disco per lo scontro.
+1. ~~Aggiungere i campi `[SerializeField] GameEventSO` in `TurnManager`, alzarli, creare
+   gli asset e collegarli~~ — **FATTO** per scontro e carica il 06-08/08/26.
 2. Creare i canali mancanti (movimento, coro, sedersi, lancio, barricata,
    dispersione) come asset in `ScriptableObjects/Events/`, e i campi corrispondenti.
 3. Solo allora creare gli `SFXSO` e infilarli nell'array `_sfxevents`. Il
@@ -1173,6 +1269,40 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 31 (08/08/26) — query condivise, panico, carica ridisegnata
+Giornata lunga: chiuso l'ultimo bug attivo, scritto il panico per intero, e cambiata una
+regola di combattimento.
+
+- 🟢 **B3+B7 chiusi — non ci sono più bug attivi noti.** `GetValidTargets` riceve unità e
+  oggetto invece di coordinata e budget, e chiama gli stessi predicati degli esecutori
+  (`GetSitStandCost`, `CanThrow`, `CanPlaceBarricade`). Chiuse gratis anche la voce 13
+  dell'arretrato (barricata sugli obiettivi) e la gittata non verificata in `ExecuteThrow`.
+- 🟢 **`InputHandler.DescribeInvalidTarget`**: l'alert dice il motivo vero invece di
+  "not valid Target". Nata perché il fix ha spostato il rifiuto **prima** dell'esecutore,
+  che i messaggi precisi ce li aveva.
+- 🟢 **Panico completo**: stato, tremore DOTween, soppressione aure, propagazione BFS,
+  aggancio alla carica, decremento per parte, cura col Coro. Manca la riga nel pannello.
+- 🟢 **Sfogo laterale ridisegnato**: adesso può scartare **chiunque** nella colonna
+  compressa, non solo il difensore. Chi scarta libera la sua cella e la fila davanti
+  arretra. L'arresto per schiacciamento è diventato raro.
+- 🟢 **La carica non confronta più Atk e Def.** Chi la subisce viene spinto, punto —
+  tranne il seduto. Chiude gli Operai imbattibili, rende coerente il panico, e fa
+  **evaporare la decisione E1** sulle aure calcolate dalla cella d'arrivo, che era il
+  prerequisito del panico da tre giorni.
+- 🔴 **Due regressioni introdotte dal refactor e trovate dal triple check**, entrambe
+  dovute allo stesso fatto: il renderer ha ora una **copia** di `_selectedItem` e
+  `_currentAction`. Vedi la sezione dedicata in PARTE 1.
+
+**Due lezioni:**
+
+1. **Un refactor che rende una query più precisa sposta i problemi a monte.** Chiudendo
+   la divergenza, il rifiuto è passato dall'esecutore all'input — e con esso è sparito il
+   messaggio giusto. Quando una decisione si sposta, va guardato **cosa si portava dietro**.
+2. **Un cambio di design può cancellare una decisione aperta invece di risolverla.** E1
+   era ferma da tre giorni e bloccava il panico; togliendo il confronto dalla carica non
+   è stata decisa, ha smesso di esistere. Vale la pena chiedersi, davanti a una decisione
+   incastrata, se la domanda sia ancora necessaria.
 
 ## Changelog sessione 30 (06/08/26, sera) — passata di fix e spinta laterale
 Stessa giornata della 29, ma qui il codice è stato toccato.

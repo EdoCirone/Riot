@@ -11,6 +11,10 @@ public static class TacticalQuery
     private const int SitCost = 1;
     private const int StandCost = 2;
 
+    public const int PanicSteps = 2;         
+    public const int PanicTurnsCorteo = 3;
+    public const int PanicTurnsPolice = 1;
+
     public static int GetSitStandCost(AbstractUnitsRunTime unit)
     => unit != null && unit.IsSeated ? StandCost : SitCost;
 
@@ -253,5 +257,56 @@ public static class TacticalQuery
         if (target.Type.IsObjective) return false;
 
         return IsCellAvailable(target);
+    }
+
+    /// <summary>
+    /// L'onda di panico: parte da una cella e si propaga PER CONTATTO attraverso le unità
+    /// della stessa parte. Il decadimento si misura in passi attraverso la folla, non in
+    /// distanza esagonale — è quello che fa contare la forma del corteo.
+    /// L'origine è una CELLA e non un'unità perché chi ha subito la carica può essere già
+    /// uscito di gioco: il corteo l'ha visto cadere lo stesso.
+    /// Non muta niente: restituisce chi è coinvolto e a che passo.
+    /// </summary>
+    public static List<(AbstractUnitsRunTime unit, int steps)> GetPanicWave(
+        HexCell origin, AbstractUnitsRunTime epicentre, HexGrid map)
+    {
+        List<(AbstractUnitsRunTime, int)> wave = new();
+        if (origin == null || epicentre == null || map == null) return wave;
+
+        bool policeSide = epicentre is PoliceRuntime;
+
+        HashSet<HexCoordinates> visited = new() { origin.Coordinates };
+        Queue<(HexCoordinates coord, int steps)> queue = new();
+        queue.Enqueue((origin.Coordinates, 0));
+
+        // L'epicentro entra nell'onda solo se è ancora in gioco: se il -1 di Morale
+        // l'ha ucciso, l'onda parte lo stesso dalla sua cella ma lui non c'è più.
+        if (epicentre.IsAlive && !epicentre.IsSeated)
+            wave.Add((epicentre, 0));
+
+        while (queue.Count > 0)
+        {
+            var (current, steps) = queue.Dequeue();
+            if (steps >= PanicSteps) continue;
+
+            foreach (HexCoordinates dir in HexCoordinates.Directions)
+            {
+                HexCoordinates neighborCoord = current + dir;
+                if (visited.Contains(neighborCoord)) continue;
+                if (!map.TryGetCell(neighborCoord, out HexCell cell)) continue;
+
+                AbstractUnitsRunTime unit = cell.OccupiedBy;
+                if (unit == null) continue;                        // il panico viaggia fra le persone
+                if (!unit.IsAlive) continue;
+                if (unit.IsSeated) continue;                       // frangifuoco: non entra e non trasmette
+                if ((unit is PoliceRuntime) != policeSide) continue;
+
+                visited.Add(neighborCoord);
+                wave.Add((unit, steps + 1));
+                queue.Enqueue((neighborCoord, steps + 1));
+            }
+        }
+
+        return wave;
     }
 }

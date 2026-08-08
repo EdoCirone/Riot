@@ -41,6 +41,7 @@ public abstract class AbstractUnitsRunTime
     public HexCell PositionCell => _positionCell;
     public UnitsStatus Status => _status;
     public bool IsAlive => _status == UnitsStatus.Alive;
+    public void ClearPanic() => _panicTurnsLeft = 0;
 
     public abstract GameObject GraphicsPrefab { get; }
 
