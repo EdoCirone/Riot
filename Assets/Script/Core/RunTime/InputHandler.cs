@@ -119,7 +119,7 @@ public class InputHandler : MonoBehaviour
 
         Vector2 screenPos = _inputSystem.Game.MousePosition.ReadValue<Vector2>();
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 0));
-        HexCoordinates clickCoordinates = HexCoordinates.FromWorldPosition(worldPos, _grid.CellSize);
+        HexCoordinates clickCoordinates = _grid.WorldToGrid(worldPos);
 
         HexCell clickCell;
         _grid.TryGetCell(clickCoordinates, out clickCell);
@@ -199,7 +199,7 @@ public class InputHandler : MonoBehaviour
         {
             _pendingTarget = police;
             _policeSelectedEvent?.Raise(police);
-            FlipSelectedUnit(_grid.transform.position + police.PositionCell.Coordinates.ToWorldPosition(_grid.CellSize));
+            FlipSelectedUnit(_grid.GridToWorld(police.PositionCell.Coordinates));
             Debug.Log($"Target marked: {clickCell.Coordinates}");
         }
         else if (clickCell.OccupiedBy is SpezzoneRuntime other)
@@ -377,7 +377,7 @@ public class InputHandler : MonoBehaviour
         }
 
         _pendingDestination = cell;
-        FlipSelectedUnit(_grid.transform.position + cell.Coordinates.ToWorldPosition(_grid.CellSize));
+        FlipSelectedUnit(_grid.GridToWorld(cell.Coordinates));
     }
     private void OnChargeKey(InputAction.CallbackContext ctx)
     {

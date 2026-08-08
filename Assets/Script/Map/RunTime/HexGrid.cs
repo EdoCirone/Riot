@@ -67,7 +67,7 @@ public class HexGrid : MonoBehaviour
         Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
         foreach (var cell in _cells.Values)
         {
-            Vector3 worldPos = cell.Coordinates.ToWorldPosition(_cellSize) + transform.position;
+            Vector3 worldPos = GridToWorld(cell.Coordinates);
             min = Vector3.Min(min, worldPos);
             max = Vector3.Max(max, worldPos);
         }
@@ -81,6 +81,19 @@ public class HexGrid : MonoBehaviour
 
     public bool TryGetCell(HexCoordinates coords, out HexCell cell)
         => _cells.TryGetValue(coords, out cell);
+
+    /// <summary>
+    /// Coordinata → posizione nel mondo, tenendo conto di dove sta la griglia in scena.
+    /// ⚠ È l'UNICO posto dove `transform.position` va sommato. Chi lo fa a mano prima o
+    /// poi se lo dimentica: è già successo in UnitsRenderer.UpdateView, ed era invisibile
+    /// solo perché la griglia sta a (0,0,0).
+    /// </summary>
+    public Vector3 GridToWorld(HexCoordinates coordinates)
+        => transform.position + coordinates.ToWorldPosition(_cellSize);
+
+    /// <summary>Posizione nel mondo → coordinata. Inversa esatta di GridToWorld.</summary>
+    public HexCoordinates WorldToGrid(Vector3 worldPosition)
+        => HexCoordinates.FromWorldPosition(worldPosition - transform.position, _cellSize);
 
     public IEnumerable<HexCell> GetAllCells() => _cells.Values;
 
@@ -100,7 +113,7 @@ public class HexGrid : MonoBehaviour
                 int q = col;
                 int r = row - (col - parity) / 2;
                 HexCoordinates coords = new HexCoordinates(q, r);
-                Vector3 center = transform.position + coords.ToWorldPosition(_cellSize);
+                Vector3 center = GridToWorld(coords);
 
                 HexTypeSO type = _hexMapData.GetCellType(col, row);
                 Color cellColor = (type != null && type.Color.a > 0f) ? type.Color : _gizmoColor;

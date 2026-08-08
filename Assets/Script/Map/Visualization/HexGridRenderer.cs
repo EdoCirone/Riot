@@ -22,8 +22,7 @@ public class HexGridRenderer : MonoBehaviour
             if (type.Prefab == null) continue;
 
             GameObject go = Instantiate(type.Prefab,
-                 _grid.transform.position + cell.Coordinates.ToWorldPosition(_grid.CellSize),
-                 Quaternion.identity, transform);
+            _grid.GridToWorld(cell.Coordinates), Quaternion.identity, transform);
 
             _cellObjects[cell.Coordinates] = go;
             SpriteRenderer sr = go.GetComponent<SpriteRenderer>();

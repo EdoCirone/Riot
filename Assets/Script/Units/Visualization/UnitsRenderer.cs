@@ -43,7 +43,7 @@ public class UnitsRenderer : MonoBehaviour
             return;
         }
 
-        go.transform.root.position = unit.PositionCell.Coordinates.ToWorldPosition(_grid.CellSize);
+        go.transform.root.position = _grid.GridToWorld(unit.PositionCell.Coordinates);
         movement?.SetPanicVisual(unit.IsPanicked);
     }
 }

@@ -281,7 +281,7 @@ public class CameraManager : MonoBehaviour
         if (unit == _lastCenteredUnit) return;
         _lastCenteredUnit = unit;
 
-        Vector3 rawTarget = _map.transform.position + unit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
+        Vector3 rawTarget = _map.GridToWorld(unit.PositionCell.Coordinates);
         rawTarget.z = _mainCamera.transform.position.z;
 
         Vector3 targetPos = ClampToCameraBounds(rawTarget);

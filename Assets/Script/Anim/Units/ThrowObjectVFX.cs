@@ -67,9 +67,9 @@ public class ThrowObjectVFX : MonoBehaviour
             Debug.LogWarning("No selected unit to throw from in ThrowObjectVFX");
             return;
         }
-        
-        Vector3 selectedUnitPos = _map.transform.position + _selectedUnit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize); 
-        Vector3 targetUnitPos = _map.transform.position + unit.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
+
+        Vector3 selectedUnitPos = _map.GridToWorld(_selectedUnit.PositionCell.Coordinates);
+        Vector3 targetUnitPos = _map.GridToWorld(unit.PositionCell.Coordinates);
 
         GameObject prefab = (_selectedItem != null && _selectedItem.GraphicPrefab != null)
             ? _selectedItem.GraphicPrefab

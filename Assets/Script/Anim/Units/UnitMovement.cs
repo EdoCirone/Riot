@@ -67,7 +67,7 @@ public class UnitMovement : MonoBehaviour
         foreach (HexCell cell in path)
         {
             Vector3 startPos = _rootTransform.position;
-            Vector3 endPos = grid.transform.position + cell.Coordinates.ToWorldPosition(grid.CellSize);
+            Vector3 endPos = grid.GridToWorld(cell.Coordinates);
 
             MustFlip(endPos);
 
@@ -88,8 +88,7 @@ public class UnitMovement : MonoBehaviour
             if (!_unit.SetPosition(cell))
             {
                 Debug.LogWarning($"[MOVEMENT] {_unit} cannot occupy {cell.Coordinates}: path interrupted");
-                _rootTransform.position = grid.transform.position
-                    + _unit.PositionCell.Coordinates.ToWorldPosition(grid.CellSize);
+                _rootTransform.position = grid.GridToWorld(_unit.PositionCell.Coordinates);
                 break;
             }
         }
@@ -220,7 +219,7 @@ public class UnitMovement : MonoBehaviour
             .WaitForCompletion();
 
         // Rincorsa
-        Vector3 chargeEndPos = grid.transform.position + cellDestination.Coordinates.ToWorldPosition(grid.CellSize);
+        Vector3 chargeEndPos = grid.GridToWorld(cellDestination.Coordinates);
         float elapsed = 0f;
         while (elapsed < _movementSettings.ChargeDuration)
         {

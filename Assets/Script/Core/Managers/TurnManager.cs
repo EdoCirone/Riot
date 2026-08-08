@@ -128,7 +128,7 @@ public class TurnManager : MonoBehaviour
             yield break;
         }
 
-        Vector3 defenderWorldPos = _map.transform.position + def.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
+        Vector3 defenderWorldPos = _map.GridToWorld(def.PositionCell.Coordinates);
 
         atk.TrySpendActionPoint(TacticalQuery.ChargeCost);
 
@@ -543,12 +543,12 @@ public class TurnManager : MonoBehaviour
         bool done = false;
         GameObject atkGO = _unitsRenderer.GetGameObject(atk);
         UnitMovement movement = atkGO.GetComponent<UnitMovement>();
-        Vector3 defWorldPos = _map.transform.position + def.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
+        Vector3 defWorldPos = _map.GridToWorld(def.PositionCell.Coordinates);
 
         // difensore reagisce
         GameObject defGO = _unitsRenderer.GetGameObject(def);
         UnitMovement defMovement = defGO != null ? defGO.GetComponent<UnitMovement>() : null;
-        Vector3 atkWorldPos = _map.transform.position + atk.PositionCell.Coordinates.ToWorldPosition(_map.CellSize);
+        Vector3 atkWorldPos = _map.GridToWorld(atk.PositionCell.Coordinates);
 
         movement.PlaySkirmish(defWorldPos,
              onComplete: () =>
@@ -623,7 +623,7 @@ public class TurnManager : MonoBehaviour
         spezzone.Inventory.ConsumeItem(item);
         targetCell.TryPlaceBarricade(new BarricadeRuntime(item));
 
-        Vector3 worldPos = _map.transform.position + targetCell.Coordinates.ToWorldPosition(_map.CellSize);
+        Vector3 worldPos = _map.GridToWorld(targetCell.Coordinates);
         Instantiate(item.GraphicPrefab, worldPos, Quaternion.identity);
         return true;
     }

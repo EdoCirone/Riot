@@ -19,7 +19,7 @@ public class UnitsSetup : MonoBehaviour
         if (_grid == null) { Debug.LogWarning($"{name}: Grid not assigned"); return null; }
         if (_unit == null) { Debug.LogWarning($"{name}: Unit (SO) not assigned"); return null; }
 
-        HexCoordinates coord = HexCoordinates.FromWorldPosition(transform.position, _grid.CellSize);
+        HexCoordinates coord = _grid.WorldToGrid(transform.position);
         //Debug.Log($"Setup {gameObject.name}: worldPos={transform.position}, coord={coord}");
 
         HexCell cell;
