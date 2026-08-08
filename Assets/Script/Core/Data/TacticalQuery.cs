@@ -134,6 +134,8 @@ public static class TacticalQuery
         AuraBonus total = new AuraBonus();
         if (unit == null || unit.PositionCell == null || map == null) return total;
 
+        if (unit.IsPanicked) return total;
+
         foreach (HexCoordinates dir in HexCoordinates.Directions)
         {
             HexCoordinates neighborCoord = unit.PositionCell.Coordinates + dir;

@@ -352,20 +352,44 @@ e restituisce la struct annidata `TacticalQuery.AuraBonus`.
   del GDD era sbagliato di un turno intero.
   ⚠ **`RefreshBoardState()` dopo il decremento non è opzionale**: uscire dal panico
   rimette in circolo le aure, e senza ricalcolo resterebbero spente per sempre.
-- **In panico non si danno né si ricevono aure.** `GetAuraBonus` salta i vicini in panico;
-  `ApplyAuras` passa **bonus 0** (non salta l'unità: è `ApplyAuraMorale(0)` a far rientrare
-  il prestito). **È così che il panico uccide**: non colpisce, toglie il sostegno, e cade
-  chi reggeva solo grazie ai vicini. Il `do...while` di `ApplyAuras` gestisce il crollo
-  a catena senza codice nuovo.
+- **In panico non si danno né si ricevono aure**, e la regola vive **tutta dentro
+  `TacticalQuery.GetAuraBonus`**, in due punti che vanno letti insieme:
+  ```csharp
+  if (unit.IsPanicked) return total;          // non RICEVE
+  ...
+      if (neighbor.IsPanicked) continue;      // non DÀ
+  ```
+  ⚠ **Fino all'08/08 sera c'era solo il secondo**, e mezza regola non veniva applicata:
+  il Morale funzionava (passa da `ApplyAuras`, che gestiva a parte il ricevente) ma
+  **Atk e Def no**, perché `CombatResolver.GetEffectiveAtk/Def` chiama `GetAuraBonus`
+  al volo. Uno spezzone in panico continuava a difendersi col bonus dei compagni.
+  Non si vedeva perché l'effetto vistoso — il Morale — era corretto.
+  Lezione: quando una regola ha due versi, **cercare esplicitamente il secondo**.
+- Dopo il fix, `LVLManager.ApplyAuras` chiama `GetAuraBonus` liscia: il ternario
+  `IsPanicked ? 0 : ...` è stato tolto perché duplicava la regola in un secondo posto.
+- **È così che il panico uccide**: non colpisce, toglie il sostegno, e cade chi reggeva
+  solo grazie ai vicini. `ApplyAuraMorale(0)` fa rientrare il prestito, e il `do...while`
+  di `ApplyAuras` gestisce il crollo a catena senza codice nuovo.
 - **Il Coro cura**: `ExecuteChant` chiama `ClearPanic()` su chi canta e sui sei vicini,
   accanto a `GainMorale`. ⚠ Nota numerica: in panico `MaxMorale` è quello base, quindi
   il `+1` può essere troncato e solo dopo `RefreshBoardState` il prestito risale.
   ⚠ Da guardare in playtest: 3 PA curano fino a sette unità mentre la carica ne costa 4 —
   la cura è più economica dell'attacco.
-- **Ordine obbligato in `PushResolution`**: spinta → cattura della cella → −1 Morale se
-  ancora vivo → onda → `RefreshBoardState`. La cella va catturata **prima** del −1: se
-  quel punto uccide, `_positionCell` punta a una cella già liberata e ci si appoggerebbe
-  a un bug noto invece che a una garanzia.
+- **Ordine obbligato in `PushResolution`**: cattura della cella d'urto → spinta →
+  se ancora vivo, aggiorna la cella e applica il −1 → onda → `RefreshBoardState`.
+  ⚠ **La cella si cattura PRIMA della spinta**, non dopo. La prima stesura la leggeva
+  dopo (`impactCell = def.PositionCell`), e funzionava **solo perché `Disperse()` e
+  `Arrest()` non azzerano `_positionCell`** — cioè si appoggiava alla voce 4 dei bug
+  noti. Il giorno che quel bug si corregge, `impactCell` diventa `null`, l'onda sparisce
+  e `ApplyPanicWave` va in `NullReferenceException` sul `Debug.Log`. Adesso la cella è
+  catturata quando esiste di sicuro, e riaggiornata solo se il difensore è sopravvissuto.
+  `ApplyPanicWave` ha comunque una guardia `origin == null` come rete.
+- **Il −1 appartiene alla CARICA, non al panico.** Chi viene caricato due volte perde
+  2 di Morale, esattamente come chi subisce due scontri. La regola "chi è già in panico
+  non paga di nuovo" riguarda **l'onda**, ed è garantita dal fatto che solo il passo 0
+  toglie Morale. Sono due cose diverse che è facile confondere.
+- `MoraleLossCause.Panic` è **orfano**: il −1 usa `CauseFrom(atk)` e l'onda non toglie
+  Morale a nessuno. Il commento nell'enum ("non ancora implementata") è falso.
 - **Visualizzazione**: tremore laterale via DOTween su `_graphicsTransform` in **X**
   (`DOLocalMoveX`, yoyo, `Ease.Linear`), campo `_panicTween` **separato** da
   `_movementLoopTween` — altrimenti `StartBobLoop` lo ucciderebbe al primo movimento.
@@ -1294,7 +1318,12 @@ regola di combattimento.
   dovute allo stesso fatto: il renderer ha ora una **copia** di `_selectedItem` e
   `_currentAction`. Vedi la sezione dedicata in PARTE 1.
 
-**Due lezioni:**
+- 🔴 **Due difetti nel panico, trovati dalla revisione della sera e corretti subito**:
+  metà della regola sulle aure non era applicata (si riceveva ancora Atk/Def), e
+  l'origine dell'onda si appoggiava a `_positionCell` non azzerato. Vedi la sezione
+  "Panico" in PARTE 1.
+
+**Quattro lezioni:**
 
 1. **Un refactor che rende una query più precisa sposta i problemi a monte.** Chiudendo
    la divergenza, il rifiuto è passato dall'esecutore all'input — e con esso è sparito il
@@ -1303,6 +1332,15 @@ regola di combattimento.
    era ferma da tre giorni e bloccava il panico; togliendo il confronto dalla carica non
    è stata decisa, ha smesso di esistere. Vale la pena chiedersi, davanti a una decisione
    incastrata, se la domanda sia ancora necessaria.
+3. **Una regola con due versi va cercata in entrambi.** "Non dà e non riceve aure" era
+   implementata solo per il *dare*. Il *ricevere* passava da un'altra strada
+   (`CombatResolver`, che legge le aure al volo) e nessuno l'aveva percorsa. Il difetto
+   era invisibile perché l'effetto vistoso — il Morale — funzionava.
+4. **Non costruire sopra un bug che hai già deciso di demolire.** L'origine dell'onda
+   leggeva `_positionCell` di un'unità rimossa, che è popolato solo per via di un difetto
+   noto. Correggere quel difetto avrebbe rotto il panico in un punto lontanissimo.
+   È la seconda volta che `_positionCell` non azzerato fa da appoggio a codice nuovo:
+   la prima fu la resurrezione delle unità nella spinta, il 05/08.
 
 ## Changelog sessione 30 (06/08/26, sera) — passata di fix e spinta laterale
 Stessa giornata della 29, ma qui il codice è stato toccato.

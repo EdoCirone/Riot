@@ -350,24 +350,19 @@ public class TurnManager : MonoBehaviour
 
     private void PushResolution(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
-        // 1. La spinta per prima: può togliere di mezzo il difensore (catena tappata
-        //    e nessuno sfogo laterale), e non ha senso far perdere Morale a chi è
-        //    già stato arrestato.
-        ResolvePushOrRemove(pusher: atk, pushed: def);
-
-        // 2. La cella va catturata ORA. Se il -1 qui sotto lo uccide, _positionCell
-        //    punterà a una cella già liberata: ci si appoggerebbe a un bug noto
-        //    (Disperse/Arrest non azzerano il campo) invece che a una garanzia.
+        // La cella dell'urto, catturata PRIMA della spinta: è l'unica che esiste di sicuro,
+        // e non dipende dal fatto che RemoveFromBoard lasci _positionCell popolato.
         HexCell impactCell = def.PositionCell;
 
-        // 3. Il Morale lo perde solo chi tocca la carica, ed è la causa del
-        //    COMBATTIMENTO: se questo punto lo porta a zero dev'essere un arresto,
-        //    non una dispersione.
-        if (def.IsAlive)
-            def.LoseMorale(1, CauseFrom(atk));
+        ResolvePushOrRemove(pusher: atk, pushed: def);
 
-        // 4. L'onda parte comunque, anche se il difensore è caduto: il corteo
-        //    l'ha visto cadere.
+        // Se il difensore è sopravvissuto si è spostato: l'onda parte da dove è adesso.
+        // Se la spinta l'ha rimosso, resta valida la cella dell'urto.
+        if (def.IsAlive)
+        {
+            impactCell = def.PositionCell;
+            def.LoseMorale(1, CauseFrom(atk));
+        }
         ApplyPanicWave(impactCell, def);
 
         _chargeEvent?.Raise();
@@ -383,6 +378,12 @@ public class TurnManager : MonoBehaviour
     /// </summary>
     private void ApplyPanicWave(HexCell origin, AbstractUnitsRunTime epicentre)
     {
+        if (origin == null)
+        {
+            Debug.LogWarning("[PANIC] no origin cell: wave skipped");
+            return;
+        }
+
         var wave = TacticalQuery.GetPanicWave(origin, epicentre, _map);
 
         int baseTurns = epicentre is PoliceRuntime
