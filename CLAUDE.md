@@ -733,14 +733,19 @@ con la diagnosi, perché la spiegazione del *perché* succedeva vale più della 
   `Trovate N celle obiettivo nella mappa.` lo dice — se N è 0, è questo.
   Fix: spostare `RefreshObjectiveCells()` in `Start`.
 
-- **La conversione coordinate è sparsa e non uniforme.** `UnitsRenderer.UpdateView` usa
-  `Coordinates.ToWorldPosition(cellSize)` **senza** `_grid.transform.position`; `UnitsSetup`
-  e `InputHandler` passano posizioni mondo a `FromWorldPosition` senza sottrarre l'offset;
-  `TurnManager`, `UnitMovement`, `ThrowObjectVFX` e `HexGridRenderer` invece lo sommano.
-  Oggi invisibile perché `MapManager` è a `(0,0,0)` (verificato in scena). Il giorno che si
-  trasla la griglia si rompono tre cose diverse — clic, spawn e `UpdateView` — e sembreranno
-  causate dallo spostamento. Fix: `GridToWorld`/`WorldToGrid` su `HexGrid`, e nessun altro
-  script che somma `transform.position` a mano.
+- **✅ RISOLTO 08/08/26 — la conversione coordinate era sparsa e non uniforme.**
+  `HexGrid` espone ora `GridToWorld(HexCoordinates)` e `WorldToGrid(Vector3)`, e **tutte
+  e diciassette** le conversioni del progetto passano di lì. Regola: `transform.position`
+  si somma in **un posto solo**, dentro `GridToWorld`. Verifica: `ToWorldPosition` e
+  `FromWorldPosition` devono comparire solo in `HexCoordinates.cs` e `HexGrid.cs`.
+  Diagnosi originale, che spiega perché valeva la pena:
+  `UnitsRenderer.UpdateView` usava `Coordinates.ToWorldPosition(cellSize)` **senza**
+  `_grid.transform.position`; `UnitsSetup` e `InputHandler` passavano posizioni mondo a
+  `FromWorldPosition` senza sottrarre l'offset; `TurnManager`, `UnitMovement`,
+  `ThrowObjectVFX` e `HexGridRenderer` invece lo sommavano.
+  Invisibile perché `MapManager` è a `(0,0,0)`. Il giorno che si fosse traslata la griglia
+  si sarebbero rotte **tre cose diverse insieme** — clic, spawn e `UpdateView` — e
+  sarebbero sembrate causate dallo spostamento invece che da tre difetti preesistenti.
 
 - **La regola `IsAlive` è già violata in quattro punti**: `TacticalQuery.GetAuraBonus`,
   `TurnManager.ExecuteChant`, `OrderPreviewRenderer.OnActionSelected` e `HighlightChantArea`
@@ -980,16 +985,33 @@ con la diagnosi, perché la spiegazione del *perché* succedeva vale più della 
   `onImpact`, e usa campi diversi (`HitReactionDistance`, `RecoilDuration`,
   `SkirmishAtkDuration`). I campi Bump sono residui di una nomenclatura
   precedente. Verificato 27/07/26.
-- **TurnManager è diventato un god script** (registrato 03/08/26, refactor da fare).
-  Oggi contiene: ciclo turni, carica, spinta, ricerca celle adiacenti, movimento,
-  scontro, lancio, barricata, coro, sedersi, più otto canali evento serializzati.
-  Sono responsabilità diverse impilate nello stesso file per comodità. Direzione
-  probabile del refactor: estrarre gli esecutori per famiglia d'azione
-  (`CombatExecutor`, `MovementExecutor`, `SpecialActionExecutor`), lasciando a
-  `TurnManager` il solo ciclo dei turni e l'inoltro. Attenzione: `PushResolution`,
-  `CalculatePushDestination` e `FoundNearCellAvailable` formano un blocco coeso —
-  vanno spostati insieme. **Non farlo mentre si aggiungono feature**: il refactor
-  va fatto a bocce ferme, con il gioco funzionante prima e dopo.
+- **TurnManager è un god script: 753 righe** (registrato 03/08/26, misurato 08/08/26).
+  Contiene ciclo turni, carica, spinta, sfogo laterale, onda di panico, movimento,
+  scontro, lancio, barricata, coro, sedersi, più nove canali evento serializzati.
+
+  ⚠ **La direzione di refactor registrata a inizio agosto era sbagliata.** Diceva di
+  estrarre gli esecutori per famiglia d'azione (`CombatExecutor`, `MovementExecutor`,
+  `SpecialActionExecutor`). Quella divisione **sposta il codice senza separare niente**:
+  l'architettura del progetto dice già che `TurnManager` **è** l'esecutore, quindi
+  spezzarlo per famiglia dà tre file che fanno la stessa cosa più un livello di inoltro.
+
+  **Il taglio giusto è uno solo, e sta nei numeri.** Delle 753 righe, la carica ne occupa
+  323 (43%) — ma la carica vera sono 88 righe: le altre **235 sono la spinta**
+  (`TryBuildPushChain`, `BuildMovesFromColumn`, `TryReleaseSideways`, `FindSideCell`,
+  `CountAdjacentAllies`, `ApplyPushChain`, `ResolvePushOrRemove`, `PushResolution`,
+  `ApplyPanicWave`). Quello non è un'azione, è un **sottosistema**: vocabolario proprio
+  (colonna, catena, sfogo, onda), un solo punto d'ingresso, un solo chiamante, nessuno
+  da fuori che lo tocca.
+
+  Proposta: `PushResolver`, **classe C# pura** — non un MonoBehaviour, non ha bisogno di
+  stare in scena né di un ciclo di vita Unity, e così diventa collaudabile senza avviare
+  il gioco. `TurnManager` lo costruisce in `Start` e scende a ~520 righe omogenee.
+
+  **Non farlo mentre si aggiungono feature**: a bocce ferme, col gioco funzionante prima
+  e dopo. ⚠ **Non sblocca niente**: nessun bug dipende da lui e la scena Assemblea non
+  tocca `TurnManager`. Il guadagno è che la spinta è il sistema che ha prodotto più
+  correzioni in tre giorni (l'ordine di `moves`, la cattura della cella, l'invariante di
+  `CountAdjacentAllies`) e si ragiona meglio in 235 righe con un nome che dice cosa fa.
 - ~~Dead code TurnPhases.cs / AttackOrder.cs / MovementOrder.cs~~ — **GIÀ RIMOSSI**,
   i file non esistono più sul disco (verificato 27/07/26).
 - **Modello d'attacco a distanze fisse**: scontro solo a distanza 1, carica solo a
@@ -1201,6 +1223,26 @@ Quello che si accumula fino ad allora, da affrontare in blocco:
 - **Nessuna nozione di formazione**: cordone, blocco, escalation sono la priorità 4 del
   cap. 16 e non esistono.
 
+### 1-ter. Le unità sono posizionate nel MONDO, non in coordinate (scoperto 08/08/26)
+`UnitsSetup.Initialize` fa `_grid.WorldToGrid(transform.position)`: la cella su cui nasce
+un'unità è **dedotta da dove l'hai trascinata nell'editor**, guardando i gizmo degli
+esagoni. Non esiste da nessuna parte un campo "coordinata di partenza".
+
+Scoperto per caso spostando `MapManager` a (5,3,0) per provare il fix di `GridToWorld`:
+gli esagoni si sono spostati, le unità no — perché **non sono figlie di `MapManager`**,
+sono GameObject indipendenti in scena. Il risultato è coerente (la griglia si è mossa
+sotto di loro, quindi ora stanno su celle diverse) ma rende evidente l'accoppiamento.
+
+⚠ **È un prerequisito nascosto della scena Assemblea.** Quella istanzia le unità a
+runtime, e a quel punto "su quale cella nasce" non può più essere "dove l'ho messa
+nell'editor". Serve un `UnitsSetup` che riceva una coordinata, o qualcosa che lo affianchi.
+Va aggiunto ai quattro prerequisiti della sezione 2.
+
+*(Nota: la prova "sposta la griglia e guarda se si rompe" non è eseguibile su questa
+scena finché le unità non sono figlie di `MapManager`. Il fix di `GridToWorld` è
+verificato in altro modo: le diciassette conversioni passano tutte per due metodi,
+quindi non possono più essere in disaccordo fra loro.)*
+
 ### 2. Scena Assemblea — quattro prerequisiti mancanti
 Composizione del corteo prima del livello: 1000 punti fissi, roster di 3 unità per
 gruppo politico, equipaggiamento comprato per il corteo e assegnato alle unità.
@@ -1293,6 +1335,33 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 32 (08/08/26, sera) — passata di pulizia
+Nessuna feature nuova: solo tolto, spostato e accentrato. Il gioco si comporta identico
+prima e dopo, ed è la condizione che rendeva questo lavoro sicuro.
+
+- 🟢 **Conversione coordinate accentrata** in `HexGrid.GridToWorld` / `WorldToGrid`.
+  Diciassette punti di chiamata, otto file. Chiude il bug di `UnitsRenderer.UpdateView`,
+  che era l'unico a non sommare l'offset della griglia.
+- 🟢 **Codice morto rimosso**: `UnitMovement.StopMovement` e `StopEveryMovement`,
+  `HexGrid.IsCellWalkable` (duplicato peggiore di `TacticalQuery.IsCellAvailable`), i
+  quattro campi Bump di `MovementSettingsSO`, il null-check morto in `PathFinder`
+  (`HexCoordinates` è uno struct: quel confronto era sempre vero).
+- 🟢 **Visibilità ristretta**: `Arrest`/`Disperse` e `PoliceAI.FoundNearestSpezzone` sono
+  privati. Il primo conta: adesso **non è più scrivibile** un codice che tolga un'unità
+  dal gioco scavalcando `RemoveFromBoard`, che è il punto unico dove si decide fra
+  arresto e dispersione.
+- 🟢 **`_hitReactionDistance` finalmente serializzato** nell'asset (era nel codice da
+  settimane senza essere mai stato scritto su disco).
+- 📖 **Distinzione stabilita fra residuo e riservato.** Codice che nessuno chiama e che
+  non serve a niente si cancella; codice che nessuno chiama ma che serve a qualcosa di
+  previsto si tiene **e si commenta**, altrimenti alla passata dopo qualcuno propone di
+  nuovo di cancellarlo. Commentati come riservati: `HexCell.RemoveBarricade` (servirà
+  quando la polizia potrà rimuovere barricate) e i tre campi Zona Rossa di `HexTypeSO`.
+- 🔴 **Regressione di codifica**: `PathFinder.cs` è tornato ISO-8859-1 appena ci ho
+  scritto un commento con due `è`. Visual Studio ricade sulla codepage di sistema sui
+  file UTF-8 **senza BOM**. Risalvato con firma. Se scrivi commenti in italiano — e li
+  scrivi sempre — i file devono avere il BOM, o il problema torna a ogni accento.
 
 ## Changelog sessione 31 (08/08/26) — query condivise, panico, carica ridisegnata
 Giornata lunga: chiuso l'ultimo bug attivo, scritto il panico per intero, e cambiata una
