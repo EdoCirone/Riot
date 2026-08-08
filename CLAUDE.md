@@ -277,10 +277,43 @@ laterale su cella comune non esiste più.
   **cella obiettivo**, **unità avversaria**, **unità seduta**.
 - Catena chiusa → si spostano tutte, **dall'ultima alla prima** (obbligatorio:
   `SetPosition` passa da `TryOccupy`, che fallisce su cella ancora occupata).
-- Catena bloccata → **nessuno si muove** e chi ha perso lo scontro esce di scena via
-  `RemoveFromBoard(CauseFrom(pusher))`, quindi arresto se l'ha spinto la polizia,
-  dispersione altrimenti. **Esce il difensore, non l'ultimo della fila**: chi viene
-  schiacciato contro la linea di polizia è chi viene preso.
+- Catena bloccata → si prova lo **sbandamento laterale** (sotto). Se fallisce anche
+  quello, chi ha perso lo scontro esce di scena via `RemoveFromBoard(CauseFrom(pusher))`,
+  quindi arresto se l'ha spinto la polizia, dispersione altrimenti. **Esce il difensore,
+  non l'ultimo della fila**: chi viene schiacciato contro la linea di polizia è chi
+  viene preso.
+
+## Sbandamento laterale (AGGIUNTO 06/08/26) — `TurnManager.TryStepAside`
+Ultima risorsa fra la catena bloccata e l'arresto. Il difensore scarta in una delle
+**due** celle che confinano sia con la sua sia con quella dove sarebbe stato spinto.
+
+- Su esagoni due celle adiacenti condividono sempre e solo due vicini, e sono quelli
+  delle **direzioni che affiancano** quella della spinta: `Directions[(i ± 1) % 6]`.
+  ⚠ **Questo dipende dal fatto che `HexCoordinates.Directions` sia in ordine ciclico**
+  (E, NE, NW, W, SW, SE). Riordinare quell'array rompe lo sbandamento in silenzio —
+  `GetNeighbors` continuerebbe a funzionare, quindi movimento e pathfinding non se ne
+  accorgerebbero.
+- Fra le due si sceglie quella con **meno alleati adiacenti**: la spinta disgrega.
+  Deterministico di proposito: un domino casuale non è diagnosticabile.
+- `CountAdjacentAllies` **deve escludere l'unità stessa** (`if (other == unit) continue`):
+  al momento del conteggio il difensore non si è ancora spostato e confina con entrambe
+  le candidate, quindi si conterebbe da solo in tutti e due i casi.
+  ⚠ Questo è corretto **solo perché `TryBuildPushChain` è puramente esplorativa** e non
+  muove nessuno quando fallisce. Se un giorno la catena mutasse lo stato mentre esplora,
+  il conteggio smetterebbe di simulare lo stato futuro e nessuno se ne accorgerebbe.
+- Filtri: bordo mappa, `!IsWalkable`, barricata, cella occupata (via `IsCellAvailable`)
+  e **cella obiettivo** — la stessa esclusione della catena, altrimenti "l'obiettivo non
+  si prende per spinta" varrebbe solo in una direzione.
+- **Non esiste un domino laterale**: chi scarta si toglie dai piedi da solo, quelli
+  dietro e di fianco non si muovono. Deciso, non emerso.
+- ⚠ **Ha reso la carica molto meno letale**: prima bastava una cella bloccata per
+  arrestare, ora ne servono tre. Su campo aperto l'arresto non avviene quasi più.
+- ⚠ **Anche lo sbandamento teletrasporta**: nessuna animazione, come per la catena.
+- `ResolvePushOrRemove` ha in cima una **guardia di adiacenza** (`Distance != 1` →
+  `LogError` e return). Serve a entrambi: sia `TryStepAside` sia `TryBuildPushChain`
+  ricavano la direzione dalla differenza fra le coordinate, che è una direzione valida
+  solo se i due sono adiacenti. Senza la guardia, `TryBuildPushChain` costruirebbe una
+  catena **a salti di due celle** senza dire niente.
 - `Lose` è simmetrico: la catena si costruisce dietro l'attaccante, fra i suoi.
 - Il limite è lo **spazio alle spalle**, non la lunghezza della fila. Un corteo stretto
   fra due poliziotti non ha uscite: è voluto.
@@ -388,10 +421,16 @@ poi svuotare questa sezione.
 
 ## Trovati nel triple check del 06/08/26 (Claude + ChatGPT + DeepSeek)
 Lista completa con dove/cosa/perché e ordine di lavoro in
-`D:\UnityProject\GDDRIOT\FIXLIST_2026-08-06.md`. Qui solo quelli che cambiano il
-modo di ragionare sul codice.
+`D:\UnityProject\GDDRIOT\FIXLIST_2026-08-06.md`.
 
-- **⚠ ATTIVO E GRAVE — il giocatore può agire durante il turno della polizia.**
+**STATO AL 06/08/26 SERA: tutti i bug attivi sono chiusi tranne uno** (la divergenza
+highlight/esecuzione su SitStand, Throw e Barricade, vedi sotto). Le voci restano qui
+con la diagnosi, perché la spiegazione del *perché* succedeva vale più della correzione.
+
+- **✅ RISOLTO — il giocatore poteva agire durante il turno della polizia.**
+  Fix: predicato unico `InputHandler.CanAcceptPlayerInput` (che include
+  `!_turnManager.IsPoliceTurn` e i null-check sui riferimenti) in cima ai nove punti
+  d'ingresso. `TryEndTurn` è lasciata fuori di proposito: `EndTurn` ha già la sua guardia.
   `TurnManager.IsPoliceTurn` esiste ed è pubblico, ma **`InputHandler` non lo guarda
   mai**: `OnLeftClick` controlla solo `_isExecutingAction` e `IsGameActive`, le nove
   hotkey e i bottoni azione solo `_isExecutingAction`. Premuto Fine turno si può
@@ -405,7 +444,12 @@ modo di ragionare sul codice.
   sincronizzazione non è mai "solo" di sincronizzazione** — apre la porta a tutti i
   controlli che qualcun altro ha dato per garantiti a monte.
 
-- **⚠ ATTIVO in combinazione — un'unità può finire SOPRA una barricata.**
+- **✅ RISOLTO — un'unità poteva finire SOPRA una barricata.**
+  Fix a due livelli: `if (_barricade != null) return false;` in `TryOccupy`, e
+  `MoveCoroutine` che ora **usa il valore di ritorno di `SetPosition`** (`break`, non
+  `yield break`, così `onComplete` viene comunque invocato) e riporta la grafica sulla
+  cella logica. Il secondo è quello che conta: la forma generale del problema è
+  "percorso calcolato prima, applicato dopo, mai rivalidato".
   `HexCell.TryOccupy` controlla solo `_occupiedBy == null`, mai `_barricade != null`.
   Tutti i percorsi normali filtrano a monte (`IsCellAvailable`, `HasChargeRoom`,
   `TryBuildPushChain` controllano la barricata), quindi da solo non è sfruttabile. Ma
@@ -419,7 +463,7 @@ modo di ragionare sul codice.
   problema è "percorso calcolato prima, applicato dopo, mai rivalidato", e tornerà col
   panico, che sposta più unità insieme.
 
-- **⚠ ATTIVO — `EndTurn` prosegue dopo il game over.** `_endPlayerTurnEvent.Raise()` è
+- **✅ RISOLTO — `EndTurn` proseguiva dopo il game over.** `_endPlayerTurnEvent.Raise()` è
   **sincrono**: dentro, `LVLManager.OnEventRaised` può decretare fine partita, alzare
   win/lose e fare `_turnManager.enabled = false`. Al ritorno del listener, `EndTurn`
   **continua**: ricarica i PA della polizia e chiama `StartCoroutine(ExecutePoliceTurn())`,
@@ -428,7 +472,8 @@ modo di ragionare sul codice.
   come regola generale. Fix: `if (!_lvlManager.IsGameActive) { _waitingForPolice = false; return; }`
   subito dopo il `Raise`, e la stessa guardia in `ExecutePoliceTurn`.
 
-- **⚠ ATTIVO — divergenza highlight/esecuzione su SitStand, Throw e Barricade.**
+- **⚠ ANCORA APERTO — divergenza highlight/esecuzione su SitStand, Throw e Barricade.**
+  È l'unico bug attivo rimasto dopo la passata del 06/08.
   La chiusura fatta a luglio con `GetAttackOption` valeva solo per l'attacco; le altre
   azioni non hanno mai avuto lo stesso trattamento e `GetValidTargets` decide con numeri
   fissi che l'esecutore non usa:
@@ -442,19 +487,27 @@ modo di ragionare sul codice.
   `CanPlaceBarricade(unit, cell, item)` — e che gli esecutori chiamino le stesse.
   È un cambio di firma: farlo in una volta sola per tutte e tre.
 
-- **`SelectionOutline` si iscrive a quattro eventi senza guardie** (né `_isValid` né
+- **✅ RISOLTO — `SelectionOutline` si iscriveva a quattro eventi senza guardie** (né `_isValid` né
   null-check). È l'unico posto del progetto senza rete, e sta sui **prefab delle unità**:
   un campo non assegnato si moltiplica per ogni unità che spawna, e l'eccezione arriva
   dentro il `Start` di `LVLManager`, mentre sta costruendo il livello.
   (`CameraManager` non usa `_isValid` ma protegge ogni `Subscribe` con `if (event != null)`:
   quello va bene.)
 
-- **`UnitsSetup.Initialize`: la guardia sta DOPO l'uso.** Nel `foreach` sull'inventario
+- **✅ RISOLTO — `UnitsSetup.Initialize`: la guardia stava DOPO l'uso.** Nel `foreach` sull'inventario
   iniziale, `AddItem(s.item, s.quantity)` viene chiamato **prima** del `if (s.item == null
   || ...) continue`, che quindi non salta più niente. Una riga vuota nell'array inserisce
   uno slot con `Item = null`, che poi `InventorySlotUI.SetItem` dereferenzia.
 
-- **Nessun `WaitUntil` ha un fail-safe.** `ExecuteCharge`, `ExecuteSkirmish` e
+- **✅ RISOLTO — nessun `WaitUntil` aveva un fail-safe.** Ora tutti e tre hanno un timeout
+  a 5 secondi più un `LogWarning`. ⚠ **In `ExecuteCharge` il timeout da solo non bastava**:
+  `PushResolution` sta nella callback, quindi allo scadere la carica risultava pagata e mai
+  risolta. Risolto con una funzione locale `ResolveOnce()` protetta da un flag `resolved`,
+  chiamata sia dalla callback sia dal ramo di timeout. **Il flag non è opzionale**: il
+  timeout non uccide l'animazione, quindi una callback in ritardo farebbe girare
+  `PushResolution` due volte — cioè una spinta doppia o un `Vacate()` su una cella ormai
+  di un altro, che è il bug della resurrezione del 05/08.
+  Testo originale: `ExecuteCharge`, `ExecuteSkirmish` e
   `PoliceAI` aspettano un flag alzato da una callback di animazione. Se la callback non
   arriva (tween ucciso, GameObject disattivato), lato giocatore `_isExecutingAction`
   resta `true` e input e Fine turno si bloccano per sempre; lato IA `_waitingForPolice`
@@ -468,7 +521,15 @@ modo di ragionare sul codice.
   `LogError` se l'occupazione fallisce, e `Vacate(unit)` deve liberare solo se
   `_occupiedBy == unit`.
 
-- **`LVLManager.OnEnable` legge la griglia prima che `HexGrid.Awake` l'abbia generata.**
+- **✅ RISOLTO — `LVLManager.OnEnable` leggeva la griglia prima che `HexGrid.Awake` l'avesse
+  generata.** `RefreshObjectiveCells()` è ora in `Start`. Log di conferma in gioco:
+  `[LVL] Found 35 objective cells in the map`.
+  ⚠ **35 celle obiettivo su una mappa 51×35 sono probabilmente troppe** — 35 è esattamente
+  l'altezza, sospetto di una colonna intera dipinta `ObjectiveSO`. Con `_scoreToWin` a 30 e
+  `_scoreForOccupation` a 10 si vince con tre unità su obiettivo per un turno. E siccome le
+  celle obiettivo **fanno muro per la spinta**, un'area obiettivo larga rende gli arresti
+  molto più frequenti del previsto. Da guardare in scena.
+  Diagnosi originale:
   Unity garantisce `Awake` prima di `OnEnable` **sullo stesso componente**, non l'ordine
   incrociato fra GameObject. Se perde la corsa, `_objectiveCells` resta vuota: il punteggio
   non sale mai e si perde ogni livello per scadenza turni. Il log
@@ -487,8 +548,11 @@ modo di ragionare sul codice.
 - **La regola `IsAlive` è già violata in quattro punti**: `TacticalQuery.GetAuraBonus`,
   `TurnManager.ExecuteChant`, `OrderPreviewRenderer.OnActionSelected` e `HighlightChantArea`
   confrontano con `UnitsStatus.Alive`. Con gli stati attuali il comportamento è identico,
-  ma **il panico è il prossimo stato non-vivo in arrivo**: sostituzione meccanica, da fare
-  ora che è gratis.
+  ma resta la regola. ⚠ **Correzione del 06/08/26**: una stesura precedente diceva "il panico
+  è il prossimo stato non-vivo in arrivo". **Falso**: un'unità in panico è viva, si muove e
+  agisce. Il panico è un campo a parte (`_panicTurnsLeft`), non un valore di `UnitsStatus`.
+  La regola `IsAlive` resta valida per gli stati che verranno davvero (immobilizzato,
+  ferito), non per il panico.
 
 - **`Inventory.ConsumeItem` rimuove mentre itera.** `_slots.Remove(slot)` dentro un
   `foreach` su `_slots`. **Non lancia oggi**, e vale la pena sapere perché: l'eccezione
@@ -701,8 +765,19 @@ modo di ragionare sul codice.
   macchine basta che un editor ne risalvi uno perché git segni righe modificate che
   nessuno ha toccato. **Da fare per primo, in un commit dedicato**, prima di aprire
   qualunque altro lavoro dal portatile.
-- **Campi Bump in MovementSettingsSO sono dead code** (ChargeBumpDistance/Duration,
-  SkirmishBumpDistance/Duration): definiti, esposti, mai letti da nessuno.
+- **Campi dati dichiarati e mai letti** (censiti 06/08/26). Due asset ne hanno:
+  - `MovementSettingsSO`: `ChargeBumpDistance/Duration`, `SkirmishBumpDistance/Duration`.
+    ⚠ In più, l'asset **non contiene `_hitReactionDistance`**: il campo esiste nel codice
+    ma non è mai stato serializzato. Riaprire l'asset in Inspector e ridargli un valore.
+  - `HexTypeSO`: **`IsRedZone`, `ModifierA`, `ModifierB`** — dichiarati, esposti da
+    proprietà pubbliche, zero lettori in tutto `Assets/Script`. ⚠ Attenzione: il
+    documento diceva "Zona Rossa: non esiste". È vero come **regola**, ma il **campo
+    dati c'è da mesi** — mi ci sono fidato e ho quasi accusato un revisore di essersela
+    inventata. Quando si farà la Zona Rossa (priorità 2 del cap. 16), il campo c'è già.
+    Non usarlo prima in un punto isolato: implementeresti un decimo della meccanica in
+    un posto dove nessuno andrà a cercarla.
+
+  Testo originale sui campi Bump: definiti, esposti, mai letti da nessuno.
   NON è perché manchi l'animazione di ricezione colpo — quella ESISTE:
   `UnitMovement.PlayHitReaction`, chiamata da `ExecuteSkirmish` via il callback
   `onImpact`, e usa campi diversi (`HitReactionDistance`, `RecoilDuration`,
@@ -746,10 +821,12 @@ modo di ragionare sul codice.
 
 **La scala del Morale è quella vecchia e ora è sbilanciata.** Operai 2, Anarchici 3,
 Black Bloc 3, Studenti 4, Pacifisti 10. Con le aure che prestano fino a 4 punti quei
-numeri sono già fuori scala, e quando arriverà il panico del GDD 17.4 (shock 3/2/1)
-tre gruppi su cinque morirebbero al primo urto. Proposta del cap. 17.8: Operai 6,
-Anarchici 9, Black Bloc 9, Studenti 12, Pacifisti 18–24 — stesse proporzioni, ma 3
+numeri sono già fuori scala. Proposta del cap. 17.8: Operai 6, Anarchici 9,
+Black Bloc 9, Studenti 12, Pacifisti 18–24 — stesse proporzioni, ma 3
 punti diventano una ferita e non una condanna.
+⚠ **Non è più un prerequisito del panico** (dal 06/08/26): il danno è uscito dalla
+propagazione, quindi il panico si può implementare e provare su questa scala. Va alzata
+per lo **scontro**, non per il panico, e conviene farlo **dopo** avendo il panico in mano.
 
 **Il pannello How to Play è obsoleto.** Non menziona le azioni per gruppo, le aure,
 la Coesione, né la differenza fra arrestato e disperso. Sono tutte regole che il
@@ -808,25 +885,55 @@ esisteranno gli eventi di gameplay da agganciare.
 ### 1. Panico — design CHIUSO, codice da scrivere
 Design completo in `D:\GDDRIOT\17-Coesione-Adiacenza-e-Panico.md` §17.4 e §17.6.
 Riassunto operativo:
+⚠ **Il design è stato rivisto il 06/08/26**: il danno è uscito dalla propagazione. Il
+testo qui sotto è quello aggiornato; il capitolo 17 riporta anche il perché.
+
 - Va in panico **chi PERDE** lo scontro di carica (simmetrico, vale anche per la
-  polizia). Si propaga **per contatto** lungo le adiacenze della stessa parte:
-  **-3** a chi ha perso, **-2** agli adiacenti, **-1** agli adiacenti di quelli, poi
-  si spegne. Il decadimento si misura in **passi attraverso la folla**, NON in
-  distanza esagonale — è quello che fa contare la forma del corteo.
-- Perdita di Morale **una tantum**, all'ingresso. Ordine obbligato: prima lo shock
-  con le aure ancora attive, **poi** si tolgono le aure e si tronca al nuovo
-  massimale. L'ordine inverso fa pagare due volte.
+  polizia). Si propaga **per contatto** lungo le adiacenze della stessa parte. Il
+  decadimento si misura in **passi attraverso la folla**, NON in distanza esagonale —
+  è quello che fa contare la forma del corteo.
+- **Il Morale lo perde solo chi tocca la carica: −1**, la stessa cifra dello scontro.
+  La propagazione porta **solo lo stato**. Il gradiente 3/2/1 è passato dal Morale alla
+  **durata**: 3 turni a chi ha perso, 2 al passo 1, 1 al passo 2, poi l'onda si spegne.
+  *(Prima erano −3/−2/−1 di Morale: con la scala attuale uccidevano tre gruppi su cinque
+  senza che avessero combattuto, e legavano il panico al rifacimento della scala.)*
+- **La causa del −1 dev'essere quella del combattimento** (`CauseFrom(atk)`), non una
+  causa "panico": se quel punto porta a zero uno spezzone caricato dalla polizia deve
+  essere un **arresto**. Conseguenza: `MoraleLossCause.Panic` resta senza utilizzatori.
+- **Il panico uccide lo stesso, ma indirettamente**: chi è in panico non riceve aure,
+  quindi il prestito di Morale rientra e chi reggeva solo grazie ai vicini cade. È
+  `ApplyAuraMorale` + il `do...while` di `ApplyAuras` — già scritti, zero codice nuovo.
+- Ordine obbligato: **−1 con le aure ancora attive → flag di panico → `RefreshBoardState`**.
+  Il ricalcolo fa il resto da solo, crollo a catena compreso.
+- **Chi è già in panico**: non paga di nuovo, l'onda **lo attraversa** (occupa il suo
+  passo nella scala), e la durata si aggiorna con `Mathf.Max(attuale, nuovo)` — mai
+  con l'ultimo valore, altrimenti un'ondata debole *cura* chi stava peggio.
 - Durante il panico l'unità **non dà e non riceve aure**. Si muove e agisce
   normalmente (versione permissiva, si stringe solo se serve).
 - **Durata: 3 turni il corteo, 1 turno la polizia** (loro sono organizzati, si
-  riformano). Si contano i **turni di polizia**, decremento in un **punto unico**:
-  `ExecutePoliceTurn`, dove già si ricaricano i PA degli spezzoni.
+  riformano). ⚠ **Il "punto unico" del 04/08 era sbagliato**: decrementando tutto in
+  `ExecutePoliceTurn`, uno spezzone che va in panico durante il turno polizia perde
+  subito un turno di panico senza averlo giocato. Il decremento va **a fine turno della
+  propria parte** — spezzoni in `EndTurn`, polizia in `ExecutePoliceTurn` — cioè
+  **dove si ricaricano i PA di quella parte**.
 - **Seduto = frangifuoco**: non entra in panico e **interrompe la catena**.
 - **Chi è in panico NON può sedersi.** Senza questa regola siediti+rialzati (3 PA)
   azzera tre turni di panico. Il Coro resta l'unica cura anticipata.
-- Serve la **visualizzazione**: sull'unità (`UnitStatusView`, già esistente) **e**
-  come testo nel pannello unità. Fa coppia con l'indicatore di unità seduta, che
-  manca anch'esso.
+- Serve la **visualizzazione**. ⚠ **`UnitStatusView` NON esiste** (il documento lo dava
+  per esistente: falso, non è fra i 67 script). Piano concordato: tremore laterale in
+  loop via DOTween su `_graphicsTransform` in **X** (`DOLocalMoveX`, yoyo, `Ease.Linear`,
+  ~0,04 unità e ~0,05 s), campo `_panicTween` **separato** da `_movementLoopTween` —
+  altrimenti `StartBobLoop` lo uccide al primo movimento. L'asse X è libero: i movimenti
+  scrivono su `_rootTransform`, il bob su `_graphicsTransform` in Y, il flip sulla scala.
+  Sincronizzazione da `UnitsRenderer.UpdateView`, che è già la funzione "allinea la vista
+  allo stato" — e va spento anche nel ramo `!IsAlive`, prima di `SetActive(false)`.
+- Ordine di lavoro concordato: **stato + tremore → soppressione aure → propagazione →
+  aggancio in `PushResolution` → decremento e pannello.** Ogni pezzo è provabile da solo.
+- ⚠ **Nell'aggancio, l'ordine è insidioso**: chi perde la carica può essere **rimosso**
+  dalla spinta. Quindi prima si risolve la spinta, poi — se è ancora vivo — il −1, poi
+  l'onda. E l'onda va propagata da una **cella catturata prima**, non da
+  `perdente.PositionCell`: se il −1 lo uccide, quel campo punta a una cella già liberata
+  e ci si appoggerebbe a un bug noto invece che a una garanzia.
 
 ~~**DA FIXARE PRIMA DI SCRIVERE IL PANICO**: `TurnManager.PushResolution`~~ —
 **CHIUSO 05/08/26.** I bracci invertiti del ramo `Win` erano già stati sistemati da
@@ -859,10 +966,13 @@ direzioni, il domino solo sull'asse della spinta. Nel gioco da tavolo *Corteo* (
 dell'avversario, e chi non può spostarsi è arrestato. Se in playtest i due si pestano i
 piedi, quella è la strada già percorsa da altri.
 
-⚠ **La scala del Morale va alzata insieme al panico**, non prima: i valori attuali
-(Operai 2, Anarchici 3, BB 3, Studenti 4, Pacifisti 10) contro uno shock da 3
-uccidono tre gruppi su cinque al primo urto. Proposta cap. 17.8: 6/9/9/12/18-24.
-Edoardo vuole tararli **testandoli col panico**.
+~~⚠ **La scala del Morale va alzata insieme al panico**~~ — **NON PIÙ UN PREREQUISITO
+dal 06/08/26.** Era vero con lo shock a 3/2/1 sulla propagazione; adesso l'unico danno è
+un −1 a chi tocca la carica, che nessuno dei cinque gruppi rischia di non sopravvivere
+(Operai 2→1 è il caso peggiore). La scala va comunque alzata (proposta 17.8:
+6/9/9/12/18-24) ma **per il bilanciamento dello scontro**, e si può fare dopo, avendo il
+panico in mano per misurarlo. Erano due cambiamenti rischiosi legati insieme e nessuno
+dei due provabile da solo: adesso sono separati.
 
 ### 2. Scena Assemblea — quattro prerequisiti mancanti
 Composizione del corteo prima del livello: 1000 punti fissi, roster di 3 unità per
@@ -955,6 +1065,46 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 30 (06/08/26, sera) — passata di fix e spinta laterale
+Stessa giornata della 29, ma qui il codice è stato toccato.
+
+- 🟢 **Chiusi tutti i bug attivi tranne uno.** Input bloccato durante il turno polizia
+  (`CanAcceptPlayerInput`), `EndTurn` che si ferma a partita finita, `TryOccupy` che
+  controlla le barricate, `MoveCoroutine` che usa il ritorno di `SetPosition`, la guardia
+  invertita in `UnitsSetup`, il pattern `_isValid` su `SelectionOutline`/`InputHandler`/
+  `AudioManager`/`OrderPreviewRenderer`, i tre `WaitUntil` con fail-safe,
+  `RefreshObjectiveCells` spostata in `Start`, il doppio `OnActionComplete` in
+  `ConfirmMovement`, i sei canali evento di combattimento collegati in scena, i cinque
+  file risalvati in UTF-8, log di rumore rimossi e messaggi tradotti in inglese.
+  Resta aperta la sola divergenza highlight/esecuzione su SitStand, Throw e Barricade.
+- 🟢 **Sbandamento laterale** (`TryStepAside` + `CountAdjacentAllies`), più la guardia di
+  adiacenza in cima a `ResolvePushOrRemove`. Vedi la sezione dedicata.
+- 🟢 **`ResolveOnce()` in `ExecuteCharge`**: il timeout da solo lasciava la carica pagata
+  e non risolta.
+- 📖 **Seconda revisione incrociata** sul dump v2 (`DISSENSO_SourceDump_2026-08-06_v2.md`).
+  Entrambi i revisori esterni **non hanno trovato bug in `TryStepAside`**. L'unico difetto
+  vero uscito è il timeout della carica.
+- 🔴 **Correzioni al documento**: `UnitStatusView` non esiste; il panico **non** è uno stato
+  di `UnitsStatus`; `HexTypeSO` ha tre campi dichiarati e mai letti (`IsRedZone`,
+  `ModifierA`, `ModifierB`) — la Zona Rossa non è implementata come *regola*, ma il campo
+  dati c'è da mesi e il documento diceva "non esiste".
+- 📖 **Design del panico rivisto** (vedi cap. 17.4 e la sezione "Panico" qui sopra): il
+  danno esce dalla propagazione, il gradiente passa alla durata, il "punto unico" per il
+  decremento era sbagliato di un turno.
+
+**Due lezioni di metodo:**
+
+1. **Ero io a sbagliare sulla Zona Rossa.** Avevo dato per inventata una proprietà
+   (`IsRedZone`) che DeepSeek aveva citato correttamente, perché mi ero fidato di questo
+   documento invece di aprire `HexTypeSO`. Terza volta in due giorni che il documento
+   invecchia più in fretta del codice, e la prima in cui stavo per correggere qualcuno
+   avendo torto.
+2. **Un fix contro un blocco può riaprire un bug peggiore.** Il timeout sui `WaitUntil`
+   sbloccava il gioco ma lasciava la carica irrisolta, e senza il flag `resolved` una
+   callback in ritardo avrebbe fatto girare `PushResolution` due volte. Ogni volta che si
+   aggiunge una via d'uscita a un'attesa, va chiesto **cosa succede se quello che stavi
+   aspettando arriva comunque, dopo.**
 
 ## Changelog sessione 29 (06/08/26) — triple check, nessuna riga di codice toccata
 Sessione dal portatile. Working tree pulito su `518220952`; niente è stato modificato

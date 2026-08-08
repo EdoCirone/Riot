@@ -135,16 +135,31 @@ public class TurnManager : MonoBehaviour
         atk.TrySpendActionPoint(TacticalQuery.ChargeCost);
 
         bool done = false;
+        bool resolved = false;
+
+        //it's legal to have a local function here, because the coroutine is guaranteed to run on the main thread
+        void ResolveOnce()
+        {
+            if (resolved) return;
+            resolved = true;
+            PushResolution(atk, def);
+        }
+
         atk.SetPosition(destinationCell);
+
         movement.PlayCharge(destinationCell, defenderWorldPos, _map, () =>
         {
-            PushResolution(atk, def);
+            ResolveOnce();
             done = true;
         });
 
         float elapsed = 0f;
         yield return new WaitUntil(() => done || (elapsed += Time.deltaTime) > 5f);
-        if (!done) Debug.LogWarning($"[CHARGE] animation not completed by {atk}: continuing anyway");
+        if (!done)
+        {
+            Debug.LogWarning($"[CHARGE] animation not completed by {atk}: continuing anyway");
+            ResolveOnce();
+        }
     }
 
 
@@ -186,6 +201,73 @@ public class TurnManager : MonoBehaviour
         }
     }
 
+    private bool TryStepAside(AbstractUnitsRunTime pusher, AbstractUnitsRunTime pushed)
+    {
+        HexCoordinates pusherCoord = pusher.PositionCell.Coordinates;
+        HexCoordinates pushedCoord = pushed.PositionCell.Coordinates;
+
+        int dirQ = pushedCoord.Q - pusherCoord.Q;
+        int dirR = pushedCoord.R - pusherCoord.R;
+
+        int dirIndex = -1;
+        for (int i = 0; i < HexCoordinates.Directions.Length; i++)
+        {
+            if (HexCoordinates.Directions[i].Q == dirQ && HexCoordinates.Directions[i].R == dirR)
+            {
+                dirIndex = i;
+                break;
+            }
+        }
+        if (dirIndex < 0) return false;   // pusher e pushed non adiacenti: non dovrebbe accadere
+
+        HexCell best = null;
+        int bestAllies = int.MaxValue;
+
+        // le due direzioni che affiancano quella della spinta
+        for (int offset = -1; offset <= 1; offset += 2)
+        {
+            HexCoordinates side = HexCoordinates.Directions[(dirIndex + offset + 6) % 6];
+            HexCoordinates candidateCoord = new HexCoordinates(pushedCoord.Q + side.Q, pushedCoord.R + side.R);
+
+            if (!_map.TryGetCell(candidateCoord, out HexCell candidate)) continue;
+            if (!IsCellAvailable(candidate)) continue;
+            if (candidate.Type.IsObjective) continue;   // stessa regola della catena
+
+            int allies = CountAdjacentAllies(pushed, candidateCoord);
+            if (allies < bestAllies)
+            {
+                bestAllies = allies;
+                best = candidate;
+            }
+        }
+
+        if (best == null) return false;
+
+        if (!pushed.SetPosition(best))
+        {
+            Debug.LogError($"[PUSH] {pushed} could not step aside to {best.Coordinates}");
+            return false;
+        }
+
+        _unitsRenderer.UpdateView(pushed);
+        Debug.Log($"[PUSH] {pushed} steps aside to {best.Coordinates} ({bestAllies} allies adjacent)");
+        return true;
+    }
+
+    private int CountAdjacentAllies(AbstractUnitsRunTime unit, HexCoordinates from)
+    {
+        int count = 0;
+        foreach (HexCoordinates dir in HexCoordinates.Directions)
+        {
+            if (!_map.TryGetCell(from + dir, out HexCell cell)) continue;
+
+            AbstractUnitsRunTime other = cell.OccupiedBy;
+            if (other == null || !other.IsAlive) continue;
+            if (other == unit) continue;              // sé stesso non conta: vedi sotto
+            if (IsSameSide(other, unit)) count++;
+        }
+        return count;
+    }
 
     private void ApplyPushChain(List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
     {
@@ -205,15 +287,24 @@ public class TurnManager : MonoBehaviour
 
     private void ResolvePushOrRemove(AbstractUnitsRunTime pusher, AbstractUnitsRunTime pushed)
     {
+        if (pusher.PositionCell.Coordinates.Distance(pushed.PositionCell.Coordinates) != 1)
+        {
+            Debug.LogError($"[PUSH] {pusher} and {pushed} are not adjacent: push not resolved");
+            return;
+        }
+
         if (TryBuildPushChain(pusher, pushed, out var moves))
         {
             ApplyPushChain(moves);
+            return;
         }
-        else
-        {
-            Debug.Log($"[PUSH] Chain blocked: {pushed} removed at {pushed.PositionCell.Coordinates}");
-            pushed.RemoveFromBoard(CauseFrom(pusher));
-        }
+
+        // La folla prima si comprime, poi sbanda: il passo di lato è l'ultima risorsa,
+        // non un'alternativa alla catena.
+        if (TryStepAside(pusher, pushed)) return;
+
+        Debug.Log($"[PUSH] Chain blocked: {pushed} removed at {pushed.PositionCell.Coordinates}");
+        pushed.RemoveFromBoard(CauseFrom(pusher));
     }
 
     private void RaiseChargeResult(CombatResult result)
