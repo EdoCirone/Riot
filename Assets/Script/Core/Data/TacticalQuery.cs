@@ -5,6 +5,14 @@ public static class TacticalQuery
 {
 
     public const int ChargeCost = 4;
+    public const int ChantCost = 3;
+    public const int ThrowRange = 2;
+
+    private const int SitCost = 1;
+    private const int StandCost = 2;
+
+    public static int GetSitStandCost(AbstractUnitsRunTime unit)
+    => unit != null && unit.IsSeated ? StandCost : SitCost;
 
     public static Dictionary<HexCoordinates, int> GetReachable(
        HexCoordinates start, int budget, HexGrid map)
@@ -35,18 +43,22 @@ public static class TacticalQuery
     }
 
     public static List<HexCoordinates> GetValidTargets(
-    HexCoordinates from, int budget, ActionType action, HexGrid map)
+        AbstractUnitsRunTime unit, ActionType action, ItemSO item, HexGrid map)
     {
         List<HexCoordinates> targets = new();
+        if (unit == null || unit.PositionCell == null || map == null) return targets;
+
+        HexCoordinates from = unit.PositionCell.Coordinates;
+        int budget = unit.ActionPoints;
 
         switch (action)
         {
             case ActionType.Charge:
                 if (budget < ChargeCost) break;
-
                 foreach (HexCell cell in map.GetAllCells())
                 {
-                    if (cell.OccupiedBy is PoliceRuntime
+                    if (cell.OccupiedBy is PoliceRuntime police
+                        && police.IsAlive && !police.IsSeated
                         && HasChargeRoom(from, cell.Coordinates, map, out _))
                     {
                         targets.Add(cell.Coordinates);
@@ -55,37 +67,35 @@ public static class TacticalQuery
                 break;
 
             case ActionType.Throw:
-                if (budget < 2) break;
+                if (unit is not SpezzoneRuntime thrower) break;
+                if (item is not ThrowItemSO throwItem) break;
                 foreach (HexCell cell in map.GetAllCells())
                 {
-                    if (cell.OccupiedBy is PoliceRuntime
-                        && from.Distance(cell.Coordinates) == 2
-                        && HasThrowPath(from, cell.Coordinates, map))
+                    if (CanThrow(thrower, cell, throwItem, map))
+                        targets.Add(cell.Coordinates);
+                }
+                break;
+
+            case ActionType.Barricade:
+                if (unit is not SpezzoneRuntime builder) break;
+                if (item is not BarricadeSO barricade) break;
+                foreach (HexCoordinates dir in HexCoordinates.Directions)
+                {
+                    if (map.TryGetCell(from + dir, out HexCell cell)
+                        && CanPlaceBarricade(builder, cell, barricade))
                     {
                         targets.Add(cell.Coordinates);
                     }
                 }
                 break;
 
-            case ActionType.Barricade:                         
-                foreach (HexCoordinates dir in HexCoordinates.Directions)
-                {
-                    HexCoordinates neighbor = from + dir;        
-                    if (map.TryGetCell(neighbor, out HexCell cell)
-                        && IsCellAvailable(cell))               
-                    {
-                        targets.Add(neighbor);
-                    }
-                }
-                break;
-
             case ActionType.Chant:
-                if (budget < 3) break;
+                if (budget < ChantCost) break;
                 targets.Add(from);
                 break;
 
             case ActionType.SitStand:
-                if (budget < 1) break; 
+                if (budget < GetSitStandCost(unit)) break;
                 targets.Add(from);
                 break;
         }
@@ -210,5 +220,37 @@ public static class TacticalQuery
                 return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// Legalità completa del lancio. La chiamano SIA l'highlight SIA l'esecutore:
+    /// è ciò che impedisce alla divergenza di riformarsi.
+    /// </summary>
+    public static bool CanThrow(SpezzoneRuntime unit, HexCell target, ThrowItemSO item, HexGrid map)
+    {
+        if (unit == null || target == null || item == null || map == null) return false;
+        if (!unit.IsAlive) return false;
+        if (!unit.Inventory.HasItem(item)) return false;
+        if (unit.ActionPoints < item.ActionPointCost) return false;
+
+        if (target.OccupiedBy is not PoliceRuntime police || !police.IsAlive) return false;
+
+        HexCoordinates from = unit.PositionCell.Coordinates;
+        if (from.Distance(target.Coordinates) != ThrowRange) return false;
+
+        return HasThrowPath(from, target.Coordinates, map);
+    }
+
+    public static bool CanPlaceBarricade(SpezzoneRuntime unit, HexCell target, BarricadeSO item)
+    {
+        if (unit == null || target == null || item == null) return false;
+        if (!unit.IsAlive) return false;
+        if (!unit.Inventory.HasItem(item)) return false;
+        if (unit.ActionPoints < item.ActionPointCost) return false;
+
+        if (unit.PositionCell.Coordinates.Distance(target.Coordinates) != 1) return false;
+        if (target.Type.IsObjective) return false;
+
+        return IsCellAvailable(target);
     }
 }

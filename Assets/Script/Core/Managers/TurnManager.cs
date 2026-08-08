@@ -137,7 +137,10 @@ public class TurnManager : MonoBehaviour
         bool done = false;
         bool resolved = false;
 
-        //it's legal to have a local function here, because the coroutine is guaranteed to run on the main thread
+        // Funzione locale: legale dentro una coroutine perché non contiene yield.
+        // Serve a garantire che PushResolution giri UNA volta sola, da qualunque
+        // strada ci si arrivi (callback dell'animazione o timeout).
+
         void ResolveOnce()
         {
             if (resolved) return;
@@ -517,17 +520,20 @@ public class TurnManager : MonoBehaviour
     public void ExecuteThrow(AbstractUnitsRunTime atk, PoliceRuntime target, ThrowItemSO item)
     {
         if (atk is not SpezzoneRuntime spezzone) return;
-        if(!spezzone.Inventory.HasItem(item))
+        if (target == null || item == null) return;
+
+        // UNICA decisione. Le righe sotto spiegano soltanto, non decidono.
+        if (!TacticalQuery.CanThrow(spezzone, target.PositionCell, item, _map))
         {
-            _alertEvent?.Raise("No throw objects");
+            if (!spezzone.Inventory.HasItem(item))
+                _alertEvent?.Raise("No throw objects");
+            else if (spezzone.ActionPoints < item.ActionPointCost)
+                _alertEvent?.Raise($"Not enough AP, {item.ActionPointCost} needed");
+            else
+                _alertEvent?.Raise("Invalid throw target");
             return;
         }
 
-        if(spezzone.ActionPoints < item.ActionPointCost)
-        {
-            _alertEvent?.Raise($"Not enough PA, {item.ActionPointCost} needed");
-            return;
-        }
         spezzone.TrySpendActionPoint(item.ActionPointCost);
         spezzone.Inventory.ConsumeItem(item);
         _throwEvent.Raise(target);
@@ -543,24 +549,19 @@ public class TurnManager : MonoBehaviour
 
     public bool ExecuteBarricade(AbstractUnitsRunTime atk, HexCell targetCell, BarricadeSO item)
     {
-        if (item == null) return false;
-        if(atk is not SpezzoneRuntime spezzone) return false;
+        if (atk is not SpezzoneRuntime spezzone) return false;
+        if (targetCell == null || item == null) return false;
 
-        if (!spezzone.Inventory.HasItem(item))
+        if (!TacticalQuery.CanPlaceBarricade(spezzone, targetCell, item))
         {
-            _alertEvent?.Raise("No barricade objects");
-            return false;
-        }
-
-        if (!IsCellAvailable(targetCell))
-        {
-            _alertEvent?.Raise("Not available cell for barricade");
-            return false;
-        }
-
-        if(spezzone.ActionPoints < item.ActionPointCost)
-        {
-            _alertEvent?.Raise($"Not enough PA, {item.ActionPointCost} needed");
+            if (!spezzone.Inventory.HasItem(item))
+                _alertEvent?.Raise("No barricade objects");
+            else if (spezzone.ActionPoints < item.ActionPointCost)
+                _alertEvent?.Raise($"Not enough AP, {item.ActionPointCost} needed");
+            else if (targetCell.Type.IsObjective)
+                _alertEvent?.Raise("Cannot barricade an objective");
+            else
+                _alertEvent?.Raise("Not available cell for barricade");
             return false;
         }
 
@@ -579,11 +580,10 @@ public class TurnManager : MonoBehaviour
 
     public bool ExecuteChant(AbstractUnitsRunTime caster)
     {
-        const int chantCost = 3;
-        if (!caster.TrySpendActionPoint(chantCost))
+        if (!caster.TrySpendActionPoint(TacticalQuery.ChantCost))
         {
-            Debug.Log($"Chant not executed: {chantCost} AP needed)");
-            _alertEvent?.Raise($"Not enough PA, {chantCost} needed");
+            Debug.Log($"Chant not executed: {TacticalQuery.ChantCost} AP needed");
+            _alertEvent?.Raise($"Not enough AP, {TacticalQuery.ChantCost} needed");
             return false;
         }
 
@@ -607,29 +607,24 @@ public class TurnManager : MonoBehaviour
 
     public bool ExecuteSitStand(AbstractUnitsRunTime unit)
     {
-        if (!unit.IsSeated)
-        {
-            const int sitCost = 1;
-            if (!unit.TrySpendActionPoint(sitCost))
-            {
-                Debug.Log($"Sits down not executed: {sitCost} AP needed");
-                _alertEvent?.Raise($"Not enough PA, {sitCost} needed");
-                return false;
-            }
-            unit.SitDown();
-            Debug.Log($"{unit} sits down. Def now {unit.Def}, AP left {unit.ActionPoints}");
-            return true;
-        }
+        if (unit == null || !unit.IsAlive) return false;
 
-        const int standCost = 2;
-        if (!unit.TrySpendActionPoint(standCost))
+        // Attenzione all'ordine: il costo e il verbo dipendono dallo stato PRIMA
+        // del cambiamento. Leggerli dopo SitDown/StandUp darebbe il valore sbagliato.
+        int cost = TacticalQuery.GetSitStandCost(unit);
+        bool wasSeated = unit.IsSeated;
+
+        if (!unit.TrySpendActionPoint(cost))
         {
-            Debug.Log($"Stand up not executed: {standCost} AP needed");
-            _alertEvent?.Raise($"Not enough PA, {standCost} needed");
+            Debug.Log($"{(wasSeated ? "Stand up" : "Sit down")} not executed: {cost} AP needed");
+            _alertEvent?.Raise($"Not enough AP, {cost} needed");
             return false;
         }
-        unit.StandUp();
-        Debug.Log($"{unit} stands up. Def now {unit.Def}, AP left {unit.ActionPoints}");
+
+        if (wasSeated) unit.StandUp();
+        else unit.SitDown();
+
+        Debug.Log($"{unit} {(wasSeated ? "stands up" : "sits down")}. Def now {unit.Def}, AP left {unit.ActionPoints}");
         return true;
     }
 

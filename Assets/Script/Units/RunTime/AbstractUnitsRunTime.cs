@@ -12,6 +12,7 @@ public abstract class AbstractUnitsRunTime
     protected int _maxMorale;
 
     protected int _auraMoraleBonus;
+    protected int _panicTurnsLeft;
 
     protected bool _isSeated;
     protected virtual bool CanBeArrested => false;
@@ -26,6 +27,8 @@ public abstract class AbstractUnitsRunTime
     public int BaseMorale => _morale - _auraMoraleBonus;
     public int MaxMorale => _maxMorale + _auraMoraleBonus;
     public bool IsSeated => _isSeated;
+    public int PanicTurnsLeft => _panicTurnsLeft;
+    public bool IsPanicked => _panicTurnsLeft > 0;
     
     public abstract Sprite Avatar { get; }
     public abstract int Atk { get; }
@@ -79,6 +82,17 @@ public abstract class AbstractUnitsRunTime
 
     public void SitDown() => _isSeated = true;
     public void StandUp() => _isSeated = false;
+
+    public void ApplyPanic(int turns)
+    {
+        if (turns <= 0) return;
+        _panicTurnsLeft = Mathf.Max(_panicTurnsLeft, turns);
+    }
+
+    public void TickPanic()
+    {
+        if (_panicTurnsLeft > 0) _panicTurnsLeft--;
+    }
 
     public void GainMorale(int amount)
     {

@@ -21,16 +21,21 @@ public class OrderPreviewRenderer : MonoBehaviour
     [SerializeField] private UnitEventSO _unitSelectedEvent;
     [SerializeField] private GameEventSO _unitDeselectedEvent;
     [SerializeField] private ActionEventSO _actionSelectedEvent;
+    [SerializeField] private ItemEventSO _itemSelectedEvent;
 
-    private List<HexCoordinates> _highlightedCells = new();
-    private AbstractUnitsRunTime _selectedUnit;
     private bool _isValid = false;
+    
+    private ItemSO _selectedItem;
+    private AbstractUnitsRunTime _selectedUnit;
+    
+    private ActionType _currentAction = ActionType.None;
+    private List<HexCoordinates> _highlightedCells = new();
 
     private void Awake()
     {
         if (_hexGridRenderer == null || _grid == null ||
-    _unitSelectedEvent == null || _unitDeselectedEvent == null ||
-    _actionSelectedEvent == null)
+            _unitSelectedEvent == null || _unitDeselectedEvent == null ||
+            _actionSelectedEvent == null || _itemSelectedEvent == null)   
         {
             Debug.LogWarning("OrderPreviewRenderer: missing References");
             return;
@@ -45,6 +50,7 @@ public class OrderPreviewRenderer : MonoBehaviour
         _unitSelectedEvent.Subscribe(OnUnitSelected);
         _unitDeselectedEvent.Subscribe(OnUnitDeselected);
         _actionSelectedEvent.Subscribe(OnActionSelected);
+        _itemSelectedEvent.Subscribe(OnItemSelected);
     }
 
     private void OnDisable()
@@ -53,11 +59,14 @@ public class OrderPreviewRenderer : MonoBehaviour
         _unitSelectedEvent.Unsubscribe(OnUnitSelected);
         _unitDeselectedEvent.Unsubscribe(OnUnitDeselected);
         _actionSelectedEvent.Unsubscribe(OnActionSelected);
+        _itemSelectedEvent.Unsubscribe(OnItemSelected);
     }
 
     private void OnUnitSelected(AbstractUnitsRunTime unit)
     {
         ClearHighlight();
+        _currentAction = ActionType.None;
+        _selectedItem = null;
 
         if (unit is not SpezzoneRuntime)
         {
@@ -114,10 +123,26 @@ public class OrderPreviewRenderer : MonoBehaviour
 
     private void OnActionSelected(ActionType action)
     {
+        _currentAction = action;
+        if (_selectedItem != null && _selectedItem.Action != action)  
+            _selectedItem = null;
+        RefreshActionHighlight();
+    }
+    private void OnItemSelected(ItemSO item)
+    {
+        _selectedItem = item;
+
+        if (item != null && item.Action == _currentAction)
+            RefreshActionHighlight();
+    }
+
+    private void RefreshActionHighlight()
+    {
         ClearHighlight();
-        if (action == ActionType.None)
+
+        if (_currentAction == ActionType.None)
         {
-            if (_selectedUnit != null && _selectedUnit.Status == UnitsStatus.Alive && !_selectedUnit.IsSeated)
+            if (_selectedUnit != null && _selectedUnit.IsAlive && !_selectedUnit.IsSeated)
             {
                 var visited = TacticalQuery.GetReachable(
                     _selectedUnit.PositionCell.Coordinates, _selectedUnit.ActionPoints, _grid);
@@ -126,12 +151,13 @@ public class OrderPreviewRenderer : MonoBehaviour
             }
             return;
         }
+
         if (_selectedUnit == null) return;
 
         var targets = TacticalQuery.GetValidTargets(
-            _selectedUnit.PositionCell.Coordinates, _selectedUnit.ActionPoints, action, _grid);
+            _selectedUnit, _currentAction, _selectedItem, _grid);
 
-        Color color = action switch
+        Color color = _currentAction switch
         {
             ActionType.Charge => _chargeColor,
             ActionType.Throw => _throwColor,
@@ -147,7 +173,7 @@ public class OrderPreviewRenderer : MonoBehaviour
             _highlightedCells.Add(coord);
         }
 
-        if (action == ActionType.Chant)
+        if (_currentAction == ActionType.Chant)
             HighlightChantArea(_selectedUnit.PositionCell.Coordinates);
     }
 

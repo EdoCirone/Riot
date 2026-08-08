@@ -162,6 +162,58 @@ basso, ~4**. `PoliceStandardUnit.png` aveva Extrude **26** e Sprite Mode `Multip
 il primo riempiva di colore ventisei pixel di margine, il secondo faceva campionare
 pixel fuori dal rettangolo dello sprite. Risultato: un blocco pieno invece di un bordo.
 
+## Stato duplicato fra InputHandler e OrderPreviewRenderer (08/08/26)
+Il refactor B3/B7 ha dato al renderer una copia di `_selectedItem` e `_currentAction`,
+perché per disegnare l'highlight di Lancio e Barricata gli serve il costo dell'oggetto.
+Due copie dello stesso stato: entrambe le regressioni trovate nel triple check nascono
+da lì, e chi tocca una deve toccare l'altra.
+
+- **Cambiando azione, l'oggetto va scartato se non serve alla nuova**
+  (`if (_selectedItem.Action != action) _selectedItem = null;`). Va fatto **in tutti e
+  due i file**. Senza, scegli una barricata, premi Lancio, e la query non trova niente
+  senza che il giocatore possa capire perché.
+- ⚠ **`_itemSelectedEvent` significa due cose diverse**: "oggetto cliccato" (lo alza
+  `InventoryView` a ogni clic) e "oggetto accettato" (`InputHandler` può rifiutarlo con
+  `CanAcceptPlayerInput`). Chi ascolta non può distinguerle. Il renderer accettava clic
+  che `InputHandler` aveva scartato, e i due stati si separavano — riaprendo la
+  divergenza highlight/esecuzione da un'altra porta. Toppa attuale: il renderer
+  ridisegna **solo se `item.Action == _currentAction`**. Regge finché gli ascoltatori
+  sono due; al terzo, la strada giusta è che `InputHandler` ri-annunci la selezione
+  accettata su un canale suo.
+- **L'idempotenza al posto di un ordine imposto**: `OnActionSelected` e `OnItemSelected`
+  arrivano in ordine non garantito (`EventChannelSO.Raise` itera all'indietro, quindi
+  vince chi si è iscritto per ultimo). Entrambi aggiornano il proprio pezzo di stato e
+  chiamano `RefreshActionHighlight()`: l'ultimo ad arrivare ha l'informazione completa.
+  Non imporre un ordine — mantenere l'idempotenza.
+
+## Chi parla col giocatore (stabilito 08/08/26)
+Regola nata chiudendo B3/B7, quando l'alert cominciò a dire "not valid Target" al posto
+di "Not enough AP".
+
+- **`_alertEvent` appartiene a `InputHandler`**, che è l'unico che sa cosa il giocatore
+  stava provando a fare. `InputHandler.DescribeInvalidTarget` traduce un rifiuto in una
+  frase. Gli alert dentro `TurnManager` restano come rete per chiamanti che non sono il
+  giocatore (IA, panico, tasti di test): il giocatore non li vede quasi mai, perché la
+  query rifiuta prima.
+- **Forma obbligatoria: una decisione, tante spiegazioni.** Un solo `if` decide
+  (`GetValidTargets`, `CanThrow`, `CanPlaceBarricade`); i rami sotto scelgono solo il
+  messaggio. Se una spiegazione si disallinea dalla decisione, il danno massimo è un
+  testo impreciso — mai un'azione eseguita a torto o rifiutata a torto. È la differenza
+  fra duplicare una decisione e duplicare una descrizione.
+
+## Debito registrato l'08/08/26
+- **I costi in `TacticalQuery` sono `const`.** Immutabili, ma **non tarabili**: non si
+  vedono in Inspector e cambiarli richiede una ricompilazione. Per numeri strutturali
+  (gittata del lancio = 2) va bene; per `ChargeCost` e `ChantCost`, che sono manopole di
+  bilanciamento, andranno in uno ScriptableObject sul modello di `MovementSettingsSO`.
+  Da fare alla passata di bilanciamento, non prima.
+  *(Nota: `SitCost`, `StandCost` e `ThrowRange` sono `private` di proposito — nessuno
+  fuori da `TacticalQuery` deve conoscerli. Chi vuole sapere quanto costa alzarsi chiama
+  `GetSitStandCost(unit)`.)*
+- **Le 35 celle obiettivo sono volute** (sparse nella mappa, verificato da Edoardo
+  l'08/08/26). Vanno riviste quando si farà l'**occupazione temporanea** del GDD cap. 19,
+  perché quella cambia cosa significa "stare su un obiettivo". Non prima.
+
 ## Naming Convention
 - Classi: PascalCase. Campi privati serializzati: _camelCase.
 - Proprietà pubbliche: PascalCase. Metodi: PascalCase, verbo chiaro.
@@ -472,8 +524,17 @@ con la diagnosi, perché la spiegazione del *perché* succedeva vale più della 
   come regola generale. Fix: `if (!_lvlManager.IsGameActive) { _waitingForPolice = false; return; }`
   subito dopo il `Raise`, e la stessa guardia in `ExecutePoliceTurn`.
 
-- **⚠ ANCORA APERTO — divergenza highlight/esecuzione su SitStand, Throw e Barricade.**
-  È l'unico bug attivo rimasto dopo la passata del 06/08.
+- **✅ RISOLTO 08/08/26 — divergenza highlight/esecuzione su SitStand, Throw e Barricade.**
+  Era l'ultimo bug attivo. Fix in quattro passi: costanti e predicati in `TacticalQuery`
+  (`GetSitStandCost`, `CanThrow`, `CanPlaceBarricade`) → esecutori che li chiamano →
+  `GetValidTargets` che riceve **unità e oggetto** invece di coordinata e budget →
+  `OrderPreviewRenderer` che impara a conoscere l'oggetto selezionato.
+  Chiusa gratis anche la voce 13 dell'arretrato (barricata sulle celle obiettivo), e
+  `ExecuteThrow` adesso verifica la gittata invece di fidarsi del chiamante.
+  ⚠ **Coda rimasta**: `TurnManager.CanCharge` è l'unico predicato ancora fuori da
+  `TacticalQuery`, quindi la carica ha ancora due luoghi di verifica. Spostarla tocca
+  `PoliceAI`. Mezz'ora, non urgente.
+  Testo originale della diagnosi:
   La chiusura fatta a luglio con `GetAttackOption` valeva solo per l'attacco; le altre
   azioni non hanno mai avuto lo stesso trattamento e `GetValidTargets` decide con numeri
   fissi che l'esecutore non usa:

@@ -28,19 +28,22 @@ public class UnitsRenderer : MonoBehaviour
 
     public void UpdateView(AbstractUnitsRunTime unit)
     {
-        if (!unit.IsAlive)
-        {
-            if (_unitsDict.TryGetValue(unit, out GameObject go))
-                go.transform.root.gameObject.SetActive(false);
-        }
-        else if (_unitsDict.TryGetValue(unit, out GameObject go))
-        {
-            Vector3 newPos = unit.PositionCell.Coordinates.ToWorldPosition(_grid.CellSize);
-            go.transform.root.position = newPos;
-        }
-        else
+        if (!_unitsDict.TryGetValue(unit, out GameObject go))
         {
             Debug.Log("UpdateView: unit not registered in the renderer");
+            return;
         }
+
+        UnitMovement movement = go.GetComponent<UnitMovement>();
+
+        if (!unit.IsAlive)
+        {
+            movement?.SetPanicVisual(false);      
+            go.transform.root.gameObject.SetActive(false);
+            return;
+        }
+
+        go.transform.root.position = unit.PositionCell.Coordinates.ToWorldPosition(_grid.CellSize);
+        movement?.SetPanicVisual(unit.IsPanicked);
     }
 }

@@ -10,11 +10,18 @@ public class UnitMovement : MonoBehaviour
     [SerializeField] private Transform _rootTransform;
     [SerializeField] private Transform _graphicsTransform;
 
+    [Header("Panic")]
+    [SerializeField] private float _panicWiggleDistance = 0.02f;
+    [SerializeField] private float _panicWiggleDuration = 0.08f;
 
     private AbstractUnitsRunTime _unit;
     private Coroutine _currentMove;
+  
+    private Tween _panicTween;
     private Tween _movementLoopTween;
+    
     private bool _isMoving;
+    private float _panicBaseX;
 
     public bool IsMoving => _isMoving;
 
@@ -259,6 +266,37 @@ public class UnitMovement : MonoBehaviour
     }
     #endregion
 
+    #region Panic
+    public void SetPanicVisual(bool on)
+    {
+        if (_graphicsTransform == null) return;
+
+        if (on)
+        {
+            // Già in corso: non ripartire, o il tremore scatta a ogni UpdateView.
+            if (_panicTween != null && _panicTween.IsActive()) return;
+
+            Vector3 p = _graphicsTransform.localPosition;
+            _panicBaseX = p.x;
+
+            _graphicsTransform.localPosition = new Vector3(_panicBaseX - _panicWiggleDistance, p.y, p.z);
+            _panicTween = _graphicsTransform
+                .DOLocalMoveX(_panicBaseX + _panicWiggleDistance, _panicWiggleDuration)
+                .SetLoops(-1, LoopType.Yoyo)
+                .SetEase(Ease.Linear);
+        }
+        else
+        {
+            if (_panicTween == null) return;
+
+            if (_panicTween.IsActive()) _panicTween.Kill();
+            _panicTween = null;
+
+            Vector3 p = _graphicsTransform.localPosition;
+            _graphicsTransform.localPosition = new Vector3(_panicBaseX, p.y, p.z);
+        }
+    }
+    #endregion
     public void StopEveryMovement()
     {
         StopAllCoroutines();

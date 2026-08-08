@@ -490,12 +490,11 @@ public class InputHandler : MonoBehaviour
     private void HandleActionClick(HexCell clickCell)
     {
         var validTargets = TacticalQuery.GetValidTargets(
-            _selectedSpezzone.PositionCell.Coordinates, _selectedSpezzone.ActionPoints,
-            _selectedAction, _lvlManager.Map);
+            _selectedSpezzone, _selectedAction, _selectedItem, _lvlManager.Map);
 
         if (!validTargets.Contains(clickCell.Coordinates))
         {
-            _alertEvent?.Raise("not valid Target");
+            _alertEvent?.Raise(DescribeInvalidTarget(clickCell));
             return;
         }
 
@@ -544,7 +543,48 @@ public class InputHandler : MonoBehaviour
         OnActionComplete();
     }
 
+    private string DescribeInvalidTarget(HexCell clickCell)
+    {
+        if (_selectedSpezzone == null) return "No unit selected";
 
+        int ap = _selectedSpezzone.ActionPoints;
+
+        switch (_selectedAction)
+        {
+            case ActionType.SitStand:
+                int sitCost = TacticalQuery.GetSitStandCost(_selectedSpezzone);
+                if (ap < sitCost) return $"Not enough AP, {sitCost} needed";
+                return "Click on your own unit";
+
+            case ActionType.Chant:
+                if (ap < TacticalQuery.ChantCost) return $"Not enough AP, {TacticalQuery.ChantCost} needed";
+                return "Click on your own unit";
+
+            case ActionType.Charge:
+                if (ap < TacticalQuery.ChargeCost) return $"Not enough AP, {TacticalQuery.ChargeCost} needed";
+                if (clickCell.OccupiedBy is not PoliceRuntime chargeTarget) return "No target there";
+                if (chargeTarget.IsSeated) return "That unit is sitting: cannot be charged";
+                return "No clear charge line to that target";
+
+            case ActionType.Throw:
+                if (_selectedItem is not ThrowItemSO) return "Select a throw object";
+                if (!_selectedSpezzone.Inventory.HasItem(_selectedItem)) return "No throw objects left";
+                if (ap < _selectedItem.ActionPointCost) return $"Not enough AP, {_selectedItem.ActionPointCost} needed";
+                if (clickCell.OccupiedBy is not PoliceRuntime) return "No target there";
+                if (_selectedSpezzone.PositionCell.Coordinates.Distance(clickCell.Coordinates) != TacticalQuery.ThrowRange)
+                    return "Target out of range";
+                return "No clear throw path";
+
+            case ActionType.Barricade:
+                if (_selectedItem is not BarricadeSO) return "Select a barricade";
+                if (!_selectedSpezzone.Inventory.HasItem(_selectedItem)) return "No barricades left";
+                if (ap < _selectedItem.ActionPointCost) return $"Not enough AP, {_selectedItem.ActionPointCost} needed";
+                if (clickCell.Type.IsObjective) return "Cannot barricade an objective";
+                return "Not a free adjacent cell";
+        }
+
+        return "Not a valid target";
+    }
     private void SetSelectedAction(ActionType action)
     {
         bool allowedWhileSeated = (SeatedActions & action) != 0 || action == ActionType.None;
@@ -564,7 +604,7 @@ public class InputHandler : MonoBehaviour
         }
         _selectedAction = action;
 
-        if (action == ActionType.None)
+        if (_selectedItem != null && _selectedItem.Action != action)
             _selectedItem = null;
 
         _actionSelectedEvent?.Raise(action);

@@ -4755,6 +4755,14 @@ PrefabInstance:
       propertyPath: _startingInventory.Array.data[0].quantity
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 5688704029486242146, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
+      propertyPath: _panicWiggleDistance
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 5688704029486242146, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
+      propertyPath: _panicWiggleDuration
+      value: 0.08
+      objectReference: {fileID: 0}
     - target: {fileID: 8179120452198403956, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.514209
@@ -4964,6 +4972,14 @@ PrefabInstance:
     - target: {fileID: 1920225557590112282, guid: a375726046c8da249bc68e09e9bd1e51, type: 3}
       propertyPath: _startingInventory.Array.data[0].quantity
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5688704029486242146, guid: a375726046c8da249bc68e09e9bd1e51, type: 3}
+      propertyPath: _panicWiggleDistance
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 5688704029486242146, guid: a375726046c8da249bc68e09e9bd1e51, type: 3}
+      propertyPath: _panicWiggleDuration
+      value: 0.08
       objectReference: {fileID: 0}
     - target: {fileID: 8179120452198403956, guid: a375726046c8da249bc68e09e9bd1e51, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6298,6 +6314,14 @@ PrefabInstance:
       propertyPath: _grid
       value: 
       objectReference: {fileID: 1144096843}
+    - target: {fileID: 5688704029486242146, guid: 822dc7f1f30e7014e95a014b42b9d860, type: 3}
+      propertyPath: _panicWiggleDistance
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 5688704029486242146, guid: 822dc7f1f30e7014e95a014b42b9d860, type: 3}
+      propertyPath: _panicWiggleDuration
+      value: 0.08
+      objectReference: {fileID: 0}
     - target: {fileID: 8179120452198403956, guid: 822dc7f1f30e7014e95a014b42b9d860, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.514209
@@ -6531,6 +6555,14 @@ PrefabInstance:
     - target: {fileID: 4887271961500227207, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8387651892074410621, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _panicWiggleDistance
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 8387651892074410621, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _panicWiggleDuration
+      value: 0.08
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -7167,6 +7199,14 @@ PrefabInstance:
       propertyPath: _grid
       value: 
       objectReference: {fileID: 1144096843}
+    - target: {fileID: 5688704029486242146, guid: dfb33167643d2cf48b89aa5456e7e054, type: 3}
+      propertyPath: _panicWiggleDistance
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 5688704029486242146, guid: dfb33167643d2cf48b89aa5456e7e054, type: 3}
+      propertyPath: _panicWiggleDuration
+      value: 0.08
+      objectReference: {fileID: 0}
     - target: {fileID: 8179120452198403956, guid: dfb33167643d2cf48b89aa5456e7e054, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.5588862
@@ -7267,6 +7307,14 @@ PrefabInstance:
     - target: {fileID: 4887271961500227207, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8387651892074410621, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _panicWiggleDistance
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 8387651892074410621, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _panicWiggleDuration
+      value: 0.08
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -7655,6 +7703,14 @@ PrefabInstance:
     - target: {fileID: 1920225557590112282, guid: 852b756be15542f45b1dcc5f409fe52d, type: 3}
       propertyPath: _startingInventory.Array.data[0].quantity
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5688704029486242146, guid: 852b756be15542f45b1dcc5f409fe52d, type: 3}
+      propertyPath: _panicWiggleDistance
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 5688704029486242146, guid: 852b756be15542f45b1dcc5f409fe52d, type: 3}
+      propertyPath: _panicWiggleDuration
+      value: 0.08
       objectReference: {fileID: 0}
     - target: {fileID: 8179120452198403956, guid: 852b756be15542f45b1dcc5f409fe52d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -11108,6 +11164,7 @@ MonoBehaviour:
   _unitSelectedEvent: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
   _unitDeselectedEvent: {fileID: 11400000, guid: 6592294ff1c895a4cb56bba59c48821a, type: 2}
   _actionSelectedEvent: {fileID: 11400000, guid: 0089b697a2e035f4c862ab4d8e41feb2, type: 2}
+  _itemSelectedEvent: {fileID: 11400000, guid: 0f77724e8995d784abb243b62087a4bf, type: 2}
 --- !u!1 &1735459586
 GameObject:
   m_ObjectHideFlags: 0
@@ -11747,6 +11804,14 @@ PrefabInstance:
       propertyPath: _grid
       value: 
       objectReference: {fileID: 1144096843}
+    - target: {fileID: 5688704029486242146, guid: dfb33167643d2cf48b89aa5456e7e054, type: 3}
+      propertyPath: _panicWiggleDistance
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 5688704029486242146, guid: dfb33167643d2cf48b89aa5456e7e054, type: 3}
+      propertyPath: _panicWiggleDuration
+      value: 0.08
+      objectReference: {fileID: 0}
     - target: {fileID: 8179120452198403956, guid: dfb33167643d2cf48b89aa5456e7e054, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.3183954
@@ -11827,6 +11892,14 @@ PrefabInstance:
     - target: {fileID: 1920225557590112282, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
       propertyPath: _startingInventory.Array.data[1].quantity
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5688704029486242146, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
+      propertyPath: _panicWiggleDistance
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 5688704029486242146, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
+      propertyPath: _panicWiggleDuration
+      value: 0.08
       objectReference: {fileID: 0}
     - target: {fileID: 8179120452198403956, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -11928,6 +12001,14 @@ PrefabInstance:
     - target: {fileID: 4887271961500227207, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8387651892074410621, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _panicWiggleDistance
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 8387651892074410621, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _panicWiggleDuration
+      value: 0.08
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
