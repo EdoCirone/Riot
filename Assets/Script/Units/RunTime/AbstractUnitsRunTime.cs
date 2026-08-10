@@ -95,10 +95,6 @@ public abstract class AbstractUnitsRunTime
         if (_panicTurnsLeft > 0) _panicTurnsLeft--;
     }
 
-    public void GainMorale(int amount)
-    {
-        _morale = Mathf.Min(_morale + amount, MaxMorale);
-    }
 
     public void ApplyAuraMorale(int bonus)
     {
@@ -110,6 +106,10 @@ public abstract class AbstractUnitsRunTime
 
         if (_morale > MaxMorale) _morale = MaxMorale;
         if (_morale <= 0) RemoveFromBoard(MoraleLossCause.AuraWithdrawn);
+    }
+    public void GainMorale(int amount)
+    {
+        _morale = Mathf.Min(_morale + amount, MaxMorale);
     }
 
     public void LoseMorale(int amount, MoraleLossCause cause = MoraleLossCause.Other)

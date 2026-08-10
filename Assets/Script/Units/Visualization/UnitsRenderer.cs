@@ -26,6 +26,18 @@ public class UnitsRenderer : MonoBehaviour
         _unitsDict.Add(unit, existingGO);
     }
 
+    /// <summary>
+    /// Lampo di danno. Va chiamato al momento dell'IMPATTO dell'animazione, non quando
+    /// la logica applica il danno: le due cose sono separate da tutta la durata
+    /// dell'animazione, ed è il senso di "logica prima, animazione dopo".
+    /// </summary>
+    public void FlashDamage(AbstractUnitsRunTime unit)
+    {
+        if (unit == null) return;
+        if (!_unitsDict.TryGetValue(unit, out GameObject go)) return;
+        go.GetComponent<UnitStatusView>()?.Flash();
+    }
+
     public void UpdateView(AbstractUnitsRunTime unit)
     {
         if (!_unitsDict.TryGetValue(unit, out GameObject go))
@@ -34,16 +46,16 @@ public class UnitsRenderer : MonoBehaviour
             return;
         }
 
-        UnitMovement movement = go.GetComponent<UnitMovement>();
+        UnitStatusView statusView = go.GetComponent<UnitStatusView>();
 
         if (!unit.IsAlive)
         {
-            movement?.SetPanicVisual(false);      
+            statusView?.Clear();
             go.transform.root.gameObject.SetActive(false);
             return;
         }
 
         go.transform.root.position = _grid.GridToWorld(unit.PositionCell.Coordinates);
-        movement?.SetPanicVisual(unit.IsPanicked);
+        statusView?.Refresh(unit.IsPanicked, unit.IsSeated);
     }
 }

@@ -63,6 +63,7 @@ GameObject:
   - component: {fileID: 9216374112686408523}
   - component: {fileID: 1920225557590112282}
   - component: {fileID: 5688704029486242146}
+  - component: {fileID: 5890773268675485565}
   m_Layer: 0
   m_Name: Logic
   m_TagString: Untagged
@@ -115,6 +116,23 @@ MonoBehaviour:
   _movementSettings: {fileID: 11400000, guid: 99043daba652be04f9338a44a029e2bd, type: 2}
   _rootTransform: {fileID: 8179120452198403956}
   _graphicsTransform: {fileID: 2533026300929641294}
+--- !u!114 &5890773268675485565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7860774107717148083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b9184f2b80d8242b6b9db2769d42c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitStatusView
+  _graphicsTransform: {fileID: 2533026300929641294}
+  _panicTint: {r: 0.62, g: 0.66, b: 0.74, a: 1}
+  _seatedTint: {r: 0.55, g: 0.72, b: 1, a: 1}
+  _wiggleDistance: 0.02
+  _wiggleDuration: 0.08
 --- !u!1001 &2764032078470808392
 PrefabInstance:
   m_ObjectHideFlags: 0

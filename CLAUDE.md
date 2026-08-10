@@ -115,6 +115,29 @@ File: `Assets/Script/Audio/RunTime/AudioManager.cs`, `SceneMusicHandler.cs`,
   `Close()` ha un null-check d'ingresso perché viene chiamato anche prima che
   `Open()` sia mai girato (es. da `InGamePanelManager.Start`).
 
+## Il pannello unità esiste in DUE copie (scoperto 10/08/26)
+In `LVLTest.unity` ci sono **due** `UnitStatsPanelView`: `SpezzoneSelectedPanel` e
+`PoliceSelectedPanel`. Chi aggiunge un campo serializzato deve assegnarlo **su entrambi**.
+
+⚠ **Un campo dimenticato su uno dei due ha bloccato il gioco.** Aggiunto `_statusText` e
+assegnato solo sul pannello spezzoni, all'inizio del turno polizia `PoliceAI` alza
+`_onSelectedEvent` → il pannello polizia fa `Show` → `Refresh` → `NullReferenceException`.
+
+E siccome `Raise` è **sincrono**, l'eccezione risale fino alla coroutine di `PoliceAI` e la
+uccide a metà: la polizia non agisce, `ExecutePoliceTurn` non finisce, `_waitingForPolice`
+resta `true`, e con `CanAcceptPlayerInput` l'input resta bloccato per sempre.
+
+**Un campo non assegnato in un pannello UI ha fermato la partita.** È la stessa fragilità
+chiusa col pattern `_isValid`, rientrata da una porta laterale. Da qui due regole:
+- i widget opzionali del pannello si leggono con un null-check (`if (_statusText != null)`),
+  come già si fa per `_aptBar` e `_aptValueText`;
+- **non** metterli in `_isValid`: quello impedirebbe l'iscrizione e un pannello muto è
+  peggio di un pannello senza una riga.
+
+`DescribeStatus` restituisce **stringa vuota** per lo stato normale, non "NORMAL": lo stato
+normale è assenza di informazione, e scriverlo insegna al giocatore a ignorare quella riga
+proprio quando serve.
+
 ## UI — pannelli (VERIFICATO 03/08/26)
 Esistono DUE meccanismi di visibilità distinti, che non vanno mescolati:
 - `MenuPanelView` (MainMenu): il pannello resta **sempre attivo** e scivola dentro
@@ -397,8 +420,10 @@ e restituisce la struct annidata `TacticalQuery.AuraBonus`.
   `_graphicsTransform` in Y, il flip sulla scala. Sincronizzato da
   `UnitsRenderer.UpdateView`, che lo spegne anche nel ramo `!IsAlive` **prima** di
   `SetActive(false)`.
-- ⚠ **Manca solo la riga nel pannello unità**: a schermo il panico si vede dal tremore
-  ma il pannello non lo nomina.
+- ✅ **La riga nel pannello unità c'è dal 10/08/26**: `PANICKED — N turn(s)`, scritta da
+  `UnitStatsPanelView.DescribeStatus`. Insieme alla tinta e al tremore, il panico adesso
+  si vede in tre modi. ⚠ Attenzione: il campo `_statusText` va assegnato su **entrambi**
+  i pannelli — vedi la sezione "Il pannello unità esiste in DUE copie".
 
 ## Disperso e Arrestato (VERIFICATO 03/08/26) — GDD cap. 18
 - `UnitsStatus` = `Alive`, `Arrested`, `Disperse`.
@@ -536,11 +561,86 @@ Cambiata l'08/08 su richiesta di Edoardo: adesso può scartare **chiunque** nell
 - Celle raggiungibili: blu. Scontro disponibile: rosso. Carica: giallo.
   Muovi+attacca: rosso (stesso dello scontro — vedi nota).
 
-## Animazione (UnitMovement, DOTween + Lerp)
-- Movimento: Lerp smoothstep cella per cella.
-- Scontro: PlaySkirmish — windup + lancio + recoil, tutto DOTween.
-- Carica: PlayCharge — windup DOTween + rincorsa Lerp.
-- Flip sprite verso la direzione del bersaglio/destinazione.
+## Animazione e feedback visivo (VERIFICATO 10/08/26)
+
+### Gerarchia dell'unità — leggere prima di toccare qualunque cosa grafica
+Un'unità in scena è **due livelli**: la radice (es. `PoliceBasic`) e un figlio **`Logic`**
+che porta `UnitsSetup`, `UnitMovement` e `UnitStatusView`. Il grafico sta in un altro
+figlio (es. `PoliceGraphics`).
+
+⚠ Un componente nuovo va messo sul figlio `Logic` di **tutti e sei** i prefab unità
+(`AnarkyUnit`, `BlackBlock`, `PacifistUnit`, `StudentsUnit`, `WorkersUnit`, `PoliceBasic`),
+e va verificato **sul prefab**, non sull'istanza in scena: un componente aggiunto solo
+all'istanza funziona in `LVLTest` e sparisce nel livello successivo. Verifica rapida:
+cercare il guid del `.cs.meta` dentro i sei `.prefab` — devono essere sei occorrenze.
+
+⚠ Conseguenza: `UnitsRenderer._unitsDict` mappa l'unità sul GameObject **`Logic`**, non
+sulla radice — perché `LVLManager` registra `setup.gameObject`. Ecco perché `UpdateView`
+usa `go.transform.root.position` e **non** `go.transform.position`: deve muovere tutta
+l'unità, non solo il nodo logico. Due revisori esterni hanno proposto di "correggerlo" in
+`transform.position`: **avrebbe rotto il movimento.** Non farlo.
+
+### Chi scrive dove
+| Canale | Chi lo usa |
+|---|---|
+| `_rootTransform.position` | movimenti, scontro, carica (`UnitMovement`) |
+| `_graphicsTransform.localPosition.y` | bob durante il movimento (`UnitMovement`) |
+| `_graphicsTransform.localPosition.x` | tremore da panico (`UnitStatusView`) |
+| `_graphicsTransform.localScale` | flip dello sprite (`UnitMovement`) |
+| `SpriteRenderer.color` | tinta di stato e lampo (`UnitStatusView`) |
+
+Sono canali **distinti apposta**: due sistemi possono animare la stessa unità senza
+pestarsi i piedi, ma solo finché ognuno resta sul suo. È la prima cosa che si perde di
+vista e produce bug incomprensibili.
+
+### `UnitMovement`
+Solo spostamenti e combattimento: `MoveAlongPath` (Lerp smoothstep cella per cella + bob),
+`PlaySkirmish` (windup → colpo → recoil, con `onImpact` fra i primi due), `PlayHitReaction`,
+`PlayCharge` (windup DOTween + rincorsa Lerp), flip.
+
+### `UnitStatusView` (NUOVO 10/08/26) — `Units/Visualization/`
+Mostra la **condizione** dell'unità e nient'altro. Il capitolo 17 del GDD lo prescriveva
+da agosto; prima il tremore stava in `UnitMovement` come ripiego.
+
+- `Refresh(panicked, seated)` — chiamato da `UnitsRenderer.UpdateView`. Tinta + tremore.
+  Il panico vince sul seduto.
+- `Flash()` — lampo rosso da danno.
+- `Clear()` — da chiamare **prima** di disattivare il GameObject.
+- ⚠ **È l'unico proprietario di `SpriteRenderer.color`.** Il lampo sfuma verso
+  `_currentTint`, **non** verso il bianco: un'unità in panico deve tornare grigia dopo il
+  colpo, non normale. E `ApplyTint` esce se un lampo è in corso, altrimenti lo taglia a metà.
+- La tinta **moltiplica** i colori di base invece di sostituirli: conserva la tinta
+  originale dello sprite, e con `Color.white` è neutra.
+- ⚠ `CacheTintables` **esclude i SpriteRenderer sul layer "Outline"**: `SelectionOutline`
+  ne crea di duplicati e il suo `Initialize` gira prima del nostro. Senza il filtro,
+  tingendo l'unità tingeresti il suo contorno di selezione.
+- ⚠ `sr.color` **moltiplica, non desatura**. Il "grigio del panico" è un grigio freddo che
+  legge come spento; per una desaturazione vera servirebbe un parametro nello shader.
+
+### Il lampo da danno sta all'IMPATTO, non in `LoseMorale`
+Regola stabilita il 10/08/26 dopo un tentativo sbagliato.
+
+Il primo aggancio era un `System.Action Damaged` alzato da `LoseMorale` — punto unico,
+elegante, **e visivamente sbagliato**: per la regola "logica prima, animazione dopo" il
+Morale scende al clic, mentre l'attaccante sta ancora caricando il colpo. Il lampo partiva
+prima dell'animazione.
+
+**Non esiste un istante unico di "colpo": ogni azione ha il suo.**
+- **Scontro** → dentro `onImpact` di `PlaySkirmish`, insieme a `PlayHitReaction`.
+  `ExecuteSkirmish` raccoglie chi è stato colpito in una lista `hit` nello stesso `switch`
+  che applica il Morale, e `onImpact` la legge: **una decisione, una lettura**.
+- **Lancio** → nell'`OnComplete` del `DOJump` in `ThrowObjectVFX`, quando l'oggetto atterra.
+- **Carica** → in `PushResolution`, che gira già dentro la callback dell'animazione.
+
+⚠ **Perché qui la duplicazione è legittima e altrove no.** Unificare la legalità serviva
+perché era *una decisione ripetuta*, e due copie divergono in modo pericoloso. Il momento
+d'impatto invece è **informazione diversa per ogni azione** — lo scontro ha un windup, il
+lancio un tempo di volo, la spinta niente. Non è duplicazione, è specificità.
+
+⚠ **Caso analogo ancora aperto**: `ExecuteThrow` chiama `UpdateView(target)` subito, quindi
+se il lancio uccide, il bersaglio sparisce **mentre l'oggetto è ancora in volo**. Stessa
+famiglia dell'animazione dell'arresto: qualcosa esce di scena troppo presto rispetto a
+quello che si vede.
 
 ## Bootscene (Boot.unity / BootManager)
 Sequenza a coroutine unica in `BootManager.BootSequence`:
@@ -1116,7 +1216,9 @@ Differenze fra il piano e ciò che è stato fatto:
   smesso di confrontare Atk e Def, quindi un perdente non esiste più. È la prima stesura
   del GDD 17.4, che era stata scartata perché una carica fallita sarebbe stata gratis:
   senza carica fallita, il buco non c'è.
-- **Manca solo la riga nel pannello unità.**
+- **La riga nel pannello e la tinta sono arrivate il 10/08/26** con `UnitStatusView`.
+  Il panico è quindi **completo**: regola, propagazione, cura, e tre canali di lettura
+  a schermo (tremore, tinta, testo).
 
 Design originale in `D:\UnityProject\GDDRIOT\17-Coesione-Adiacenza-e-Panico.md` §17.4 e §17.6:
 ⚠ **Il design è stato rivisto il 06/08/26**: il danno è uscito dalla propagazione.
@@ -1152,8 +1254,9 @@ Design originale in `D:\UnityProject\GDDRIOT\17-Coesione-Adiacenza-e-Panico.md` 
 - **Seduto = frangifuoco**: non entra in panico e **interrompe la catena**.
 - **Chi è in panico NON può sedersi.** Senza questa regola siediti+rialzati (3 PA)
   azzera tre turni di panico. Il Coro resta l'unica cura anticipata.
-- Serve la **visualizzazione**. ⚠ **`UnitStatusView` NON esiste** (il documento lo dava
-  per esistente: falso, non è fra i 67 script). Piano concordato: tremore laterale in
+- Serve la **visualizzazione**. ⚠ **Al 06/08 `UnitStatusView` NON esisteva** (il documento
+  lo dava per esistente: era falso). **Esiste dal 10/08/26** — il comportamento reale sta
+  in PARTE 1, "Animazione e feedback visivo". Piano concordato: tremore laterale in
   loop via DOTween su `_graphicsTransform` in **X** (`DOLocalMoveX`, yoyo, `Ease.Linear`,
   ~0,04 unità e ~0,05 s), campo `_panicTween` **separato** da `_movementLoopTween` —
   altrimenti `StartBobLoop` lo uccide al primo movimento. L'asse X è libero: i movimenti
@@ -1296,31 +1399,34 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
 - **Tre Operai adiacenti sono imbattibili** (Def 8 + 2 di aura a testa contro Atk 8
   della polizia). Non è un bug dell'IA: è l'assenza del tetto alle adiacenze del
   GDD 17.8, che ora ha un caso concreto a supporto.
-- **Nessun indicatore visivo di unità seduta.** Il sedersi è diventato una scelta
-  tattica centrale (blocca le cariche, ancora la formazione contro il panico), ma
-  sulla griglia non si distingue chi è seduto da chi è in piedi — quindi non si può
-  pianificare. Rimandato da Edoardo il 03/08/26 alla fase di rifinitura.
-  ⚠ **Dal 05/08/26 pesa di più**: un seduto interrompe la catena del domino, quindi
-  può far arrestare chi gli sta davanti. È l'unica regola del gioco in cui una scelta
-  di un'unità uccide un'altra unità, e oggi non è visibile sulla griglia. Se in
-  playtest qualcuno perde uno spezzone senza capire perché, la causa è questa.
-  Vie possibili, dalla più economica: riga o icona "SEDUTO" nel pannello unità (dice
-  anche perché la Difesa mostra un numero più alto, visto che il +5 da seduto è dentro
-  il valore base); schiacciamento del `graphicsTransform`; sprite dedicato — la
-  soluzione giusta, ma dipende dalla direzione artistica.
+- ✅ **RISOLTO 10/08/26 — l'unità seduta adesso si vede.** Tinta blu sulla griglia
+  (`UnitStatusView`) più la riga `SEATED` nel pannello. Restava aperta da una settimana
+  ed era diventata pericolosa: un seduto interrompe la catena del domino, quindi può far
+  arrestare chi gli sta davanti — l'unica regola del gioco in cui la scelta di un'unità
+  uccide un'altra unità, e fino a ieri non era visibile.
+  ⚠ **La tinta è un ripiego consapevole**: un colore dice "questo è diverso", non "questo
+  è seduto". La soluzione vera è uno **sprite dedicato**, e dipende dalla direzione
+  artistica. Quando arriverà, la tinta va tolta — non sommata.
 - **Il pannello statistiche non si aggiorna quando cambia il vicinato.** `Refresh`
   scatta alla selezione e ai cambi turno, non quando un'altra unità si sposta: se
   muovi un Operaio accanto allo spezzone selezionato, il bonus d'aura mostrato resta
   vecchio finché non deselezioni. Si risolve chiamando `Refresh` dallo stesso punto in
   cui si ricalcolerà la Coesione (dopo movimento, spinta, dispersione).
-- **Il bonus da seduto è invisibile nel pannello**: `SpezzoneRuntime.Def` restituisce
-  `Def + 5` da seduto, quindi il +5 è dentro il numero base e non è distinguibile
-  dall'aura. Per separarlo servirebbe scomporlo alla fonte.
+- **Il bonus da seduto non è ancora scomposto nel pannello**: `SpezzoneRuntime.Def`
+  restituisce `Def + 5` da seduto, quindi il +5 è dentro il numero base e non è
+  distinguibile dall'aura. Dal 10/08 la riga `SEATED` almeno **dice perché** quel numero
+  è più alto, che era metà del problema. Per separarlo davvero servirebbe scomporlo alla
+  fonte — cioè togliere il `+5` dall'override di `Def` e farne un modificatore dichiarato,
+  sulla stessa strada delle aure.
 
 ## Arretrato precedente
 9. Animazione ricezione colpo del difensore: FATTA per lo scontro
-   (`PlayHitReaction` via `onImpact` in ExecuteSkirmish). MANCANO la versione per
-   la carica e la distinzione win/lose. Verificato 27/07/26.
+   (`PlayHitReaction` via `onImpact` in ExecuteSkirmish). ⚠ **La "distinzione win/lose"
+   non ha più oggetto per la carica** (dall'08/08 non ha esiti) e per lo scontro è già
+   implicita: `onImpact` fa lampeggiare **chi ha effettivamente perso Morale**, letto
+   dalla lista `hit`. Resta da fare la **reazione al colpo per la carica**, che va agganciata
+   dentro `PushResolution`/`ApplyPushChain` — non in `PlayCharge`, che parte quando la
+   destinazione del difensore non è ancora decisa. Riverificato 10/08/26.
 10. Animazione scontro polizia (stessa logica attaccante).
 11. Riprodurre e fixare il bug muovi+attacca combinato lato AI (lato player è già
     chiuso da `GetAttackOption`).
@@ -1335,6 +1441,37 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 33 (10/08/26) — passata di leggibilità
+Il gioco comincia a raccontare quello che fa. Nessuna regola nuova: solo feedback.
+
+- 🟢 **`UnitStatusView`**, componente nuovo: tinta di stato, tremore da panico, lampo da
+  danno. Il tremore è stato **spostato fuori da `UnitMovement`**, dove stava solo perché
+  il riferimento a `_graphicsTransform` era comodo. `UnitMovement` scende da 330 a 265
+  righe e torna a occuparsi di una cosa sola.
+- 🟢 **Riga di stato nel pannello unità**: `PANICKED — N turn(s)` e `SEATED`. Chiude anche
+  una voce vecchia: il `+5` da seduto era invisibile, la Difesa mostrava un numero più alto
+  senza dire perché.
+- 🟢 **Lampo rosso al colpo**, agganciato ai tre momenti d'impatto reali invece che a
+  `LoseMorale`. Vedi la sezione "Animazione e feedback visivo".
+- 🟢 **`ExecuteSitStand` e `ExecuteBarricade` chiamano `RefreshBoardState`**. Era
+  un'omissione "solo architetturale" da giorni: con la tinta è diventata visibile, perché
+  sedersi non aggiornava niente.
+- 🔴 **Un campo non assegnato sul pannello polizia ha bloccato il turno della polizia.**
+  Vedi la sezione "Il pannello unità esiste in DUE copie".
+- 📖 **Chiarita definitivamente la questione `transform.root`**: `_unitsDict` mappa
+  l'unità sul figlio `Logic`, quindi `transform.root` è corretto e `transform.position`
+  romperebbe il movimento. Due revisori esterni avevano proposto il contrario.
+
+**Due lezioni:**
+
+1. **Il punto unico della logica non è il punto unico della presentazione.** Il lampo su
+   `LoseMorale` era architetturalmente elegante e visivamente sbagliato: la logica risolve
+   al clic, l'animazione dura mezzo secondo. Quando l'effetto è visivo, il momento giusto
+   lo decide l'animazione, e ogni animazione ha il suo.
+2. **Un componente eredita le responsabilità dei riferimenti che possiede.** Il tremore e
+   la tinta erano finiti in `UnitMovement` perché lì c'era `_graphicsTransform`. Nessuno
+   l'aveva deciso: è successo. È così che nascono i god script, un metodo alla volta.
 
 ## Changelog sessione 32 (08/08/26, sera) — passata di pulizia
 Nessuna feature nuova: solo tolto, spostato e accentrato. Il gioco si comporta identico

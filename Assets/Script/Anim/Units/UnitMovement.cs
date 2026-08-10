@@ -1,27 +1,37 @@
-﻿using UnityEngine;
+using UnityEngine;
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using System;
 
+/// <summary>
+/// Anima gli SPOSTAMENTI e le azioni di combattimento dell'unità: movimento lungo un
+/// percorso, scontro, reazione al colpo, carica, e l'orientamento dello sprite.
+///
+/// Non sa niente della CONDIZIONE dell'unità (panico, seduto): quella è di
+/// UnitStatusView, che sta sullo stesso GameObject. La divisione non è formale —
+/// qui dentro finiva tutto ciò che toccava la grafica solo perché il riferimento a
+/// _graphicsTransform era comodo, ed è così che un componente diventa un god script.
+///
+/// Chi scrive dove:
+///   _rootTransform        → movimenti e attacchi (questo file)
+///   _graphicsTransform.y  → bob durante il movimento (questo file)
+///   _graphicsTransform.x  → tremore da panico (UnitStatusView)
+///   _graphicsTransform.scale → flip dello sprite (questo file)
+///   SpriteRenderer.color  → tinta di stato (UnitStatusView)
+/// Sono canali distinti apposta: possono sovrapporsi senza pestarsi i piedi.
+/// </summary>
 public class UnitMovement : MonoBehaviour
 {
     [SerializeField] private MovementSettingsSO _movementSettings;
     [SerializeField] private Transform _rootTransform;
     [SerializeField] private Transform _graphicsTransform;
 
-    [Header("Panic")]
-    [SerializeField] private float _panicWiggleDistance = 0.02f;
-    [SerializeField] private float _panicWiggleDuration = 0.08f;
-
     private AbstractUnitsRunTime _unit;
     private Coroutine _currentMove;
-  
-    private Tween _panicTween;
     private Tween _movementLoopTween;
-    
+
     private bool _isMoving;
-    private float _panicBaseX;
 
     public bool IsMoving => _isMoving;
 
@@ -31,9 +41,9 @@ public class UnitMovement : MonoBehaviour
     }
 
     #region Movement
+
     public void MoveAlongPath(List<HexCell> path, HexGrid grid, Action onComplete)
     {
-
         if (_unit == null)
         {
             Debug.LogError("UnitMovement: _unit is null. Call Initialize() first.");
@@ -49,10 +59,7 @@ public class UnitMovement : MonoBehaviour
 
         if (_currentMove != null)
         {
-            if (_movementLoopTween != null && _movementLoopTween.IsActive())
-            {
-                _movementLoopTween.Kill();
-            }
+            KillBobLoop();
             StopCoroutine(_currentMove);
         }
 
@@ -83,8 +90,9 @@ public class UnitMovement : MonoBehaviour
             }
             _rootTransform.position = endPos;
 
-            // Aggiorna la posizione logica DOPO aver raggiunto la cella
-
+            // Posizione logica aggiornata DOPO aver raggiunto la cella.
+            // La cella era libera quando il percorso è stato calcolato: non è detto
+            // che lo sia ancora. Se TryOccupy dice no, ci si ferma qui.
             if (!_unit.SetPosition(cell))
             {
                 Debug.LogWarning($"[MOVEMENT] {_unit} cannot occupy {cell.Coordinates}: path interrupted");
@@ -93,6 +101,8 @@ public class UnitMovement : MonoBehaviour
             }
         }
 
+        // ⚠ break, non yield break: qualunque uscita da questo metodo deve passare
+        // da onComplete, o il WaitUntil in TurnManager resta appeso per sempre.
         KillBobLoop();
         _isMoving = false;
         onComplete?.Invoke();
@@ -111,9 +121,8 @@ public class UnitMovement : MonoBehaviour
     private void KillBobLoop()
     {
         if (_movementLoopTween != null && _movementLoopTween.IsActive())
-        {
             _movementLoopTween.Kill();
-        }
+
         _movementLoopTween = null;
     }
 
@@ -126,6 +135,7 @@ public class UnitMovement : MonoBehaviour
         if (_isMoving) { onComplete?.Invoke(); return; }
 
         MustFlip(defenderWorldPos);
+
         Vector3 startPos = _rootTransform.position;
         Vector3 windupDir = (startPos - defenderWorldPos).normalized;
         Vector3 windupTarget = startPos + windupDir * _movementSettings.SkirmishWindupDistance;
@@ -146,6 +156,7 @@ public class UnitMovement : MonoBehaviour
                     });
             });
     }
+
     public void PlayHitReaction(Vector3 attackerWorldPos, Action onComplete = null)
     {
         if (_isMoving)
@@ -155,7 +166,7 @@ public class UnitMovement : MonoBehaviour
         }
 
         Vector3 startPos = _rootTransform.position;
-        // direzione OPPOSTA all'attaccante: il difensore rincula
+        // Direzione OPPOSTA all'attaccante: il difensore rincula.
         Vector3 recoilDir = (startPos - attackerWorldPos).normalized;
         Vector3 recoilTarget = startPos + recoilDir * _movementSettings.HitReactionDistance;
 
@@ -168,47 +179,49 @@ public class UnitMovement : MonoBehaviour
                     .OnComplete(() => onComplete?.Invoke());
             });
     }
+
     #endregion
 
     #region Charge
 
     public void PlayCharge(HexCell cellDestination, Vector3 defenderWorldPos, HexGrid grid, Action onComplete)
     {
-
         if (_unit == null)
         {
             Debug.LogError("UnitMovement: _unit is null!");
             onComplete?.Invoke();
             return;
         }
+
         if (cellDestination == null)
         {
             Debug.LogError("UnitMovement: cellDestination is null!");
             onComplete?.Invoke();
             return;
         }
+
         if (_isMoving)
         {
             onComplete?.Invoke();
             return;
         }
 
-        // defenderWorldPos serve solo qui: orienta lo sprite e la direzione del caricamento.
+        // defenderWorldPos serve solo qui: orienta lo sprite e la direzione della rincorsa.
+        // ⚠ Non si può animare anche il difensore da qui: quando PlayCharge parte, la sua
+        // destinazione non esiste ancora — la decide PushResolution, che gira in onComplete.
         MustFlip(defenderWorldPos);
 
         Vector3 windupDir = (_rootTransform.position - defenderWorldPos).normalized;
         Vector3 windupTarget = _rootTransform.position + windupDir * _movementSettings.WindupDistance;
 
         StartCoroutine(ChargeSequence(windupTarget, cellDestination, grid, onComplete));
-
     }
 
-
     private IEnumerator ChargeSequence(
-     Vector3 windupTarget,
-     HexCell cellDestination,
-     HexGrid grid,
-     Action onComplete)
+        Vector3 windupTarget,
+        HexCell cellDestination,
+        HexGrid grid,
+        Action onComplete)
     {
         _isMoving = true;
 
@@ -234,9 +247,11 @@ public class UnitMovement : MonoBehaviour
         _isMoving = false;
         onComplete?.Invoke();
     }
+
     #endregion
 
     #region Flip
+
     private void MustFlip(Vector3 directionWorldPos)
     {
         float dirX = directionWorldPos.x - _rootTransform.position.x;
@@ -245,46 +260,15 @@ public class UnitMovement : MonoBehaviour
         float currentScaleX = _graphicsTransform.localScale.x;
 
         if ((shouldFaceLeft && currentScaleX > 0) || (!shouldFaceLeft && currentScaleX < 0))
-            _graphicsTransform.localScale = new Vector3(-currentScaleX, _graphicsTransform.localScale.y, _graphicsTransform.localScale.z);
-
-    }
-
-    public void FlipTowards(Vector3 targetWorldPos)
-    {
-        MustFlip(targetWorldPos);
-    }
-    #endregion
-
-    #region Panic
-    public void SetPanicVisual(bool on)
-    {
-        if (_graphicsTransform == null) return;
-
-        if (on)
         {
-            // Già in corso: non ripartire, o il tremore scatta a ogni UpdateView.
-            if (_panicTween != null && _panicTween.IsActive()) return;
-
-            Vector3 p = _graphicsTransform.localPosition;
-            _panicBaseX = p.x;
-
-            _graphicsTransform.localPosition = new Vector3(_panicBaseX - _panicWiggleDistance, p.y, p.z);
-            _panicTween = _graphicsTransform
-                .DOLocalMoveX(_panicBaseX + _panicWiggleDistance, _panicWiggleDuration)
-                .SetLoops(-1, LoopType.Yoyo)
-                .SetEase(Ease.Linear);
-        }
-        else
-        {
-            if (_panicTween == null) return;
-
-            if (_panicTween.IsActive()) _panicTween.Kill();
-            _panicTween = null;
-
-            Vector3 p = _graphicsTransform.localPosition;
-            _graphicsTransform.localPosition = new Vector3(_panicBaseX, p.y, p.z);
+            _graphicsTransform.localScale = new Vector3(
+                -currentScaleX,
+                _graphicsTransform.localScale.y,
+                _graphicsTransform.localScale.z);
         }
     }
-    #endregion
 
+    public void FlipTowards(Vector3 targetWorldPos) => MustFlip(targetWorldPos);
+
+    #endregion
 }

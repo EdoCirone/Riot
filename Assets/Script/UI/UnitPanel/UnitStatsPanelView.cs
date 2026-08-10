@@ -20,13 +20,16 @@ public class UnitStatsPanelView : MonoBehaviour
     [SerializeField] private Slider _morBar;
     [SerializeField] private TextMeshProUGUI _morValueText;
 
+    [Header("Stats")]
+    [SerializeField] private TextMeshProUGUI _atkText;
+    [SerializeField] private TextMeshProUGUI _defText;
+
     [Header("Action Points")]
     [SerializeField] private Slider _aptBar;
     [SerializeField] private TextMeshProUGUI _aptValueText;
 
-    [Header("Stats")]
-    [SerializeField] private TextMeshProUGUI _atkText;
-    [SerializeField] private TextMeshProUGUI _defText;
+    [Header("Status")]
+    [SerializeField] private TextMeshProUGUI _statusText;
 
     [Header("Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
@@ -119,11 +122,15 @@ public class UnitStatsPanelView : MonoBehaviour
         if(_aptValueText != null)
             _aptValueText.text = _currentUnit.ActionPoints.ToString();
 
+        if (_statusText != null)
+            _statusText.text = DescribeStatus(_currentUnit);
+
         AuraBonus aura = TacticalQuery.GetAuraBonus(_currentUnit, _lvlManager.Map);
 
         _atkText.text = FormatStat(_currentUnit.Atk, aura.Atk);
         _defText.text = FormatStat(_currentUnit.Def, aura.Def);
         _morValueText.text = FormatStat(_currentUnit.BaseMorale, aura.Mor);
+        _statusText.text = DescribeStatus(_currentUnit);
     }
 
     private string FormatStat(int baseValue, int auraValue)
@@ -131,5 +138,15 @@ public class UnitStatsPanelView : MonoBehaviour
         if (auraValue == 0) return baseValue.ToString();
         string sign = auraValue > 0 ? "+" : "";
         return $"{baseValue} <color=#7CFF7C>({sign}{auraValue})</color>";
+    }
+    private static string DescribeStatus(AbstractUnitsRunTime unit)
+    {
+        if (unit.IsPanicked)
+            return $"PANICKED — {unit.PanicTurnsLeft} turn(s)";
+
+        if (unit.IsSeated)
+            return "SEATED — can only stand up or chant";
+
+        return "";
     }
 }

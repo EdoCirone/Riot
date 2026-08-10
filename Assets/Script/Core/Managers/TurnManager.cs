@@ -362,6 +362,7 @@ public class TurnManager : MonoBehaviour
         {
             impactCell = def.PositionCell;
             def.LoseMorale(1, CauseFrom(atk));
+            _unitsRenderer.FlashDamage(def);
         }
         ApplyPanicWave(impactCell, def);
 
@@ -531,13 +532,17 @@ public class TurnManager : MonoBehaviour
         }
 
         CombatResult result = CombatResolver.Resolve(atk, def, _map);
+        List<AbstractUnitsRunTime> hit = new();
+
         switch (result)
         {
-            case CombatResult.Win: def.LoseMorale(1, CauseFrom(atk)); break;
-            case CombatResult.Lose: atk.LoseMorale(1, CauseFrom(def)); break;
+            case CombatResult.Win:
+                def.LoseMorale(1, CauseFrom(atk)); hit.Add(def); break;
+            case CombatResult.Lose:
+                atk.LoseMorale(1, CauseFrom(def)); hit.Add(atk); break;
             case CombatResult.Par:
-                atk.LoseMorale(1, CauseFrom(def));
-                def.LoseMorale(1, CauseFrom(atk)); break;
+                atk.LoseMorale(1, CauseFrom(def)); hit.Add(atk);
+                def.LoseMorale(1, CauseFrom(atk)); hit.Add(def); break;
         }
 
         bool done = false;
@@ -558,11 +563,12 @@ public class TurnManager : MonoBehaviour
                  _lvlManager.RefreshBoardState();
                  done = true;
              },
-             onImpact: () =>
-             {
-                 defMovement?.PlayHitReaction(atkWorldPos);
-                 RaiseCombactResult(result);
-             });
+            onImpact: () =>
+            {
+                defMovement?.PlayHitReaction(atkWorldPos);
+                foreach (var u in hit) _unitsRenderer.FlashDamage(u);
+                RaiseCombactResult(result);
+            });
 
         float elapsed = 0f;
         yield return new WaitUntil(() => done || (elapsed += Time.deltaTime) > 5f);
@@ -625,6 +631,8 @@ public class TurnManager : MonoBehaviour
 
         Vector3 worldPos = _map.GridToWorld(targetCell.Coordinates);
         Instantiate(item.GraphicPrefab, worldPos, Quaternion.identity);
+
+        _lvlManager.RefreshBoardState();
         return true;
     }
 
@@ -678,6 +686,9 @@ public class TurnManager : MonoBehaviour
 
         if (wasSeated) unit.StandUp();
         else unit.SitDown();
+
+        _unitsRenderer.UpdateView(unit);
+        _lvlManager.RefreshBoardState();
 
         Debug.Log($"{unit} {(wasSeated ? "stands up" : "sits down")}. Def now {unit.Def}, AP left {unit.ActionPoints}");
         return true;

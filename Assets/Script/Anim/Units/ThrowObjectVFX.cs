@@ -5,6 +5,7 @@ public class ThrowObjectVFX : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private HexGrid _map;
+    [SerializeField] private UnitsRenderer _unitsRenderer;
 
     [Header("Prefabs")]
     [SerializeField] private GameObject _trowhObjectPrefab;
@@ -73,10 +74,13 @@ public class ThrowObjectVFX : MonoBehaviour
 
         GameObject prefab = (_selectedItem != null && _selectedItem.GraphicPrefab != null)
             ? _selectedItem.GraphicPrefab
-            : _trowhObjectPrefab;  
+            : _trowhObjectPrefab;
 
-        GameObject throwObject = Instantiate(prefab, selectedUnitPos, Quaternion.identity); throwObject.transform.DOJump(targetUnitPos, 1f, 1, 0.5f).OnComplete(() =>
+        GameObject throwObject = Instantiate(prefab, selectedUnitPos, Quaternion.identity);
+
+        throwObject.transform.DOJump(targetUnitPos, 1f, 1, 0.5f).OnComplete(() =>
         {
+            _unitsRenderer?.FlashDamage(unit);
             Destroy(throwObject);
         });
     }
