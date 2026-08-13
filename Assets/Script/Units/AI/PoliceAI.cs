@@ -35,34 +35,52 @@ public class PoliceAI : MonoBehaviour
             {
                 actedThisTurn = false;
 
-                SpezzoneRuntime nearestSpezzone = FoundNearestSpezzone(police);
-                if (nearestSpezzone == null) break;
+                List<SpezzoneRuntime> targets = GetTargetsByDistance(police);
 
-                int distance = police.PositionCell.Coordinates.Distance(nearestSpezzone.PositionCell.Coordinates);
-
-                if (distance == 1)
+                // PASSATA 1 — agire. Scontro se conviene, carica se è legale.
+                // La carica NON guarda le statistiche: contro un muro è l'unico strumento
+                // che funziona, quindi va cercata su TUTTI i bersagli prima di ripiegare.
+                foreach (SpezzoneRuntime target in targets)
                 {
-                    int atk = CombatResolver.GetEffectiveAtk(police, _lvlManager.Map);
-                    int def = CombatResolver.GetEffectiveDef(nearestSpezzone, _lvlManager.Map);
+                    int distance = police.PositionCell.Coordinates.Distance(target.PositionCell.Coordinates);
 
-                    if (atk <= def) break;
+                    if (distance == 1)
+                    {
+                        int atk = CombatResolver.GetEffectiveAtk(police, _lvlManager.Map);
+                        int def = CombatResolver.GetEffectiveDef(target, _lvlManager.Map);
 
-                    yield return StartCoroutine(_turnManager.ExecuteSkirmish(police, nearestSpezzone));
-                    actedThisTurn = true;
+                        if (atk <= def)
+                        {
+                            Debug.Log($"[AI] {police} cannot hurt {target} in melee (atk {atk} vs def {def}): looking elsewhere");
+                            continue;
+                        }
+
+                        yield return StartCoroutine(_turnManager.ExecuteSkirmish(police, target));
+                        actedThisTurn = true;
+                        break;
+                    }
+
+                    if (distance == 3 && _turnManager.CanCharge(police, target, out _))
+                    {
+                        Debug.Log($"[AI] {police} charges {target}: pushing, stats do not matter");
+                        yield return StartCoroutine(_turnManager.ExecuteCharge(police, target));
+                        actedThisTurn = true;
+                        break;
+                    }
                 }
-                else if (distance == 3 && _turnManager.CanCharge(police, nearestSpezzone, out _))
-                {
-                    yield return StartCoroutine(_turnManager.ExecuteCharge(police, nearestSpezzone));
-                    actedThisTurn = true;
-                }
-                else
-                {
 
-                    HexCoordinates? targetCell = _turnManager.FindBestAdjacentCell(police.PositionCell.Coordinates, nearestSpezzone.PositionCell.Coordinates);
+                if (actedThisTurn) continue;
+
+                // PASSATA 2 — nessuna azione disponibile: ci si avvicina al più raggiungibile.
+                foreach (SpezzoneRuntime target in targets)
+                {
+                    HexCoordinates? targetCell = _turnManager.FindBestAdjacentCell(
+                        police.PositionCell.Coordinates, target.PositionCell.Coordinates);
+
                     if (targetCell == null)
                     {
-                        Debug.Log($"{police} has no free adjacent cell toward the target");
-                        break;
+                        Debug.Log($"[AI] {police} has no free adjacent cell toward {target}");
+                        continue;
                     }
 
                     List<HexCoordinates> pathCoords = _turnManager.PathFinder.FindPath(
@@ -73,8 +91,8 @@ public class PoliceAI : MonoBehaviour
 
                     if (pathCoords.Count <= 1)
                     {
-                        Debug.Log($"{police} found no path toward the target");
-                        break;
+                        Debug.Log($"[AI] {police} found no path toward {target}");
+                        continue;
                     }
 
                     int maxSteps = Mathf.Min(police.ActionPoints, pathCoords.Count - 1);
@@ -86,7 +104,6 @@ public class PoliceAI : MonoBehaviour
                     }
 
                     bool finishMovement = false;
-                    
                     bool success = _turnManager.ExecuteMovement(police, path, () =>
                     {
                         finishMovement = true;
@@ -94,14 +111,45 @@ public class PoliceAI : MonoBehaviour
 
                     float elapsed = 0f;
                     yield return new WaitUntil(() => finishMovement || (elapsed += Time.deltaTime) > 5f);
-                    if (!finishMovement) Debug.LogWarning($"[AI] {police} movement not completed: continuing"); 
-                    
-                    actedThisTurn = success;
-                
-                    Debug.Log(success ? $"[AI] {police} moved {path.Count} cells" : $"[AI] {police} movement failed");
+                    if (!finishMovement) Debug.LogWarning($"[AI] {police} movement not completed: continuing");
+
+                    Debug.Log(success
+                        ? $"[AI] {police} moved {path.Count} cell(s) toward {target}"
+                        : $"[AI] {police} movement failed");
+
+                    if (success)
+                    {
+                        actedThisTurn = true;
+                        break;
+                    }
                 }
+
+                if (!actedThisTurn)
+                    Debug.Log($"[AI] {police} has nothing to do: turn ended with {police.ActionPoints} AP left");
             }
         }
+    }
+
+    /// <summary>
+    /// Tutti gli spezzoni vivi, ordinati per distanza crescente. Il più vicino è il primo
+    /// tentativo, non l'unico: se contro di lui non c'è niente da fare, si prova il dopo.
+    /// </summary>
+    private List<SpezzoneRuntime> GetTargetsByDistance(PoliceRuntime police)
+    {
+        List<SpezzoneRuntime> targets = new List<SpezzoneRuntime>();
+
+        foreach (var spezzone in _lvlManager.Spezzoni)
+        {
+            if (!spezzone.IsAlive) continue;
+            targets.Add(spezzone);
+        }
+
+        HexCoordinates from = police.PositionCell.Coordinates;
+        targets.Sort((a, b) =>
+            from.Distance(a.PositionCell.Coordinates)
+                .CompareTo(from.Distance(b.PositionCell.Coordinates)));
+
+        return targets;
     }
 
     private SpezzoneRuntime FoundNearestSpezzone(PoliceRuntime police)

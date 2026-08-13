@@ -1,9 +1,28 @@
-# CLAUDE.md
+﻿# CLAUDE.md
 
 ## Progetto
 DISSENSO (ex RIOT) — gioco tattico a turni 2D in Unity 6000.4.5f1 (URP).
 Il giocatore comanda un corteo politico (spezzoni) su una griglia esagonale flat-top contro forze di polizia.
 Lingua team: italiano. Commit e commenti in italiano. Nomi variabili/classi in inglese.
+
+## Gli altri documenti (allineati 13/08/26)
+- **Documento di Progetto**: `D:\GDDRIOT\RIOT_Project_Document_v28.md` — stato del codice
+  (Sezione 0) e cronologia per sessione. Le versioni vecchie stanno in
+  `D:\GDDRIOT\Archivio\`.
+  ⚠ **Il v26 non esiste e non va cercato**: creato il 05/08 e sovrascritto dal v27 senza
+  passare dall'archivio (errore, confermato il 13/08). Nessun contenuto perso — il
+  changelog della sessione 28 è dentro il v27 e quindi dentro il v28. Il salto v25 → v27
+  nell'archivio è atteso.
+  ⚠ **Da sess.29 il changelog per sessione sta nella Sezione 0** del Documento di
+  Progetto (blocchi "Novità sess.NN"), non più in fondo nell'elenco delle sessioni, che
+  si ferma alla 28. Due posti per la stessa cosa: da riunificare.
+- **GDD**: `D:\GDDRIOT\` numerati 00-**20**. Il **cap. 20 (Assemblea e Volantino)** è nuovo
+  del 13/08/26, e il **cap. 8 (Polizia)** è stato riscritto lo stesso giorno: la polizia
+  passa da inseguitore a **presidio** con guinzaglio, allarme locale e regole d'ingaggio
+  per fascia di Repressione. Sono i due capitoli da leggere per primi se si riprende in
+  mano il design.
+- ⚠ Fino al 13/08/26 questo file citava i documenti sotto `D:\UnityProject\GDDRIOT\`,
+  percorso che non esiste. Cinque riferimenti corretti in una volta.
 
 ## Unity Version
 6000.4.5f1 — non aggiornare mai senza istruzione esplicita.
@@ -396,8 +415,17 @@ e restituisce la struct annidata `TacticalQuery.AuraBonus`.
 - **Il Coro cura**: `ExecuteChant` chiama `ClearPanic()` su chi canta e sui sei vicini,
   accanto a `GainMorale`. ⚠ Nota numerica: in panico `MaxMorale` è quello base, quindi
   il `+1` può essere troncato e solo dopo `RefreshBoardState` il prestito risale.
-  ⚠ Da guardare in playtest: 3 PA curano fino a sette unità mentre la carica ne costa 4 —
-  la cura è più economica dell'attacco.
+  ✅ **Playtest 13/08/26: va bene così per ora.** 3 PA curano fino a sette unità mentre
+  la carica ne costa 4 — la cura resta più economica dell'attacco, ed è accettato.
+  ⚠ **La direzione decisa non è ritoccare il costo, è dividere il Coro in tipi**
+  (Edoardo, 13/08/26): **coro di Morale** (l'attuale, cura), **coro antipanico**,
+  **coro provocatorio** (attira le guardie). Un'unica azione che fa tre cose insieme è
+  il motivo per cui è troppo economica: separandola, ogni coro paga il proprio effetto e
+  il giocatore sceglie *quale* problema risolvere invece di risolverli tutti con un
+  bottone. Il provocatorio in più è la prima azione del corteo che **manipola l'IA**
+  invece di subirla, e collega il Coro alla Provocazione già in sospeso (GDD cap. 20) e
+  alla priorità 4 del cap. 16. Non farlo prima di `ActionSO`: sono tre azioni nuove con
+  costi propri, ed è esattamente il caso d'uso che rende maturo quel refactor.
 - **Ordine obbligato in `PushResolution`**: cattura della cella d'urto → spinta →
   se ancora vivo, aggiorna la cella e applica il −1 → onda → `RefreshBoardState`.
   ⚠ **La cella si cattura PRIMA della spinta**, non dopo. La prima stesura la leggeva
@@ -515,11 +543,16 @@ Cambiata l'08/08 su richiesta di Edoardo: adesso può scartare **chiunque** nell
   prende per spinta" varrebbe solo in una direzione.
 - **Non esiste un domino laterale**: chi scarta si toglie dai piedi da solo, quelli
   dietro e di fianco non si muovono. Deciso, non emerso.
-- ⚠ **L'arresto per schiacciamento è diventato raro.** Prima bastava una cella bloccata;
-  con la versione del 06/08 ne servivano tre; adesso serve che **tutta la colonna** sia
-  tappata — nessuno spazio dietro e nessun fianco libero per nessuno, cioè `2N+1` celle
-  bloccate per una colonna di N. Su campo aperto non succede praticamente mai: serve un
-  corridoio stretto o una fila di seduti sui fianchi.
+- ✅ **L'arresto per schiacciamento è raro, e va bene così** (playtest, 13/08/26).
+  Prima bastava una cella bloccata; con la versione del 06/08 ne servivano tre; adesso
+  serve che **tutta la colonna** sia tappata — `2N+1` celle bloccate per una colonna di
+  N. Su campo aperto non succede praticamente mai: serve un corridoio stretto o una fila
+  di seduti sui fianchi.
+  **Il punto è che l'arresto non è il danno principale della spinta.** In playtest la
+  spinta paga comunque: **smonta la Coesione e rallenta il corteo**, che deve spendere
+  PA per ricompattarsi. Chiude un dubbio aperto il 05/08 — il domino sembrava ridondante
+  col panico, e invece i due colpiscono cose diverse: il **panico** toglie aure e Morale,
+  la **spinta** toglie legami e tempo. L'arresto è il caso limite, non il meccanismo.
 - ⚠ **Tutto teletrasporta**: né la catena né lo sfogo hanno animazione.
 - `ResolvePushOrRemove` ha in cima una **guardia di adiacenza** (`Distance != 1` →
   `LogError` e return). La direzione della spinta è la differenza fra le coordinate, che
@@ -530,11 +563,19 @@ Cambiata l'08/08 su richiesta di Edoardo: adesso può scartare **chiunque** nell
   `steps aside to (q,r), N unit(s) shift back`, `column of N blocked at (q,r): <motivo>`,
   `no way back and no way out`. Il motivo del tappo è nominato per esteso (bordo mappa,
   obiettivo, barricata, seduto, nemico): serve perché a schermo un tappo è invisibile.
-- ⚠ **Obiettivo = muro** significa che un corteo schierato davanti a una cella obiettivo
-  ha la fila che finisce contro di essa, quindi si fa arrestare. Regola tematica scelta
-  il 05/08/26 ("il ministero non si prende per spinta"): da confermare in playtest.
-- ⚠ La **cella obiettivo blocca anche se libera**. Ci si cammina sopra, non ci si viene
-  spinti.
+- **Obiettivo = muro** (regola tematica scelta il 05/08/26: "il ministero non si prende
+  per spinta"). La **cella obiettivo blocca anche se libera**: ci si cammina sopra, non
+  ci si viene spinti.
+  ⚠ **In playtest non è mai scattata, e il motivo è la MAPPA, non la regola** (13/08/26).
+  Su `LVLTest` gli obiettivi sono incastrati fra altre celle obiettivo e celle non
+  calpestabili, quindi non c'è mai nessuno *davanti* a un obiettivo che possa esservi
+  spinto contro. **Non è quindi una regola validata: è una regola inerte.** Il timore del
+  05/08 — "il corteo schierato davanti a un obiettivo si fa arrestare" — non è stato
+  smentito, semplicemente non si è potuto presentare.
+  ⚠ **Torna viva appena un livello mette un obiettivo in campo aperto**, e a quel punto
+  nessuno si ricorderà perché. Chi disegna mappe deve sapere che una cella obiettivo
+  raggiungibile da più lati è anche un muro per la spinta, quindi una trappola per chi le
+  sta davanti. Da rivedere insieme all'occupazione temporanea del cap. 19.
 - ⚠ `ApplyPushChain` teletrasporta N unità: l'animazione della spinta non esiste.
   Quando si farà, il gancio va **dopo** `PushResolution` (vedi bug noti, PlayCharge).
 - **Coro (Chant)**: costa 3 PA. +1 Morale a chi lo lancia e a ogni SpezzoneRuntime
@@ -709,7 +750,7 @@ poi svuotare questa sezione.
 
 ## Trovati nel triple check del 06/08/26 (Claude + ChatGPT + DeepSeek)
 Lista completa con dove/cosa/perché e ordine di lavoro in
-`D:\UnityProject\GDDRIOT\FIXLIST_2026-08-06.md`.
+`D:\GDDRIOT\FIXLIST_2026-08-06.md`.
 
 **STATO AL 06/08/26 SERA: tutti i bug attivi sono chiusi tranne uno** (la divergenza
 highlight/esecuzione su SitStand, Throw e Barricade, vedi sotto). Le voci restano qui
@@ -1059,14 +1100,18 @@ con la diagnosi, perché la spiegazione del *perché* succedeva vale più della 
   finita. Qualunque parametro passato prima contiene la posizione vecchia, e col domino
   è sbagliata quasi sempre. Quando si farà la reazione al colpo per la carica, il gancio
   va dentro `PushResolution`/`ApplyPushChain`, sul modello di `onImpact` nello scontro.
-- **CINQUE file non sono salvati in UTF-8** (riverificato 06/08/26 con `file --mime-encoding`
-  su tutto `Assets/Script`; la voce precedente ne elencava uno solo ed era incompleta):
-  `TacticalQuery.cs`, `CameraManager.cs`, `PlayFromAnyScene.cs` (ISO-8859-1) e
-  `InventoryView.cs`, `UnitsSetup.cs` (cp1252). Sono byte accentati dentro commenti.
-  Non rompono niente — Unity ricade sulla codepage di sistema — ma nel flusso a due
-  macchine basta che un editor ne risalvi uno perché git segni righe modificate che
-  nessuno ha toccato. **Da fare per primo, in un commit dedicato**, prima di aprire
-  qualunque altro lavoro dal portatile.
+- **File non salvati in UTF-8 — il problema RIENTRA, non si chiude una volta sola.**
+  I cinque censiti il 06/08 (`TacticalQuery.cs`, `CameraManager.cs`,
+  `PlayFromAnyScene.cs`, `InventoryView.cs`, `UnitsSetup.cs`) sono stati sistemati.
+  Poi è tornato su `PathFinter.cs` in sess.32, e **al 13/08/26 l'unico file non-UTF8 di
+  tutto `Assets/Script` è `UnitsRenderer.cs`** (verificato decodificando ogni `.cs`).
+  Sono byte accentati dentro commenti: non rompono niente — Unity ricade sulla codepage
+  di sistema — ma nel flusso a due macchine basta che un editor ne risalvi uno perché
+  git segni righe che nessuno ha toccato.
+  ⚠ **La causa è nota e la contromisura non è stata applicata a tappeto**: Visual Studio
+  ricade sulla codepage di sistema sui file UTF-8 **senza BOM**. Finché esistono file
+  senza firma, ogni commento con un accento può riaprire la voce. Correggere il singolo
+  file è un cerotto; la cura è **salvare col BOM** tutto ciò che si tocca.
 - **Campi dati dichiarati e mai letti** (censiti 06/08/26). Due asset ne hanno:
   - `MovementSettingsSO`: `ChargeBumpDistance/Duration`, `SkirmishBumpDistance/Duration`.
     ⚠ In più, l'asset **non contiene `_hitReactionDistance`**: il campo esiste nel codice
@@ -1200,7 +1245,7 @@ check del 06/08/26 ha trovato quattro bug attivi, uno dei quali (input del gioca
 durante il turno polizia) corrompe lo stato della griglia e ne rende raggiungibile un
 altro. Scrivere il panico sopra una griglia che può essere mutata da due parti
 contemporaneamente significa non poter distinguere un bug del panico da un bug
-preesistente. Lista e ordine in `D:\UnityProject\GDDRIOT\FIXLIST_2026-08-06.md`;
+preesistente. Lista e ordine in `D:\GDDRIOT\FIXLIST_2026-08-06.md`;
 le prime otto voci sono mezza giornata e chiudono tutto ciò che è attivo.
 
 Gli SFX più sotto restano validi ma NON sono il prossimo passo: si fanno quando
@@ -1220,7 +1265,7 @@ Differenze fra il piano e ciò che è stato fatto:
   Il panico è quindi **completo**: regola, propagazione, cura, e tre canali di lettura
   a schermo (tremore, tinta, testo).
 
-Design originale in `D:\UnityProject\GDDRIOT\17-Coesione-Adiacenza-e-Panico.md` §17.4 e §17.6:
+Design originale in `D:\GDDRIOT\17-Coesione-Adiacenza-e-Panico.md` §17.4 e §17.6:
 ⚠ **Il design è stato rivisto il 06/08/26**: il danno è uscito dalla propagazione.
 
 - Va in panico **chi PERDE** lo scontro di carica (superato l'08/08, vedi sopra).
@@ -1316,15 +1361,57 @@ Motivo del rinvio: la scena Assemblea introduce la composizione del corteo e
 l'istanziazione a runtime, quindi cambia cosa l'IA si trova davanti. Rifarla prima
 significherebbe rifarla due volte.
 
+**LA PREMESSA DI DESIGN DEL REFACTOR (formulata 13/08/26).** Prima di riscrivere una
+riga, questo è il punto da cui partire:
+
+> **L'albero decisionale di `PoliceAI` codifica ancora il modello di combattimento
+> pre-08/08.** È fatto così: `distanza 1 → scontro`, `distanza 3 → carica`,
+> `altro → avvicinati`. È uno smistamento **per distanza**, e presuppone che a ogni
+> distanza esista una sola cosa sensata da fare — vero quando la carica era "un attacco
+> forte", falso da quando spinge e basta.
+>
+> Le due azioni adesso hanno **scopi diversi, non gradi diversi**: lo **scontro logora**
+> e vuole statistiche favorevoli; la **carica sposta** e funziona sempre. Quindi la
+> domanda giusta non è *"quanto è lontano il bersaglio"* ma **"voglio fargli male o
+> voglio spostarlo?"**. Contro un muro di Operai la risposta è la seconda, sempre,
+> indipendentemente dai numeri.
+>
+> **Conseguenza che nessuno aveva scritto** (Edoardo, 13/08/26): la polizia può caricare
+> gli Operai **non per ucciderli ma per spostarli**, e aprire un varco verso un'unità
+> che invece può battere in mischia. Il muro non è più una barriera assoluta: è un
+> problema di posizionamento.
+>
+> ⚠ **Questo comportamento è per forza un piano su DUE turni, e per questo obbliga al
+> refactor invece che a una toppa.** La polizia ha 5 PA, la carica ne costa 4, arretrare
+> in corsia di rincorsa ne costa almeno 2: 6 > 5, non entra in un turno. Aprire un varco
+> richiede quindi che l'IA **ricordi un'intenzione fra un turno e l'altro** — cioè abbia
+> uno stato. Oggi è una funzione pura che riparte da zero a ogni chiamata.
+>
+> E richiede di valutare una plancia **ipotetica** ("se spingo X di una cella, Y diventa
+> raggiungibile?"), cioè una query di pathfinding su uno stato che non esiste ancora.
+
 Quello che si accumula fino ad allora, da affrontare in blocco:
-- **La polizia non sa che la carica è diventata incondizionata**: a distanza 1 fa
-  `if (atk <= def) break;` e rinuncia al turno, invece di arretrare e caricare. È il
-  motivo per cui il muro di Operai in gioco è ancora imbattibile.
-- **Non cerca bersagli alternativi**: se `FindBestAdjacentCell` torna null, rinuncia.
+- ✅ ~~**Non cerca bersagli alternativi**~~ e ~~**a distanza 1 rinuncia al turno**~~ —
+  **chiuso il 13/08/26** con un ripiego a **due passate**: prima si cerca su *tutti* i
+  bersagli qualcosa che faccia male o che sposti (scontro favorevole, oppure carica
+  legale), e solo se non c'è niente si ripiega sull'avvicinamento.
+  ⚠ **Le due passate non sono cosmesi.** Con una passata sola, valutando i bersagli in
+  ordine di distanza, l'avvicinamento — l'azione più debole — vinceva solo perché il suo
+  bersaglio veniva prima in lista: Operaio a distanza 1 saltato, Studente a distanza 2
+  raggiunto, e un Operaio a distanza 3 **caricabile** non veniva mai nemmeno guardato.
+  ⚠ **Effetto collaterale voluto**: adesso la polizia davanti al muro di Operai se ne va
+  a cercare un bersaglio più morbido. È corretto (la repressione va sui bersagli
+  morbidi) e rende il muro uno scudo che funziona, ma significa che il giocatore può
+  **escare** la polizia scoprendo un Pacifista. Diventa una leva vera col coro
+  provocatorio: è la stessa idea vista dall'altro lato.
 - **Non guarda `_allowedActions`**: la maschera della polizia (oggi 1 = Charge) non ha
   nessun effetto, perché `CanPerformAction` è controllato solo in `InputHandler`.
+  ⚠ Prerequisito di qualunque azione nuova della polizia: finché la maschera è inerte,
+  aggiungere lacrimogeni o scudi significa darli a tutti e sempre.
 - **Nessuna nozione di formazione**: cordone, blocco, escalation sono la priorità 4 del
   cap. 16 e non esistono.
+- **Nessuna memoria fra turni**: vedi la premessa qui sopra. È il pezzo che trasforma il
+  refactor da riordino a lavoro vero.
 
 ### 1-ter. Le unità sono posizionate nel MONDO, non in coordinate (scoperto 08/08/26)
 `UnitsSetup.Initialize` fa `_grid.WorldToGrid(transform.position)`: la cella su cui nasce
@@ -1346,15 +1433,54 @@ scena finché le unità non sono figlie di `MapManager`. Il fix di `GridToWorld`
 verificato in altro modo: le diciassette conversioni passano tutte per due metodi,
 quindi non possono più essere in disaccordo fra loro.)*
 
-### 2. Scena Assemblea — quattro prerequisiti mancanti
-Composizione del corteo prima del livello: 1000 punti fissi, roster di 3 unità per
-gruppo politico, equipaggiamento comprato per il corteo e assegnato alle unità.
-Non esiste ancora nulla di: campi costo sugli SO, inventario a livello di corteo,
-passaggio di stato fra scene, istanziazione a runtime delle unità.
+### 2. Scena Assemblea — design ampliato il 13/08/26, vedi GDD cap. 20
+`D:\GDDRIOT\20-Assemblea-e-Volantino.md` (nuovo). L'Assemblea **non è solo comporre il
+corteo**: nella stessa fase si scrive il **volantino**, che decide l'**appuntamento**
+(quindi le celle di partenza — chiude la domanda mai risolta del GDD cap. 2) e gli
+**obiettivi dichiarati** (quindi la condizione di vittoria, che sostituisce "accumula 30
+punti"). Più le azioni assembleari: comunicato stampa (più giornalisti in campo), azione
+legale (libera un arrestato).
 
-### 3. Obiettivi — design chiuso e PARCHEGGIATO
-`D:\GDDRIOT\19-Obiettivi-e-Occupazione.md`. Occupazione per turni consecutivi,
-obiettivo rivendicato che non paga più, obiettivi configurabili. Non lavorarci ora.
+Prerequisiti tecnici — **sono quattro, non cinque**: coordinata di partenza e
+istanziazione a runtime **sono lo stesso lavoro** (con lo spawn a runtime la posizione nel
+mondo non esiste prima, quindi la coordinata deve arrivare da fuori per forza).
+1. coordinata di partenza su `UnitsSetup` + istanziazione a runtime;
+2. `ObjectiveSO` — senza obiettivi come entità, "dichiarare un obiettivo" non ha oggetto
+   (GDD cap. 19);
+3. campi costo sugli SO;
+4. passaggio di stato fra scene (solo andata per la v1).
+
+⚠ **Il taglio v1/v2 è quello che tiene fuori lo strato run.** v1 = componi, equipaggia,
+volantino, comunicato stampa, esito graduato. v2 = punti che si accumulano fra livelli,
+azione legale, firma del manifesto, dissenso interno — tutta roba che richiede il
+`RunManager`, che non esiste ed è registrato come trappola.
+
+⚠ **Incoerenza numerica aperta**: questo file diceva "1000 punti fissi" per la
+composizione, ma il GDD 10.5 parla di Punti Reclutamento con budget iniziale **15** e costi
+unità fra 3 e 5. Il 1000 non ha fonte nel GDD. Da unificare prima di implementare.
+
+⚠ **Il bug dei costruttori Runtime diventa raggiungibile** con la lista di celle di
+partenza: oggi serve un errore di trascinamento nell'editor, domani basta una coordinata
+ripetuta in un elenco. Va chiuso insieme al prerequisito 1 (vedi bug noti).
+
+### 3. Obiettivi — design chiuso, e non è più l'ultimo della fila
+`D:\GDDRIOT\19-Obiettivi-e-Occupazione.md`. Occupazione per turni consecutivi, obiettivo
+rivendicato che non paga più, obiettivi configurabili via `ObjectiveSO`.
+
+⚠ **Promosso il 13/08/26: è diventato prerequisito di due capitoli.**
+- La **scena Assemblea** deve poter *dichiarare* un obiettivo, e senza `ObjectiveSO` non
+  c'è niente a cui puntare.
+- Il **presidio della polizia** (GDD cap. 8, riscritto) ancora il guinzaglio "all'obiettivo
+  che difende": con 35 celle obiettivo indistinte quell'ancoraggio non esiste.
+
+La catena di dipendenze del lavoro di design del 13/08 è quindi: **19 → 20 (Assemblea) →
+8 (presidio) → 5.6 (Zona Rossa)**. La Zona Rossa era marcata "priorità 2, la più
+economica": non lo è più, perché non funziona senza il presidio.
+
+Aggiunte del 13/08 al cap. 19: entrare in un obiettivo alza la Repressione e fa scattare
+l'Allarme **all'ingresso, non a occupazione completata** (altrimenti l'ultimo obiettivo del
+livello è gratis); esito graduato **rivendicato / raggiunto / mancato**; e la domanda
+aperta "la polizia può riprendersi un obiettivo?" è chiusa con un no.
 
 ## Poi: SFX — il blocco è sciolto (aggiornato 08/08/26)
 Il sistema audio è pronto e testato, e i canali di combattimento adesso sono **collegati
@@ -1362,9 +1488,11 @@ in scena**. `TurnManager` alza `_skirmishWin/Lose/Par` (in `RaiseCombactResult`,
 `onImpact`) e **un solo `_chargeEvent`** in `PushResolution` — dall'08/08 la carica non
 ha più esiti, quindi i tre canali Win/Lose/Par della carica sono spariti insieme a
 `RaiseChargeResult`.
-⚠ **Due asset restano orfani a disco**: `LoseChargeEvent` e `ParChargeEvent`, che nessuno
-usa più. Da cancellare, e `WinChargeEvent` da rinominare in `ChargeEvent` (Unity mantiene
-il guid quando rinomini, quindi lo slot in scena non si scollega).
+~~⚠ **Due asset restano orfani a disco**: `LoseChargeEvent` e `ParChargeEvent`. Da
+cancellare, e `WinChargeEvent` da rinominare in `ChargeEvent`.~~ — **FATTO, verificato
+13/08/26.** A disco esiste solo
+`Assets/ScriptableObjects/Events/Turn/CombactEvents/ChargeEvent.asset`, e in
+`LVLTest.unity` il campo `_chargeEvent` punta al suo guid (`cae3f1f7…`).
 Restano senza evento: movimento, coro, sedersi, lancio, barricata, dispersione, **panico**.
 Ordine di lavoro:
 1. ~~Aggiungere i campi `[SerializeField] GameEventSO` in `TurnManager`, alzarli, creare
@@ -1378,6 +1506,13 @@ così lo stesso scontro può suonare diverso a seconda di come va.
 ⚠ Licenze: freesound NON è tutto CC0, è un misto CC0/CC-BY/CC-BY-NC. "Placeholder"
 non è una categoria che esiste nel diritto d'autore: se la build è pubblica,
 l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
+✅ **Verificato 13/08/26**: nella build pubblica **v0.19.2 non è stato usato audio non
+royalty-free** (confermato da Edoardo). Il rischio non si è materializzato. Ma la
+pubblicazione è **già avvenuta**, quindi da qui in avanti ogni clip aggiunta è
+pubblicata il giorno stesso in cui si carica una build: la lista fonti va tenuta da
+adesso, non da quando sarà lunga.
+*(`D:\GDDRIOT\_RawAudio\Crowd` esiste ma il lavoro audio NON è iniziato — verificato
+13/08/26. Non trattarla come materiale in lavorazione.)*
 
 ## Correzioni rapide già individuate
 4. ~~`AudioManager.Awake`: `&&` → `||`~~ — **FATTO** (verificato 06/08/26).
@@ -1441,6 +1576,86 @@ l'attribuzione scatta. Filtrare solo CC0 e tenere la lista fonti da subito.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 34-bis (13/08/26) — sessione di design, zero codice
+Solo GDD. Il codice non è stato toccato.
+
+- 📖 **Cap. 8 (Polizia) riscritto.** La polizia passa da **minaccia a ostacolo**: presidia
+  un obiettivo entro un raggio invece di inseguire. Presidio + Allarme locale (decade da
+  solo, "il tenente" è il guinzaglio stesso) + Repressione con regole d'ingaggio per
+  fascia + caserma e rientro. A repressione bassa **non attacca** se non viene attaccata o
+  se qualcuno entra in Zona Rossa.
+- 📖 **Cap. 20 (Assemblea e Volantino) nuovo.** Il volantino decide **appuntamento**
+  (chiude la domanda del cap. 2 sullo schieramento, aperta e mai progettata) e **obiettivi
+  dichiarati** (sostituisce "accumula 30 punti"). Firma e manifesto decidono la Repressione
+  iniziale *e* cosa il corteo tollera: da lì il **dissenso interno**.
+- 🟢 **Due meccaniche si sono chiuse a vicenda**: la Zona Rossa era ferma da mesi come
+  "magnete tattico" senza un come. Il come è il presidio — **la Zona Rossa è l'eccezione
+  che rompe il guinzaglio**. E il presidio senza la Zona Rossa sarebbe statico. Nessuna
+  delle due funziona da sola.
+- 🟢 **La diagnosi del cap. 16 ha una risposta.** "Il gioco non sa distinguere
+  un'occupazione pacifica da una violenta": adesso sì, perché a repressione bassa
+  l'avversario si comporta diversamente. Non è un punteggio appiccicato sopra.
+- 🔴 **Metà del design proposto esisteva già nel GDD e stava per essere riscritto.**
+  "Azione legale" e "assaltiamo le prigioni" sono le due strade di 10.2 (Assolda un legale
+  / occupa l'edificio prigione); "obiettivi bonus" è la voce *obiettivo secondario* di
+  10.5; i pesi delle azioni sono la colonna Aggressività di 5.7. Trovati grepando **prima**
+  di scrivere. È la stessa lezione del codice: cercare prima di aggiungere.
+- 🔴 **Incoerenza numerica trovata**: "1000 punti fissi" per la composizione (qui) contro
+  "budget iniziale 15" del GDD 10.5, con costi unità 3-5. Il 1000 non ha fonte nel GDD.
+  Registrata in entrambi, non risolta.
+- ⚠ **Confine dichiarato**: punti persistenti, azione legale, firma e dissenso richiedono
+  il `RunManager`. Il cap. 20 è tagliato in **v1 (senza run)** e **v2 (con run)** apposta.
+- 🔴 **CAMBIO STRUTTURALE DELLA VITTORIA.** Non si vince più accumulando punti entro N
+  turni: **si vince completando l'obiettivo dichiarato nel volantino, e fallirlo fa perdere
+  il livello.** Gli obiettivi secondari valgono solo Punti Reclutamento per l'Assemblea
+  successiva. Le condizioni di sconfitta diventano due: obiettivo fallito e Coesione a zero.
+- ⏸ **Il limite di turni è PARCHEGGIATO: per ora si sviluppa SENZA.** Il contatore in
+  `LVLManager` resta ma non deve far perdere. ⚠ È un buco noto, non una svista: senza
+  orologio niente obbliga ad avanzare, e la Repressione non copre il vuoto perché sale con
+  le **azioni**, non col tempo — quindi il problema colpisce proprio la strada non violenta.
+  Direzione annotata in GDD 20.4-bis (scadenza per obiettivo invece che per livello, e alla
+  scadenza il corteo si assottiglia invece di perdere di colpo), **non decisa**: non si può
+  tarare a tavolino senza sapere quanto ci mette un corteo ad attraversare una mappa.
+- 📄 **Documento per la revisione esterna del design**:
+  `D:\GDDRIOT\_ExternalReview\DESIGNCHECK_2026-08-13.md`. Otto domande numerate, la lista
+  di cosa è deciso apposta e non va riscritto, i buchi già noti, e le catene di dipendenza.
+  Da dare a revisori esterni al posto di far leggere tutto il GDD.
+
+## Changelog sessione 34 (13/08/26) — allineamento dei documenti
+Nessuna riga di codice toccata. Working tree pulito su `7d09d9edd`, solo `.claude/`
+non tracciato.
+
+- 📖 **Documento di Progetto portato al v28** (sess.33 mancava: `UnitStatusView`, riga
+  di stato nel pannello, lampo al colpo, il campo non assegnato che bloccava la partita).
+  Il v27 è stato archiviato correttamente. Registrata in entrambi i documenti la storia
+  del **v26 mancante**, che è un errore di archiviazione e non un file perso.
+- 🔴 **Cinque percorsi sbagliati in questo file**: puntavano a `D:\UnityProject\GDDRIOT\`,
+  che non esiste. Corretti. Nota di metodo: erano incoerenti *dentro lo stesso file* —
+  alcune voci dicevano già `D:\GDDRIOT\` — e nessuno se n'era accorto perché un percorso
+  in un documento non fallisce mai rumorosamente, a differenza di un percorso nel codice.
+- 🟢 **Verifica di compilazione su tutto `Assets/Script`**: graffe, parentesi e
+  `#region` bilanciati in ogni file.
+- 🟢 **Chiusa la voce sugli asset evento della carica**: a disco resta solo
+  `ChargeEvent.asset`, cablato in `LVLTest.unity`. Era data ancora per aperta.
+- 🔴 **La codifica non-UTF8 è rientrata da una terza porta**: adesso è `UnitsRenderer.cs`.
+  La voce è stata riscritta come problema **ricorrente** invece che come lista di file:
+  finché esistono file senza BOM, ogni commento accentato la riapre.
+- ✅ **Licenze audio**: la build pubblica v0.19.2 non contiene audio non royalty-free.
+  Il rischio non si è materializzato, ma da qui in avanti ogni clip nuova è pubblicata
+  con la prima build che la contiene. `_RawAudio\Crowd` esiste ma il lavoro audio non è
+  iniziato: non è materiale in lavorazione.
+- 🟢 Confermato ancora aperto nel codice: `PoliceAI` a distanza 1 fa `if (atk <= def)
+  break;` e non sa che dall'08/08 la carica spinge sempre.
+- ✅ **Le tre domande di playtest hanno una risposta** (vedi le sezioni Panico e Spinta):
+  il Coro va bene per ora e la strada è dividerlo in tre; l'arresto per schiacciamento è
+  raro ed è giusto, perché il danno vero della spinta sono Coesione e tempo; l'obiettivo
+  che fa muro **non è stato validato, è inerte** — la mappa attuale non permette che si
+  presenti.
+  ⚠ Nota di metodo che vale oltre questo caso: **"in playtest non è mai successo" non
+  significa "la regola è a posto"**. Va sempre chiesto se la regola non ha scattato
+  perché è buona o perché il livello non le ha dato occasione. Le due cose si scrivono
+  uguali nel documento e significano l'opposto.
 
 ## Changelog sessione 33 (10/08/26) — passata di leggibilità
 Il gioco comincia a raccontare quello che fa. Nessuna regola nuova: solo feedback.
@@ -1592,11 +1807,11 @@ Stessa giornata della 29, ma qui il codice è stato toccato.
 Sessione dal portatile. Working tree pulito su `518220952`; niente è stato modificato
 nel codice, solo letto e documentato.
 
-- 📖 **Dump completo dei 67 script** in `D:\UnityProject\GDDRIOT\DISSENSO_SourceDump_2026-08-06.md`,
+- 📖 **Dump completo dei 67 script** in `D:\GDDRIOT\DISSENSO_SourceDump_2026-08-06.md`,
   con contesto, regole architetturali e lista "già noto" in testa. Serve per far
   rileggere il progetto da revisori esterni senza doverglielo rispiegare ogni volta.
 - 📖 **Revisione incrociata a tre** (Claude sul repo e sulla scena, ChatGPT e DeepSeek
-  sul dump). Risultato in `D:\UnityProject\GDDRIOT\FIXLIST_2026-08-06.md`: 4 bug attivi,
+  sul dump). Risultato in `D:\GDDRIOT\FIXLIST_2026-08-06.md`: 4 bug attivi,
   1 attivo solo in combinazione, 11 rischi latenti, 8 questioni di design.
 - 🔴 **Nove voci del documento erano più vecchie del codice** e sono state corrette qui
   (audio, `QuitGame`, `_onSelectedEvent`, `_turnManager`, `ActionSlotUI`, eventi di
