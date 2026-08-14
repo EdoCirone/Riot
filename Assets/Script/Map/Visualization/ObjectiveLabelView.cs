@@ -12,6 +12,7 @@ public class ObjectiveLabelView : MonoBehaviour
     [Header("Reference")]
     [SerializeField] private HexGrid _grid;
     [SerializeField] private TextMeshPro _labelPrefab;
+    [SerializeField] private Transform _labelsParent;
 
     [Header("Layout")]
     [SerializeField] private Vector3 _offset = new Vector3(0f, 0.4f, 0f);
@@ -25,11 +26,12 @@ public class ObjectiveLabelView : MonoBehaviour
 
     private void Awake()
     {
-        if (_grid == null || _labelPrefab == null)
+        if (_grid == null || _labelPrefab == null || _labelsParent == null)
         {
-            Debug.LogWarning("Reference missing in ObjectiveLabelView");
+            Debug.LogWarning("Reference missing in ObjectiveLabelView", this);
             return;
         }
+
         _isValid = true;
     }
 
@@ -53,11 +55,17 @@ public class ObjectiveLabelView : MonoBehaviour
 
         foreach (ObjectiveRuntime objective in _grid.Objectives)
         {
-            TextMeshPro label = Instantiate(_labelPrefab, Centroid(objective) + _offset,
-                                            Quaternion.identity, transform);
+            TextMeshPro label = Instantiate(
+                _labelPrefab,
+                Centroid(objective) + _offset,
+                Quaternion.identity,
+                _labelsParent
+            );
+
             _labels.Add((objective, label));
         }
 
+        Debug.Log($"Obiettivi trovati: {_grid.Objectives.Count}");
         Refresh();
     }
 
