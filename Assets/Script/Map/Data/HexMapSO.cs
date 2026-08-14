@@ -7,8 +7,13 @@ public class HexMapSO : ScriptableObject
     [SerializeField] private int _width;
     [SerializeField] private int _height;
 
-    [SerializeField]private HexTypeSO[] _cells; 
+    [Header("Cells")]
+    [SerializeField]private HexTypeSO[] _cells;
 
+    [Header("Objective")]
+    [SerializeField] private ObjectiveSO[] _objectives;
+
+    public ObjectiveSO[] Objectives => _objectives;
     public int Width => _width;
     public int Height => _height;
 

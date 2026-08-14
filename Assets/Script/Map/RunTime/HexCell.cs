@@ -7,13 +7,20 @@ public class HexCell
     private HexTypeSO _type;
     private AbstractUnitsRunTime _occupiedBy;
     private BarricadeRuntime _barricade;
+    private ObjectiveRuntime _objective;
 
-
+    /// <summary>L'obiettivo di cui questa cella fa parte, se ce n'è uno.</summary>
+    public ObjectiveRuntime Objective => _objective;
     public AbstractUnitsRunTime OccupiedBy => _occupiedBy;
     public BarricadeRuntime Barricade => _barricade;
-
     public HexCoordinates Coordinates => _coordinates;
     public HexTypeSO Type => _type;
+
+    /// <summary>
+    /// ⚠ Questa è la verità su "questa cella è un obiettivo", non `Type.IsObjective`.
+    /// Il tipo serve a dipingere; l'appartenenza a un obiettivo la decide l'ObjectiveSO.
+    /// </summary>
+    public bool IsObjective => _objective != null;
 
     public HexCell(HexCoordinates coordinates, HexTypeSO type)
     {
@@ -60,6 +67,9 @@ public class HexCell
             return false;
         }
     }
+
+    public void BindObjective(ObjectiveRuntime objective) => _objective = objective;
+
     // ⚠ Riservato: nessun chiamante oggi. Servirà quando la polizia potrà spendere
     // punti azione per rimuovere una barricata (non ancora progettato come costo).
     // Non è codice morto: non cancellare.

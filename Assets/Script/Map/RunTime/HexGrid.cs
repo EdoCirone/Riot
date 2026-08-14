@@ -26,6 +26,9 @@ public class HexGrid : MonoBehaviour
     private Bounds _worldBounds;
     public Bounds WorldBounds => _worldBounds;
 
+    private readonly List<ObjectiveRuntime> _objectives = new List<ObjectiveRuntime>();
+   
+    public IReadOnlyList<ObjectiveRuntime> Objectives => _objectives;
     Dictionary<HexCoordinates, HexCell> _cells = new Dictionary<HexCoordinates, HexCell>();
 
     private void Awake()
@@ -54,6 +57,7 @@ public class HexGrid : MonoBehaviour
         }
 
         RecalculateWorldBounds();
+        BindObjectives();
     }
 
     private void RecalculateWorldBounds()
@@ -138,5 +142,85 @@ public class HexGrid : MonoBehaviour
     {
         float angleRad = Mathf.Deg2Rad * 60f * index;
         return center + new Vector3(size * Mathf.Cos(angleRad), size * Mathf.Sin(angleRad), 0f);
+    }
+
+    /// <summary>
+    /// Costruisce gli ObjectiveRuntime dalle ancore dichiarate in HexMapSO. Le celle di un
+    /// obiettivo sono il gruppo CONNESSO di celle dipinte come obiettivo che contiene
+    /// l'ancora: si scrive una coordinata sola per obiettivo.
+    /// ⚠ Conseguenza voluta: due obiettivi distinti non possono essere adiacenti, altrimenti
+    /// si fonderebbero in uno solo.
+    /// </summary>
+    private void BindObjectives()
+    {
+        _objectives.Clear();
+        foreach (HexCell cell in _cells.Values) cell.BindObjective(null);
+
+        if (_hexMapData.Objectives == null) return;
+
+        foreach (ObjectiveSO data in _hexMapData.Objectives)
+        {
+            if (data == null) continue;
+
+            if (!_cells.TryGetValue(data.Anchor, out HexCell anchor))
+            {
+                Debug.LogError($"[OBJ] {data.name}: anchor {data.Anchor} is outside the map");
+                continue;
+            }
+            if (anchor.Type == null || !anchor.Type.IsObjective)
+            {
+                Debug.LogError($"[OBJ] {data.name}: anchor {data.Anchor} is not painted as an objective cell");
+                continue;
+            }
+            if (anchor.IsObjective)
+            {
+                Debug.LogError($"[OBJ] {data.name}: anchor {data.Anchor} already belongs to {anchor.Objective}: two objectives cannot touch");
+                continue;
+            }
+
+            List<HexCell> group = FloodObjective(anchor);
+            ObjectiveRuntime runtime = new ObjectiveRuntime(data, group);
+            foreach (HexCell cell in group) cell.BindObjective(runtime);
+            _objectives.Add(runtime);
+
+            Debug.Log($"[OBJ] {data.name}: {group.Count} cell(s) from anchor {data.Anchor}");
+        }
+
+        int orphans = 0;
+        foreach (HexCell cell in _cells.Values)
+            if (cell.Type != null && cell.Type.IsObjective && !cell.IsObjective) orphans++;
+
+        if (orphans > 0)
+            Debug.LogWarning($"[OBJ] {orphans} cell(s) painted as objective belong to NO objective: " +
+                             $"they will not score and will not block the push. Add an anchor or repaint them.");
+    }
+
+    /// <summary>Gruppo connesso di celle dipinte come obiettivo, a partire dall'ancora.</summary>
+    private List<HexCell> FloodObjective(HexCell start)
+    {
+        List<HexCell> group = new List<HexCell>();
+        HashSet<HexCoordinates> seen = new HashSet<HexCoordinates>();
+        Queue<HexCell> queue = new Queue<HexCell>();
+
+        queue.Enqueue(start);
+        seen.Add(start.Coordinates);
+
+        while (queue.Count > 0)
+        {
+            HexCell current = queue.Dequeue();
+            group.Add(current);
+
+            foreach (HexCoordinates n in current.Coordinates.GetNeighbors())
+            {
+                if (seen.Contains(n)) continue;
+                if (!_cells.TryGetValue(n, out HexCell neighbor)) continue;
+                if (neighbor.Type == null || !neighbor.Type.IsObjective) continue;
+
+                seen.Add(n);
+                queue.Enqueue(neighbor);
+            }
+        }
+
+        return group;
     }
 }
