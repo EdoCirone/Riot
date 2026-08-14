@@ -186,7 +186,7 @@ public class TurnManager : MonoBehaviour
 
             if (_map.TryGetCell(behind, out HexCell behindCell)
                 && behindCell.Type.IsWalkable
-                && !behindCell.Type.IsObjective
+                && !behindCell.IsObjective
                 && behindCell.Barricade == null)
             {
                 AbstractUnitsRunTime blocker = behindCell.OccupiedBy;
@@ -286,8 +286,7 @@ public class TurnManager : MonoBehaviour
 
             if (!_map.TryGetCell(candidateCoord, out HexCell candidate)) continue;
             if (!IsCellAvailable(candidate)) continue;
-            if (candidate.Type.IsObjective) continue;
-
+            if (candidate.IsObjective) continue;
             int allies = CountAdjacentAllies(unit, candidateCoord);
             if (allies < bestAllies)
             {
@@ -618,7 +617,7 @@ public class TurnManager : MonoBehaviour
                 _alertEvent?.Raise("No barricade objects");
             else if (spezzone.ActionPoints < item.ActionPointCost)
                 _alertEvent?.Raise($"Not enough AP, {item.ActionPointCost} needed");
-            else if (targetCell.Type.IsObjective)
+            else if (targetCell.IsObjective)
                 _alertEvent?.Raise("Cannot barricade an objective");
             else
                 _alertEvent?.Raise("Not available cell for barricade");

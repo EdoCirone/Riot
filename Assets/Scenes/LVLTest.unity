@@ -7661,6 +7661,7 @@ MonoBehaviour:
   _cellSize: 0.5
   _drawGizmos: 1
   _gizmoColor: {r: 1, g: 0, b: 0.2750727, a: 1}
+  _showObjectiveCoordinates: 1
   _paintPalette:
   - {fileID: 11400000, guid: 4ed08f76f5fbf49498fc2148060029b2, type: 2}
   - {fileID: 11400000, guid: 9931c65d32c00dc48848ea147350baea, type: 2}
@@ -11785,7 +11786,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57
+  m_fontSize: 56.85
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13374,7 +13375,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57
+  m_fontSize: 56.85
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13476,9 +13477,7 @@ MonoBehaviour:
   _turnManager: {fileID: 736496568}
   _map: {fileID: 1144096843}
   _unitsRenderer: {fileID: 1693072225}
-  _numbersOfTurns: 10
-  _scoreToWin: 30
-  _scoreForOccupation: 10
+  _declaredObjective: {fileID: 11400000, guid: 3d7a9944ea7787e47bad498469a05976, type: 2}
   _winEvent: {fileID: 11400000, guid: a0a8fcf3c2315ec4b936579de826bca6, type: 2}
   _loseEvent: {fileID: 11400000, guid: 9f2e74c24576edc4db87ac001db19051, type: 2}
   _boardChangedEvent: {fileID: 11400000, guid: 28827dbfca004774faaac84e3e68ee1b, type: 2}

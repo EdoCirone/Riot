@@ -256,7 +256,7 @@ public static class TacticalQuery
         if (unit.ActionPoints < item.ActionPointCost) return false;
 
         if (unit.PositionCell.Coordinates.Distance(target.Coordinates) != 1) return false;
-        if (target.Type.IsObjective) return false;
+        if (target.IsObjective) return false;
 
         return IsCellAvailable(target);
     }

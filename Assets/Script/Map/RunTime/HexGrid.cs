@@ -12,6 +12,8 @@ public class HexGrid : MonoBehaviour
     [Header("Gizmos")]
     [SerializeField] private bool _drawGizmos = true;
     [SerializeField] private Color _gizmoColor = Color.cyan;
+    [SerializeField] private bool _showObjectiveCoordinates = true;
+    [SerializeField] private bool _showObjectiveNames = false;
 
     [Header("Authoring")]
     [SerializeField] private HexTypeSO[] _paintPalette; //for the editor, i can't serialize in CustomEditor so i put it here
@@ -121,8 +123,36 @@ public class HexGrid : MonoBehaviour
 
                 HexTypeSO type = _hexMapData.GetCellType(col, row);
                 Color cellColor = (type != null && type.Color.a > 0f) ? type.Color : _gizmoColor;
+
+                // Se la griglia è già stata generata, le celle di un obiettivo si tingono
+                // di un colore proprio: il raggruppamento si vede senza doverlo leggere.
+                ObjectiveRuntime objective = null;
+                if (_cells.TryGetValue(coords, out HexCell generatedCell))
+                    objective = generatedCell.Objective;
+
+                if (objective != null)
+                    cellColor = ObjectiveGizmoColor(_objectives.IndexOf(objective));
+
                 Gizmos.color = cellColor;
                 DrawHexGizmo(center, _cellSize);
+
+#if UNITY_EDITOR
+                if (_showObjectiveCoordinates && type != null && type.IsObjectiveGround)
+                    UnityEditor.Handles.Label(center, $"{coords.Q},{coords.R}", CoordStyle);
+
+                if (_showObjectiveNames && objective != null && objective.Cells[0] == generatedCell)
+                    UnityEditor.Handles.Label(center + Vector3.up * _cellSize * 0.55f,
+                                              objective.ToString(), CoordStyle);
+#endif
+#if UNITY_EDITOR
+                // Etichetta Q,R solo sulle celle obiettivo: sono poche, e sono le uniche
+                // di cui serve conoscere la coordinata per dichiarare un ObjectiveSO.
+                if (_showObjectiveCoordinates && type != null && type.IsObjectiveGround)
+                {
+                    UnityEditor.Handles.color = Color.white;
+                    UnityEditor.Handles.Label(center, $"{coords.Q},{coords.R}", CoordStyle);
+                }
+#endif
             }
         }
     }
@@ -167,7 +197,7 @@ public class HexGrid : MonoBehaviour
                 Debug.LogError($"[OBJ] {data.name}: anchor {data.Anchor} is outside the map");
                 continue;
             }
-            if (anchor.Type == null || !anchor.Type.IsObjective)
+            if (anchor.Type == null || !anchor.Type.IsObjectiveGround)
             {
                 Debug.LogError($"[OBJ] {data.name}: anchor {data.Anchor} is not painted as an objective cell");
                 continue;
@@ -188,7 +218,7 @@ public class HexGrid : MonoBehaviour
 
         int orphans = 0;
         foreach (HexCell cell in _cells.Values)
-            if (cell.Type != null && cell.Type.IsObjective && !cell.IsObjective) orphans++;
+            if (cell.Type != null && cell.Type.IsObjectiveGround && !cell.IsObjective) orphans++;
 
         if (orphans > 0)
             Debug.LogWarning($"[OBJ] {orphans} cell(s) painted as objective belong to NO objective: " +
@@ -214,8 +244,7 @@ public class HexGrid : MonoBehaviour
             {
                 if (seen.Contains(n)) continue;
                 if (!_cells.TryGetValue(n, out HexCell neighbor)) continue;
-                if (neighbor.Type == null || !neighbor.Type.IsObjective) continue;
-
+                if (neighbor.Type == null || !neighbor.Type.IsObjectiveGround) continue;
                 seen.Add(n);
                 queue.Enqueue(neighbor);
             }
@@ -223,4 +252,28 @@ public class HexGrid : MonoBehaviour
 
         return group;
     }
+
+    /// <summary>Un colore distinto per obiettivo, derivato dall'indice. Serve solo ai gizmo.</summary>
+    private static Color ObjectiveGizmoColor(int index)
+    {
+        if (index < 0) return Color.white;
+        return Color.HSVToRGB((index * 0.37f) % 1f, 0.75f, 1f);
+    }
+
+#if UNITY_EDITOR
+    private static GUIStyle _coordStyle;
+    private static GUIStyle CoordStyle
+    {
+        get
+        {
+            if (_coordStyle == null)
+            {
+                _coordStyle = new GUIStyle(UnityEditor.EditorStyles.boldLabel);
+                _coordStyle.alignment = TextAnchor.MiddleCenter;
+                _coordStyle.normal.textColor = Color.white;
+            }
+            return _coordStyle;
+        }
+    }
+#endif
 }

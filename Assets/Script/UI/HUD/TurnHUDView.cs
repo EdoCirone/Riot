@@ -36,8 +36,8 @@ public class TurnHUDView : MonoBehaviour
 
     private void Refresh()
     {
-        int t = _lvlManager.CurrentTurn;
-        string color = t <= 2 ? "#FF5555" : t <= 4 ? "#FFCC55" : "#FFFFFF";
-        _turnText.text = $"TURN <color={color}>{t}</color>";
+        // Nessun limite di turni: il contatore sale e non c'è urgenza da segnalare.
+        // Quando la scadenza tornerà (GDD 20.4-bis) apparterrà all'obiettivo, non al livello.
+        _turnText.text = $"TURN {_lvlManager.CurrentTurn}";
     }
 }

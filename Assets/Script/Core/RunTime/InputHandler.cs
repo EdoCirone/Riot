@@ -579,7 +579,7 @@ public class InputHandler : MonoBehaviour
                 if (_selectedItem is not BarricadeSO) return "Select a barricade";
                 if (!_selectedSpezzone.Inventory.HasItem(_selectedItem)) return "No barricades left";
                 if (ap < _selectedItem.ActionPointCost) return $"Not enough AP, {_selectedItem.ActionPointCost} needed";
-                if (clickCell.Type.IsObjective) return "Cannot barricade an objective";
+                if (clickCell.IsObjective) return "Cannot barricade an objective";
                 return "Not a free adjacent cell";
         }
 
