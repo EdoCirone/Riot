@@ -75,7 +75,7 @@ public abstract class AbstractUnitsRunTime
         bool isSucces = arriveCell.TryOccupy(this);
         if (isSucces)
         {
-            _positionCell.Vacate();
+            _positionCell.Vacate(this);
             _positionCell = arriveCell;
         }
         return isSucces;
@@ -121,13 +121,13 @@ public abstract class AbstractUnitsRunTime
     private void Disperse()
     {
         _status = UnitsStatus.Disperse;
-        _positionCell.Vacate();
+        _positionCell.Vacate(this);
     }
 
     private void Arrest()
     {
         _status = UnitsStatus.Arrested;
-        _positionCell.Vacate();
+        _positionCell.Vacate(this);
     }
 
     public void RemoveFromBoard(MoraleLossCause cause)

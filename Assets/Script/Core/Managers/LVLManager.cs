@@ -12,7 +12,17 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     // L'obiettivo che il corteo ha dichiarato di voler prendere: è la condizione di
     // vittoria del livello (GDD 20.4). Oggi lo decide il livello; domani lo deciderà il
     // volantino scritto in Assemblea, e questo campo verrà scritto da fuori.
+    [Tooltip("L'obiettivo dichiarato dal corteo: da qui parte la vittoria. Oggi lo decide " +
+             "il livello, domani lo deciderà l'Assemblea.")]
     [SerializeField] private ObjectiveSO _declaredObjective;
+
+    [Tooltip("L'appuntamento dato dal volantino: da qui parte il corteo. Oggi lo decide " +
+             "il livello, domani lo deciderà l'Assemblea.")]
+    [SerializeField] private MeetingPointSO _meetingPoint;
+
+    [Tooltip("Il corteo che scende in piazza. Oggi è una lista fissa, domani arriva dalla " +
+             "composizione. Non può superare la capienza del punto di ritrovo.")]
+    [SerializeField] private GameObject[] _startingRoster;
 
     [Header("Events")]
     [SerializeField] private GameEventSO _winEvent;
@@ -53,33 +63,105 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     private void Start()
     {
-        UnitsSetup[] allSetups = FindObjectsByType<UnitsSetup>(FindObjectsInactive.Exclude);
-        foreach (var setup in allSetups)
-        {
-            AbstractUnitsRunTime unit = setup.Initialize();
-            if (unit == null) continue;
-            if (unit is SpezzoneRuntime spezzone)
-                _spezzoniOfLVL.Add(spezzone);
-            else if (unit is PoliceRuntime police)
-            {
-                _policeOfLVL.Add(police);
-            }
-
-            _unitsRenderer.SpawnUnits(unit, setup.gameObject);
-
-            // INIZIALIZZA UNITMOVEMENT
-            GameObject unitGO = _unitsRenderer.GetGameObject(unit);
-            if (unitGO != null)
-            {
-                unitGO.GetComponentInParent<SelectionOutline>()?.Initialize(unit);
-                UnitMovement movement = unitGO.GetComponent<UnitMovement>();
-                if (movement != null)
-                    movement.Initialize(unit);
-            }
-        }
+        SpawnSceneUnits();
+        SpawnRoster();
 
         ResolveDeclaredObjective();
         RefreshBoardState();
+    }
+
+    /// <summary>Unità piazzate a mano in scena: oggi la polizia. La cella la deducono
+    /// da dove sono state trascinate nell'editor.</summary>
+    private void SpawnSceneUnits()
+    {
+        UnitsSetup[] allSetups = FindObjectsByType<UnitsSetup>(FindObjectsInactive.Exclude);
+        foreach (var setup in allSetups)
+            RegisterUnit(setup.Initialize(_map), setup.gameObject);
+    }
+
+    /// <summary>
+    /// Il corteo nasce sulle celle del punto di ritrovo, una per unità.
+    /// ⚠ La capienza non è un parametro: è quante celle è grande la piazza.
+    /// </summary>
+    private void SpawnRoster()
+    {
+        if (_startingRoster == null || _startingRoster.Length == 0) return;
+
+        if (_meetingPoint == null)
+        {
+            Debug.LogError("[LVL] Roster declared but no meeting point: the corteo has nowhere to gather");
+            return;
+        }
+
+        MeetingPointRuntime meeting = null;
+        foreach (MeetingPointRuntime candidate in _map.MeetingPoints)
+            if (candidate.Data == _meetingPoint) { meeting = candidate; break; }
+
+        if (meeting == null)
+        {
+            Debug.LogError($"[LVL] Meeting point '{_meetingPoint.name}' is not on this map: check the Meeting Points array on HexMapSO");
+            return;
+        }
+
+        if (_startingRoster.Length > meeting.Capacity)
+        {
+            Debug.LogError($"[LVL] Roster of {_startingRoster.Length} does not fit in {meeting} (capacity {meeting.Capacity}): the extra units will not spawn");
+        }
+
+        int index = 0;
+        int spawned = 0;
+
+        foreach (GameObject prefab in _startingRoster)
+        {
+            if (prefab == null) continue;
+
+            // Salta le celle occupate invece di consumarle: un posto bloccato non deve
+            // costare un'unità del corteo.
+            while (index < meeting.Cells.Count && !TacticalQuery.IsCellAvailable(meeting.Cells[index]))
+                index++;
+
+            if (index >= meeting.Cells.Count)
+            {
+                Debug.LogError($"[LVL] No free cell left in {meeting}: {prefab.name} not spawned");
+                break;
+            }
+
+            HexCell cell = meeting.Cells[index++];
+
+            GameObject instance = Instantiate(prefab, _map.GridToWorld(cell.Coordinates), Quaternion.identity);
+            UnitsSetup setup = instance.GetComponentInChildren<UnitsSetup>();
+
+            if (setup == null)
+            {
+                Debug.LogError($"[LVL] {prefab.name} has no UnitsSetup: not a unit prefab");
+                Destroy(instance);
+                continue;
+            }
+
+            RegisterUnit(setup.Initialize(_map, cell), setup.gameObject);
+            spawned++;
+        }
+
+        Debug.Log($"[LVL] Corteo gathered at {meeting}: {spawned} unit(s) of {meeting.Capacity} place(s)");
+
+        Debug.Log($"[LVL] Corteo gathered at {meeting}: {_spezzoniOfLVL.Count} unit(s) of {meeting.Capacity} place(s)");
+    }
+
+    /// <summary>Punto unico di registrazione: liste, view, e inizializzazione dei componenti.</summary>
+    private void RegisterUnit(AbstractUnitsRunTime unit, GameObject setupObject)
+    {
+        if (unit == null) return;
+
+        if (unit is SpezzoneRuntime spezzone) _spezzoniOfLVL.Add(spezzone);
+        else if (unit is PoliceRuntime police) _policeOfLVL.Add(police);
+
+        _unitsRenderer.SpawnUnits(unit, setupObject);
+
+        GameObject unitGO = _unitsRenderer.GetGameObject(unit);
+        if (unitGO == null) return;
+
+        unitGO.GetComponentInParent<SelectionOutline>()?.Initialize(unit);
+        unitGO.GetComponent<UnitMovement>()?.Initialize(unit);
     }
 
     private void OnDisable()

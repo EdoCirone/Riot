@@ -8,19 +8,18 @@ public class HexCell
     private AbstractUnitsRunTime _occupiedBy;
     private BarricadeRuntime _barricade;
     private ObjectiveRuntime _objective;
+    private MeetingPointRuntime _meetingPoint;
 
-    /// <summary>L'obiettivo di cui questa cella fa parte, se ce n'è uno.</summary>
+
     public ObjectiveRuntime Objective => _objective;
     public AbstractUnitsRunTime OccupiedBy => _occupiedBy;
     public BarricadeRuntime Barricade => _barricade;
     public HexCoordinates Coordinates => _coordinates;
     public HexTypeSO Type => _type;
+    public MeetingPointRuntime MeetingPoint => _meetingPoint;
 
-    /// <summary>
-    /// ⚠ Questa è la verità su "questa cella è un obiettivo", non `Type.IsObjective`.
-    /// Il tipo serve a dipingere; l'appartenenza a un obiettivo la decide l'ObjectiveSO.
-    /// </summary>
     public bool IsObjective => _objective != null;
+    public bool IsMeetingPoint => _meetingPoint != null;
 
     public HexCell(HexCoordinates coordinates, HexTypeSO type)
     {
@@ -29,6 +28,7 @@ public class HexCell
         _type = type;
     }
 
+    public void BindMeetingPoint(MeetingPointRuntime meetingPoint) => _meetingPoint = meetingPoint;
     public bool TryOccupy(AbstractUnitsRunTime unit)
     {
         if(_barricade != null)
@@ -49,8 +49,14 @@ public class HexCell
         }
     }
 
-    public void Vacate()
+    /// <summary>
+    /// ⚠ Libera solo se a chiamare è chi la occupa davvero. Senza questo controllo,
+    /// un'unità nata su una cella già presa cancella dalla griglia quella che c'era prima
+    /// nel momento in cui si sposta.
+    /// </summary>
+    public void Vacate(AbstractUnitsRunTime unit)
     {
+        if (_occupiedBy != unit) return;
         _occupiedBy = null;
     }
 

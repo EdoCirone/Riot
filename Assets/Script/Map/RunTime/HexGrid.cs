@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class HexGrid : MonoBehaviour
 {
+    public enum CoordinateLabelMode { Off, SpecialCellsOnly, AllCells }
+    
     [Header("Grid Reference")]
     [SerializeField] private HexMapSO _hexMapData;
 
@@ -12,7 +14,16 @@ public class HexGrid : MonoBehaviour
     [Header("Gizmos")]
     [SerializeField] private bool _drawGizmos = true;
     [SerializeField] private Color _gizmoColor = Color.cyan;
-    [SerializeField] private bool _showObjectiveCoordinates = true;
+
+    [Header("Coordinates")]
+
+    [Tooltip("Off = niente. SpecialCellsOnly = solo obiettivi e ritrovi. AllCells = tutte, " +
+             "utile per autorare ma leggibile solo da vicino.")]
+    [SerializeField] private CoordinateLabelMode _coordinateLabels = CoordinateLabelMode.SpecialCellsOnly;
+
+    [Tooltip("Le etichette compaiono solo sotto questo livello di zoom della Scene view. " +
+             "Più basso = devi essere più vicino.")]
+    [SerializeField] private float _labelMaxZoom = 12f;
     [SerializeField] private bool _showObjectiveNames = false;
 
     [Header("Authoring")]
@@ -32,6 +43,9 @@ public class HexGrid : MonoBehaviour
    
     public IReadOnlyList<ObjectiveRuntime> Objectives => _objectives;
     Dictionary<HexCoordinates, HexCell> _cells = new Dictionary<HexCoordinates, HexCell>();
+
+    private readonly List<MeetingPointRuntime> _meetingPoints = new List<MeetingPointRuntime>();
+    public IReadOnlyList<MeetingPointRuntime> MeetingPoints => _meetingPoints;
 
     private void Awake()
     {
@@ -60,6 +74,7 @@ public class HexGrid : MonoBehaviour
 
         RecalculateWorldBounds();
         BindObjectives();
+        BindMeetingPoints();
     }
 
     private void RecalculateWorldBounds()
@@ -137,21 +152,12 @@ public class HexGrid : MonoBehaviour
                 DrawHexGizmo(center, _cellSize);
 
 #if UNITY_EDITOR
-                if (_showObjectiveCoordinates && type != null && type.IsObjectiveGround)
+                if (ShouldLabel(type, center))
                     UnityEditor.Handles.Label(center, $"{coords.Q},{coords.R}", CoordStyle);
 
                 if (_showObjectiveNames && objective != null && objective.Cells[0] == generatedCell)
                     UnityEditor.Handles.Label(center + Vector3.up * _cellSize * 0.55f,
                                               objective.ToString(), CoordStyle);
-#endif
-#if UNITY_EDITOR
-                // Etichetta Q,R solo sulle celle obiettivo: sono poche, e sono le uniche
-                // di cui serve conoscere la coordinata per dichiarare un ObjectiveSO.
-                if (_showObjectiveCoordinates && type != null && type.IsObjectiveGround)
-                {
-                    UnityEditor.Handles.color = Color.white;
-                    UnityEditor.Handles.Label(center, $"{coords.Q},{coords.R}", CoordStyle);
-                }
 #endif
             }
         }
@@ -208,7 +214,7 @@ public class HexGrid : MonoBehaviour
                 continue;
             }
 
-            List<HexCell> group = FloodObjective(anchor);
+            List<HexCell> group = FloodGroup(anchor, c => c.Type != null && c.Type.IsObjectiveGround);
             ObjectiveRuntime runtime = new ObjectiveRuntime(data, group);
             foreach (HexCell cell in group) cell.BindObjective(runtime);
             _objectives.Add(runtime);
@@ -225,8 +231,60 @@ public class HexGrid : MonoBehaviour
                              $"they will not score and will not block the push. Add an anchor or repaint them.");
     }
 
-    /// <summary>Gruppo connesso di celle dipinte come obiettivo, a partire dall'ancora.</summary>
-    private List<HexCell> FloodObjective(HexCell start)
+    /// <summary>
+    /// Costruisce i punti di ritrovo dalle ancore dichiarate in HexMapSO. Stessa regola
+    /// degli obiettivi: una coordinata, la forma viene per adiacenza.
+    /// </summary>
+    private void BindMeetingPoints()
+    {
+        _meetingPoints.Clear();
+        foreach (HexCell cell in _cells.Values) cell.BindMeetingPoint(null);
+
+        if (_hexMapData.MeetingPoints == null) return;
+
+        foreach (MeetingPointSO data in _hexMapData.MeetingPoints)
+        {
+            if (data == null) continue;
+
+            if (!_cells.TryGetValue(data.Anchor, out HexCell anchor))
+            {
+                Debug.LogError($"[MEET] {data.name}: anchor {data.Anchor} is outside the map");
+                continue;
+            }
+            if (anchor.Type == null || !anchor.Type.IsMeetingGround)
+            {
+                Debug.LogError($"[MEET] {data.name}: anchor {data.Anchor} is not painted as meeting ground");
+                continue;
+            }
+            if (anchor.IsMeetingPoint)
+            {
+                Debug.LogError($"[MEET] {data.name}: anchor {data.Anchor} already belongs to {anchor.MeetingPoint}: two meeting points cannot touch");
+                continue;
+            }
+
+            List<HexCell> group = FloodGroup(anchor, c => c.Type != null && c.Type.IsMeetingGround);
+            MeetingPointRuntime runtime = new MeetingPointRuntime(data, group);
+            foreach (HexCell cell in group) cell.BindMeetingPoint(runtime);
+            _meetingPoints.Add(runtime);
+
+            Debug.Log($"[MEET] {data.name}: {group.Count} cell(s) from anchor {data.Anchor} — capacity {runtime.Capacity}");
+        }
+
+        int orphans = 0;
+        foreach (HexCell cell in _cells.Values)
+            if (cell.Type != null && cell.Type.IsMeetingGround && !cell.IsMeetingPoint) orphans++;
+
+        if (orphans > 0)
+            Debug.LogWarning($"[MEET] {orphans} cell(s) painted as meeting ground belong to NO meeting point: " +
+                             $"the corteo cannot start there. Add an anchor or repaint them.");
+    }
+
+    /// <summary>
+    /// Gruppo connesso di celle a partire da un'ancora, secondo un predicato di terreno.
+    /// Lo usano sia gli obiettivi sia i punti di ritrovo: stesso flusso di authoring —
+    /// dipingi la forma, dichiari una coordinata.
+    /// </summary>
+    private List<HexCell> FloodGroup(HexCell start, System.Func<HexCell, bool> isSameGround)
     {
         List<HexCell> group = new List<HexCell>();
         HashSet<HexCoordinates> seen = new HashSet<HexCoordinates>();
@@ -244,7 +302,8 @@ public class HexGrid : MonoBehaviour
             {
                 if (seen.Contains(n)) continue;
                 if (!_cells.TryGetValue(n, out HexCell neighbor)) continue;
-                if (neighbor.Type == null || !neighbor.Type.IsObjectiveGround) continue;
+                if (!isSameGround(neighbor)) continue;
+
                 seen.Add(n);
                 queue.Enqueue(neighbor);
             }
@@ -274,6 +333,35 @@ public class HexGrid : MonoBehaviour
             }
             return _coordStyle;
         }
+    }
+#endif
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// Un'etichetta si disegna solo se è dentro la vista e solo se sei abbastanza vicino
+    /// da leggerla. ⚠ Senza questi due filtri, su una mappa grande `Handles.Label` viene
+    /// chiamata una volta per cella a ogni ridisegno della Scene view, e l'editor si
+    /// impianta: su 51×35 sono 1785 chiamate, e la mappa grande è molto peggio.
+    /// </summary>
+    private bool ShouldLabel(HexTypeSO type, Vector3 center)
+    {
+        if (_coordinateLabels == CoordinateLabelMode.Off) return false;
+
+        if (_coordinateLabels == CoordinateLabelMode.SpecialCellsOnly)
+        {
+            if (type == null) return false;
+            if (!type.IsObjectiveGround && !type.IsMeetingGround) return false;
+        }
+
+        Camera cam = Camera.current;
+        if (cam == null) return true;   // nessuna camera: non filtrare
+
+        if (cam.orthographic && cam.orthographicSize > _labelMaxZoom) return false;
+
+        Vector3 viewport = cam.WorldToViewportPoint(center);
+        if (viewport.z < 0f) return false;
+        return viewport.x > -0.05f && viewport.x < 1.05f
+            && viewport.y > -0.05f && viewport.y < 1.05f;
     }
 #endif
 }

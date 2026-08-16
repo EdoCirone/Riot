@@ -6,7 +6,7 @@ Il giocatore comanda un corteo politico (spezzoni) su una griglia esagonale flat
 Lingua team: italiano. Commit e commenti in italiano. Nomi variabili/classi in inglese.
 
 ## Gli altri documenti (allineati 13/08/26)
-- **Documento di Progetto**: `D:\GDDRIOT\RIOT_Project_Document_v28.md` — stato del codice
+- **Documento di Progetto**: `D:\GDDRIOT\RIOT_Project_Document_v29.md` — stato del codice
   (Sezione 0) e cronologia per sessione. Le versioni vecchie stanno in
   `D:\GDDRIOT\Archivio\`.
   ⚠ **Il v26 non esiste e non va cercato**: creato il 05/08 e sovrascritto dal v27 senza
@@ -595,6 +595,70 @@ Cambiata l'08/08 su richiesta di Edoardo: adesso può scartare **chiunque** nell
   controlla i PA**, quindi l'highlight compare anche a 0 PA. ⚠ E non guarda
   `cell.Type.IsObjective`: si può barricare un obiettivo.
 
+## Obiettivi (IMPLEMENTATO 14/08/26) — GDD cap. 19
+`ObjectiveSO` (dati) + `ObjectiveRuntime` (stato) + `HexGrid.BindObjectives` +
+`LVLManager`. Sostituisce il vecchio punteggio: `_scoreToWin`, `_scoreForOccupation` e
+`_currentScore` **non esistono più**.
+
+- Un obiettivo è un **gruppo connesso di celle** dipinte come terreno obiettivo, raccolto
+  per flood fill da **una** coordinata d'ancora dichiarata nell'SO. Si scrive una
+  coordinata per obiettivo, la forma la dipinge il level designer.
+- Si occupa accumulando **celle-turno**: ogni turno si somma il numero di celle
+  dell'obiettivo occupate da spezzoni vivi. A `Required = Cells.Count` è **rivendicato**
+  e non paga più. Un obiettivo da 3 celle si prende con 1 unità per 3 turni, o 3 unità per
+  1 turno, o 2 per 2.
+- ⚠ **Se in un turno non c'è nessuno sopra, l'accumulo si AZZERA.** L'obiettivo è una
+  finestra da difendere, non un lavoro da rosicchiare.
+- `_requiresSimultaneous` sull'SO ripristina il profilo "ti obbliga a spezzarti": servono
+  tutte le celle nello stesso turno.
+- **La vittoria è rivendicare l'obiettivo dichiarato** (`LVLManager._declaredObjective`).
+  Oggi lo decide il livello, domani il volantino (GDD 20.3).
+- Il `Tick()` di ogni obiettivo gira in `LVLManager.OnEventRaised`, cioè a fine turno del
+  giocatore — lo stesso momento della Coesione.
+
+⚠ **`HexCell.IsObjective` e `HexTypeSO.IsObjectiveGround` sono DUE COSE DIVERSE**, ed è la
+distinzione più facile da sbagliare del sistema:
+- `cell.IsObjective` = *appartiene a un obiettivo dichiarato*. **Lo leggono le regole di
+  gioco**: muro per la spinta, divieto di barricata, sfogo laterale.
+- `type.IsObjectiveGround` = *è dipinta come terreno obiettivo*. **Lo legge solo il flood
+  fill**, per raccogliere la forma.
+Una cella dipinta ma non dichiarata è verde e basta: non fa muro, non dà punti.
+⚠ Il campo si chiamava `_isObjective` e ha `[FormerlySerializedAs]`: **non toglierlo**
+finché tutti gli asset `HexTypeSO` non sono stati risalvati, o il flag si azzera in
+silenzio su una mappa dipinta a mano.
+
+**Stato della mappa al 16/08/26**: 10 obiettivi su `LVLTest`, 35 celle, **zero orfane**.
+Le taglie vanno da 1 a 6 celle. Chiude il sospetto che le 35 celle fossero una colonna
+dipinta per errore: erano dieci edifici.
+
+## Punti di ritrovo e spawn del corteo (IMPLEMENTATO 16/08/26) — GDD cap. 20
+`MeetingPointSO` + `MeetingPointRuntime` + `HexGrid.BindMeetingPoints` +
+`LVLManager.SpawnRoster`.
+
+- **Stesso schema degli obiettivi**: pennello (`HexTypeSO.IsMeetingGround`) + ancora +
+  flood fill. `FloodGroup(start, predicato)` è generico e lo usano entrambi.
+- ⚠ **La capienza del ritrovo È il limite del corteo**: quante celle è grande la piazza.
+  Non è un parametro da tarare, è quello che hai dipinto. Su `LVLTest` le tre piazze
+  valgono 7, 14 e 16.
+- Il corteo nasce sulle celle in **ordine di flood fill dall'ancora**, quindi parte
+  compatto — Coesione alta e aure attive. È l'ancora a decidere il centro dello schieramento.
+- Celle occupate (es. un poliziotto in piazza) vengono **saltate**, non consumate: un posto
+  bloccato non deve costare un'unità del corteo.
+
+### `UnitsSetup` non deduce più la cella da solo
+`Initialize(HexGrid grid, HexCell startCell = null)`:
+- `startCell == null` → la cella si deduce da `WorldToGrid(transform.position)`. È il caso
+  delle unità piazzate a mano in scena, **oggi la polizia**.
+- `startCell` valorizzata → l'unità nasce lì. È lo spawn a runtime del corteo.
+
+⚠ **Il campo serializzato `_grid` è stato tolto**: un prefab non può tenere un riferimento
+a un oggetto di scena. La griglia arriva da fuori, da `LVLManager`.
+
+⚠ **Due fasi di spawn in `LVLManager.Start`**: `SpawnSceneUnits()` (tutti gli `UnitsSetup`
+già in scena) e poi `SpawnRoster()` (istanzia i prefab del roster sul ritrovo). L'ordine
+conta: le unità di scena occupano le loro celle prima che il roster cerchi posto.
+`RegisterUnit` è il punto unico dove si aggiorna liste, renderer e componenti.
+
 ## Highlight (OrderPreviewRenderer)
 - Alla selezione di uno spezzone: una sola BFS via `TacticalQuery.GetReachable`
   produce `visited` (celle raggiungibili entro budget PA), passato sia a
@@ -852,12 +916,19 @@ con la diagnosi, perché la spiegazione del *perché* succedeva vale più della 
   resta `true` e il turno non torna mai. **Nessun errore, nessun log: il gioco si pianta.**
   In `BootManager` ogni attesa ha un timeout proprio per questo; qui no.
 
-- **I costruttori Runtime ignorano `TryOccupy`, e `Vacate()` non controlla chi libera.**
-  Due `UnitsSetup` sulla stessa coordinata → la seconda unità esiste in lista e in scena
-  ma la cella indica la prima; quando la seconda si muove, il suo `Vacate()` **cancella
-  dalla griglia la prima**. Fix: `UnitsSetup.Initialize` deve restituire `null` con un
-  `LogError` se l'occupazione fallisce, e `Vacate(unit)` deve liberare solo se
-  `_occupiedBy == unit`.
+- ~~**I costruttori Runtime ignorano `TryOccupy`, e `Vacate()` non controlla chi libera.**~~
+  — **RISOLTO 16/08/26**, chiuso insieme allo spawn a runtime perché la lista di celle di
+  partenza lo rendeva raggiungibile per errore di dato invece che di trascinamento.
+  Diagnosi originale: due `UnitsSetup` sulla stessa coordinata → la seconda unità esiste in
+  lista e in scena ma la cella indica la prima; quando la seconda si muove, il suo
+  `Vacate()` **cancella dalla griglia la prima**.
+  Fix a due livelli: `HexCell.Vacate(AbstractUnitsRunTime unit)` libera **solo se
+  `_occupiedBy == unit`** (i tre chiamanti in `AbstractUnitsRunTime` passano `this`), e
+  `UnitsSetup.Initialize` verifica `TacticalQuery.IsCellAvailable` **prima** di costruire,
+  restituendo `null` con un `LogError`.
+  ⚠ **I costruttori Runtime continuano a buttare il risultato di `TryOccupy`** — la
+  verifica sta a monte. Chi scriverà un altro punto di creazione di unità deve rifare il
+  controllo lì: il costruttore non può fallire.
 
 - **✅ RISOLTO — `LVLManager.OnEnable` leggeva la griglia prima che `HexGrid.Awake` l'avesse
   generata.** `RefreshObjectiveCells()` è ora in `Start`. Log di conferma in gioco:
@@ -1231,10 +1302,21 @@ Repressione cross-level, campagna. Dipendono tutti da uno strato run inesistente
 
 # DA FARE (concordato)
 
-## ORDINE DI LAVORO CONCORDATO (04/08/26, aggiornato 08/08/26)
+## ORDINE DI LAVORO CONCORDATO (04/08/26, aggiornato 16/08/26)
 **spinta a domino (FATTA 05/08) → passata di fix (FATTA 06/08) → B3+B7, query condivise
-(FATTE 08/08) → panico (FATTO 08/08) → scena Assemblea → refactor PoliceAI →
-refactoring obiettivi.**
+(FATTE 08/08) → panico (FATTO 08/08) → leggibilità (FATTA 10/08) → obiettivi (FATTI
+14/08) → punti di ritrovo e spawn a runtime (FATTI 16/08) → scena Assemblea →
+presidio polizia → Zona Rossa.**
+
+⚠ **La catena di dipendenze è cambiata il 13/08 e va letta in quest'ordine**:
+`19 obiettivi → 20 Assemblea → 8 presidio → 5.6 Zona Rossa`. Gli obiettivi sono passati
+davanti a tutto perché "dichiarare un obiettivo" ha bisogno di qualcosa a cui puntare e il
+guinzaglio della polizia ha bisogno di un'ancora. La Zona Rossa, che il cap. 16 dava come
+"priorità 2, la più economica", è finita in fondo: non funziona senza il presidio.
+
+**Prerequisiti dell'Assemblea: erano quattro, ne restano due.**
+✅ `ObjectiveSO` (14/08) · ✅ coordinata di partenza + istanziazione a runtime (16/08) ·
+❌ campi costo sugli SO · ❌ passaggio di stato fra scene.
 
 ⚠ **Il refactor di `PoliceAI` si è spostato DOPO la scena Assemblea** (concordato
 08/08/26): l'Assemblea cambia cosa l'IA si trova davanti, quindi rifarla prima
@@ -1576,6 +1658,61 @@ adesso, non da quando sarà lunga.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 35 (14-16/08/26) — obiettivi, ritrovi, spawn del corteo
+Due giornate di codice. Chiusi due dei quattro prerequisiti della scena Assemblea.
+
+- 🟢 **Sistema obiettivi** (cap. 19): `ObjectiveSO` + `ObjectiveRuntime` + flood fill in
+  `HexGrid` + `LVLManager` riscritto. Il punteggio non esiste più: **si vince rivendicando
+  l'obiettivo dichiarato**. Occupazione a **celle-turno**, accumulo che si azzera se lasci
+  la presa. Vedi la sezione dedicata in PARTE 1.
+- 🟢 **Punti di ritrovo e spawn a runtime** (cap. 20): `MeetingPointSO` +
+  `MeetingPointRuntime`, `FloodGroup` generalizzato, `UnitsSetup` che riceve griglia e cella.
+  **La capienza della piazza è il limite del corteo.**
+- 🟢 **Chiuso il bug dei costruttori Runtime**: `Vacate(unit)` condizionale e verifica
+  prima di costruire. Era latente da settimane; la lista di celle di partenza lo rendeva
+  raggiungibile per refuso invece che per errore di trascinamento.
+- 🟢 **Strumenti di editor**: etichette delle coordinate sui gizmo con filtro per zoom e
+  inquadratura (su una mappa grande `Handles.Label` per ogni cella impianta l'editor),
+  colore per obiettivo, `ObjectiveLabelView` in world space con il progresso di occupazione.
+- 🔴 **Il rinomina `_isObjective` → `_isObjectiveGround` avrebbe cancellato la mappa.**
+  Unity serializza per nome: senza `[FormerlySerializedAs]` i tre asset avrebbero perso il
+  flag e gli obiettivi sarebbero **spariti in silenzio** su una mappa 51×35 dipinta a mano.
+  Nessun errore, nessuna eccezione, solo un livello non più vincibile. Stesso stampo del
+  cambio di numerazione dell'`ActionType` di agosto.
+- 📖 **Il dato che aspettavamo**: `[OBJ] 24 cell(s) painted as objective belong to NO
+  objective` alla prima esecuzione, poi zero dopo aver dichiarato tutti e dieci gli
+  edifici. Le 35 celle non erano una colonna dipinta per sbaglio.
+- 📖 **Design: la grafica non si appende alla logica** (deciso 15/08 su osservazione di
+  Edoardo). L'aspetto di una cella dipende dal suo **intorno** — una strada è orizzontale
+  perché ha strade a est e a ovest — quindi è autotiling, e vive in uno strato separato che
+  *legge* la logica. Conseguenza immediata: **il campo prefab sull'`ObjectiveSO` è stato
+  rimosso**. L'esito della sessione è stato togliere codice, non aggiungerne.
+  ⚠ Direzione: l'arte va **sotto** (sorting layer `BackGround`) con gli esagoni
+  semitrasparenti sopra. Se stesse sopra, gli highlight sparirebbero e una deriva fra
+  disegno e logica diventerebbe una **bugia** invece di un problema estetico.
+- 📖 **Regola nuova nel cap. 19.7**: dentro un obiettivo non rivendicato non si può agire e
+  si perde automaticamente ogni scontro; le difese sono **corpi che occupano i passaggi**,
+  non un controllo di adiacenza. Dà alla Barricata un lavoro che non aveva e chiude la
+  questione del sit-in senza una regola dedicata.
+- 🔴 **Errore mio di metodo**: ho dichiarato che la scena non aveva più unità dopo aver
+  cercato il **guid dello script `UnitsSetup`** dentro `LVLTest.unity`. Le istanze di
+  prefab **non espandono i loro componenti** nello YAML della scena: registrano un
+  riferimento al prefab più le modifiche. **Per sapere cosa c'è in una scena si cercano le
+  istanze di prefab, non il guid di uno script.**
+- 🔴 **La codifica è peggiorata**: da tre a **sette** file non-UTF8, tutti quelli in cui
+  sono stati incollati commenti italiani con accenti. Visual Studio ricade sulla codepage
+  di sistema sui file senza BOM.
+
+**Due lezioni:**
+
+1. **Rinominare un campo serializzato è un'operazione sui dati, non sul codice.** Il
+   sintomo (non ci sono più obiettivi) è lontanissimo dalla causa (un nome cambiato), e
+   non produce nessun errore. `[FormerlySerializedAs]` va messo *prima*, non dopo aver
+   scoperto il danno.
+2. **Un'astrazione va tolta quando si scopre che risolve il caso sbagliato.** Il prefab
+   sull'obiettivo sembrava giusto finché non è emerso che il problema non erano gli
+   obiettivi ma l'autotiling. La correzione buona è stata rimuovere, non generalizzare.
 
 ## Changelog sessione 34-bis (13/08/26) — sessione di design, zero codice
 Solo GDD. Il codice non è stato toccato.

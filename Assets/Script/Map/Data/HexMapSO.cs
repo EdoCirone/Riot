@@ -13,7 +13,13 @@ public class HexMapSO : ScriptableObject
     [Header("Objective")]
     [SerializeField] private ObjectiveSO[] _objectives;
 
+    [Header("Meeting Points")]
+    [Tooltip("I punti di ritrovo disponibili su questa mappa. Il volantino ne sceglierà uno.")]
+    [SerializeField] private MeetingPointSO[] _meetingPoints;
+
+
     public ObjectiveSO[] Objectives => _objectives;
+    public MeetingPointSO[] MeetingPoints => _meetingPoints;
     public int Width => _width;
     public int Height => _height;
 
