@@ -43,6 +43,11 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     [Tooltip("Quanto un poliziotto può allontanarsi dall'obiettivo che difende. " +
              "Domani sarà funzione di Repressione e Tensione.")]
     [SerializeField] private int _leashRadius = 4;
+    [Tooltip("How far an incident wakes up nearby police.")]
+    [SerializeField] private int _alarmRadius = 4;
+
+    [Tooltip("How many turns a woken unit stays hostile before returning to its post.")]
+    [SerializeField] private int _alarmDuration = 3;
 
     [Tooltip("Condotta del presidio. Interruttore manuale finché non esiste la Tensione.")]
     [SerializeField] private EngagementRules _engagementRules = EngagementRules.Containment;
@@ -386,5 +391,39 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             }
 
         return nearest;
+    }
+
+    /// <summary>
+    /// Sveglia il presidio attorno a un incidente. ⚠ È l'unico modo per staccare la polizia
+    /// dal posto: senza questo il presidio è una statua e il corteo gli passa accanto.
+    /// </summary>
+    public void RaiseAlarmAround(HexCell origin, string reason)
+    {
+        if (origin == null) return;
+
+        int woken = 0;
+        foreach (PoliceRuntime police in _policeOfLVL)
+        {
+            if (!police.IsAlive) continue;
+            if (police.PositionCell.Coordinates.Distance(origin.Coordinates) > _alarmRadius) continue;
+
+            police.RaiseAlarm(_alarmDuration);
+            woken++;
+        }
+
+        if (woken > 0)
+            Debug.Log($"[ALARM] {reason}: {woken} unit(s) woken for {_alarmDuration} turn(s)");
+    }
+
+    /// <summary>Entrare in un obiettivo non rivendicato fa scattare l'allarme (GDD 19.6).</summary>
+    public void CheckObjectiveIntrusion(AbstractUnitsRunTime unit)
+    {
+        if (unit is not SpezzoneRuntime) return;
+
+        HexCell cell = unit.PositionCell;
+        if (cell == null || !cell.IsObjective) return;
+        if (cell.Objective.IsClaimed) return;
+
+        RaiseAlarmAround(cell, $"{unit} entered {cell.Objective}");
     }
 }

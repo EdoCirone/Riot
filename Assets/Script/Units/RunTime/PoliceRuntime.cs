@@ -6,9 +6,14 @@ public class PoliceRuntime : AbstractUnitsRunTime
     private ObjectiveRuntime _guardedObjective;
     private EngagementRules _engagementRules = EngagementRules.Containment;
     private int _leashRadius;
+    private int _alarmTurnsLeft;
+
+    /// <summary>Un'unità allarmata ignora il guinzaglio e ingaggia, a qualunque condotta.</summary>
+
 
     public EngagementRules EngagementRules => _engagementRules;
     public int LeashRadius => _leashRadius;
+    public bool IsAlarmed => _alarmTurnsLeft > 0;
 
     public override string DisplayName => _police.DisplayName;
 
@@ -40,4 +45,6 @@ public class PoliceRuntime : AbstractUnitsRunTime
         _engagementRules = rules;
         _leashRadius = leashRadius;
     }
+    public void RaiseAlarm(int turns) => _alarmTurnsLeft = Mathf.Max(_alarmTurnsLeft, turns);
+    public void TickAlarm() { if (_alarmTurnsLeft > 0) _alarmTurnsLeft--; }
 }

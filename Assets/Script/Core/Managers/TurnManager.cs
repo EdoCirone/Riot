@@ -458,6 +458,7 @@ public class TurnManager : MonoBehaviour
         {
             _unitsRenderer.UpdateView(unit);
             _lvlManager.RefreshBoardState();
+            _lvlManager.CheckObjectiveIntrusion(unit);
             _stopFollowEvent?.Raise();
             onComplete?.Invoke();
         });
@@ -555,6 +556,9 @@ public class TurnManager : MonoBehaviour
             _unitsRenderer.UpdateView(atk);
             _unitsRenderer.UpdateView(def);
             _lvlManager.RefreshBoardState();
+
+            // Chi viene attaccato chiama i colleghi: vale solo per la polizia.
+            if (def is PoliceRuntime) _lvlManager.RaiseAlarmAround(def.PositionCell, $"{def} attacked");
         }
 
         GameObject atkGO = _unitsRenderer.GetGameObject(atk);
@@ -773,6 +777,9 @@ public class TurnManager : MonoBehaviour
             police.TickPanic();
             _unitsRenderer.UpdateView(police);
         }
+
+        foreach (var police in _lvlManager.Police)
+            if (police.IsAlive) police.TickAlarm();
 
         _lvlManager.RefreshBoardState();
         _startPlayerTurnEvent.Raise();
