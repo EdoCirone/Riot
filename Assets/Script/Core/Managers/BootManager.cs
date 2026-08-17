@@ -51,8 +51,14 @@ public class BootManager : MonoBehaviour
         _videoPlayer.loopPointReached += OnVideoFinished;
         _videoPlayer.Play();
 
-        // frame vale -1 finché nulla è stato presentato: aspetta il primo frame reale
-        yield return new WaitUntil(() => _videoPlayer.frame >= 0);
+        // ⚠ Anche la PRIMA attesa deve avere una via d'uscita: senza, una clip che non
+        // presenta mai un frame lascia la bootscene sul nero, prima ancora che il timeout
+        // sulla durata del video possa scattare.
+        float frameWait = 0f;
+        yield return new WaitUntil(() => _videoPlayer.frame >= 0 || (frameWait += Time.deltaTime) > 3f);
+
+        if (_videoPlayer.frame < 0)
+            Debug.LogWarning("[BOOT] no first frame presented: continuing anyway");
 
         // --- scopre il video sfumando via il bianco ---
         yield return StartCoroutine(FadeCanvas(_fadeCanvas, 1f, 0f, _fadeDuration, Color.white));

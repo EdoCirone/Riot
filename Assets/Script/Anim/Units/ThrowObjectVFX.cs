@@ -32,11 +32,16 @@ public class ThrowObjectVFX : MonoBehaviour
             Debug.LogWarning("Unit Selected Event missing in ThrowObjectVFX");
             return;
         }
+        if (_itemSelectedEvent == null)
+        {
+            Debug.LogWarning("Item Selected Event missing in ThrowObjectVFX");
+            return;
+        }
     }
 
     private void OnEnable()
     {
-        if (_throwObjectEvent == null || _unitSelected == null) return;
+        if (_throwObjectEvent == null || _unitSelected == null || _itemSelectedEvent == null) return;
         _unitSelected.Subscribe(SaveSelection);
         _throwObjectEvent.Subscribe(PlayThrowVFX);
         _itemSelectedEvent.Subscribe(SaveItem);
@@ -44,7 +49,7 @@ public class ThrowObjectVFX : MonoBehaviour
 
     private void OnDisable()
     {
-        if (_throwObjectEvent == null || _unitSelected == null) return;
+        if (_throwObjectEvent == null || _unitSelected == null || _itemSelectedEvent == null) return;
         _unitSelected.Unsubscribe(SaveSelection);
         _throwObjectEvent.Unsubscribe(PlayThrowVFX);
         _itemSelectedEvent.Unsubscribe(SaveItem);

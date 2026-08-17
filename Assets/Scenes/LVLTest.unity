@@ -6352,6 +6352,10 @@ PrefabInstance:
       propertyPath: _grid
       value: 
       objectReference: {fileID: 1144096843}
+    - target: {fileID: 1223380818050418741, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _guardedObjective
+      value: 
+      objectReference: {fileID: 11400000, guid: 3d7a9944ea7787e47bad498469a05976, type: 2}
     - target: {fileID: 3385265451044002913, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_Name
       value: PoliceBasic (1)
@@ -7035,6 +7039,10 @@ PrefabInstance:
       propertyPath: _grid
       value: 
       objectReference: {fileID: 1144096843}
+    - target: {fileID: 1223380818050418741, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _guardedObjective
+      value: 
+      objectReference: {fileID: 11400000, guid: 3d7a9944ea7787e47bad498469a05976, type: 2}
     - target: {fileID: 3385265451044002913, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_Name
       value: PoliceBasic (2)
@@ -11481,7 +11489,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57.25
+  m_fontSize: 56.95
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -11773,6 +11781,14 @@ PrefabInstance:
       propertyPath: _grid
       value: 
       objectReference: {fileID: 1144096843}
+    - target: {fileID: 1223380818050418741, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _engagementRules
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1223380818050418741, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _overrideEngagement
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3385265451044002913, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_Name
       value: PoliceBasic
@@ -12912,7 +12928,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57.25
+  m_fontSize: 56.95
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13017,16 +13033,37 @@ MonoBehaviour:
   _declaredObjective: {fileID: 11400000, guid: 3d7a9944ea7787e47bad498469a05976, type: 2}
   _meetingPoint: {fileID: 11400000, guid: d03132b7d922c514b947e757cef1178a, type: 2}
   _startingRoster:
-  - {fileID: 1315868516837607815, guid: a375726046c8da249bc68e09e9bd1e51, type: 3}
-  - {fileID: 1315868516837607815, guid: 822dc7f1f30e7014e95a014b42b9d860, type: 3}
-  - {fileID: 1315868516837607815, guid: dfb33167643d2cf48b89aa5456e7e054, type: 3}
-  - {fileID: 1315868516837607815, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
-  - {fileID: 1315868516837607815, guid: 852b756be15542f45b1dcc5f409fe52d, type: 3}
-  - {fileID: 1315868516837607815, guid: dfb33167643d2cf48b89aa5456e7e054, type: 3}
-  - {fileID: 1315868516837607815, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
+  - prefab: {fileID: 1315868516837607815, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
+    equipment:
+    - item: {fileID: 11400000, guid: 97e7976113111374fbe19fec8eb7b775, type: 2}
+      quantity: 5
+  - prefab: {fileID: 7202665714183149607, guid: 9024fa7b63732464f9da2d1176bf45a5, type: 3}
+    equipment: []
+  - prefab: {fileID: 7202665714183149607, guid: 9024fa7b63732464f9da2d1176bf45a5, type: 3}
+    equipment: []
+  - prefab: {fileID: 1315868516837607815, guid: a375726046c8da249bc68e09e9bd1e51, type: 3}
+    equipment:
+    - item: {fileID: 11400000, guid: 26fc8bbf25bac1145a169332a20b0c86, type: 2}
+      quantity: 2
+  - prefab: {fileID: 1315868516837607815, guid: 852b756be15542f45b1dcc5f409fe52d, type: 3}
+    equipment:
+    - item: {fileID: 11400000, guid: 1c27f098941a7834987383c83df5713d, type: 2}
+      quantity: 2
+  - prefab: {fileID: 1315868516837607815, guid: 822dc7f1f30e7014e95a014b42b9d860, type: 3}
+    equipment:
+    - item: {fileID: 11400000, guid: 97e7976113111374fbe19fec8eb7b775, type: 2}
+      quantity: 2
+  - prefab: {fileID: 1315868516837607815, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
+    equipment:
+    - item: {fileID: 11400000, guid: 97e7976113111374fbe19fec8eb7b775, type: 2}
+      quantity: 2
+    - item: {fileID: 11400000, guid: 26fc8bbf25bac1145a169332a20b0c86, type: 2}
+      quantity: 1
   _winEvent: {fileID: 11400000, guid: a0a8fcf3c2315ec4b936579de826bca6, type: 2}
   _loseEvent: {fileID: 11400000, guid: 9f2e74c24576edc4db87ac001db19051, type: 2}
   _boardChangedEvent: {fileID: 11400000, guid: 28827dbfca004774faaac84e3e68ee1b, type: 2}
+  _leashRadius: 4
+  _engagementRules: 0
 --- !u!114 &2130109799
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -140,11 +140,10 @@ public static class TacticalQuery
         {
             HexCoordinates neighborCoord = unit.PositionCell.Coordinates + dir;
             if (!map.TryGetCell(neighborCoord, out HexCell cell)) continue;
-
+           
             AbstractUnitsRunTime neighbor = cell.OccupiedBy;
             if (neighbor == null) continue;
-            if (neighbor.Status != UnitsStatus.Alive) continue;
-            if (neighbor.IsPanicked) continue;
+            if (!neighbor.IsAlive) continue;
 
             // l'aura passa solo fra unità della stessa parte
             if (unit is SpezzoneRuntime && neighbor is not SpezzoneRuntime) continue;

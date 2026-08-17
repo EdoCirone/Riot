@@ -5,7 +5,27 @@ public class UnitsSetup : MonoBehaviour
     [SerializeField] private UnitsSO _unit;
 
     // in UnitsSetup — seeding provvisorio, sostituito dalla composizione corteo
+    [Header("Inventory iniziale (solo spezzoni)")]
+    [Tooltip("seeding provvisorio, sostituito dalla composizione corteo")]
     [SerializeField] private StartingItem[] _startingInventory;   // provvisorio
+
+    [Header("Polizia")]
+    [Tooltip("Obiettivo presidiato. Se vuoto, viene assegnato quello più vicino allo spawn.")]
+    [SerializeField] private ObjectiveSO _guardedObjective;
+    [Tooltip("If off, this unit follows the level's engagement rules.")]
+    [SerializeField] private bool _overrideEngagement;
+
+    [Tooltip("Engagement rules for this unit. Only used when the override is on.")]
+    [SerializeField] private EngagementRules _engagementRules = EngagementRules.Containment;
+
+    [Tooltip("Leash radius for this unit. -1 uses the level's value.")]
+    [SerializeField] private int _leashRadiusOverride = -1;
+
+    public bool OverrideEngagement => _overrideEngagement;
+    public EngagementRules EngagementRules => _engagementRules;
+    public int LeashRadiusOverride => _leashRadiusOverride;
+
+    public ObjectiveSO GuardedObjective => _guardedObjective;
 
     [System.Serializable]
     public struct StartingItem { public ItemSO item; public int quantity; }

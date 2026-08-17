@@ -130,7 +130,6 @@ public class UnitStatsPanelView : MonoBehaviour
         _atkText.text = FormatStat(_currentUnit.Atk, aura.Atk);
         _defText.text = FormatStat(_currentUnit.Def, aura.Def);
         _morValueText.text = FormatStat(_currentUnit.BaseMorale, aura.Mor);
-        _statusText.text = DescribeStatus(_currentUnit);
     }
 
     private string FormatStat(int baseValue, int auraValue)

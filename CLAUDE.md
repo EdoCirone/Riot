@@ -153,6 +153,24 @@ chiusa col pattern `_isValid`, rientrata da una porta laterale. Da qui due regol
 - **non** metterli in `_isValid`: quello impedirebbe l'iscrizione e un pannello muto è
   peggio di un pannello senza una riga.
 
+🔴 **Il fix del 10/08 era a metà, ed è stato scoperto solo il 16/08 da una revisione
+esterna.** La guardia `if (_statusText != null)` era stata **aggiunta**, ma otto righe più
+sotto era rimasta l'assegnazione originale **senza guardia**:
+
+```csharp
+if (_statusText != null)
+    _statusText.text = DescribeStatus(_currentUnit);   // riga 125-126
+...
+_statusText.text = DescribeStatus(_currentUnit);       // riga 133, non protetta
+```
+
+Quindi per sei giorni il pannello è stato **esattamente vulnerabile come prima**, con
+l'aggravante che il codice sembrava protetto. Chiuso il 16/08 cancellando la riga 133.
+
+⚠ **Regola che ne esce, e vale ovunque: un fix che aggiunge una guardia deve RIMUOVERE il
+percorso non protetto.** Aggiungere l'`if` sopra e lasciare l'accesso sotto non è metà
+lavoro, è zero lavoro travestito da uno.
+
 `DescribeStatus` restituisce **stringa vuota** per lo stato normale, non "NORMAL": lo stato
 normale è assenza di informazione, e scriverlo insegna al giocatore a ignorare quella riga
 proprio quando serve.
@@ -288,6 +306,10 @@ la maschera della polizia oggi non ha effetto — `PoliceAI` non la guarda.)*
   perché quella cambia cosa significa "stare su un obiettivo". Non prima.
 
 ## Naming Convention
+⚠ **`[Header]`, `[Tooltip]` e i messaggi di log vanno scritti in INGLESE** (deciso
+16/08/26). I commenti restano in italiano. Il codice esistente è misto: è previsto un
+passaggio di uniformazione, non ancora fatto — nel frattempo **il nuovo si scrive già in
+inglese**, per non allargare il lavoro di quella passata.
 - Classi: PascalCase. Campi privati serializzati: _camelCase.
 - Proprietà pubbliche: PascalCase. Metodi: PascalCase, verbo chiaro.
 - Metodi che possono fallire: prefisso Try, restituiscono bool.
@@ -987,11 +1009,42 @@ con la diagnosi, perché la spiegazione del *perché* succedeva vale più della 
   risultato" — parte da `foundcells[0]` ed è chiamato solo dentro `while (foundCell.Count > 0)`.
   Dead code, il blocco si appiattisce senza cambiare niente.
 
-- **`BootManager`: la PRIMA attesa non ha fail-safe.** Il `WaitUntil(frame >= 0)` che attende
-  il primo frame presentato precede la costruzione del timer di sicurezza. Se la clip manca o
-  non produce un frame, la bootscene resta sul nero e non arriva mai al timeout su
-  `clipLength + 2`. Il commento "una bootscene non deve poter restare bloccata" quindi non è
-  ancora vero per quel punto.
+- ~~**`BootManager`: la PRIMA attesa non ha fail-safe.**~~ — **RISOLTO 16/08/26.** Il
+  `WaitUntil(frame >= 0)` ha ora un timeout di 3 secondi con `LogWarning`. Diagnosi
+  originale: precedeva la costruzione del timer di sicurezza, quindi una clip che non
+  produceva un frame lasciava la bootscene sul nero senza mai arrivare al timeout su
+  `clipLength + 2`.
+  ⚠ **Adesso tutti e cinque i `WaitUntil` del progetto hanno una via d'uscita** — i due
+  di `BootManager`, i due di `TurnManager` (carica e scontro) e quello di `PoliceAI`.
+  Verificato con un grep il 16/08/26: se ne aggiungi uno, aggiungi anche il timeout.
+
+- **`ApplyPushChain` non è transazionale** (segnalato da entrambe le revisioni del
+  16/08/26). Se un `SetPosition` fallisce a metà catena, le unità già spostate restano
+  nelle celle nuove e le successive no: la griglia resta in uno stato parziale.
+  **Non è un bug attivo**: costruzione e applicazione sono sincrone, non c'è `yield` in
+  mezzo, nessun evento viene alzato fra le due, e lo spawn adesso difende l'invariante di
+  occupazione. Nessun percorso normale produce quel fallimento.
+  Il `LogError` è la sentinella: **se scatta, la plancia è corrotta**. Non aggiungere un
+  rollback per un caso che non si presenta — costruire una transazione qui costerebbe più
+  del problema.
+
+- **Rientranza di `WinLevel` dentro il ciclo degli obiettivi** (segnalato 16/08/26).
+  `LVLManager.OnEventRaised` itera su `_map.Objectives` chiamando `Tick()`, e se l'obiettivo
+  dichiarato viene rivendicato alza `_winEvent` **in mezzo al `foreach`** — quindi un
+  listener di vittoria vede gli obiettivi successivi non ancora aggiornati, e al ritorno il
+  ciclo continua a modificarli. Oggi nessun listener se ne accorge. Diventerà un bug il
+  giorno che lo schermo di fine livello calcolerà ricompense in base agli obiettivi
+  secondari rivendicati: il risultato dipenderebbe dall'**ordine nella lista**.
+
+- **Il timeout del movimento IA non annulla il movimento** (segnalato 16/08/26).
+  `PoliceAI` aspetta 5 secondi e poi prosegue, ma non interrompe `MoveCoroutine`: se il
+  timeout scatta davvero, l'IA continua mentre il movimento precedente è ancora in corso.
+  Con i tempi normali non accade. È il fail-safe che sblocca senza rimettere ordine —
+  stessa famiglia del timeout dello scontro, che invece è stato chiuso.
+
+- **`TurnManager.CanCharge` è l'unico predicato di legalità rimasto fuori da
+  `TacticalQuery`** (confermato da entrambe le revisioni del 16/08/26). È una query pura
+  che vive nell'esecutore. Coda del refactor B3/B7, non urgente: spostarla tocca `PoliceAI`.
 
 - **DECLASSATO — `ExecuteSitStand` / `ExecuteBarricade` senza `RefreshBoardState`.** Il primo
   check del 06/08/26 lo dava per bug attivo: **sbagliato**. `HandleActionClick` finisce con
@@ -1658,6 +1711,60 @@ adesso, non da quando sarà lunga.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 36 (16/08/26) — doppia revisione esterna e passata sui failure path
+Nessuna regola nuova. Tutti i difetti trovati stavano **nei bordi**: percorsi di
+fallimento, listener sincroni, componenti validati a metà.
+
+- 🔴 **Il fix del 10/08 su `_statusText` era a metà.** Guardia aggiunta sopra,
+  assegnazione non protetta lasciata sotto. Vedi la sezione "Il pannello unità esiste in
+  DUE copie". È il difetto più grave della tornata perché riproduce l'hardlock del turno
+  polizia, e perché il codice **sembrava** corretto.
+- 🟢 **Il timeout dello scontro adesso finalizza.** `UpdateView` e `RefreshBoardState`
+  vivevano solo in `onComplete`: allo scadere dei 5 secondi il Morale era già stato
+  applicato ma la plancia restava non aggiornata — morti non nascosti, aure non
+  ricalcolate, Coesione vecchia. Introdotto `FinalizeOnce()`, **stesso pattern di
+  `ResolveOnce()` nella carica**, chiamato sia dalla callback sia dal timeout.
+- 🟢 **Chiuso l'ultimo `WaitUntil` senza via d'uscita** (`BootManager`, attesa del primo
+  frame video). Adesso tutti e cinque ne hanno una.
+- 🟢 **Due validazioni incomplete chiuse**: `ThrowObjectVFX` non validava
+  `_itemSelectedEvent` e `InventoryView` non validava `_actionSelectedEvent`, entrambi poi
+  dereferenziati in `OnEnable`. Un campo mancante nell'Inspector produceva una
+  `NullReferenceException` **dopo** che altre due sottoscrizioni erano già andate a buon fine.
+- 🟢 **`SpawnRoster` indurito**: istanza distrutta se `Initialize` fallisce, `spawned`
+  incrementato solo a registrazione riuscita, log duplicato rimosso.
+- 🟢 **La regola `IsAlive` è ora rispettata ovunque**: zero confronti diretti con
+  `UnitsStatus.Alive` in tutto `Assets/Script`. L'ultimo era in `TacticalQuery.GetAuraBonus`,
+  ed era il più pericoloso: con uno stato vivo nuovo (ferito, immobilizzato) un'unità viva
+  avrebbe smesso di **dare aura**, alterando Atk, Def e il prestito di Morale di tutti i
+  vicini. L'altro, nell'highlight del Coro, avrebbe prodotto una divergenza
+  highlight/esecuzione, perché `ExecuteChant` usava già `IsAlive`.
+- 📖 **Registrati come rischi noti** (non corretti, di proposito): `ApplyPushChain` non
+  transazionale, rientranza di `WinLevel` nel ciclo degli obiettivi, timeout del movimento
+  IA che non annulla il movimento, `CanCharge` fuori da `TacticalQuery`.
+
+**Sul processo di revisione, tre cose che valgono più dei bug:**
+
+1. 🔴 **Una revisione è stata fatta sul dump sbagliato.** Il primo giro di ChatGPT è
+   arrivato con sei "bug attivi" — **tutti e sei già chiusi fra il 6 e il 16 agosto**,
+   perché aveva letto lo snapshot del 6. Il revisore ha però **dichiarato la fonte in
+   apertura** e ha rifiutato di rispondere alle domande sul codice che non aveva: la regola
+   *"cita la fonte e separa quello che sai da quello che deduci"* ha funzionato. Il difetto
+   era nell'input, non nel revisore.
+   ⚠ Contromisura aggiunta al `CODECHECK`: una riga che dichiara **quanti file e quante
+   righe** contiene il dump giusto, così il revisore può accorgersi da solo di averne uno
+   vecchio *prima* di scrivere una revisione intera.
+2. 🔴 **Il mio documento di revisione conteneva una premessa falsa.** In D5 avevo scritto
+   "tutte le attese hanno un timeout": non era vero (`BootManager`), ed è pure una cosa che
+   era **già registrata** fra i bug noti. Seconda volta in due giorni dopo le tre premesse
+   sbagliate nel `DESIGNCHECK`. Entrambi i revisori l'hanno trovata, il che conferma che
+   chiedere di controllare le premesse serve.
+3. 🔴 **Due sostituzioni di blocco si sono portate via una guardia.** Prima
+   `if (setup == null)` in `SpawnRoster`, poi il rinomina che aveva lasciato
+   `Type.IsObjectiveGround` su due righe di `TurnManager`. In entrambi i casi il codice
+   sostitutivo veniva da qui e ometteva un pezzo che c'era.
+   ⚠ **Regola: quando si sostituisce un blocco intero, si rilegge cosa conteneva prima.**
+   Una guardia che sparisce non fa rumore.
 
 ## Changelog sessione 35 (14-16/08/26) — obiettivi, ritrovi, spawn del corteo
 Due giornate di codice. Chiusi due dei quattro prerequisiti della scena Assemblea.

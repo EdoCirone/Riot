@@ -183,7 +183,7 @@ public class OrderPreviewRenderer : MonoBehaviour
         {
             if (!_grid.TryGetCell(n, out HexCell cell)) continue;
             if (cell.OccupiedBy is not SpezzoneRuntime spezzone) continue;
-            if (spezzone.Status != UnitsStatus.Alive) continue;
+            if (!spezzone.IsAlive) continue;
 
             _hexGridRenderer.SetCellColor(n, _chantAreaColor);
             _highlightedCells.Add(n);

@@ -20,14 +20,33 @@ public class LVLManager : MonoBehaviour, IGameEventListener
              "il livello, domani lo deciderà l'Assemblea.")]
     [SerializeField] private MeetingPointSO _meetingPoint;
 
-    [Tooltip("Il corteo che scende in piazza. Oggi è una lista fissa, domani arriva dalla " +
-             "composizione. Non può superare la capienza del punto di ritrovo.")]
-    [SerializeField] private GameObject[] _startingRoster;
+    [System.Serializable]
+    public struct RosterEntry
+    {
+        [Tooltip("Unit prefab to spawn.")]
+        public GameObject prefab;
+
+        [Tooltip("Gear carried into the level. Placeholder for the Assembly's outfitting step.")]
+        public UnitsSetup.StartingItem[] equipment;
+    }
+
+    [Tooltip("The corteo taking the street. Fixed list for now, later provided by the " +
+             "Assembly. Cannot exceed the meeting point capacity.")]
+    [SerializeField] private RosterEntry[] _startingRoster;
 
     [Header("Events")]
     [SerializeField] private GameEventSO _winEvent;
     [SerializeField] private GameEventSO _loseEvent;
     [SerializeField] private GameEventSO _boardChangedEvent;
+
+    [Header("Presidio (GDD cap. 8)")]
+    [Tooltip("Quanto un poliziotto può allontanarsi dall'obiettivo che difende. " +
+             "Domani sarà funzione di Repressione e Tensione.")]
+    [SerializeField] private int _leashRadius = 4;
+
+    [Tooltip("Condotta del presidio. Interruttore manuale finché non esiste la Tensione.")]
+    [SerializeField] private EngagementRules _engagementRules = EngagementRules.Containment;
+
 
     private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
     private List<PoliceRuntime> _policeOfLVL = new List<PoliceRuntime>();
@@ -40,6 +59,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     public TurnManager TurnManager => _turnManager;
     public HexGrid Map => _map;
     public UnitsRenderer Renderer => _unitsRenderer;
+    public EngagementRules EngagementRules => _engagementRules;
 
     public List<SpezzoneRuntime> Spezzoni => _spezzoniOfLVL;
     public List<PoliceRuntime> Police => _policeOfLVL;
@@ -49,6 +69,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     /// <summary>Turni giocati finora. ⚠ Conta in SU: non c'è un limite di turni, e il
     /// contatore non fa perdere (GDD 20.4-bis, decisione parcheggiata).</summary>
     public int CurrentTurn => _currentTurn;
+    public int LeashRadius => _leashRadius;
 
     public ObjectiveRuntime DeclaredObjective => _declared;
     public IReadOnlyList<ObjectiveRuntime> Objectives => _map != null ? _map.Objectives : null;
@@ -67,7 +88,10 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         SpawnRoster();
 
         ResolveDeclaredObjective();
+        AssignGarrisons();
+
         RefreshBoardState();
+
     }
 
     /// <summary>Unità piazzate a mano in scena: oggi la polizia. La cella la deducono
@@ -111,40 +135,57 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         int index = 0;
         int spawned = 0;
 
-        foreach (GameObject prefab in _startingRoster)
+        foreach (RosterEntry entry in _startingRoster)
         {
-            if (prefab == null) continue;
+            if (entry.prefab == null) continue;
 
-            // Salta le celle occupate invece di consumarle: un posto bloccato non deve
-            // costare un'unità del corteo.
             while (index < meeting.Cells.Count && !TacticalQuery.IsCellAvailable(meeting.Cells[index]))
                 index++;
 
             if (index >= meeting.Cells.Count)
             {
-                Debug.LogError($"[LVL] No free cell left in {meeting}: {prefab.name} not spawned");
+                Debug.LogError($"[LVL] No free cell left in {meeting}: {entry.prefab.name} not spawned");
                 break;
             }
 
             HexCell cell = meeting.Cells[index++];
 
-            GameObject instance = Instantiate(prefab, _map.GridToWorld(cell.Coordinates), Quaternion.identity);
+            GameObject instance = Instantiate(entry.prefab, _map.GridToWorld(cell.Coordinates), Quaternion.identity);
             UnitsSetup setup = instance.GetComponentInChildren<UnitsSetup>();
 
             if (setup == null)
             {
-                Debug.LogError($"[LVL] {prefab.name} has no UnitsSetup: not a unit prefab");
+                Debug.LogError($"[LVL] {entry.prefab.name} has no UnitsSetup: not a unit prefab");
                 Destroy(instance);
                 continue;
             }
 
-            RegisterUnit(setup.Initialize(_map, cell), setup.gameObject);
+            AbstractUnitsRunTime unit = setup.Initialize(_map, cell);
+
+            if (unit == null)
+            {
+                Debug.LogError($"[LVL] {entry.prefab.name} failed to initialize at {cell.Coordinates}: instance discarded");
+                Destroy(instance);
+                continue;
+            }
+
+            // L'equipaggiamento arriva dal roster, non dal prefab: due Black Bloc dello
+            // stesso prefab devono poter portare cose diverse. È il posto che domani
+            // riempirà l'Assemblea.
+            if (unit is SpezzoneRuntime spezzone && entry.equipment != null)
+            {
+                foreach (UnitsSetup.StartingItem gear in entry.equipment)
+                {
+                    if (gear.item == null || gear.quantity <= 0) continue;
+                    spezzone.Inventory.AddItem(gear.item, gear.quantity);
+                }
+            }
+
+            RegisterUnit(unit, setup.gameObject);
             spawned++;
         }
 
         Debug.Log($"[LVL] Corteo gathered at {meeting}: {spawned} unit(s) of {meeting.Capacity} place(s)");
-
-        Debug.Log($"[LVL] Corteo gathered at {meeting}: {_spezzoniOfLVL.Count} unit(s) of {meeting.Capacity} place(s)");
     }
 
     /// <summary>Punto unico di registrazione: liste, view, e inizializzazione dei componenti.</summary>
@@ -287,5 +328,63 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         _gameOver = true;
         _turnManager.enabled = false;
         return true;
+    }
+
+    /// <summary>
+    /// Ogni poliziotto riceve un obiettivo da presidiare: quello dichiarato sul suo
+    /// componente, oppure il più vicino a dove si trova.
+    /// ⚠ Con pochi poliziotti e molti obiettivi il fronte resta scoperto quasi ovunque.
+    /// La risposta di design è che il volantino è pubblico e la polizia si concentra
+    /// sull'obiettivo dichiarato — non ancora implementata.
+    /// </summary>
+    private void AssignGarrisons()
+    {
+        foreach (PoliceRuntime police in _policeOfLVL)
+        {
+            ObjectiveRuntime target = null;
+
+            GameObject go = _unitsRenderer.GetGameObject(police);
+            UnitsSetup setup = go != null ? go.GetComponent<UnitsSetup>() : null;
+
+            if (setup != null && setup.GuardedObjective != null)
+            {
+                foreach (ObjectiveRuntime candidate in _map.Objectives)
+                    if (candidate.Data == setup.GuardedObjective) { target = candidate; break; }
+
+                if (target == null)
+                    Debug.LogError($"[GARRISON] {police}: declared objective '{setup.GuardedObjective.name}' is not on this map");
+            }
+
+            if (target == null) target = NearestObjective(police.PositionCell.Coordinates);
+
+            EngagementRules rules = (setup != null && setup.OverrideEngagement)
+                ? setup.EngagementRules
+                : _engagementRules;
+
+            int radius = (setup != null && setup.LeashRadiusOverride >= 0)
+                ? setup.LeashRadiusOverride
+                : _leashRadius;
+
+            police.AssignGuard(target, rules, radius);
+
+            Debug.Log(target != null
+                ? $"[GARRISON] {police} guards {target} — {rules}, radius {radius}"
+                : $"[GARRISON] {police} has no objective to guard: it will roam");
+        }
+    }
+
+    private ObjectiveRuntime NearestObjective(HexCoordinates from)
+    {
+        ObjectiveRuntime nearest = null;
+        int best = int.MaxValue;
+
+        foreach (ObjectiveRuntime objective in _map.Objectives)
+            foreach (HexCell cell in objective.Cells)
+            {
+                int d = from.Distance(cell.Coordinates);
+                if (d < best) { best = d; nearest = objective; }
+            }
+
+        return nearest;
     }
 }

@@ -545,11 +545,22 @@ public class TurnManager : MonoBehaviour
         }
 
         bool done = false;
+        bool finalized = false;
+
+        void FinalizeOnce()
+        {
+            if (finalized) return;
+            finalized = true;
+
+            _unitsRenderer.UpdateView(atk);
+            _unitsRenderer.UpdateView(def);
+            _lvlManager.RefreshBoardState();
+        }
+
         GameObject atkGO = _unitsRenderer.GetGameObject(atk);
         UnitMovement movement = atkGO.GetComponent<UnitMovement>();
         Vector3 defWorldPos = _map.GridToWorld(def.PositionCell.Coordinates);
 
-        // difensore reagisce
         GameObject defGO = _unitsRenderer.GetGameObject(def);
         UnitMovement defMovement = defGO != null ? defGO.GetComponent<UnitMovement>() : null;
         Vector3 atkWorldPos = _map.GridToWorld(atk.PositionCell.Coordinates);
@@ -557,21 +568,26 @@ public class TurnManager : MonoBehaviour
         movement.PlaySkirmish(defWorldPos,
              onComplete: () =>
              {
-                 _unitsRenderer.UpdateView(atk);
-                 _unitsRenderer.UpdateView(def);
-                 _lvlManager.RefreshBoardState();
+                 FinalizeOnce();
                  done = true;
              },
-            onImpact: () =>
-            {
-                defMovement?.PlayHitReaction(atkWorldPos);
-                foreach (var u in hit) _unitsRenderer.FlashDamage(u);
-                RaiseCombactResult(result);
-            });
+             onImpact: () =>
+             {
+                 defMovement?.PlayHitReaction(atkWorldPos);
+                 RaiseCombactResult(result);
+             });
 
+        // ⚠ Il fail-safe non deve solo sbloccare: deve lasciare la plancia in uno stato
+        // valido. Il Morale è già stato applicato prima dell'animazione, quindi senza
+        // FinalizeOnce resterebbero morti non nascosti e aure non ricalcolate.
         float elapsed = 0f;
         yield return new WaitUntil(() => done || (elapsed += Time.deltaTime) > 5f);
-        if (!done) Debug.LogWarning($"[Skirmish] animation not complete from {atk}: i still continue");
+
+        if (!done)
+        {
+            Debug.LogWarning($"[Skirmish] animation not complete from {atk}: finalizing anyway");
+            FinalizeOnce();
+        }
     }
     #endregion
 

@@ -15,7 +15,8 @@ public class InventoryView : MonoBehaviour
 
     private void Awake()
     {
-        if (_slots == null || _slots.Length == 0 || _unitSelectedEvent == null || _unitDeselectedEvent == null)
+        if (_slots == null || _slots.Length == 0 || _unitSelectedEvent == null
+                    || _unitDeselectedEvent == null || _actionSelectedEvent == null)
         {
             Debug.LogWarning("Refs missing in InventoryView");
             return;
