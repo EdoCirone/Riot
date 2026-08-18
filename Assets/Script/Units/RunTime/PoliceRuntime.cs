@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PoliceRuntime : AbstractUnitsRunTime
 {
@@ -8,7 +8,7 @@ public class PoliceRuntime : AbstractUnitsRunTime
     private int _leashRadius;
     private int _alarmTurnsLeft;
 
-    /// <summary>Un'unit� allarmata ignora il guinzaglio e ingaggia, a qualunque condotta.</summary>
+    /// <summary>Un'unità allarmata ignora il guinzaglio e ingaggia, a qualunque condotta.</summary>
 
 
     public EngagementRules EngagementRules => _engagementRules;

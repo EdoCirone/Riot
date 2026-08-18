@@ -1,6 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
 using DG.Tweening;
-using Unity.VisualScripting;
 using UnityEngine.Events;
 
 public class MenuPanelView : MonoBehaviour

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class UnitsRenderer : MonoBehaviour
@@ -29,7 +29,7 @@ public class UnitsRenderer : MonoBehaviour
     /// <summary>
     /// Lampo di danno. Va chiamato al momento dell'IMPATTO dell'animazione, non quando
     /// la logica applica il danno: le due cose sono separate da tutta la durata
-    /// dell'animazione, ed � il senso di "logica prima, animazione dopo".
+    /// dell'animazione, ed è il senso di "logica prima, animazione dopo".
     /// </summary>
     public void FlashDamage(AbstractUnitsRunTime unit)
     {

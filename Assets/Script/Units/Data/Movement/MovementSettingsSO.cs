@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "MovementSettingsSO", menuName = ("RIOT/Anim/AnimationSettingsSO"))]
 public class MovementSettingsSO : ScriptableObject

@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 /// <summary>
 /// Un'etichetta in world space per ogni obiettivo, al centro del suo gruppo di celle.
-/// Mostra nome e progresso: � il riscontro che il GDD 19.5 chiedeva per poter pianificare
+/// Mostra nome e progresso: è il riscontro che il GDD 19.5 chiedeva per poter pianificare
 /// un'occupazione, non solo un aiuto di sviluppo.
 /// </summary>
 public class ObjectiveLabelView : MonoBehaviour

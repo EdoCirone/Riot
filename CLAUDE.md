@@ -667,6 +667,48 @@ dipinta per errore: erano dieci edifici.
 - Celle occupate (es. un poliziotto in piazza) vengono **saltate**, non consumate: un posto
   bloccato non deve costare un'unità del corteo.
 
+## Presidio, guinzaglio e allarme (IMPLEMENTATO 18/08/26) — GDD cap. 8
+`PoliceRuntime.AssignGuard` + `LVLManager.AssignGarrisons` / `RaiseAlarmAround` /
+`CheckObjectiveIntrusion` + `PoliceAI` a tre passate. **La polizia non insegue più: presidia.**
+
+- Ogni poliziotto riceve in `LVLManager.Start` (dopo lo spawn) un **obiettivo da difendere**,
+  delle **regole d'ingaggio** e un **raggio di guinzaglio**. La fonte è a cascata: campo
+  sull'`UnitsSetup` in scena se valorizzato, altrimenti il default del livello.
+  Se l'obiettivo dichiarato sull'`UnitsSetup` **non sta su questa mappa** è un `LogError`,
+  non un ripiego silenzioso: è un errore di dato del level designer.
+- Senza obiettivo dichiarato si ripiega su `NearestObjective` — **il più vicino per cella,
+  non per ancora**: un obiettivo grande va difeso dal lato da cui gli sei accanto.
+- **Il guinzaglio si misura dall'obiettivo, non dalla cella di partenza.** `IsWithinLeash`
+  restituisce `true` in tre casi che sono altrettante vie di fuga dal presidio:
+  regole `Sweep`, nessun obiettivo assegnato, **oppure unità in allarme**.
+- `PoliceAI` è a **tre passate**, in quest'ordine: (0) se sei fuori guinzaglio torna al posto;
+  (1) agisci — saltata in `Containment` se non sei in allarme; (2) avvicinati restando dentro
+  il guinzaglio. `MoveTowards` **tronca il percorso alla prima cella fuori raggio**: il
+  guinzaglio è un vincolo sul cammino, non solo sulla destinazione.
+
+⚠ **`RaiseAlarmAround` è l'unico modo per staccare la polizia dal posto.** Senza chiamanti
+il presidio è una statua e il corteo gli cammina accanto. Oggi i chiamanti sono **due**:
+- `TurnManager.ExecuteMovement` (callback) → `CheckObjectiveIntrusion`: **entrare in un
+  obiettivo non rivendicato** sveglia il presidio nel raggio. Su un obiettivo **già
+  rivendicato** non scatta — l'ultimo obiettivo del livello sarebbe gratis, ma quello preso
+  non deve suonare in eterno.
+- `TurnManager.ExecuteSkirmish` (in `FinalizeOnce`) → **attaccare un poliziotto** sveglia i suoi.
+
+⚠ **L'allarme decade da solo**, `TickAlarm()` in `ExecutePoliceTurn` — cioè dove si
+decrementa il panico della polizia e si ricaricano i suoi PA. `RaiseAlarm` usa `Mathf.Max`,
+quindi due incidenti ravvicinati non si sommano ma **rinnovano** la durata: è lo stesso
+schema del panico e per la stessa ragione (un allarme debole non deve *curare* chi è già
+in massima allerta).
+
+⚠ **Conseguenza di design da tenere presente**: con l'allarme all'ingresso, **gli obiettivi
+secondari diventano lo strumento di diversivo** — entri in uno lontano, svegli quel
+presidio, e prendi il dichiarato mentre sono impegnati. Non serve una Zona Rossa né un coro
+provocatorio per avere una distrazione: c'è già, ed è emersa invece che essere progettata.
+
+⚠ **Non ancora playtestato al 18/08/26.** Il codice c'è ed è coerente, ma nessuno ha
+verificato che i tre numeri (`_leashRadius` 4, `_alarmRadius` 4, `_alarmDuration` 3) diano
+un avversario giocabile. Sono manopole, e sono su `LVLManager` proprio per poterle girare.
+
 ### `UnitsSetup` non deduce più la cella da solo
 `Initialize(HexGrid grid, HexCell startCell = null)`:
 - `startCell == null` → la cella si deduce da `WorldToGrid(transform.position)`. È il caso
@@ -1236,6 +1278,22 @@ con la diagnosi, perché la spiegazione del *perché* succedeva vale più della 
   ricade sulla codepage di sistema sui file UTF-8 **senza BOM**. Finché esistono file
   senza firma, ogni commento con un accento può riaprire la voce. Correggere il singolo
   file è un cerotto; la cura è **salvare col BOM** tutto ciò che si tocca.
+
+  ✅ **CHIUSA il 18/08/26, e stavolta alla radice.** Due interventi insieme:
+  1. **BOM su tutti e 74 i `.cs`.** Verificato dopo: zero file non-UTF8, zero file senza
+     firma, graffe ancora bilanciate. ⚠ Nota importante sul rischio: **nessun file ha
+     avuto bisogno della conversione da Windows-1252** — tutti e 74 decodificavano già
+     come UTF-8 valido, quindi l'operazione ha solo *aggiunto tre byte* e non ha toccato
+     un solo carattere. Il caso pericoloso (testo reinterpretato male) non si è presentato.
+  2. **`.editorconfig` nella radice del repo** con `charset = utf-8-bom` per `*.cs`.
+     È questo che chiude la voce per davvero: il BOM fa sì che VS *indovini giusto*,
+     l'`.editorconfig` fa sì che **non debba indovinare**, e un file nuovo nasce firmato.
+  ⚠ `end_of_line = crlf` nell'`.editorconfig` è coerente con `.gitattributes`
+  (`* text=auto`, quindi LF nel repo e CRLF sul disco Windows — i 74 file sono tutti CRLF).
+  Cambiarne uno senza l'altro farebbe risultare modificato mezzo progetto al primo salvataggio.
+  *Nota di metodo: questa voce è rientrata tre volte perché ogni volta si correggeva il file
+  invece della causa. Un difetto che ricompare dopo essere stato "chiuso" non è stato chiuso:
+  è stato spostato più avanti nel tempo.*
 - **Campi dati dichiarati e mai letti** (censiti 06/08/26). Due asset ne hanno:
   - `MovementSettingsSO`: `ChargeBumpDistance/Duration`, `SkirmishBumpDistance/Duration`.
     ⚠ In più, l'asset **non contiene `_hitReactionDistance`**: il campo esiste nel codice
@@ -1358,8 +1416,14 @@ Repressione cross-level, campagna. Dipendono tutti da uno strato run inesistente
 ## ORDINE DI LAVORO CONCORDATO (04/08/26, aggiornato 16/08/26)
 **spinta a domino (FATTA 05/08) → passata di fix (FATTA 06/08) → B3+B7, query condivise
 (FATTE 08/08) → panico (FATTO 08/08) → leggibilità (FATTA 10/08) → obiettivi (FATTI
-14/08) → punti di ritrovo e spawn a runtime (FATTI 16/08) → scena Assemblea →
-presidio polizia → Zona Rossa.**
+14/08) → punti di ritrovo e spawn a runtime (FATTI 16/08) → presidio polizia (FATTO 18/08) →
+scena Assemblea → Zona Rossa.**
+
+⚠ **Il presidio è passato DAVANTI all'Assemblea** (18/08/26, su richiesta di Edoardo).
+Motivo: dopo il playtest del 16/08 ("è molto difficile perdere", "la polizia è ancora
+scema") non aveva senso costruire la fase di preparazione a una partita che non oppone
+resistenza. Il rework pesante della polizia — inventario, tipi di unità (cellulari,
+piantoni) — resta invece **dopo** l'Assemblea, come concordato l'08/08.
 
 ⚠ **La catena di dipendenze è cambiata il 13/08 e va letta in quest'ordine**:
 `19 obiettivi → 20 Assemblea → 8 presidio → 5.6 Zona Rossa`. Gli obiettivi sono passati

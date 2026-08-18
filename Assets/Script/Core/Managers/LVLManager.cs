@@ -1,3 +1,4 @@
+﻿
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,10 +40,16 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     [SerializeField] private GameEventSO _loseEvent;
     [SerializeField] private GameEventSO _boardChangedEvent;
 
-    [Header("Presidio (GDD cap. 8)")]
+    [Header("Police garrison")]
     [Tooltip("Quanto un poliziotto può allontanarsi dall'obiettivo che difende. " +
              "Domani sarà funzione di Repressione e Tensione.")]
     [SerializeField] private int _leashRadius = 4;
+
+    [Tooltip("Share of the free garrison pulled onto the objective declared in the flyer. " +
+            "0 = the flyer changes nothing, 1 = everyone converges on it.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float _declaredReinforcement = 0.5f;
+
     [Tooltip("How far an incident wakes up nearby police.")]
     [SerializeField] private int _alarmRadius = 4;
 
@@ -51,6 +58,10 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     [Tooltip("Condotta del presidio. Interruttore manuale finché non esiste la Tensione.")]
     [SerializeField] private EngagementRules _engagementRules = EngagementRules.Containment;
+
+    [Tooltip("Print a map coverage report at Start: garrison per objective, and how far the " +
+         "corteo has to walk to reach each one.")]
+    [SerializeField] private bool _logCoverageReport = true;
 
 
     private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
@@ -96,6 +107,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         AssignGarrisons();
 
         RefreshBoardState();
+        if (_logCoverageReport) LogCoverageReport();
 
     }
 
@@ -336,17 +348,22 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     }
 
     /// <summary>
-    /// Ogni poliziotto riceve un obiettivo da presidiare: quello dichiarato sul suo
-    /// componente, oppure il più vicino a dove si trova.
-    /// ⚠ Con pochi poliziotti e molti obiettivi il fronte resta scoperto quasi ovunque.
-    /// La risposta di design è che il volantino è pubblico e la polizia si concentra
-    /// sull'obiettivo dichiarato — non ancora implementata.
+    /// Ogni poliziotto riceve un obiettivo da presidiare, in DUE passate.
+    /// 1ª — quello dichiarato sul suo componente, oppure il più vicino a dove si trova.
+    /// 2ª — il volantino è pubblico: una quota del presidio libero si sposta sull'obiettivo
+    /// DICHIARATO dal giocatore. È questo che rende "dichiarare" una scelta con un costo.
+    /// ⚠ Chi ha un obiettivo scritto a mano sull'UnitsSetup è immune: quello è un ordine del
+    /// level designer, non un ripiego, e non va sovrascritto da una percentuale.
     /// </summary>
     private void AssignGarrisons()
     {
+        // rules e radius si conservano perché servono anche alla 2ª passata
+        List<(PoliceRuntime police, bool pinned, EngagementRules rules, int radius)> assigned = new();
+
         foreach (PoliceRuntime police in _policeOfLVL)
         {
             ObjectiveRuntime target = null;
+            bool pinned = false;
 
             GameObject go = _unitsRenderer.GetGameObject(police);
             UnitsSetup setup = go != null ? go.GetComponent<UnitsSetup>() : null;
@@ -358,6 +375,8 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
                 if (target == null)
                     Debug.LogError($"[GARRISON] {police}: declared objective '{setup.GuardedObjective.name}' is not on this map");
+                else
+                    pinned = true;
             }
 
             if (target == null) target = NearestObjective(police.PositionCell.Coordinates);
@@ -371,11 +390,78 @@ public class LVLManager : MonoBehaviour, IGameEventListener
                 : _leashRadius;
 
             police.AssignGuard(target, rules, radius);
+            assigned.Add((police, pinned, rules, radius));
 
             Debug.Log(target != null
                 ? $"[GARRISON] {police} guards {target} — {rules}, radius {radius}"
                 : $"[GARRISON] {police} has no objective to guard: it will roam");
         }
+
+        ReinforceDeclaredObjective(assigned);
+    }
+
+    /// <summary>
+    /// Il volantino è pubblico: la polizia sa dove punta il corteo e ci concentra una quota
+    /// del presidio. Vengono richiamati i più VICINI all'obiettivo dichiarato fra quelli che
+    /// non lo stanno già presidiando — quindi dichiarare apre un buco proprio ACCANTO a ciò
+    /// che hai dichiarato. È lì che nasce il diversivo, senza doverlo progettare a parte.
+    /// </summary>
+    private void ReinforceDeclaredObjective(
+        List<(PoliceRuntime police, bool pinned, EngagementRules rules, int radius)> assigned)
+    {
+        if (_declared == null) return;
+        if (_declaredReinforcement <= 0f) return;
+
+        List<(PoliceRuntime police, EngagementRules rules, int radius, int distance)> candidates = new();
+
+        foreach (var entry in assigned)
+        {
+            if (entry.pinned) continue;
+            if (!entry.police.IsAlive) continue;
+            if (entry.police.GuardedObjective == _declared) continue;
+
+            candidates.Add((entry.police, entry.rules, entry.radius,
+                DistanceToObjective(entry.police.PositionCell.Coordinates, _declared)));
+        }
+
+        if (candidates.Count == 0)
+        {
+            Debug.Log($"[GARRISON] flyer is public but nobody can answer it: " +
+                      $"every free unit already guards {_declared}, the rest are pinned");
+            return;
+        }
+
+        candidates.Sort((a, b) => a.distance.CompareTo(b.distance));
+
+        // ⚠ CeilToInt e non RoundToInt: con pochi poliziotti l'arrotondamento (che in Unity
+        // è bancario, 0.5 -> 0) annullerebbe il richiamo senza dirlo. Il volantino non deve
+        // mai poter essere ignorato: se c'è un candidato, almeno uno risponde.
+        int toMove = Mathf.CeilToInt(candidates.Count * _declaredReinforcement);
+        toMove = Mathf.Min(toMove, candidates.Count);
+
+        for (int i = 0; i < toMove; i++)
+        {
+            var c = candidates[i];
+            ObjectiveRuntime left = c.police.GuardedObjective;
+            c.police.AssignGuard(_declared, c.rules, c.radius);
+            Debug.Log($"[GARRISON] {c.police} pulled from {left} to the declared {_declared} (distance {c.distance})");
+        }
+
+        Debug.Log($"[GARRISON] flyer is public: {toMove} of {candidates.Count} free unit(s) reinforce {_declared}");
+    }
+
+    private static int DistanceToObjective(HexCoordinates from, ObjectiveRuntime objective)
+    {
+        int best = int.MaxValue;
+        if (objective == null) return best;
+
+        foreach (HexCell cell in objective.Cells)
+        {
+            int d = from.Distance(cell.Coordinates);
+            if (d < best) best = d;
+        }
+
+        return best;
     }
 
     private ObjectiveRuntime NearestObjective(HexCoordinates from)
@@ -384,11 +470,10 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         int best = int.MaxValue;
 
         foreach (ObjectiveRuntime objective in _map.Objectives)
-            foreach (HexCell cell in objective.Cells)
-            {
-                int d = from.Distance(cell.Coordinates);
-                if (d < best) { best = d; nearest = objective; }
-            }
+        {
+            int d = DistanceToObjective(from, objective);
+            if (d < best) { best = d; nearest = objective; }
+        }
 
         return nearest;
     }
@@ -425,5 +510,119 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         if (cell.Objective.IsClaimed) return;
 
         RaiseAlarmAround(cell, $"{unit} entered {cell.Objective}");
+    }
+    private MeetingPointRuntime ResolveMeetingPoint()
+    {
+        if (_meetingPoint == null || _map == null) return null;
+
+        foreach (MeetingPointRuntime candidate in _map.MeetingPoints)
+            if (candidate.Data == _meetingPoint) return candidate;
+
+        return null;
+    }
+
+    /// <summary>
+    /// BFS multi-sorgente dalle celle del ritrovo. ⚠ Guarda SOLO il terreno, non chi lo
+    /// occupa: misura la mappa, non il traffico del momento. Un report che cambia perché
+    /// un poliziotto è due celle più in là non serve a progettare il livello.
+    /// </summary>
+    private Dictionary<HexCoordinates, int> StepsFrom(IReadOnlyList<HexCell> sources)
+    {
+        Dictionary<HexCoordinates, int> steps = new();
+        Queue<HexCoordinates> queue = new();
+
+        foreach (HexCell source in sources)
+        {
+            if (source == null) continue;
+            steps[source.Coordinates] = 0;
+            queue.Enqueue(source.Coordinates);
+        }
+
+        while (queue.Count > 0)
+        {
+            HexCoordinates current = queue.Dequeue();
+            int next = steps[current] + 1;
+
+            foreach (HexCoordinates dir in HexCoordinates.Directions)
+            {
+                HexCoordinates neighbor = current + dir;
+                if (steps.ContainsKey(neighbor)) continue;
+                if (!_map.TryGetCell(neighbor, out HexCell cell)) continue;
+                if (!cell.Type.IsWalkable) continue;
+
+                steps[neighbor] = next;
+                queue.Enqueue(neighbor);
+            }
+        }
+
+        return steps;
+    }
+
+    /// <summary>
+    /// Dice se il livello è progettato o è capitato, senza doverlo giocare: quanti
+    /// poliziotti difendono cosa, e quanto ci mette il corteo ad arrivarci.
+    /// </summary>
+    [ContextMenu("Log coverage report")]
+    public void LogCoverageReport()
+    {
+        if (_map == null || _map.Objectives == null) return;
+
+        MeetingPointRuntime meeting = ResolveMeetingPoint();
+        Dictionary<HexCoordinates, int> steps = meeting != null ? StepsFrom(meeting.Cells) : null;
+
+        // Due passi, non uno: il corteo compatto va alla velocità del più lento, ma una
+        // singola unità veloce mandata avanti va al proprio. La differenza fra le due
+        // colonne È il prezzo dello spezzarsi (GDD cap. 19).
+        int slow = int.MaxValue;
+        int fast = 1;
+        foreach (SpezzoneRuntime spezzone in _spezzoniOfLVL)
+        {
+            if (!spezzone.IsAlive) continue;
+            if (spezzone.MaxActionPoints < slow) slow = spezzone.MaxActionPoints;
+            if (spezzone.MaxActionPoints > fast) fast = spezzone.MaxActionPoints;
+        }
+        if (slow == int.MaxValue || slow <= 0) slow = 1;
+
+        System.Text.StringBuilder report = new();
+        report.AppendLine($"[COVERAGE] {_map.Objectives.Count} objective(s), {_policeOfLVL.Count} police, " +
+                          $"corteo of {_spezzoniOfLVL.Count} from " +
+                          $"{(meeting != null ? meeting.ToString() : "NO MEETING POINT")}, " +
+                          $"pace {slow}-{fast} AP/turn");
+        report.AppendLine("[COVERAGE] objective                     cells  garrison   steps  packed   solo");
+
+        int unguarded = 0;
+        int unreachable = 0;
+
+        foreach (ObjectiveRuntime objective in _map.Objectives)
+        {
+            int garrison = 0;
+            foreach (PoliceRuntime police in _policeOfLVL)
+                if (police.IsAlive && police.GuardedObjective == objective) garrison++;
+
+            if (garrison == 0) unguarded++;
+
+            int best = int.MaxValue;
+            if (steps != null)
+                foreach (HexCell cell in objective.Cells)
+                    if (steps.TryGetValue(cell.Coordinates, out int d) && d < best) best = d;
+
+            bool reachable = best != int.MaxValue;
+            if (!reachable) unreachable++;
+
+            string stepText = reachable ? best.ToString() : "--";
+            string slowText = reachable ? Mathf.CeilToInt(best / (float)slow).ToString() : "--";
+            string fastText = reachable ? Mathf.CeilToInt(best / (float)fast).ToString() : "--";
+            string mark = objective == _declared ? "   <<< DECLARED" : "";
+
+            report.AppendLine($"[COVERAGE] {objective.ToString().PadRight(30)}" +
+                              $"{objective.Cells.Count,5}{garrison,10}{stepText,8}{slowText,8}{fastText,7}{mark}");
+        }
+
+        report.AppendLine($"[COVERAGE] {unguarded} objective(s) with no garrison at all");
+
+        if (unreachable > 0)
+            report.AppendLine($"[COVERAGE] ⚠ {unreachable} objective(s) the corteo cannot reach on foot: check the map");
+
+        Debug.Log(report.ToString());
     }
 }

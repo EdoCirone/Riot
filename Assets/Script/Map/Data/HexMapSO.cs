@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "HexMapSO", menuName = "RIOT/Maps/HexMapSO")]
 public class HexMapSO : ScriptableObject
@@ -14,7 +14,7 @@ public class HexMapSO : ScriptableObject
     [SerializeField] private ObjectiveSO[] _objectives;
 
     [Header("Meeting Points")]
-    [Tooltip("I punti di ritrovo disponibili su questa mappa. Il volantino ne sceglier� uno.")]
+    [Tooltip("I punti di ritrovo disponibili su questa mappa. Il volantino ne sceglierà uno.")]
     [SerializeField] private MeetingPointSO[] _meetingPoints;
 
 

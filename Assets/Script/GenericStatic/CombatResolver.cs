@@ -1,4 +1,4 @@
-
+﻿
 public static class CombatResolver
 {
     public static CombatResult Resolve(AbstractUnitsRunTime attacker, AbstractUnitsRunTime defender, HexGrid map)

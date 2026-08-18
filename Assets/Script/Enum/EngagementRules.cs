@@ -1,6 +1,6 @@
-/// <summary>
-/// Condotta del presidio. Oggi si sceglie a mano nell'Inspector; domani la decider‡ la
-/// Tensione (GDD 8.6), e il codice dell'IA non cambier‡ ó cambia solo chi scrive questo valore.
+Ôªø/// <summary>
+/// Condotta del presidio. Oggi si sceglie a mano nell'Inspector; domani la decider√† la
+/// Tensione (GDD 8.6), e il codice dell'IA non cambier√† ‚Äî cambia solo chi scrive questo valore.
 /// </summary>
 public enum EngagementRules
 {

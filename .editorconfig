@@ -1,0 +1,33 @@
+# .editorconfig — DISSENSO
+#
+# Esiste per una ragione sola, e vale la pena scriverla: senza una firma (BOM) Visual
+# Studio deve INDOVINARE la codifica di un .cs, e su Windows italiano ricade sulla
+# codepage di sistema (Windows-1252) appena nel file compare un carattere accentato.
+# I commenti di questo progetto sono in italiano, quindi succede di continuo: e' gia'
+# rientrato tre volte (PathFinter, UnitsRenderer, EngagementRules).
+#
+# charset = utf-8-bom toglie l'indovinello: anche un file NUOVO nasce gia' firmato.
+# Il BOM sui file esistenti cura il presente, questo file protegge il futuro.
+#
+# ⚠ end_of_line = crlf e' coerente con .gitattributes (* text=auto): nel repo le righe
+# sono normalizzate a LF, sul disco Windows tornano CRLF. Non cambiarlo senza cambiare
+# anche quello, o meta' progetto risultera' modificato al primo salvataggio.
+
+root = true
+
+[*]
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+charset = utf-8-bom
+indent_size = 4
+end_of_line = crlf
+
+[*.{json,yml,yaml}]
+indent_size = 2
+
+[*.md]
+# Nei markdown due spazi a fine riga sono un a-capo: non vanno tolti.
+trim_trailing_whitespace = false

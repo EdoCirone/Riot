@@ -1,4 +1,4 @@
-using TMPro;
+Ôªøusing TMPro;
 using UnityEngine;
 
 public class TurnHUDView : MonoBehaviour
@@ -36,8 +36,8 @@ public class TurnHUDView : MonoBehaviour
 
     private void Refresh()
     {
-        // Nessun limite di turni: il contatore sale e non c'Ë urgenza da segnalare.
-        // Quando la scadenza torner‡ (GDD 20.4-bis) apparterr‡ all'obiettivo, non al livello.
+        // Nessun limite di turni: il contatore sale e non c'√® urgenza da segnalare.
+        // Quando la scadenza torner√† (GDD 20.4-bis) apparterr√† all'obiettivo, non al livello.
         _turnText.text = $"TURN {_lvlManager.CurrentTurn}";
     }
 }

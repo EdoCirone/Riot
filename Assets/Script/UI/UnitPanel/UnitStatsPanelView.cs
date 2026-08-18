@@ -1,9 +1,7 @@
-using DG.Tweening;
+﻿using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static TacticalQuery;
-
 public class UnitStatsPanelView : MonoBehaviour
 {
     [Header("Reference")]
@@ -125,7 +123,7 @@ public class UnitStatsPanelView : MonoBehaviour
         if (_statusText != null)
             _statusText.text = DescribeStatus(_currentUnit);
 
-        AuraBonus aura = TacticalQuery.GetAuraBonus(_currentUnit, _lvlManager.Map);
+        TacticalQuery.AuraBonus aura = TacticalQuery.GetAuraBonus(_currentUnit, _lvlManager.Map);
 
         _atkText.text = FormatStat(_currentUnit.Atk, aura.Atk);
         _defText.text = FormatStat(_currentUnit.Def, aura.Def);

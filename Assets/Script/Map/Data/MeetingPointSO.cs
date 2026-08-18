@@ -1,14 +1,14 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 
 /// <summary>
-/// Un punto di ritrovo: l'appuntamento che il volantino puÚ dare (GDD 20.3). Decide da
-/// quali celle parte il corteo, e la sua dimensione decide QUANTE unit‡ si possono portare.
+/// Un punto di ritrovo: l'appuntamento che il volantino pu√≤ dare (GDD 20.3). Decide da
+/// quali celle parte il corteo, e la sua dimensione decide QUANTE unit√† si possono portare.
 /// </summary>
 [CreateAssetMenu(fileName = "MeetingPointSO", menuName = "RIOT/Maps/MeetingPointSO")]
 public class MeetingPointSO : ScriptableObject
 {
     [Header("Info")]
-    [Tooltip("Il nome che comparir‡ sul volantino: \"ci vediamo in piazza delle Camelie\".")]
+    [Tooltip("Il nome che comparir√† sul volantino: \"ci vediamo in piazza delle Camelie\".")]
     [SerializeField] private string _displayName = "Piazza";
 
     [Header("Posizione")]

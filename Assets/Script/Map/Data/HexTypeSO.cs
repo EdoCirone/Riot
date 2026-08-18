@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "HexTypeSO", menuName = "RIOT/Maps/HexTypeSO")]

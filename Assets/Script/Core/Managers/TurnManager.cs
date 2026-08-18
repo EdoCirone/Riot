@@ -527,7 +527,7 @@ public class TurnManager : MonoBehaviour
         const int skirmishCost = 1;
         if (!atk.TrySpendActionPoint(skirmishCost))
         {
-            Debug.Log($"skirmish not able to be execute, {skirmishCost}AP needed)");
+            Debug.Log($"[TURN] Skirmish not executed: {skirmishCost} AP needed");
             yield break;
         }
 

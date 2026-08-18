@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -9,20 +9,28 @@ public class PoliceAI : MonoBehaviour
     [SerializeField] private UnitEventSO _onSelectedEvent;
 
     private TurnManager _turnManager;
+    private bool _isValid;
 
     private void Awake()
     {
-        if (_lvlManager == null)
+        _isValid = _lvlManager != null && _lvlManager.TurnManager != null;
+
+        if (!_isValid)
         {
-            Debug.Log("LVL manager not found in PoliceAI");
+            Debug.LogError("[AI] PoliceAI has no LVLManager (or the manager has no TurnManager): the police will not act");
             return;
         }
 
         _turnManager = _lvlManager.TurnManager;
     }
-
     public IEnumerator ExecutePoliceActions()
     {
+        // ⚠ Chiuso ma NON bloccante. Il pattern _isValid altrove significa "non iscriverti
+        // a niente"; qui significa "termina subito", perché chi aspetta questa coroutine è
+        // TurnManager: se non finisse, _waitingForPolice resterebbe true e il turno non
+        // tornerebbe mai al giocatore. Fallire in silenzio è meglio che piantare la partita.
+        if (!_isValid) yield break;
+
         foreach (var police in _lvlManager.Police)
         {
             if (!police.IsAlive) continue;
@@ -179,14 +187,21 @@ public class PoliceAI : MonoBehaviour
         int maxSteps = Mathf.Min(police.ActionPoints, pathCoords.Count - 1);
         List<HexCell> path = new List<HexCell>();
 
+        // ⚠ Il guinzaglio non deve impedire il RIENTRO. Chi è già fuori raggio non
+        // potrebbe fare nemmeno il primo passo verso casa e resterebbe piantato per
+        // sempre: quindi un passo è lecito se resta nel guinzaglio OPPURE se avvicina
+        // al presidio.
+        int distanceSoFar = DistanceFromPost(police, police.PositionCell.Coordinates);
+
         for (int i = 1; i <= maxSteps; i++)
         {
-            if (!_lvlManager.Map.TryGetCell(pathCoords[i], out HexCell cell)) continue;
+            // break e non continue: saltare una cella spezzerebbe la continuità del percorso.
+            if (!_lvlManager.Map.TryGetCell(pathCoords[i], out HexCell cell)) break;
 
-            // ⚠ Il percorso non deve portare fuori dal presidio: si tronca al primo passo
-            // che sforerebbe, invece di rifiutare tutto il movimento.
-            if (!IsWithinLeash(police, cell.Coordinates)) break;
+            int stepDistance = DistanceFromPost(police, cell.Coordinates);
+            if (!IsWithinLeash(police, cell.Coordinates) && stepDistance >= distanceSoFar) break;
 
+            distanceSoFar = Mathf.Min(distanceSoFar, stepDistance);
             path.Add(cell);
         }
 

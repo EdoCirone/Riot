@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "ObjectiveSO", menuName = "RIOT/Maps/ObjectiveSO")]
 // This ScriptableObject represents an objective in the game.

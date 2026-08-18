@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 /// <summary>
 /// Il ritrovo vivo sulla griglia. ⚠ La sua CAPIENZA non è un parametro da tarare: è

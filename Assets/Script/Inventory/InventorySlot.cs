@@ -1,4 +1,4 @@
-public class InventorySlot
+﻿public class InventorySlot
 {
     public ItemSO Item;
     public int Quantity;

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using static TacticalQuery;
-
 
 public class InputHandler : MonoBehaviour
 {
@@ -143,7 +141,7 @@ public class InputHandler : MonoBehaviour
                 _policeDeselectedEvent?.Raise();
                 _selectedSpezzone = spezzone;
                 _unitSelectedEvent?.Raise(_selectedSpezzone);
-                AuraBonus aura = TacticalQuery.GetAuraBonus(_selectedSpezzone, _grid);
+                TacticalQuery.AuraBonus aura = TacticalQuery.GetAuraBonus(_selectedSpezzone, _grid);
             }
             else if (clickCell.OccupiedBy is PoliceRuntime police)
             {

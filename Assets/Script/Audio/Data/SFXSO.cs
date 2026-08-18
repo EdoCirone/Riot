@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "SFXSO", menuName = "RIOT/Audio/SFXSO")]
 public class SFXSO : ScriptableObject

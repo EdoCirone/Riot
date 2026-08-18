@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+Ôªøusing System.Collections.Generic;
 using UnityEngine;
 
 public class HexGridRenderer : MonoBehaviour
@@ -78,7 +78,7 @@ public class HexGridRenderer : MonoBehaviour
     }
 
     /// <summary>Riallinea il colore delle sole celle obiettivo. Chiamato su BoardChanged,
-    /// cioË ovunque cambi posizione o stato di un'unit‡.</summary>
+    /// cio√® ovunque cambi posizione o stato di un'unit√†.</summary>
     private void RefreshObjectiveCells()
     {
         foreach (ObjectiveRuntime objective in _grid.Objectives)
