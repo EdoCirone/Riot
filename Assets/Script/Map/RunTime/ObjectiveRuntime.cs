@@ -19,8 +19,20 @@ public class ObjectiveRuntime
     public ObjectiveSO Data => _data;
     public IReadOnlyList<HexCell> Cells => _cells;
 
-    /// <summary>Celle-turno necessarie: una per ogni cella che compone l'obiettivo.</summary>
-    public int Required => _cells.Count;
+    /// <summary>
+    /// Celle-turno necessarie: una per ogni cella dell'obiettivo, PIÙ UNA.
+    ///
+    /// ⚠ Il +1 non è una taratura ed è facilissimo scambiarlo per un errore di off-by-one.
+    /// In un turno non si può accumulare più di Cells.Count celle-turno — le celle sono
+    /// quelle. Quindi con Required = Cells bastava entrare con abbastanza unità da coprire
+    /// l'edificio e l'obiettivo era rivendicato a fine turno, **senza che la polizia avesse
+    /// mai un turno per reagire**. Col +1 servono sempre almeno DUE turni.
+    ///
+    /// E il secondo turno pesa, perché l'accumulo si azzera se molli la presa (vedi Tick):
+    /// il turno di polizia in mezzo è la finestra dello sgombero. Occupare smette di essere
+    /// "toccare" e diventa "tenere".
+    /// </summary>
+    public int Required => _cells.Count + 1;
     public int Progress => _progress;
     public bool IsClaimed => _claimed;
 

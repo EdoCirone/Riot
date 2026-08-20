@@ -72,6 +72,12 @@ public class TurnManager : MonoBehaviour
             return;
         }
 
+        // Segnalato qui ma SENZA return: si scopre all'avvio invece che al primo fine turno,
+        // e intanto il livello parte lo stesso. Un return qui non alzerebbe
+        // _startPlayerTurnEvent, cioè romperebbe più di quanto ripari.
+        if (_policeAI == null)
+            Debug.LogError("[TURN] PoliceAI not assigned in TurnManager: the police will never act");
+
         _startPlayerTurnEvent.Raise();
     }
 
@@ -85,8 +91,14 @@ public class TurnManager : MonoBehaviour
         destinationCell = null;
 
         if (atk == null || def == null) return false;
+        if (atk == null || def == null) return false;
         if (!atk.IsAlive || !def.IsAlive) return false;
         if (def.IsSeated) return false;                       // barricata umana
+
+        // ⚠ Questo controllo è il motivo per cui la maschera della polizia esisteva ma non
+        // faceva niente: PoliceAI chiama CanCharge direttamente, senza passare dall'input.
+        if (!atk.CanPerformAction(ActionType.Charge)) return false;
+
         if (atk.ActionPoints < TacticalQuery.ChargeCost) return false;
 
         if (!HasChargeRoom(atk.PositionCell.Coordinates, def.PositionCell.Coordinates,
@@ -365,6 +377,15 @@ public class TurnManager : MonoBehaviour
         }
         ApplyPanicWave(impactCell, def);
 
+        // ⚠ impactCell e non def.PositionCell: la carica può aver rimosso il difensore, e
+        // l'allarme deve comunque partire da dove l'hanno visto cadere.
+        ReportAggression(def, atk, impactCell);
+
+        // La carica sposta l'attaccante, quindi può portarlo DENTRO un obiettivo — e finché
+        // questo controllo viveva solo nella callback di ExecuteMovement, entrare caricando
+        // era un modo legale di infilarsi in un edificio presidiato senza svegliare nessuno.
+        _lvlManager.CheckObjectiveIntrusion(atk);
+
         _chargeEvent?.Raise();
 
         _unitsRenderer.UpdateView(atk);
@@ -557,8 +578,8 @@ public class TurnManager : MonoBehaviour
             _unitsRenderer.UpdateView(def);
             _lvlManager.RefreshBoardState();
 
-            // Chi viene attaccato chiama i colleghi: vale solo per la polizia.
-            if (def is PoliceRuntime) _lvlManager.RaiseAlarmAround(def.PositionCell, $"{def} attacked");
+            // Chi viene attaccato chiama i colleghi. La regola sta in ReportAggression.
+            ReportAggression(def, atk);
         }
 
         GameObject atkGO = _unitsRenderer.GetGameObject(atk);
@@ -617,6 +638,10 @@ public class TurnManager : MonoBehaviour
         spezzone.Inventory.ConsumeItem(item);
         _throwEvent.Raise(target);
         target.LoseMorale(item.MoralLost);
+
+        // Prima di UpdateView: se il lancio l'ha ucciso, PositionCell può non valere più.
+        ReportAggression(target, spezzone);
+
         _unitsRenderer.UpdateView(target);
         _lvlManager.RefreshBoardState();
     }
@@ -715,6 +740,74 @@ public class TurnManager : MonoBehaviour
 
     #endregion
 
+    #region Police
+
+    private IEnumerator ExecutePoliceTurn()
+    {
+        // ⚠ Senza questa guardia un _policeAI non assegnato è un HARD LOCK, non un errore.
+        // EndTurn ha già messo _waitingForPolice = true; la NullReferenceException ucciderebbe
+        // la coroutine PRIMA della riga che lo rimette a false, e l'input resterebbe bloccato
+        // per sempre con CanAcceptPlayerInput. Si salta il turno della polizia e si va avanti:
+        // una partita senza avversario è diagnosticabile, una partita congelata no.
+        if (_policeAI != null)
+            yield return StartCoroutine(_policeAI.ExecutePoliceActions());
+        else
+            Debug.LogError("[TURN] PoliceAI not assigned in TurnManager: the police turn is skipped");
+
+        Debug.Log("--- FINE TURNO POLIZIA ---");
+        _waitingForPolice = false;
+
+        if (!_lvlManager.IsGameActive)
+        {
+            yield break;
+        }
+
+        foreach (var spezzone in _lvlManager.Spezzoni)
+        {
+            if (!spezzone.IsAlive) continue;
+            spezzone.RefillActionPoints();
+        }
+
+        // Il panico della POLIZIA scala qui: hanno appena finito il loro turno.
+        foreach (var police in _lvlManager.Police)
+        {
+            if (!police.IsAlive) continue;
+            police.TickPanic();
+            _unitsRenderer.UpdateView(police);
+        }
+
+        foreach (var police in _lvlManager.Police)
+            if (police.IsAlive) police.TickAlarm();
+
+        _lvlManager.RefreshBoardState();
+        _startPlayerTurnEvent.Raise();
+    }
+
+    /// <summary>
+    /// Un poliziotto è stato aggredito da uno spezzone: il presidio attorno si sveglia.
+    ///
+    /// ⚠ Esiste come metodo unico apposta. Prima l'allarme era scritto a mano dentro il solo
+    /// ExecuteSkirmish, quindi lanciare un sanpietrino o caricare un poliziotto non svegliava
+    /// nessuno: due modi di aggredire su tre erano muti, e non se ne accorgeva nessuno perché
+    /// non producevano nessun errore — semplicemente il presidio restava fermo.
+    /// I chiamanti restano tre (scontro, lancio, spinta) ma la DECISIONE è qui: chi aggiunge
+    /// un'azione ostile nuova chiama questo, non riscrive la regola.
+    ///
+    /// L'origine è un parametro opzionale perché la carica deve passare la cella dell'URTO,
+    /// catturata prima della spinta: dopo, la vittima si è spostata o è uscita di scena.
+    /// </summary>
+    private void ReportAggression(AbstractUnitsRunTime victim, AbstractUnitsRunTime aggressor,
+                                  HexCell origin = null)
+    {
+        if (victim is not PoliceRuntime) return;
+        if (aggressor is not SpezzoneRuntime) return;
+
+        origin ??= victim.PositionCell;
+        if (origin == null) return;
+
+        _lvlManager.RaiseAlarmAround(origin, $"{victim} attacked by {aggressor}");
+    }
+#endregion
     public void EndTurn()
     {
         if (_waitingForPolice) return;
@@ -750,38 +843,5 @@ public class TurnManager : MonoBehaviour
         _lvlManager.RefreshBoardState();
 
         StartCoroutine(ExecutePoliceTurn());
-    }
-
-    private IEnumerator ExecutePoliceTurn()
-    {
-        yield return StartCoroutine(_policeAI.ExecutePoliceActions());
-
-        Debug.Log("--- FINE TURNO POLIZIA ---");
-        _waitingForPolice = false;
-
-        if (!_lvlManager.IsGameActive)
-        {
-            yield break;
-        }
-
-        foreach (var spezzone in _lvlManager.Spezzoni)
-        {
-            if (!spezzone.IsAlive) continue;
-            spezzone.RefillActionPoints();
-        }
-
-        // Il panico della POLIZIA scala qui: hanno appena finito il loro turno.
-        foreach (var police in _lvlManager.Police)
-        {
-            if (!police.IsAlive) continue;
-            police.TickPanic();
-            _unitsRenderer.UpdateView(police);
-        }
-
-        foreach (var police in _lvlManager.Police)
-            if (police.IsAlive) police.TickAlarm();
-
-        _lvlManager.RefreshBoardState();
-        _startPlayerTurnEvent.Raise();
     }
 }

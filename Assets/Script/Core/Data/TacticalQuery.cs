@@ -52,6 +52,13 @@ public static class TacticalQuery
         List<HexCoordinates> targets = new();
         if (unit == null || unit.PositionCell == null || map == null) return targets;
 
+        // ⚠ La maschera _allowedActions decide QUI, non nell'InputHandler. Prima viveva solo
+        // in SetSelectedAction, cioè era un filtro dell'interfaccia e non una regola:
+        // qualunque azione invocata da codice — PoliceAI in testa — la scavalcava, e la
+        // maschera della polizia non aveva alcun effetto.
+        // Mettendola nel cancello condiviso, highlight ed esecuzione non possono divergere.
+        if (!unit.CanPerformAction(action)) return targets;
+
         HexCoordinates from = unit.PositionCell.Coordinates;
         int budget = unit.ActionPoints;
 
@@ -236,8 +243,8 @@ public static class TacticalQuery
     {
         if (unit == null || target == null || item == null || map == null) return false;
         if (!unit.IsAlive) return false;
+        if (!unit.CanPerformAction(ActionType.Throw)) return false;
         if (!unit.Inventory.HasItem(item)) return false;
-        if (unit.ActionPoints < item.ActionPointCost) return false;
 
         if (target.OccupiedBy is not PoliceRuntime police || !police.IsAlive) return false;
 
@@ -251,8 +258,8 @@ public static class TacticalQuery
     {
         if (unit == null || target == null || item == null) return false;
         if (!unit.IsAlive) return false;
+        if (!unit.CanPerformAction(ActionType.Barricade)) return false;
         if (!unit.Inventory.HasItem(item)) return false;
-        if (unit.ActionPoints < item.ActionPointCost) return false;
 
         if (unit.PositionCell.Coordinates.Distance(target.Coordinates) != 1) return false;
         if (target.IsObjective) return false;

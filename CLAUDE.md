@@ -81,7 +81,28 @@ autorevole per qualunque check di coerenza codice/documento.
     (movimento, scontro, carica, spinta, dispersione). Per le domande di legalità
     chiama `TacticalQuery`.
 - Logica prima, animazione dopo: l'esecuzione risolve lo stato logico, poi
-  l'animazione mostra uno stato già risolto (vincolo architetturale rigido).
+  l'animazione mostra uno stato già risolto.
+
+  🔴 **NON è un vincolo rigido, e fino al 18/08/26 questo file diceva che lo fosse.**
+  Trovato da una revisione esterna che aveva ricevuto l'istruzione di controllare le
+  premesse del documento. Lo stato reale sono **tre tempi diversi**:
+  | azione | quando cambia lo stato logico |
+  |---|---|
+  | scontro, coro, sedersi, lancio, barricata | **prima** dell'animazione ✅ |
+  | movimento | **durante**: `UnitMovement.MoveCoroutine` chiama `SetPosition(cell)` dopo l'animazione di *ogni passo* |
+  | carica | **spezzata**: l'attaccante si sposta prima, la spinta del difensore è risolta da `PushResolution` nella callback di fine animazione (o al timeout) |
+
+  ⚠ **L'eccezione del movimento è deliberata e va tenuta**: la cella era libera quando il
+  percorso è stato calcolato, e occupare in anticipo significherebbe prenotare celle dove
+  non sei ancora arrivato. `SetPosition` restituisce `false` e il movimento si interrompe.
+  È la stessa ragione per cui `MoveCoroutine` usa il valore di ritorno.
+
+  ⚠ **La carica invece è intreccio, non scelta**, ed è il motivo per cui il progetto non
+  può ancora far girare le regole senza Unity: finché la posizione logica cambia dentro un
+  tween, non esiste un confine "regole prima, rappresentazione dopo" da cui tagliare.
+  *Regola che ne esce: la formula giusta è "**la logica non dipende mai da cosa mostra
+  l'animazione**", che è vera ovunque. "Prima" è vero solo per alcune azioni, e chi ci
+  costruisce sopra dando per scontato il resto sbaglia.*
 
 ## Manager
 GameManager (reset/quit) / LVLManager (setup unità, score, win/lose, celle
@@ -626,9 +647,17 @@ Cambiata l'08/08 su richiesta di Edoardo: adesso può scartare **chiunque** nell
   per flood fill da **una** coordinata d'ancora dichiarata nell'SO. Si scrive una
   coordinata per obiettivo, la forma la dipinge il level designer.
 - Si occupa accumulando **celle-turno**: ogni turno si somma il numero di celle
-  dell'obiettivo occupate da spezzoni vivi. A `Required = Cells.Count` è **rivendicato**
-  e non paga più. Un obiettivo da 3 celle si prende con 1 unità per 3 turni, o 3 unità per
-  1 turno, o 2 per 2.
+  dell'obiettivo occupate da spezzoni vivi. A `Required` è **rivendicato** e non paga più.
+
+⚠ **`Required = Cells.Count + 1`, e il +1 non è una taratura** (aggiunto 18/08/26 dopo
+playtest). In un turno non si può accumulare più di `Cells.Count` celle-turno — le celle
+sono quelle. Quindi con `Required = Cells` bastava **coprire l'edificio** per rivendicarlo a
+fine turno, **senza che la polizia avesse mai un turno per reagire**: il livello si vinceva
+al turno 5 senza un solo scontro. Col +1 servono **sempre almeno due turni**, e il turno in
+mezzo pesa perché l'accumulo si azzera se molli la presa. Occupare smette di essere
+"toccare" e diventa "tenere".
+⚠ È facilissimo scambiarlo per un off-by-one: c'è un commento lungo sopra la proprietà.
+⚠ Gli obiettivi da 1 cella passano da 1 a 2 celle-turno — voluto.
 - ⚠ **Se in un turno non c'è nessuno sopra, l'accumulo si AZZERA.** L'obiettivo è una
   finestra da difendere, non un lavoro da rosicchiare.
 - `_requiresSimultaneous` sull'SO ripristina il profilo "ti obbliga a spezzarti": servono
@@ -687,12 +716,32 @@ dipinta per errore: erano dieci edifici.
   guinzaglio è un vincolo sul cammino, non solo sulla destinazione.
 
 ⚠ **`RaiseAlarmAround` è l'unico modo per staccare la polizia dal posto.** Senza chiamanti
-il presidio è una statua e il corteo gli cammina accanto. Oggi i chiamanti sono **due**:
-- `TurnManager.ExecuteMovement` (callback) → `CheckObjectiveIntrusion`: **entrare in un
-  obiettivo non rivendicato** sveglia il presidio nel raggio. Su un obiettivo **già
-  rivendicato** non scatta — l'ultimo obiettivo del livello sarebbe gratis, ma quello preso
-  non deve suonare in eterno.
-- `TurnManager.ExecuteSkirmish` (in `FinalizeOnce`) → **attaccare un poliziotto** sveglia i suoi.
+il presidio è una statua e il corteo gli cammina accanto. Le vie sono **due famiglie**:
+
+**1. Aggressione a un poliziotto** — passa tutta da `TurnManager.ReportAggression(victim,
+aggressor, origin = null)`, chiamata da `ExecuteSkirmish`, `ExecuteThrow` e `PushResolution`.
+🔴 **Fino al 18/08/26 l'allarme era scritto a mano nel solo `ExecuteSkirmish`**, quindi
+**lanciare un sanpietrino o caricare un poliziotto non svegliava nessuno**: due modi di
+aggredire su tre erano muti, senza produrre nessun errore. Trovato da Edoardo in playtest.
+⚠ Tre chiamanti ma **una decisione sola**: chi aggiunge un'azione ostile chiama
+`ReportAggression`, non riscrive la regola. È lo stesso schema di `CauseFrom`.
+⚠ Il parametro `origin` esiste perché la **carica** deve passare la cella dell'**urto**,
+catturata prima della spinta: dopo, la vittima si è spostata o è uscita di scena.
+
+**2. Intrusione in un obiettivo** — `LVLManager.CheckObjectiveIntrusion`, chiamata dalla
+callback di `TurnManager.ExecuteMovement` **e da `PushResolution`**. Entrare in un obiettivo
+non rivendicato sveglia il presidio nel raggio; su un obiettivo **già rivendicato** non
+scatta — l'ultimo obiettivo del livello sarebbe gratis, ma quello preso non deve suonare in
+eterno.
+🔴 La chiamata in `PushResolution` è del 18/08/26: la carica sposta l'attaccante, e finché il
+controllo viveva solo in `ExecuteMovement` **entrare caricando era un modo legale di infilarsi
+in un edificio presidiato senza svegliare nessuno**. `HasChargeRoom` valida la destinazione con
+`IsCellAvailable`, che non guarda `IsObjective`.
+
+⚠ **Regola che ne esce, e vale oltre l'allarme**: agganciare una conseguenza agli *esecutori*
+invece che al *fatto* garantisce che prima o poi qualcuno se ne dimentichi. Sono tre casi in
+un giorno — l'allarme, `CanPerformAction` che vive solo in `InputHandler`, e l'intrusione da
+carica. Quando una regola vale "ogni volta che succede X", il posto giusto è dove X è nominato.
 
 ⚠ **L'allarme decade da solo**, `TickAlarm()` in `ExecutePoliceTurn` — cioè dove si
 decrementa il panico della polizia e si ricaricano i suoi PA. `RaiseAlarm` usa `Mathf.Max`,
@@ -704,6 +753,34 @@ in massima allerta).
 secondari diventano lo strumento di diversivo** — entri in uno lontano, svegli quel
 presidio, e prendi il dichiarato mentre sono impegnati. Non serve una Zona Rossa né un coro
 provocatorio per avere una distrazione: c'è già, ed è emersa invece che essere progettata.
+
+🔴 **Due bug chiusi il 18/08/26 dalla revisione esterna, entrambi nel rientro al presidio.**
+- **`MoveTowards` impediva il rientro invece di imporlo**: troncava il percorso al primo passo
+  fuori guinzaglio, ma chi è *già* fuori non poteva fare nemmeno il primo passo verso casa.
+  ⚠ **La prima correzione era a metà** e va raccontata perché la lezione vale: ammetteva i
+  passi che *avvicinavano* al presidio, e questo bastava in campo aperto ma non con un muro in
+  mezzo — una deviazione attorno a un edificio ti allontana temporaneamente, quindi il blocco
+  permanente rientrava dalla porta di fianco. La formulazione giusta è più semplice:
+  **il guinzaglio serve a impedirti di allontanarti, non a dettarti la strada di casa.** Se sei
+  già fuori raggio (`returningToPost`) il percorso non è vincolato affatto; il vincolo per passo
+  vale solo quando sei dentro.
+- **`NearestPostCell` sceglieva la cella per pura distanza esagonale**, e `PathFinder.FindPath`
+  scarta ogni cella non disponibile **destinazione compresa**: bastava che quella cella fosse
+  occupata — tipicamente da un collega — perché il rientro fallisse per sempre. Sostituita da
+  `FindReachablePostCell`, che prova le celle in ordine di distanza e restituisce la prima
+  **raggiungibile**, o `null`.
+  ⚠ Il caso in cui succedeva *sempre*: **un obiettivo da 3 celle con 4 poliziotti assegnati**
+  (è la situazione prodotta dal richiamo del volantino su `LVLTest`).
+  ⚠ Conseguenza che rendeva il bug peggiore di quanto sembri: la passata 0 fallita fa `break`,
+  quindi salta anche le passate 1 e 2 — il poliziotto non tornava a casa **e non attaccava
+  nemmeno chi aveva accanto**.
+
+🔴 **Hard lock chiuso lo stesso giorno**: `TurnManager` validava `_lvlManager` e `_pathFinder`
+ma **non `_policeAI`**, e `ExecutePoliceTurn` lo dereferenziava senza guardia. Con il campo non
+assegnato, `EndTurn` metteva `_waitingForPolice = true`, la `NullReferenceException` uccideva la
+coroutine prima della riga che lo rimette a `false`, e l'input restava bloccato per sempre.
+Ora c'è un `LogError` in `Start` (**senza `return`**, o non si alzerebbe `_startPlayerTurnEvent`)
+e una guardia in `ExecutePoliceTurn` che salta il turno della polizia invece di piantarlo.
 
 ⚠ **Non ancora playtestato al 18/08/26.** Il codice c'è ed è coerente, ma nessuno ha
 verificato che i tre numeri (`_leashRadius` 4, `_alarmRadius` 4, `_alarmDuration` 3) diano
@@ -810,6 +887,28 @@ lancio un tempo di volo, la spinta niente. Non è duplicazione, è specificità.
 se il lancio uccide, il bersaglio sparisce **mentre l'oggetto è ancora in volo**. Stessa
 famiglia dell'animazione dell'arresto: qualcosa esce di scena troppo presto rispetto a
 quello che si vede.
+
+## Ricompilare durante il Play azzera i campi non serializzabili (18/08/26)
+Sintomo: raffica di `NullReferenceException` in `CameraManager.OnEnable`,
+`InputHandler.OnEnable`/`OnDisable`, ripetute in cicli enable/disable. **Non è un bug del
+gioco**: succede quando Visual Studio ricompila mentre l'Editor è in Play.
+
+- Al **domain reload** Unity conserva lo stato serializzabile, chiama di nuovo `OnEnable`,
+  ma **non richiama `Awake`**. Tutto ciò che veniva costruito in `Awake` e non è
+  serializzabile torna `null`.
+- Nel progetto è `_inputSystem` (`new InputSystem_Actions()`), che è una classe C# pura e
+  quindi non sopravvive al reload.
+
+⚠ **Il pattern `_isValid` NON protegge da questo, ed è la parte istruttiva.** In
+`InputHandler` la guardia `if (!_isValid) return;` c'è e non è servita: `_isValid` è un
+`bool`, quindi **sopravvive** al reload restando `true`, mentre `_inputSystem` — che è ciò
+che la guardia dovrebbe proteggere — sparisce. **La guardia sopravvive e l'oggetto guardato
+no.** Regola generale: un flag di validità è valido solo finché tutto ciò che attesta ha lo
+stesso ciclo di vita del flag.
+
+Cura: costruire pigramente invece che solo in `Awake` — `_inputSystem ??= new
+InputSystem_Actions();` in cima a `OnEnable`, in `CameraManager` e `InputHandler`.
+(Rimedio immediato senza toccare codice: uscire dal Play e rientrare.)
 
 ## Bootscene (Boot.unity / BootManager)
 Sequenza a coroutine unica in `BootManager.BootSequence`:
@@ -1607,6 +1706,20 @@ Quello che si accumula fino ad allora, da affrontare in blocco:
   nessun effetto, perché `CanPerformAction` è controllato solo in `InputHandler`.
   ⚠ Prerequisito di qualunque azione nuova della polizia: finché la maschera è inerte,
   aggiungere lacrimogeni o scudi significa darli a tutti e sempre.
+  🔴 **Confermato dalla revisione esterna del 18/08/26, e il problema è più grosso di così**:
+  `_allowedActions` **non è una regola, è un filtro dell'input**. `CanPerformAction` vive
+  solo in `InputHandler`; `TurnManager.CanCharge` non lo consulta e `PoliceAI` chiama
+  `CanCharge` direttamente. Quindi *qualunque* azione invocata da codice invece che da un
+  bottone scavalca la maschera. Viola "una decisione, un posto solo": è una domanda di
+  legalità che vive nello strato UI invece che in `TacticalQuery`.
+- 🔴 **Oscilla fra due celle** quando non può vincere nessuno scontro (visto in playtest il
+  18/08/26 contro un muro di Pacifisti seduti, Def 1+5+2 = 8 contro Atk 8). La passata 1 non
+  trova niente, la passata 2 si sposta di una cella, e da lì la "cella migliore" torna a
+  essere quella di prima: avanti-indietro finché finiscono i PA. Tamponato con un
+  `visitedThisTurn` che rifiuta una destinazione già visitata nel turno.
+  ⚠ **È un tampone, non la soluzione**: la risposta di design è che contro un muro
+  invalicabile in mischia la polizia **arretri e carichi** (la carica spinge e basta), ma
+  costa più di 5 PA ed è quindi un piano su due turni — serve memoria fra i turni.
 - **Nessuna nozione di formazione**: cordone, blocco, escalation sono la priorità 4 del
   cap. 16 e non esistono.
 - **Nessuna memoria fra turni**: vedi la premessa qui sopra. È il pezzo che trasforma il
@@ -1775,6 +1888,31 @@ adesso, non da quando sarà lunga.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 37 (18/08/26) — il presidio comincia a funzionare
+*Voce corta di proposito: ogni cosa è documentata **nella sezione che la riguarda**, e
+duplicarla qui è il difetto già segnalato in cima al file. Qui c'è solo l'elenco e dove
+guardare.*
+
+- 🟢 **Volantino pubblico** → sezione "Presidio, guinzaglio e allarme".
+  `ReinforceDeclaredObjective` sposta una quota del presidio libero sull'obiettivo dichiarato.
+- 🟢 **Report di copertura** → `LVLManager.LogCoverageReport`. Ha già prodotto due risultati:
+  ha **falsificato** l'ipotesi degli obiettivi secondari come diversivo (presidio 0 e 9-17
+  turni di cammino: nessuno da svegliare e nessuno ci va), e ha smontato una mia conclusione
+  troppo pesante sulla mappa, che avevo tratto usando solo il passo del più lento.
+- 🟢 **`Required = Cells + 1`** → sezione "Obiettivi".
+- 🔴 **Tre bug che paralizzavano il presidio** → sezione "Presidio": rientro impedito dal
+  guinzaglio, `NearestPostCell` che sceglieva una cella occupata, hard lock su `_policeAI`.
+- 🔴 **Allarme muto su due aggressioni su tre** → sezione "Presidio", `ReportAggression`.
+- 🔴 **Oscillazione di `PoliceAI`** → sezione 1-bis.
+- 🟢 **Codifica chiusa alla radice** (BOM + `.editorconfig`) → bug noti.
+- 🔴 **"Logica prima, animazione dopo" non è un vincolo rigido** → Architettura.
+
+**La lezione della giornata, e vale oltre il codice:** cinque dei sei difetti erano
+**conseguenze agganciate agli esecutori invece che ai fatti** — l'allarme scritto dentro un
+solo esecutore, l'intrusione controllata in un solo punto d'ingresso, `CanPerformAction` che
+vive nell'input. Quando una regola vale "ogni volta che succede X", il posto giusto è dove X
+è nominato, non nei posti da cui X capita di passare oggi.
 
 ## Changelog sessione 36 (16/08/26) — doppia revisione esterna e passata sui failure path
 Nessuna regola nuova. Tutti i difetti trovati stavano **nei bordi**: percorsi di

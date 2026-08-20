@@ -39,6 +39,14 @@ public class PoliceAI : MonoBehaviour
 
             bool actedThisTurn = true;
 
+            // ⚠ Antioscillazione. Senza, un poliziotto che non può vincere nessuno scontro
+            // fa avanti-indietro fra due celle finché non finisce i PA: la passata 2 sceglie
+            // la cella adiacente migliore, e da quella la migliore torna a essere la
+            // precedente. Non risolve il problema vero (contro un muro che non batte in
+            // mischia dovrebbe arretrare e caricare, che è un piano su due turni e richiede
+            // memoria fra i turni), ma smette di sprecare il turno andando avanti e indietro.
+            HashSet<HexCoordinates> visitedThisTurn = new() { police.PositionCell.Coordinates };
+
             while (actedThisTurn && police.ActionPoints > 0 && police.IsAlive)
             {
                 actedThisTurn = false;
@@ -47,9 +55,21 @@ public class PoliceAI : MonoBehaviour
                 // È il "tenente" del GDD 8.4: non serve un richiamo, basta il guinzaglio.
                 if (!IsWithinLeash(police, police.PositionCell.Coordinates))
                 {
-                    HexCoordinates post = NearestPostCell(police);
+                    HexCoordinates? post = FindReachablePostCell(police);
+
+                    if (post == null)
+                    {
+                        // Nessuna cella del presidio è raggiungibile. Non è un caso da
+                        // ignorare in silenzio: o il presidio è murato, o gli sono stati
+                        // assegnati più poliziotti di quante celle abbia. In entrambi i casi
+                        // è un errore di dato del livello, e va detto.
+                        Debug.LogWarning($"[AI] {police} cannot reach any cell of {police.GuardedObjective}: " +
+                                         $"it stays out of position. Check the level data.");
+                        break;
+                    }
+
                     bool moved = false;
-                    yield return StartCoroutine(MoveTowards(police, post, r => moved = r));
+                    yield return StartCoroutine(MoveTowards(police, post.Value, r => moved = r));
 
                     if (moved) { actedThisTurn = true; continue; }
                     break;
@@ -114,10 +134,17 @@ public class PoliceAI : MonoBehaviour
                             continue;
                         }
 
+                        if (visitedThisTurn.Contains(targetCell.Value)) continue;
+
                         bool moved = false;
                         yield return StartCoroutine(MoveTowards(police, targetCell.Value, r => moved = r));
 
-                        if (moved) { actedThisTurn = true; break; }
+                        if (moved)
+                        {
+                            visitedThisTurn.Add(police.PositionCell.Coordinates);
+                            actedThisTurn = true;
+                            break;
+                        }
                     }
                 }
 
@@ -152,20 +179,39 @@ public class PoliceAI : MonoBehaviour
         return DistanceFromPost(police, coord) <= police.LeashRadius;
     }
 
-    /// <summary>La cella del presidio più vicina all'unità: dove torna quando sfora.</summary>
-    private HexCoordinates NearestPostCell(PoliceRuntime police)
+    /// <summary>
+    /// La cella del presidio verso cui rientrare: la più vicina **fra quelle
+    /// effettivamente RAGGIUNGIBILI**, non la più vicina e basta.
+    ///
+    /// ⚠ La distinzione non è pedanteria. `PathFinder.FindPath` scarta ogni cella non
+    /// disponibile, **destinazione compresa**: quindi bastava che la cella geometricamente
+    /// più vicina fosse occupata — tipicamente da un collega dello stesso presidio — perché
+    /// il rientro fallisse, la passata 0 facesse `break`, e il poliziotto restasse fuori
+    /// guinzaglio **per sempre**, senza nemmeno attaccare chi aveva accanto.
+    /// Caso concreto in cui succede sempre: un obiettivo da 3 celle con 4 poliziotti assegnati.
+    ///
+    /// Restituisce null se nessuna cella del presidio è raggiungibile: è un caso che il
+    /// chiamante deve trattare esplicitamente, non un valore di ripiego.
+    /// </summary>
+    private HexCoordinates? FindReachablePostCell(PoliceRuntime police)
     {
-        HexCoordinates from = police.PositionCell.Coordinates;
-        HexCoordinates best = from;
-        int bestDistance = int.MaxValue;
+        ObjectiveRuntime post = police.GuardedObjective;
+        if (post == null) return null;
 
-        foreach (HexCell cell in police.GuardedObjective.Cells)
+        HexCoordinates from = police.PositionCell.Coordinates;
+
+        // Candidate ordinate per distanza: si prova la più vicina, poi la seconda, e via.
+        List<HexCell> candidates = new List<HexCell>(post.Cells);
+        candidates.Sort((a, b) =>
+            from.Distance(a.Coordinates).CompareTo(from.Distance(b.Coordinates)));
+
+        foreach (HexCell cell in candidates)
         {
-            int d = from.Distance(cell.Coordinates);
-            if (d < bestDistance) { bestDistance = d; best = cell.Coordinates; }
+            List<HexCoordinates> path = _turnManager.PathFinder.FindPath(from, cell.Coordinates, _lvlManager.Map);
+            if (path != null && path.Count > 1) return cell.Coordinates;
         }
 
-        return best;
+        return null;
     }
 
     /// <summary>
@@ -187,21 +233,21 @@ public class PoliceAI : MonoBehaviour
         int maxSteps = Mathf.Min(police.ActionPoints, pathCoords.Count - 1);
         List<HexCell> path = new List<HexCell>();
 
-        // ⚠ Il guinzaglio non deve impedire il RIENTRO. Chi è già fuori raggio non
-        // potrebbe fare nemmeno il primo passo verso casa e resterebbe piantato per
-        // sempre: quindi un passo è lecito se resta nel guinzaglio OPPURE se avvicina
-        // al presidio.
-        int distanceSoFar = DistanceFromPost(police, police.PositionCell.Coordinates);
+        // ⚠ Il guinzaglio serve a impedirti di ALLONTANARTI, non a dettarti la strada di
+        // casa. Se sei già fuori raggio stai rientrando, e il percorso non va vincolato:
+        // una deviazione attorno a un edificio ti allontana temporaneamente dal presidio,
+        // ed è il caso NORMALE su una mappa con ostacoli, non l'eccezione.
+        // Una versione precedente di questa guardia ammetteva solo i passi che avvicinavano,
+        // e bastava un muro fra l'unità e il posto per rimetterla nel blocco permanente.
+        bool returningToPost = !IsWithinLeash(police, police.PositionCell.Coordinates);
 
         for (int i = 1; i <= maxSteps; i++)
         {
             // break e non continue: saltare una cella spezzerebbe la continuità del percorso.
             if (!_lvlManager.Map.TryGetCell(pathCoords[i], out HexCell cell)) break;
 
-            int stepDistance = DistanceFromPost(police, cell.Coordinates);
-            if (!IsWithinLeash(police, cell.Coordinates) && stepDistance >= distanceSoFar) break;
+            if (!returningToPost && !IsWithinLeash(police, cell.Coordinates)) break;
 
-            distanceSoFar = Mathf.Min(distanceSoFar, stepDistance);
             path.Add(cell);
         }
 

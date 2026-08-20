@@ -61,6 +61,11 @@ public class CameraManager : MonoBehaviour
 
     private void OnEnable()
     {
+        // ⚠ Ricostruito qui e non solo in Awake: al domain reload (ricompilazione durante
+        // il Play) Unity richiama OnEnable ma NON Awake, e InputSystem_Actions è una classe
+        // C# pura che non sopravvive al reload.
+        _inputSystem ??= new InputSystem_Actions();
+
         // Abilita gli action map
         _inputSystem.Camera.Zoom.Enable();
         _inputSystem.Camera.CameraMovement.Enable();
@@ -90,15 +95,22 @@ public class CameraManager : MonoBehaviour
 
     private void OnDisable()
     {
-        // Rimuovi i callback
-        _inputSystem.Camera.CameraMovement.performed -= OnMovementPerformed;
-        _inputSystem.Camera.CameraMovement.canceled -= OnMovementCanceled;
-        _inputSystem.Camera.Zoom.performed -= OnZoomPerformed;
-        _inputSystem.Camera.Zoom.canceled -= OnZoomCanceled;
+        // ⚠ Guardia e non ??=: se _inputSystem è sparito col domain reload non c'è niente
+        // da disiscrivere, e ricostruirlo qui creerebbe un oggetto solo per buttarlo.
+        // Le disiscrizioni dagli event channel restano FUORI: quelli sono asset
+        // serializzati e sopravvivono al reload, quindi vanno disiscritti comunque.
+        if (_inputSystem != null)
+        {
+            // Rimuovi i callback
+            _inputSystem.Camera.CameraMovement.performed -= OnMovementPerformed;
+            _inputSystem.Camera.CameraMovement.canceled -= OnMovementCanceled;
+            _inputSystem.Camera.Zoom.performed -= OnZoomPerformed;
+            _inputSystem.Camera.Zoom.canceled -= OnZoomCanceled;
 
-        // Disabilita le action
-        _inputSystem.Camera.Zoom.Disable();
-        _inputSystem.Camera.CameraMovement.Disable();
+            // Disabilita le action
+            _inputSystem.Camera.Zoom.Disable();
+            _inputSystem.Camera.CameraMovement.Disable();
+        }
 
         if (_onSelectedEvent != null)
             _onSelectedEvent.Unsubscribe(CenterCamera);

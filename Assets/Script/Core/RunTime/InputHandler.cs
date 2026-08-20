@@ -66,7 +66,13 @@ public class InputHandler : MonoBehaviour
 
     private void OnEnable()
     {
-        if(!_isValid) return;
+        if (!_isValid) return;
+
+        // ⚠ Vedi CameraManager: _isValid sopravvive al domain reload, _inputSystem no.
+        // La guardia sopra non basta proprio perché il flag è un bool e l'oggetto no.
+        _inputSystem ??= new InputSystem_Actions();
+
+        _inputSystem.UI.LeftClick.performed += OnLeftClick;
 
         _inputSystem.UI.LeftClick.performed += OnLeftClick;
         _inputSystem.UI.RightClick.performed += OnRightClick;
@@ -88,25 +94,31 @@ public class InputHandler : MonoBehaviour
 
     private void OnDisable()
     {
-        if(!_isValid) return;
+        if (!_isValid) return;
 
-        _inputSystem.UI.LeftClick.performed -= OnLeftClick;
-        _inputSystem.UI.RightClick.performed -= OnRightClick;
+        // ⚠ Guardia e non ??=: se _inputSystem è sparito col domain reload non c'è niente da
+        // disiscrivere. E la guardia _isValid sopra NON basta, perché è un bool e sopravvive
+        // al reload mentre l'oggetto che dovrebbe proteggere no.
+        if (_inputSystem != null)
+        {
+            _inputSystem.UI.LeftClick.performed -= OnLeftClick;
+            _inputSystem.UI.RightClick.performed -= OnRightClick;
 
+            _inputSystem.Game.EndTurn.performed -= OnEndTurn;
+            _inputSystem.Game.Charge.performed -= OnChargeKey;
+            _inputSystem.Game.Throw.performed -= OnThrowKey;
+            _inputSystem.Game.Barricade.performed -= OnBarricadeKey;
+            _inputSystem.Game.Chant.performed -= OnChantKey;
+            _inputSystem.Game.SitStand.performed -= OnSitStandKey;
+
+            _inputSystem.Disable();
+        }
+
+        // Fuori dalla guardia: gli event channel sono asset serializzati, sopravvivono al
+        // reload e vanno disiscritti comunque, o le iscrizioni si accumulano.
         _actionButtonClickedEvent.Unsubscribe(OnActionButtonClicked);
         _endTurnButtonClickedEvent.Unsubscribe(OnEndTurnButtonClicked);
-
-
-        _inputSystem.Game.EndTurn.performed -= OnEndTurn;
-        _inputSystem.Game.Charge.performed -= OnChargeKey;
-        _inputSystem.Game.Throw.performed -= OnThrowKey;
-        _inputSystem.Game.Barricade.performed -= OnBarricadeKey;
-        _inputSystem.Game.Chant.performed -= OnChantKey;
-        _inputSystem.Game.SitStand.performed -= OnSitStandKey;
-
         _itemSelectedEvent.Unsubscribe(OnItemSelected);
-
-        _inputSystem.Disable();
     }
 
     private void OnLeftClick(InputAction.CallbackContext ctx)
@@ -545,6 +557,10 @@ public class InputHandler : MonoBehaviour
     {
         if (_selectedSpezzone == null) return "No unit selected";
 
+        if (_selectedAction != ActionType.None
+            && !_selectedSpezzone.CanPerformAction(_selectedAction))
+            return "This unit cannot perform that action";
+
         int ap = _selectedSpezzone.ActionPoints;
 
         switch (_selectedAction)
@@ -597,9 +613,12 @@ public class InputHandler : MonoBehaviour
             && _selectedSpezzone != null
             && !_selectedSpezzone.CanPerformAction(action))
         {
-            _alertEvent?.Raise("this unit can not doing this action");
+            // Non decide più: la decisione sta in TacticalQuery. Qui si SPIEGA — è l'unico
+            // punto che sa cosa il giocatore stava provando a fare.
+            _alertEvent?.Raise("This unit cannot perform that action");
             return;
         }
+
         _selectedAction = action;
 
         if (_selectedItem != null && _selectedItem.Action != action)
