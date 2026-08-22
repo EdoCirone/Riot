@@ -7,41 +7,56 @@ public class Inventory
 
     public bool HasItem(ItemSO item)
     {
-        foreach (var slot in _slots)
+        if (item == null)
+            return false;
+
+        foreach (InventorySlot slot in _slots)
         {
-            if (slot.Item == item && slot.Quantity >0)
-            {
+            if (slot.Item == item && slot.Quantity > 0)
                 return true;
-            }
         }
+
         return false;
     }
 
     public bool ConsumeItem(ItemSO item)
     {
-        foreach (var slot in _slots)
+        if (item == null)
+            return false;
+
+        for (int i = 0; i < _slots.Count; i++)
         {
-            if (slot.Item == item && slot.Quantity > 0)
-            {
-                slot.Quantity--;
-                if (slot.Quantity == 0) _slots.Remove(slot);
-                return true; 
-            }
+            InventorySlot slot = _slots[i];
+
+            if (slot.Item != item || slot.Quantity <= 0)
+                continue;
+
+            slot.Quantity--;
+
+            if (slot.Quantity == 0)
+                _slots.RemoveAt(i);
+
+            return true;
         }
-        return false;  
+
+        return false;
     }
 
-    public void AddItem(ItemSO item, int amount = 1) 
+    public void AddItem(ItemSO item, int amount = 1)
     {
-        foreach (var slot in _slots)
+        if (item == null || amount <= 0)
+            return;
+
+        foreach (InventorySlot slot in _slots)
         {
             if (slot.Item == item)
             {
-                slot.Quantity += amount;   
+                slot.Quantity += amount;
                 return;
             }
         }
-        _slots.Add(new InventorySlot(item, amount));  
+
+        _slots.Add(new InventorySlot(item, amount));
     }
 
     public IReadOnlyList<InventorySlot> Slots => _slots;
