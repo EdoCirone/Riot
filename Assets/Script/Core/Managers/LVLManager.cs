@@ -372,32 +372,18 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     private void ApplyAuras()
     {
-        bool someoneFell;
-        do
+        AuraService.AuraResult result =
+            AuraService.Resolve(
+                _spezzoniOfLVL,
+                _policeOfLVL,
+                _map
+            );
+
+        foreach (AbstractUnitsRunTime removed
+                 in result.RemovedUnits)
         {
-            someoneFell = false;
-
-            var pending = new List<(AbstractUnitsRunTime unit, int bonus)>();
-
-            foreach (var unit in _spezzoniOfLVL)
-                if (unit.IsAlive)
-                    pending.Add((unit, TacticalQuery.GetAuraBonus(unit, _map).Mor));
-
-            foreach (var police in _policeOfLVL)
-                if (police.IsAlive)
-                    pending.Add((police, TacticalQuery.GetAuraBonus(police, _map).Mor));
-
-            foreach (var (unit, bonus) in pending)
-            {
-                unit.ApplyAuraMorale(bonus);
-                if (!unit.IsAlive)
-                {
-                    someoneFell = true;
-                    _unitsRenderer.UpdateView(unit);
-                }
-            }
-
-        } while (someoneFell);
+            _unitsRenderer.UpdateView(removed);
+        }
     }
 
     private void RecalculateCohesion()
