@@ -416,7 +416,7 @@ public class TurnManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    private void RaiseCombactResult(CombatResult result)
+    private void RaiseCombatResult(CombatResult result)
     {
         switch (result)
         {
@@ -426,83 +426,98 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    public IEnumerator ExecuteSkirmish(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
+    public IEnumerator ExecuteSkirmish(
+      AbstractUnitsRunTime atk,
+      AbstractUnitsRunTime def)
     {
-        HexCoordinates atkCoord = atk.PositionCell.Coordinates;
-        HexCoordinates defCoord = def.PositionCell.Coordinates;
+        CombatResolver.SkirmishResolution resolution =
+            CombatResolver.ResolveSkirmish(
+                atk,
+                def,
+                _map
+            );
 
-        if (atkCoord.Distance(defCoord) != 1)
+        if (!resolution.Succeeded)
         {
-            Debug.Log("Not Valid Skirmish units are not adicent");
+            Debug.Log(
+                $"[TURN] Skirmish not executed: " +
+                $"{resolution.Failure}"
+            );
+
             yield break;
         }
 
-        const int skirmishCost = 1;
-        if (!atk.TrySpendActionPoint(skirmishCost))
-        {
-            Debug.Log($"[TURN] Skirmish not executed: {skirmishCost} AP needed");
-            yield break;
-        }
-
-        CombatResult result = CombatResolver.Resolve(atk, def, _map);
-        List<AbstractUnitsRunTime> hit = new();
-
-        switch (result)
-        {
-            case CombatResult.Win:
-                def.LoseMorale(1, CauseFrom(atk)); hit.Add(def); break;
-            case CombatResult.Lose:
-                atk.LoseMorale(1, CauseFrom(def)); hit.Add(atk); break;
-            case CombatResult.Par:
-                atk.LoseMorale(1, CauseFrom(def)); hit.Add(atk);
-                def.LoseMorale(1, CauseFrom(atk)); hit.Add(def); break;
-        }
+        CombatResult result = resolution.Result.Value;
 
         bool done = false;
         bool finalized = false;
 
         void FinalizeOnce()
         {
-            if (finalized) return;
+            if (finalized)
+                return;
+
             finalized = true;
 
             _unitsRenderer.UpdateView(atk);
             _unitsRenderer.UpdateView(def);
             _lvlManager.RefreshBoardState();
 
-            // Chi viene attaccato chiama i colleghi. La regola sta in ReportAggression.
             ReportAggression(def, atk);
         }
 
-        GameObject atkGO = _unitsRenderer.GetGameObject(atk);
-        UnitMovement movement = atkGO.GetComponent<UnitMovement>();
-        Vector3 defWorldPos = _map.GridToWorld(def.PositionCell.Coordinates);
+        GameObject atkGO =
+            _unitsRenderer.GetGameObject(atk);
 
-        GameObject defGO = _unitsRenderer.GetGameObject(def);
-        UnitMovement defMovement = defGO != null ? defGO.GetComponent<UnitMovement>() : null;
-        Vector3 atkWorldPos = _map.GridToWorld(atk.PositionCell.Coordinates);
+        UnitMovement movement =
+            atkGO.GetComponent<UnitMovement>();
 
-        movement.PlaySkirmish(defWorldPos,
-             onComplete: () =>
-             {
-                 FinalizeOnce();
-                 done = true;
-             },
-             onImpact: () =>
-             {
-                 defMovement?.PlayHitReaction(atkWorldPos);
-                 RaiseCombactResult(result);
-             });
+        Vector3 defWorldPos =
+            _map.GridToWorld(
+                def.PositionCell.Coordinates
+            );
 
-        // ⚠ Il fail-safe non deve solo sbloccare: deve lasciare la plancia in uno stato
-        // valido. Il Morale è già stato applicato prima dell'animazione, quindi senza
-        // FinalizeOnce resterebbero morti non nascosti e aure non ricalcolate.
+        GameObject defGO =
+            _unitsRenderer.GetGameObject(def);
+
+        UnitMovement defMovement =
+            defGO != null
+                ? defGO.GetComponent<UnitMovement>()
+                : null;
+
+        Vector3 atkWorldPos =
+            _map.GridToWorld(
+                atk.PositionCell.Coordinates
+            );
+
+        movement.PlaySkirmish(
+            defWorldPos,
+            onComplete: () =>
+            {
+                FinalizeOnce();
+                done = true;
+            },
+            onImpact: () =>
+            {
+                defMovement?.PlayHitReaction(atkWorldPos);
+                RaiseCombatResult(result);
+            }
+        );
+
         float elapsed = 0f;
-        yield return new WaitUntil(() => done || (elapsed += Time.deltaTime) > 5f);
+
+        yield return new WaitUntil(
+            () => done
+                || (elapsed += Time.deltaTime) > 5f
+        );
 
         if (!done)
         {
-            Debug.LogWarning($"[Skirmish] animation not complete from {atk}: finalizing anyway");
+            Debug.LogWarning(
+                $"[Skirmish] animation not complete from " +
+                $"{atk}: finalizing anyway"
+            );
+
             FinalizeOnce();
         }
     }
