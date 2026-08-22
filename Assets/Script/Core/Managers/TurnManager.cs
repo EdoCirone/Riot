@@ -36,8 +36,8 @@ public class TurnManager : MonoBehaviour
 
     private HexGrid _map;
     private UnitsRenderer _unitsRenderer;
-
     private bool _waitingForPolice = false;
+
 
     public PathFinder PathFinder => _pathFinder;
     public GameEventSO EndPlayerTurnEvent => _endPlayerTurnEvent;
@@ -260,8 +260,6 @@ public class TurnManager : MonoBehaviour
 
         return false;
     }
-
-
 
     /// <summary>
     /// Le due celle che confinano sia con quella dell'unità sia con quella dove sarebbe

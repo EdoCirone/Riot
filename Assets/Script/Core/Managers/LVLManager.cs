@@ -71,6 +71,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     private bool _gameOver = false;
     private int _currentTurn;
+    private bool _isConfigured;
 
     public TurnManager TurnManager => _turnManager;
     public HexGrid Map => _map;
@@ -80,7 +81,8 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     public List<SpezzoneRuntime> Spezzoni => _spezzoniOfLVL;
     public List<PoliceRuntime> Police => _policeOfLVL;
 
-    public bool IsGameActive => !_gameOver;
+    public bool IsConfigured => _isConfigured;
+    public bool IsGameActive => _isConfigured && !_gameOver;
 
     /// <summary>Turni giocati finora. ⚠ Conta in SU: non c'è un limite di turni, e il
     /// contatore non fa perdere (GDD 20.4-bis, decisione parcheggiata).</summary>
@@ -92,14 +94,94 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     public int Cohesion { get; private set; }
 
+    private void Awake()
+    {
+        _isConfigured = ValidateReferences();
+
+        if (_isConfigured)
+            return;
+
+        _gameOver = true;
+        enabled = false;
+    }
+
+    private bool ValidateReferences()
+    {
+        List<string> errors = new List<string>();
+
+        if (_turnManager == null)
+            errors.Add("TurnManager non assegnato");
+
+        if (_map == null)
+        {
+            errors.Add("HexGrid non assegnata");
+        }
+        else if (_map.HexMapData == null)
+        {
+            errors.Add("HexGrid senza HexMapSO");
+        }
+
+        if (_unitsRenderer == null)
+            errors.Add("UnitsRenderer non assegnato");
+
+        if (_declaredObjective == null)
+            errors.Add("Obiettivo dichiarato non assegnato");
+
+        if (_winEvent == null)
+            errors.Add("WinEvent non assegnato");
+
+        if (_loseEvent == null)
+            errors.Add("LoseEvent non assegnato");
+
+        if (_turnManager != null && _turnManager.EndPlayerTurnEvent == null)
+            errors.Add("EndPlayerTurnEvent non assegnato nel TurnManager");
+
+        if (_startingRoster != null && _startingRoster.Length > 0)
+        {
+            if (_meetingPoint == null)
+                errors.Add("Roster presente ma MeetingPoint non assegnato");
+
+            for (int i = 0; i < _startingRoster.Length; i++)
+            {
+                if (_startingRoster[i].prefab == null)
+                    errors.Add($"Prefab mancante nel roster, elemento {i}");
+            }
+        }
+
+        if (errors.Count == 0)
+            return true;
+
+        Debug.LogError(
+            $"[LVL] Configurazione non valida. Avvio del livello bloccato:\n- " +
+            string.Join("\n- ", errors),
+            this);
+
+        return false;
+    }
+
     private void OnEnable()
     {
+        if (!_isConfigured) return;
+
         _currentTurn = 0;
         _turnManager.EndPlayerTurnEvent.Subscribe(this);
     }
 
+    private void OnDisable()
+    {
+        if (!_isConfigured)
+            return;
+
+        if (_turnManager == null || _turnManager.EndPlayerTurnEvent == null)
+            return;
+
+        _turnManager.EndPlayerTurnEvent.Unsubscribe(this);
+    }
+
     private void Start()
     {
+        if (!_isConfigured) return;
+
         SpawnSceneUnits();
         SpawnRoster();
 
@@ -107,8 +189,9 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         AssignGarrisons();
 
         RefreshBoardState();
-        if (_logCoverageReport) LogCoverageReport();
 
+        if (_logCoverageReport)
+            LogCoverageReport();
     }
 
     /// <summary>Unità piazzate a mano in scena: oggi la polizia. La cella la deducono
@@ -220,11 +303,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
         unitGO.GetComponentInParent<SelectionOutline>()?.Initialize(unit);
         unitGO.GetComponent<UnitMovement>()?.Initialize(unit);
-    }
-
-    private void OnDisable()
-    {
-        _turnManager.EndPlayerTurnEvent.Unsubscribe(this);
     }
 
     /// <summary>
