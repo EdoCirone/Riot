@@ -508,34 +508,77 @@ public class TurnManager : MonoBehaviour
     }
     #endregion
 
-    #region Lancio
-    public void ExecuteThrow(AbstractUnitsRunTime atk, PoliceRuntime target, ThrowItemSO item)
+    #region Item Check
+
+    private void ReportItemActionFailure(
+    ItemActionFailure failure,
+    ItemSO item,
+    string missingItemMessage,
+    string invalidTargetMessage)
     {
-        if (atk is not SpezzoneRuntime spezzone) return;
-        if (target == null || item == null) return;
-
-        // UNICA decisione. Le righe sotto spiegano soltanto, non decidono.
-        if (!TacticalQuery.CanThrow(spezzone, target.PositionCell, item, _map))
+        switch (failure)
         {
-            if (!spezzone.Inventory.HasItem(item))
-                _alertEvent?.Raise("No throw objects");
-            else if (spezzone.ActionPoints < item.ActionPointCost)
-                _alertEvent?.Raise($"Not enough AP, {item.ActionPointCost} needed");
-            else
-                _alertEvent?.Raise("Invalid throw target");
+            case ItemActionFailure.MissingItem:
+                _alertEvent?.Raise(missingItemMessage);
+                break;
+
+            case ItemActionFailure.InsufficientActionPoints:
+                _alertEvent?.Raise(
+                    $"Not enough AP, {item?.ActionPointCost ?? 0} needed"
+                );
+                break;
+
+            case ItemActionFailure.InvalidTarget:
+                _alertEvent?.Raise(invalidTargetMessage);
+                break;
+
+            case ItemActionFailure.ActionNotAllowed:
+                _alertEvent?.Raise("Action not allowed");
+                break;
+
+            case ItemActionFailure.InvalidActor:
+            case ItemActionFailure.InvalidItem:
+            case ItemActionFailure.ResolutionFailed:
+                Debug.LogError(
+                    $"[ITEM ACTION] Resolution failed: {failure}"
+                );
+                break;
+        }
+    }
+
+    #endregion
+
+    #region Lancio
+    public void ExecuteThrow(
+     AbstractUnitsRunTime atk,
+     PoliceRuntime target,
+     ThrowItemSO item)
+    {
+        if (atk is not SpezzoneRuntime spezzone)
+            return;
+
+        ItemActionResolver.ItemActionResult result =
+            ItemActionResolver.ResolveThrow(
+                spezzone,
+                target,
+                item,
+                _map
+            );
+
+        if (!result.Succeeded)
+        {
+            ReportItemActionFailure(
+                result.Failure,
+                item,
+                missingItemMessage: "No throw objects",
+                invalidTargetMessage: "Invalid throw target"
+            );
+
             return;
         }
 
-        if (!spezzone.TrySpendActionPoint(item.ActionPointCost))
-        {
-            Debug.LogError($"[TURN] Throw passed CanThrow but AP were missing: legality and execution disagree");
-            return;
-        }
-        spezzone.Inventory.ConsumeItem(item);
         _throwEvent.Raise(target);
-        target.LoseMorale(item.MoralLost);
 
-        // Prima di UpdateView: se il lancio l'ha ucciso, PositionCell può non valere più.
         ReportAggression(target, spezzone);
 
         _unitsRenderer.UpdateView(target);
@@ -547,35 +590,55 @@ public class TurnManager : MonoBehaviour
     #region Barricade
 
 
-    public bool ExecuteBarricade(AbstractUnitsRunTime atk, HexCell targetCell, BarricadeSO item)
+    public bool ExecuteBarricade(
+     AbstractUnitsRunTime atk,
+     HexCell targetCell,
+     BarricadeSO item)
     {
-        if (atk is not SpezzoneRuntime spezzone) return false;
-        if (targetCell == null || item == null) return false;
+        if (atk is not SpezzoneRuntime spezzone)
+            return false;
 
-        if (!TacticalQuery.CanPlaceBarricade(spezzone, targetCell, item))
+        ItemActionResolver.ItemActionResult result =
+            ItemActionResolver.ResolveBarricade(
+                spezzone,
+                targetCell,
+                item
+            );
+
+        if (!result.Succeeded)
         {
-            if (!spezzone.Inventory.HasItem(item))
-                _alertEvent?.Raise("No barricade objects");
-            else if (spezzone.ActionPoints < item.ActionPointCost)
-                _alertEvent?.Raise($"Not enough AP, {item.ActionPointCost} needed");
-            else if (targetCell.IsObjective)
-                _alertEvent?.Raise("Cannot barricade an objective");
-            else
-                _alertEvent?.Raise("Not available cell for barricade");
+            string invalidTargetMessage =
+                targetCell != null && targetCell.IsObjective
+                    ? "Cannot barricade an objective"
+                    : "Not available cell for barricade";
+
+            ReportItemActionFailure(
+                result.Failure,
+                item,
+                missingItemMessage: "No barricade objects",
+                invalidTargetMessage
+            );
+
             return false;
         }
 
-        if (!spezzone.TrySpendActionPoint(item.ActionPointCost))
+        if (item.GraphicPrefab != null)
         {
-            Debug.LogError($"[TURN] Barricade passed CanPlaceBarricade but AP were missing: legality and execution disagree");
-            return false;
-        }
-        spezzone.Inventory.ConsumeItem(item);
-        spezzone.Inventory.ConsumeItem(item);
-        targetCell.TryPlaceBarricade(new BarricadeRuntime(item));
+            Vector3 worldPosition =
+                _map.GridToWorld(targetCell.Coordinates);
 
-        Vector3 worldPos = _map.GridToWorld(targetCell.Coordinates);
-        Instantiate(item.GraphicPrefab, worldPos, Quaternion.identity);
+            Instantiate(
+                item.GraphicPrefab,
+                worldPosition,
+                Quaternion.identity
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                $"[BARRICADE] Graphic prefab missing on {item.name}"
+            );
+        }
 
         _lvlManager.RefreshBoardState();
         return true;
