@@ -76,13 +76,18 @@ public abstract class AbstractUnitsRunTime
     public abstract bool CanPerformAction(ActionType action);
     public bool SetPosition(HexCell arriveCell)
     {
-        bool isSucces = arriveCell.TryOccupy(this);
-        if (isSucces)
+        if (arriveCell == null)
+            return false;
+
+        bool isSuccess = arriveCell.TryOccupy(this);
+
+        if (isSuccess)
         {
             _positionCell.Vacate(this);
             _positionCell = arriveCell;
         }
-        return isSucces;
+
+        return isSuccess;
     }
 
     public void SitDown() => _isSeated = true;

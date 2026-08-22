@@ -31,7 +31,10 @@ public class HexCell
     public void BindMeetingPoint(MeetingPointRuntime meetingPoint) => _meetingPoint = meetingPoint;
     public bool TryOccupy(AbstractUnitsRunTime unit)
     {
-        if(_barricade != null)
+        if (unit == null)
+            return false;
+
+        if (_barricade != null)
         {
             Debug.Log($"try to occupy a cell with a barricade {_coordinates}");
             return false;
@@ -62,6 +65,9 @@ public class HexCell
 
     public bool TryPlaceBarricade(BarricadeRuntime barricade)
     {
+        if (barricade == null)
+            return false;
+
         if (_barricade == null && _occupiedBy == null)
         {
             _barricade = barricade;
