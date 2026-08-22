@@ -113,27 +113,17 @@ public class TurnManager : MonoBehaviour
     }
     #region Charge
 
-    private bool HasChargeRoom(HexCoordinates atkCoord, HexCoordinates defCoord, out HexCoordinates chargeDestination)
-     => TacticalQuery.HasChargeRoom(atkCoord, defCoord, _map, out chargeDestination);
-
-    public bool CanCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, out HexCell destinationCell)
+    public bool CanCharge(
+        AbstractUnitsRunTime atk,
+        AbstractUnitsRunTime def,
+        out HexCell destinationCell)
     {
-        destinationCell = null;
-
-        if (atk == null || def == null) return false;
-        if (!atk.IsAlive || !def.IsAlive) return false;
-        if (def.IsSeated) return false;                       // barricata umana
-
-        // ⚠ Questo controllo è il motivo per cui la maschera della polizia esisteva ma non
-        // faceva niente: PoliceAI chiama CanCharge direttamente, senza passare dall'input.
-        if (!atk.CanPerformAction(ActionType.Charge)) return false;
-
-        if (atk.ActionPoints < TacticalQuery.ChargeCost) return false;
-
-        if (!HasChargeRoom(atk.PositionCell.Coordinates, def.PositionCell.Coordinates,
-                           out HexCoordinates chargeDestination)) return false;
-
-        return _map.TryGetCell(chargeDestination, out destinationCell);
+        return ChargeResolver.CanStart(
+            atk,
+            def,
+            _map,
+            out destinationCell
+        );
     }
 
     public void StartCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
