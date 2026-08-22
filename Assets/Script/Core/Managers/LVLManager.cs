@@ -402,18 +402,10 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     private void RecalculateCohesion()
     {
-        int total = 0;
-        foreach (var unit in _spezzoniOfLVL)
-        {
-            if (!unit.IsAlive) continue;
-            foreach (HexCoordinates n in unit.PositionCell.Coordinates.GetNeighbors())
-            {
-                if (!_map.TryGetCell(n, out HexCell cell)) continue;
-                if (cell.OccupiedBy is SpezzoneRuntime other && other.IsAlive)
-                    total += 10;
-            }
-        }
-        Cohesion = total;
+        Cohesion = CohesionService.Calculate(
+            _spezzoniOfLVL,
+            _map
+        );
     }
 
     public bool CheckCohesionDefeat()
