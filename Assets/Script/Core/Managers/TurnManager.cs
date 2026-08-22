@@ -424,7 +424,9 @@ public class TurnManager : MonoBehaviour
     /// Applica l'onda. NON chiama RefreshBoardState: lo fa il chiamante, che di solito
     /// sta risolvendo qualcosa di più grande (la carica) e deve ricalcolare una volta sola.
     /// </summary>
-    private void ApplyPanicWave(HexCell origin, AbstractUnitsRunTime epicentre)
+    private void ApplyPanicWave(
+        HexCell origin,
+        AbstractUnitsRunTime epicentre)
     {
         if (origin == null)
         {
@@ -432,19 +434,18 @@ public class TurnManager : MonoBehaviour
             return;
         }
 
-        var wave = TacticalQuery.GetPanicWave(origin, epicentre, _map);
+        IReadOnlyList<PanicResolver.PanicEffect> effects =
+            PanicResolver.Resolve(origin, epicentre, _map);
 
-        int baseTurns = epicentre is PoliceRuntime
-            ? TacticalQuery.PanicTurnsPolice
-            : TacticalQuery.PanicTurnsCorteo;
-
-        foreach (var (unit, steps) in wave)
+        foreach (PanicResolver.PanicEffect effect in effects)
         {
-            unit.ApplyPanic(Mathf.Max(1, baseTurns - steps));
-            _unitsRenderer.UpdateView(unit);
+            _unitsRenderer.UpdateView(effect.Unit);
         }
 
-        Debug.Log($"[PANIC] wave from {origin.Coordinates}: {wave.Count} unit(s) affected");
+        Debug.Log(
+            $"[PANIC] wave from {origin.Coordinates}: " +
+            $"{effects.Count} unit(s) affected"
+        );
     }
     #endregion
 

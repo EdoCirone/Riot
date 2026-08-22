@@ -243,4 +243,60 @@ public class PanicWaveTests
         Assert.That(epicentre.PanicTurnsLeft, Is.Zero);
         Assert.That(adjacent.PanicTurnsLeft, Is.Zero);
     }
+
+    [Test]
+    public void Resolve_AppliesCorteoPanicDurationByDistance()
+    {
+        TestUnit epicentre = new TestUnit(Cell(1, 1));
+        TestUnit first = new TestUnit(Cell(2, 1));
+        TestUnit second = new TestUnit(Cell(3, 1));
+
+        IReadOnlyList<PanicResolver.PanicEffect> effects =
+            PanicResolver.Resolve(
+                epicentre.PositionCell,
+                epicentre,
+                _grid
+            );
+
+        Assert.That(effects.Count, Is.EqualTo(3));
+        Assert.That(epicentre.PanicTurnsLeft, Is.EqualTo(3));
+        Assert.That(first.PanicTurnsLeft, Is.EqualTo(2));
+        Assert.That(second.PanicTurnsLeft, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Resolve_PolicePanicNeverFallsBelowOneTurn()
+    {
+        PoliceRuntime epicentre = CreatePolice(Cell(1, 1));
+        PoliceRuntime adjacent = CreatePolice(Cell(2, 1));
+
+        IReadOnlyList<PanicResolver.PanicEffect> effects =
+            PanicResolver.Resolve(
+                epicentre.PositionCell,
+                epicentre,
+                _grid
+            );
+
+        Assert.That(effects.Count, Is.EqualTo(2));
+        Assert.That(epicentre.PanicTurnsLeft, Is.EqualTo(1));
+        Assert.That(adjacent.PanicTurnsLeft, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Resolve_DoesNotReplaceLongerExistingPanic()
+    {
+        TestUnit epicentre = new TestUnit(Cell(1, 1));
+        TestUnit adjacent = new TestUnit(Cell(2, 1));
+
+        adjacent.ApplyPanic(5);
+
+        PanicResolver.Resolve(
+            epicentre.PositionCell,
+            epicentre,
+            _grid
+        );
+
+        Assert.That(epicentre.PanicTurnsLeft, Is.EqualTo(3));
+        Assert.That(adjacent.PanicTurnsLeft, Is.EqualTo(5));
+    }
 }
