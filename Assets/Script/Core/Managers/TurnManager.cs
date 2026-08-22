@@ -143,63 +143,61 @@ public class TurnManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    public IEnumerator ExecuteCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
+    public IEnumerator ExecuteCharge(
+        AbstractUnitsRunTime atk,
+        AbstractUnitsRunTime def)
     {
-        if (!CanCharge(atk, def, out HexCell destinationCell))
+        if (_actionPresenter == null)
         {
-            Debug.Log("Invalid charge: target, alignment, run-up space or AP");
+            Debug.LogError(
+                "[TURN] UnitActionPresenter not initialized"
+            );
+
             yield break;
         }
 
-        GameObject atkGO = _unitsRenderer.GetGameObject(atk);
-        if (atkGO == null)
+        if (!CanCharge(
+                atk,
+                def,
+                out HexCell destinationCell))
         {
-            Debug.LogError($"GameObject not found for {atk}");
+            Debug.Log(
+                "[CHARGE] Invalid target, alignment, " +
+                "run-up space or action points"
+            );
+
             yield break;
         }
 
-        UnitMovement movement = atkGO.GetComponent<UnitMovement>();
-        if (movement == null)
+        if (!atk.TrySpendActionPoint(
+                TacticalQuery.ChargeCost))
         {
-            Debug.LogError($"UnitMovement not found on {atkGO.name}");
+            Debug.LogError(
+                "[CHARGE] Failed to spend action points " +
+                "after successful validation"
+            );
+
             yield break;
         }
 
-        Vector3 defenderWorldPos = _map.GridToWorld(def.PositionCell.Coordinates);
-
-        atk.TrySpendActionPoint(TacticalQuery.ChargeCost);
-
-        bool done = false;
-        bool resolved = false;
-
-        // Funzione locale: legale dentro una coroutine perché non contiene yield.
-        // Serve a garantire che PushResolution giri UNA volta sola, da qualunque
-        // strada ci si arrivi (callback dell'animazione o timeout).
-
-        void ResolveOnce()
+        if (!atk.SetPosition(destinationCell))
         {
-            if (resolved) return;
-            resolved = true;
-            PushResolution(atk, def);
+            Debug.LogError(
+                $"[CHARGE] {atk} could not occupy " +
+                $"{destinationCell.Coordinates}"
+            );
+
+            yield break;
         }
 
-        atk.SetPosition(destinationCell);
+        yield return _actionPresenter.PlayCharge(
+            atk,
+            def,
+            destinationCell
+        );
 
-        movement.PlayCharge(destinationCell, defenderWorldPos, _map, () =>
-        {
-            ResolveOnce();
-            done = true;
-        });
-
-        float elapsed = 0f;
-        yield return new WaitUntil(() => done || (elapsed += Time.deltaTime) > 5f);
-        if (!done)
-        {
-            Debug.LogWarning($"[CHARGE] animation not completed by {atk}: continuing anyway");
-            ResolveOnce();
-        }
+        PushResolution(atk, def);
     }
-
     private void PushResolution(
      AbstractUnitsRunTime atk,
      AbstractUnitsRunTime def)

@@ -133,4 +133,76 @@ public sealed class UnitActionPresenter
                 break;
         }
     }
+
+    public IEnumerator PlayCharge(
+    AbstractUnitsRunTime attacker,
+    AbstractUnitsRunTime defender,
+    HexCell destinationCell)
+    {
+        if (attacker == null ||
+            defender?.PositionCell == null ||
+            destinationCell == null)
+        {
+            Debug.LogError(
+                "[CHARGE] Cannot present invalid units or destination"
+            );
+
+            yield break;
+        }
+
+        GameObject attackerObject =
+            _unitsRenderer.GetGameObject(attacker);
+
+        if (attackerObject == null)
+        {
+            Debug.LogError(
+                $"[CHARGE] GameObject not found for {attacker}"
+            );
+
+            yield break;
+        }
+
+        UnitMovement movement =
+            attackerObject.GetComponent<UnitMovement>();
+
+        if (movement == null)
+        {
+            Debug.LogError(
+                $"[CHARGE] UnitMovement not found on " +
+                $"{attackerObject.name}"
+            );
+
+            yield break;
+        }
+
+        Vector3 defenderWorldPosition =
+            _map.GridToWorld(
+                defender.PositionCell.Coordinates
+            );
+
+        bool completed = false;
+
+        movement.PlayCharge(
+            destinationCell,
+            defenderWorldPosition,
+            _map,
+            () => completed = true
+        );
+
+        float elapsed = 0f;
+
+        while (!completed && elapsed < AnimationTimeout)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (!completed)
+        {
+            Debug.LogWarning(
+                $"[CHARGE] Animation not completed by " +
+                $"{attacker}: continuing anyway"
+            );
+        }
+    }
 }
