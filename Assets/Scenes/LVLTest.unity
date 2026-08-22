@@ -13184,7 +13184,7 @@ MonoBehaviour:
   _turnManager: {fileID: 736496568}
   _map: {fileID: 1144096843}
   _unitsRenderer: {fileID: 1693072225}
-  _declaredObjective: {fileID: 11400000, guid: 3d7a9944ea7787e47bad498469a05976, type: 2}
+  _declaredObjective: {fileID: 11400000, guid: 388b404d1c3d4514b964b58ee5cfbcde, type: 2}
   _meetingPoint: {fileID: 11400000, guid: d03132b7d922c514b947e757cef1178a, type: 2}
   _startingRoster:
   - prefab: {fileID: 1315868516837607815, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
@@ -13221,6 +13221,7 @@ MonoBehaviour:
   _alarmRadius: 4
   _alarmDuration: 3
   _engagementRules: 0
+  _logCoverageReport: 1
 --- !u!114 &2130109799
 MonoBehaviour:
   m_ObjectHideFlags: 0
