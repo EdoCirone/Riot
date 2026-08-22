@@ -4735,8 +4735,8 @@ GameObject:
   m_Component:
   - component: {fileID: 736496567}
   - component: {fileID: 736496568}
-  - component: {fileID: 736496569}
   - component: {fileID: 736496570}
+  - component: {fileID: 736496571}
   m_Layer: 0
   m_Name: TurnManager
   m_TagString: Untagged
@@ -4773,7 +4773,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TurnManager
   _lvlManager: {fileID: 2130109798}
   _pathFinder: {fileID: 736496570}
-  _policeAI: {fileID: 736496569}
+  _policeAI: {fileID: 0}
   _startPlayerTurnEvent: {fileID: 11400000, guid: a82b422d354c8a64bb15021fed8e5b95, type: 2}
   _endPlayerTurnEvent: {fileID: 11400000, guid: f69733287b575af41bf2051f9e7cb894, type: 2}
   _throwEvent: {fileID: 11400000, guid: b29de7a6fc5add94c88606d4aec6b7ef, type: 2}
@@ -4784,7 +4784,19 @@ MonoBehaviour:
   _startFollowEvent: {fileID: 11400000, guid: b9cd032b448466f4392bfe32f9b91b83, type: 2}
   _stopFollowEvent: {fileID: 11400000, guid: 14bb41a0b251d904ebfcd4fd64b09b8c, type: 2}
   _alertEvent: {fileID: 11400000, guid: 98237ffa724a85e42b560437c6bd4613, type: 2}
---- !u!114 &736496569
+--- !u!114 &736496570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 736496566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca77ed48af3d1844d894fca42dbaf0ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PathFinder
+--- !u!114 &736496571
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4798,18 +4810,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PoliceAI
   _lvlManager: {fileID: 2130109798}
   _onSelectedEvent: {fileID: 11400000, guid: 93aeb65fcb4a88444b8f15479fbd1575, type: 2}
---- !u!114 &736496570
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 736496566}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca77ed48af3d1844d894fca42dbaf0ce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PathFinder
 --- !u!1 &796580931
 GameObject:
   m_ObjectHideFlags: 0

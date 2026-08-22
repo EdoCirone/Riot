@@ -36,6 +36,7 @@ public class TurnManager : MonoBehaviour
 
     private HexGrid _map;
     private UnitsRenderer _unitsRenderer;
+    private bool _isConfigured;
     private bool _waitingForPolice = false;
 
 
@@ -45,6 +46,7 @@ public class TurnManager : MonoBehaviour
 
     public UnitEventSO ThrowEvent => _throwEvent;
     private bool IsCellAvailable(HexCell cell) => TacticalQuery.IsCellAvailable(cell);
+    public bool IsConfigured => _isConfigured;
     public bool IsPoliceTurn => _waitingForPolice;
 
     //Helper method to determine the cause of morale loss based on the source unit type
@@ -55,32 +57,60 @@ public class TurnManager : MonoBehaviour
     private static bool IsSameSide(AbstractUnitsRunTime a, AbstractUnitsRunTime b)
     => (a is PoliceRuntime) == (b is PoliceRuntime);
 
-    private void Start()
+    public void CollectConfigurationErrors(
+    LVLManager expectedLevel,
+    List<string> errors)
     {
+        int initialErrorCount = errors.Count;
+
         if (_lvlManager == null)
         {
-            Debug.LogWarning("Need LVL Manager in TurnManager");
+            errors.Add("TurnManager: LVLManager non assegnato");
+        }
+        else if (_lvlManager != expectedLevel)
+        {
+            errors.Add("TurnManager: riferimento a un LVLManager diverso");
+        }
+
+        if (_pathFinder == null)
+            errors.Add("TurnManager: PathFinder non assegnato");
+
+        if (_policeAI == null)
+        {
+            errors.Add("TurnManager: PoliceAI non assegnata");
+        }
+        else if (!_policeAI.isActiveAndEnabled)
+        {
+            errors.Add("TurnManager: PoliceAI disabilitata");
+        }
+
+        if (_startPlayerTurnEvent == null)
+            errors.Add("TurnManager: StartPlayerTurnEvent non assegnato");
+
+        if (_endPlayerTurnEvent == null)
+            errors.Add("TurnManager: EndPlayerTurnEvent non assegnato");
+
+        if (_throwEvent == null)
+            errors.Add("TurnManager: ThrowEvent non assegnato");
+
+        _isConfigured = errors.Count == initialErrorCount;
+    }
+
+    private void Start()
+    {
+        if (!_isConfigured
+            || _lvlManager == null
+            || !_lvlManager.IsConfigured)
+        {
+            enabled = false;
             return;
         }
 
         _unitsRenderer = _lvlManager.Renderer;
         _map = _lvlManager.Map;
 
-        if (_pathFinder == null)
-        {
-            Debug.LogWarning("PathFinder not assigned in TurnManager");
-            return;
-        }
-
-        // Segnalato qui ma SENZA return: si scopre all'avvio invece che al primo fine turno,
-        // e intanto il livello parte lo stesso. Un return qui non alzerebbe
-        // _startPlayerTurnEvent, cioè romperebbe più di quanto ripari.
-        if (_policeAI == null)
-            Debug.LogError("[TURN] PoliceAI not assigned in TurnManager: the police will never act");
-
         _startPlayerTurnEvent.Raise();
     }
-
     #region Charge
 
     private bool HasChargeRoom(HexCoordinates atkCoord, HexCoordinates defCoord, out HexCoordinates chargeDestination)

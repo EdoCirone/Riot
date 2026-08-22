@@ -110,7 +110,13 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         List<string> errors = new List<string>();
 
         if (_turnManager == null)
+        {
             errors.Add("TurnManager non assegnato");
+        }
+        else
+        {
+            _turnManager.CollectConfigurationErrors(this, errors);
+        }
 
         if (_map == null)
         {
@@ -132,9 +138,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
         if (_loseEvent == null)
             errors.Add("LoseEvent non assegnato");
-
-        if (_turnManager != null && _turnManager.EndPlayerTurnEvent == null)
-            errors.Add("EndPlayerTurnEvent non assegnato nel TurnManager");
 
         if (_startingRoster != null && _startingRoster.Length > 0)
         {
