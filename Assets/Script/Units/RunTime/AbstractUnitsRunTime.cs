@@ -57,7 +57,12 @@ public abstract class AbstractUnitsRunTime
     #region PointActions
     public bool TrySpendActionPoint(int amount)
     {
-        if (_actionPoints < amount) return false;
+        if (amount <= 0)
+            return false;
+
+        if (_actionPoints < amount)
+            return false;
+
         _actionPoints -= amount;
         return true;
     }
@@ -108,13 +113,23 @@ public abstract class AbstractUnitsRunTime
     }
     public void GainMorale(int amount)
     {
+        if (amount <= 0)
+            return;
+
         _morale = Mathf.Min(_morale + amount, MaxMorale);
     }
 
-    public void LoseMorale(int amount, MoraleLossCause cause = MoraleLossCause.Other)
+    public void LoseMorale(
+        int amount,
+        MoraleLossCause cause = MoraleLossCause.Other)
     {
+        if (amount <= 0)
+            return;
+
         _morale = Mathf.Max(_morale - amount, 0);
-        if (_morale == 0) RemoveFromBoard(cause);
+
+        if (_morale == 0)
+            RemoveFromBoard(cause);
     }
 
     private void Disperse()
