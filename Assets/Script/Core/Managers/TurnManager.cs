@@ -663,28 +663,56 @@ public class TurnManager : MonoBehaviour
 
     #region Chant & SitDown
 
+    private void ReportUnitActionFailure(
+        string actionName,
+        UnitActionResolver.UnitActionResult result)
+    {
+        switch (result.Failure)
+        {
+            case UnitActionFailure.InsufficientActionPoints:
+                _alertEvent?.Raise(
+                    $"Not enough AP, {result.ActionPointCost} needed"
+                );
+                break;
+
+            case UnitActionFailure.ActionNotAllowed:
+                _alertEvent?.Raise("Action not allowed");
+                break;
+
+            case UnitActionFailure.InvalidUnit:
+            case UnitActionFailure.InvalidPosition:
+            case UnitActionFailure.InvalidMap:
+                Debug.LogError(
+                    $"[{actionName}] Resolution failed: {result.Failure}"
+                );
+                break;
+
+            default:
+                Debug.LogError(
+                    $"[{actionName}] Unexpected failure: {result.Failure}"
+                );
+                break;
+        }
+    }
+
     public bool ExecuteChant(AbstractUnitsRunTime caster)
     {
-        if (!caster.TrySpendActionPoint(TacticalQuery.ChantCost))
+        UnitActionResolver.UnitActionResult result =
+            UnitActionResolver.ResolveChant(
+                caster,
+                _map
+            );
+
+        if (!result.Succeeded)
         {
-            Debug.Log($"Chant not executed: {TacticalQuery.ChantCost} AP needed");
-            _alertEvent?.Raise($"Not enough AP, {TacticalQuery.ChantCost} needed");
+            ReportUnitActionFailure("CHANT", result);
             return false;
         }
 
-        caster.GainMorale(1);
-        caster.ClearPanic();
-        _unitsRenderer.UpdateView(caster);
-
-        foreach (HexCoordinates n in caster.PositionCell.Coordinates.GetNeighbors())
+        foreach (AbstractUnitsRunTime affectedUnit
+                 in result.AffectedUnits)
         {
-            if (!_map.TryGetCell(n, out HexCell cell)) continue;
-            if (cell.OccupiedBy is SpezzoneRuntime spezzone && spezzone.IsAlive)
-            {
-                spezzone.GainMorale(1);
-                spezzone.ClearPanic();
-                _unitsRenderer.UpdateView(spezzone);
-            }
+            _unitsRenderer.UpdateView(affectedUnit);
         }
 
         _lvlManager.RefreshBoardState();
@@ -693,27 +721,29 @@ public class TurnManager : MonoBehaviour
 
     public bool ExecuteSitStand(AbstractUnitsRunTime unit)
     {
-        if (unit == null || !unit.IsAlive) return false;
+        UnitActionResolver.UnitActionResult result =
+            UnitActionResolver.ResolveSitStand(unit);
 
-        // Attenzione all'ordine: il costo e il verbo dipendono dallo stato PRIMA
-        // del cambiamento. Leggerli dopo SitDown/StandUp darebbe il valore sbagliato.
-        int cost = TacticalQuery.GetSitStandCost(unit);
-        bool wasSeated = unit.IsSeated;
-
-        if (!unit.TrySpendActionPoint(cost))
+        if (!result.Succeeded)
         {
-            Debug.Log($"{(wasSeated ? "Stand up" : "Sit down")} not executed: {cost} AP needed");
-            _alertEvent?.Raise($"Not enough AP, {cost} needed");
+            ReportUnitActionFailure("SIT/STAND", result);
             return false;
         }
 
-        if (wasSeated) unit.StandUp();
-        else unit.SitDown();
+        foreach (AbstractUnitsRunTime affectedUnit
+                 in result.AffectedUnits)
+        {
+            _unitsRenderer.UpdateView(affectedUnit);
+        }
 
-        _unitsRenderer.UpdateView(unit);
         _lvlManager.RefreshBoardState();
 
-        Debug.Log($"{unit} {(wasSeated ? "stands up" : "sits down")}. Def now {unit.Def}, AP left {unit.ActionPoints}");
+        Debug.Log(
+            $"{unit} " +
+            $"{(result.WasSeated ? "stands up" : "sits down")}. " +
+            $"Def now {unit.Def}, AP left {unit.ActionPoints}"
+        );
+
         return true;
     }
 
