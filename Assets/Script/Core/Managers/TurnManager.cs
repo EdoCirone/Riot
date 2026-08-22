@@ -36,6 +36,8 @@ public class TurnManager : MonoBehaviour
 
     private HexGrid _map;
     private UnitsRenderer _unitsRenderer;
+    private UnitActionPresenter _actionPresenter;
+
     private bool _isConfigured;
     private bool _waitingForPolice = false;
 
@@ -104,6 +106,14 @@ public class TurnManager : MonoBehaviour
 
         _unitsRenderer = _lvlManager.Renderer;
         _map = _lvlManager.Map;
+
+        _actionPresenter = new UnitActionPresenter(
+                            _map,
+                            _unitsRenderer,
+                            _skirmishWinEvent,
+                            _skirmishLoseEvent,
+                            _skirmishParEvent
+                            );
 
         _startPlayerTurnEvent.Raise();
     }
@@ -405,31 +415,41 @@ public class TurnManager : MonoBehaviour
 
     #region Scontri
 
-    public void StartSkirmish(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
+    public void StartSkirmish(
+        AbstractUnitsRunTime atk,
+        AbstractUnitsRunTime def,
+        Action onComplete)
     {
-        StartCoroutine(SkirmishWithCallback(atk, def, onComplete));
+        StartCoroutine(
+            SkirmishWithCallback(atk, def, onComplete)
+        );
     }
 
-    private IEnumerator SkirmishWithCallback(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
+    private IEnumerator SkirmishWithCallback(
+        AbstractUnitsRunTime atk,
+        AbstractUnitsRunTime def,
+        Action onComplete)
     {
-        yield return StartCoroutine(ExecuteSkirmish(atk, def));
+        yield return StartCoroutine(
+            ExecuteSkirmish(atk, def)
+        );
+
         onComplete?.Invoke();
     }
 
-    private void RaiseCombatResult(CombatResult result)
-    {
-        switch (result)
-        {
-            case CombatResult.Win: _skirmishWinEvent?.Raise(); break;
-            case CombatResult.Lose: _skirmishLoseEvent?.Raise(); break;
-            case CombatResult.Par: _skirmishParEvent?.Raise(); break;
-        }
-    }
-
     public IEnumerator ExecuteSkirmish(
-      AbstractUnitsRunTime atk,
-      AbstractUnitsRunTime def)
+        AbstractUnitsRunTime atk,
+        AbstractUnitsRunTime def)
     {
+        if (_actionPresenter == null)
+        {
+            Debug.LogError(
+                "[TURN] UnitActionPresenter not initialized"
+            );
+
+            yield break;
+        }
+
         CombatResolver.SkirmishResolution resolution =
             CombatResolver.ResolveSkirmish(
                 atk,
@@ -447,80 +467,20 @@ public class TurnManager : MonoBehaviour
             yield break;
         }
 
-        CombatResult result = resolution.Result.Value;
-
-        bool done = false;
-        bool finalized = false;
-
-        void FinalizeOnce()
-        {
-            if (finalized)
-                return;
-
-            finalized = true;
-
-            _unitsRenderer.UpdateView(atk);
-            _unitsRenderer.UpdateView(def);
-            _lvlManager.RefreshBoardState();
-
-            ReportAggression(def, atk);
-        }
-
-        GameObject atkGO =
-            _unitsRenderer.GetGameObject(atk);
-
-        UnitMovement movement =
-            atkGO.GetComponent<UnitMovement>();
-
-        Vector3 defWorldPos =
-            _map.GridToWorld(
-                def.PositionCell.Coordinates
-            );
-
-        GameObject defGO =
-            _unitsRenderer.GetGameObject(def);
-
-        UnitMovement defMovement =
-            defGO != null
-                ? defGO.GetComponent<UnitMovement>()
-                : null;
-
-        Vector3 atkWorldPos =
-            _map.GridToWorld(
-                atk.PositionCell.Coordinates
-            );
-
-        movement.PlaySkirmish(
-            defWorldPos,
-            onComplete: () =>
-            {
-                FinalizeOnce();
-                done = true;
-            },
-            onImpact: () =>
-            {
-                defMovement?.PlayHitReaction(atkWorldPos);
-                RaiseCombatResult(result);
-            }
+        yield return _actionPresenter.PlaySkirmish(
+            atk,
+            def,
+            resolution.Result.Value
         );
 
-        float elapsed = 0f;
+        _unitsRenderer.UpdateView(atk);
+        _unitsRenderer.UpdateView(def);
 
-        yield return new WaitUntil(
-            () => done
-                || (elapsed += Time.deltaTime) > 5f
-        );
+        _lvlManager.RefreshBoardState();
 
-        if (!done)
-        {
-            Debug.LogWarning(
-                $"[Skirmish] animation not complete from " +
-                $"{atk}: finalizing anyway"
-            );
-
-            FinalizeOnce();
-        }
+        ReportAggression(def, atk);
     }
+
     #endregion
 
     #region Item Check
@@ -816,7 +776,7 @@ public class TurnManager : MonoBehaviour
 
         _lvlManager.RaiseAlarmAround(origin, $"{victim} attacked by {aggressor}");
     }
-#endregion
+    #endregion
     public void EndTurn()
     {
         if (_waitingForPolice) return;
