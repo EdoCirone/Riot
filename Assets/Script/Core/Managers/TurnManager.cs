@@ -53,10 +53,6 @@ public class TurnManager : MonoBehaviour
     private static MoraleLossCause CauseFrom(AbstractUnitsRunTime source)
     => source is PoliceRuntime ? MoraleLossCause.PoliceContact : MoraleLossCause.Other;
 
-    //Due unità sono della stessa parte se sono entrambe polizia o entrambe corteo
-    private static bool IsSameSide(AbstractUnitsRunTime a, AbstractUnitsRunTime b)
-    => (a is PoliceRuntime) == (b is PoliceRuntime);
-
     public void CollectConfigurationErrors(
     LVLManager expectedLevel,
     List<string> errors)
@@ -194,213 +190,57 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    private bool TryBuildPushChain(
-     AbstractUnitsRunTime pusher,
-     AbstractUnitsRunTime pushed,
-     out List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
+    private void PushResolution(
+     AbstractUnitsRunTime atk,
+     AbstractUnitsRunTime def)
     {
-        moves = new List<(AbstractUnitsRunTime, HexCell)>();
+        HexCell impactCell = def?.PositionCell;
 
-        HexCoordinates pusherCoord = pusher.PositionCell.Coordinates;
-        HexCoordinates current = pushed.PositionCell.Coordinates;
+        PushResolver.PushResult pushResult =
+            PushResolver.Resolve(atk, def, _map);
 
-        int dirQ = current.Q - pusherCoord.Q;
-        int dirR = current.R - pusherCoord.R;
-
-        // La colonna compressa, dal difensore all'ultimo della fila.
-        List<AbstractUnitsRunTime> column = new() { pushed };
-        AbstractUnitsRunTime unitToMove = pushed;
-
-        while (true)
+        if (!pushResult.IsResolved)
         {
-            HexCoordinates behind = new HexCoordinates(current.Q + dirQ, current.R + dirR);
+            Debug.LogError(
+                "[PUSH] Resolution failed: invalid units, " +
+                "positions or adjacency"
+            );
 
-            if (_map.TryGetCell(behind, out HexCell behindCell)
-                && behindCell.Type.IsWalkable
-                && !behindCell.IsObjective
-                && behindCell.Barricade == null)
-            {
-                AbstractUnitsRunTime blocker = behindCell.OccupiedBy;
-
-                if (blocker == null)
-                {
-                    BuildMovesFromColumn(column, behindCell, moves);   // catena chiusa
-                    return true;
-                }
-
-                if (!blocker.IsSeated && IsSameSide(blocker, unitToMove))
-                {
-                    column.Add(blocker);
-                    unitToMove = blocker;
-                    current = behind;
-                    continue;                                          // il domino prosegue
-                }
-            }
-
-            // Tappo: si cerca uno sfogo laterale partendo da chi è più indietro.
-            return TryReleaseSideways(column, dirQ, dirR, moves);
-        }
-    }
-
-    /// <summary>
-    /// Catena chiusa: ognuno entra nella cella di chi lo segue, l'ultimo nella cella libera.
-    /// </summary>
-    private void BuildMovesFromColumn(
-        List<AbstractUnitsRunTime> column, HexCell tail,
-        List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
-    {
-        for (int i = 0; i < column.Count; i++)
-            moves.Add((column[i], i + 1 < column.Count ? column[i + 1].PositionCell : tail));
-    }
-
-    /// <summary>
-    /// Cerca la prima unità — partendo dal FONDO della colonna — che possa scartare di lato.
-    /// Chi scarta libera la propria cella e tutta la fila davanti a lui arretra di uno;
-    /// chi sta dietro di lui resta fermo.
-    /// ⚠ L'ordine di `moves` conta: ApplyPushChain applica dall'ultimo al primo, quindi
-    /// chi scarta deve essere l'ULTIMO elemento della lista.
-    /// </summary>
-    private bool TryReleaseSideways(
-        List<AbstractUnitsRunTime> column, int dirQ, int dirR,
-        List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
-    {
-        for (int i = column.Count - 1; i >= 0; i--)
-        {
-            HexCell side = FindSideCell(column[i], dirQ, dirR);
-            if (side == null) continue;
-
-            for (int j = 0; j < i; j++)
-                moves.Add((column[j], column[j + 1].PositionCell));
-
-            moves.Add((column[i], side));
-
-            Debug.Log($"[PUSH] {column[i]} steps aside to {side.Coordinates}, {i} unit(s) shift back");
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Le due celle che confinano sia con quella dell'unità sia con quella dove sarebbe
-    /// stata spinta: su esagoni sono sempre e solo due, e sono le direzioni che affiancano
-    /// quella della spinta. Fra le due, quella con meno alleati adiacenti: la spinta disgrega.
-    /// </summary>
-    private HexCell FindSideCell(AbstractUnitsRunTime unit, int dirQ, int dirR)
-    {
-        int dirIndex = -1;
-        for (int i = 0; i < HexCoordinates.Directions.Length; i++)
-        {
-            if (HexCoordinates.Directions[i].Q == dirQ && HexCoordinates.Directions[i].R == dirR)
-            {
-                dirIndex = i;
-                break;
-            }
-        }
-
-        if (dirIndex < 0)
-        {
-            Debug.LogError($"[PUSH] ({dirQ},{dirR}) is not a hex direction: cannot find side cells");
-            return null;
-        }
-
-        HexCoordinates from = unit.PositionCell.Coordinates;
-        HexCell best = null;
-        int bestAllies = int.MaxValue;
-
-        for (int offset = -1; offset <= 1; offset += 2)
-        {
-            HexCoordinates side = HexCoordinates.Directions[(dirIndex + offset + 6) % 6];
-            HexCoordinates candidateCoord = new HexCoordinates(from.Q + side.Q, from.R + side.R);
-
-            if (!_map.TryGetCell(candidateCoord, out HexCell candidate)) continue;
-            if (!IsCellAvailable(candidate)) continue;
-            if (candidate.IsObjective) continue;
-            int allies = CountAdjacentAllies(unit, candidateCoord);
-            if (allies < bestAllies)
-            {
-                bestAllies = allies;
-                best = candidate;
-            }
-        }
-
-        return best;
-    }
-
-    private int CountAdjacentAllies(AbstractUnitsRunTime unit, HexCoordinates from)
-    {
-        int count = 0;
-        foreach (HexCoordinates dir in HexCoordinates.Directions)
-        {
-            if (!_map.TryGetCell(from + dir, out HexCell cell)) continue;
-
-            AbstractUnitsRunTime other = cell.OccupiedBy;
-            if (other == null || !other.IsAlive) continue;
-            if (other == unit) continue;              // sé stesso non conta: vedi sotto
-            if (IsSameSide(other, unit)) count++;
-        }
-        return count;
-    }
-
-    private void ApplyPushChain(List<(AbstractUnitsRunTime unit, HexCell destination)> moves)
-    {
-        for (int i = moves.Count - 1; i >= 0; i--)
-        {
-            (AbstractUnitsRunTime unit, HexCell destination) = moves[i];
-
-            if (!unit.SetPosition(destination))
-            {
-                Debug.LogError($"[PUSH] {unit} could not occupy {destination.Coordinates}: inconsistent chain");
-                return;
-            }
-            _unitsRenderer.UpdateView(unit);
-        }
-        Debug.Log($"[PUSH] applied: {moves.Count} unit(s) moved");
-    }
-
-    private void ResolvePushOrRemove(AbstractUnitsRunTime pusher, AbstractUnitsRunTime pushed)
-    {
-        if (pusher.PositionCell.Coordinates.Distance(pushed.PositionCell.Coordinates) != 1)
-        {
-            Debug.LogError($"[PUSH] {pusher} and {pushed} are not adjacent: push not resolved");
             return;
         }
 
-        if (TryBuildPushChain(pusher, pushed, out var moves))
+        foreach (PushResolver.PushMove move in pushResult.Moves)
         {
-            ApplyPushChain(moves);
-            return;
+            _unitsRenderer.UpdateView(move.Unit);
         }
 
-        Debug.Log($"[PUSH] no way back and no way out: {pushed} removed at {pushed.PositionCell.Coordinates}");
-        pushed.RemoveFromBoard(CauseFrom(pusher));
-    }
+        if (pushResult.WasRemoved)
+        {
+            Debug.Log(
+                $"[PUSH] no exit: {def} removed at " +
+                $"{impactCell?.Coordinates}"
+            );
+        }
+        else
+        {
+            Debug.Log(
+                $"[PUSH] applied: " +
+                $"{pushResult.Moves.Count} unit(s) moved"
+            );
+        }
 
-    private void PushResolution(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
-    {
-        // La cella dell'urto, catturata PRIMA della spinta: è l'unica che esiste di sicuro,
-        // e non dipende dal fatto che RemoveFromBoard lasci _positionCell popolato.
-        HexCell impactCell = def.PositionCell;
-
-        ResolvePushOrRemove(pusher: atk, pushed: def);
-
-        // Se il difensore è sopravvissuto si è spostato: l'onda parte da dove è adesso.
-        // Se la spinta l'ha rimosso, resta valida la cella dell'urto.
         if (def.IsAlive)
         {
             impactCell = def.PositionCell;
+
             def.LoseMorale(1, CauseFrom(atk));
             _unitsRenderer.FlashDamage(def);
         }
+
         ApplyPanicWave(impactCell, def);
 
-        // ⚠ impactCell e non def.PositionCell: la carica può aver rimosso il difensore, e
-        // l'allarme deve comunque partire da dove l'hanno visto cadere.
         ReportAggression(def, atk, impactCell);
 
-        // La carica sposta l'attaccante, quindi può portarlo DENTRO un obiettivo — e finché
-        // questo controllo viveva solo nella callback di ExecuteMovement, entrare caricando
-        // era un modo legale di infilarsi in un edificio presidiato senza svegliare nessuno.
         _lvlManager.CheckObjectiveIntrusion(atk);
 
         _chargeEvent?.Raise();
