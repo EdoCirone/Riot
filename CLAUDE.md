@@ -104,6 +104,66 @@ autorevole per qualunque check di coerenza codice/documento.
   l'animazione**", che è vera ovunque. "Prima" è vero solo per alcune azioni, e chi ci
   costruisce sopra dando per scontato il resto sbaglia.*
 
+## Resolver, servizi e test (RIFATTO 22/08/26) — la struttura è cambiata
+`Core/Resolver/`, `Core/Services/`, `Test/Editor/`, `Units/Visualization/UnitActionPresenter.cs`.
+Il progetto è passato da **74 file / 7.302 righe** a **98 / 11.322**, e ~4.000 righe sono
+strato nuovo, non feature: **82 test in 14 file** e l'estrazione delle regole dagli esecutori.
+
+**Il nuovo strato, e chi fa cosa:**
+
+| classe | tipo | responsabilità |
+|---|---|---|
+| `PushResolver` | statica pura | catena, sfogo laterale, rimozione. Restituisce un `PushResult` (`IsResolved`, `WasRemoved`, `Moves`) |
+| `PanicResolver` | statica pura | onda di panico → lista di `PanicEffect(Unit, Steps, PanicTurns)` |
+| `ChargeResolver` | statica pura | `CanStart(...)` — legalità della carica |
+| `CombatResolver` | statica pura | `ResolveSkirmish` → `SkirmishResolution`, più `Resolve`/`GetEffectiveAtk`/`GetEffectiveDef` |
+| `ItemActionResolver` | statica pura | `ResolveThrow` / `ResolveBarricade` → `ItemActionResult` |
+| `UnitActionResolver` | statica pura | `ResolveChant` / `ResolveSitStand` → `UnitActionResult` |
+| `AuraService` | statica pura | `Resolve` → `AuraResult` |
+| `CohesionService` | statica pura | `Calculate` |
+| `UnitActionPresenter` | classe C# (non MonoBehaviour) | animazioni di scontro e carica, con timeout a 5s |
+
+⚠ **`CombatResolver` si è spostato** da `GenericStatic/` a `Core/Resolver/`.
+
+⚠ **I resolver non contengono NESSUN `Debug.Log`.** Restituiscono un esito tipizzato
+(`UnitActionFailure`, `SkirmishFailure`, `ItemActionFailure`) e chi logga è il chiamante.
+Non rimetterci dentro la diagnostica: è ciò che li tiene collaudabili senza avviare il gioco.
+
+### Il buco del timeout sulla carica è chiuso PER COSTRUZIONE
+Prima `PushResolution` stava nella callback di fine animazione, e allo scadere del timeout la
+carica risultava pagata e mai risolta — cosa tamponata con `ResolveOnce()` e un flag `resolved`
+perché una callback in ritardo l'avrebbe fatta girare due volte. Adesso:
+
+```csharp
+yield return _actionPresenter.PlayCharge(atk, def, destinationCell);
+PushResolution(atk, def);
+```
+
+`PushResolution` sta **dopo lo yield**: gira sempre, esattamente una volta, timeout o no.
+⚠ **`ResolveOnce` e il flag `resolved` non esistono più e non vanno reintrodotti**: il percorso
+che li rendeva necessari è sparito. Stessa cosa per `FinalizeOnce` nello scontro.
+
+### Validazione della configurazione all'avvio
+`LVLManager.ValidateReferences()` (chiamata in `Awake`) + `TurnManager.CollectConfigurationErrors(...)`.
+Raccolgono **tutti** gli errori in una lista e li stampano in **un solo `LogError`**, poi
+`LVLManager` fa `_gameOver = true; enabled = false;` e `TurnManager` si disabilita in `Start`.
+`_isConfigured` è letto in `Awake`/`OnEnable`/`OnDisable`/`Start` di entrambi.
+
+⚠ **L'ordine regge per costruzione**: `TurnManager._isConfigured` è scritto da
+`LVLManager.Awake`, e Unity garantisce che *tutti* gli `Awake` girino prima di *qualunque*
+`Start`. Se `LVLManager` è disattivato, `_isConfigured` resta `false` e `TurnManager` si spegne
+da solo — fallisce chiuso.
+
+### I test
+`Test/Editor/`, EditMode, 82 test. **Non sono test dell'implementazione: asseriscono le regole
+documentate.** Esempi da `PanicWaveTests`: *il seduto è frangifuoco*, *la propagazione si ferma
+a `PanicSteps`*, *il panico della polizia non scende sotto 1 turno*, *un'ondata debole non
+accorcia un panico più lungo*, *`GetPanicWave` non muta niente*.
+⚠ **Se cambi una regola e un test diventa rosso, il test ha ragione finché non aggiorni anche
+la documentazione.** È l'unica rete che il progetto abbia mai avuto contro le regressioni.
+⚠ Non esiste nessun `.asmdef`: i test compilano nell'assembly Editor. Funziona, ma non c'è
+confine e non girano fuori dall'Editor. Due asmdef serviranno il giorno della CI.
+
 ## Manager
 GameManager (reset/quit) / LVLManager (setup unità, score, win/lose, celle
 obiettivo) / TurnManager (esecuzione azioni, ciclo turni) / CameraManager
@@ -1168,6 +1228,13 @@ con la diagnosi, perché la spiegazione del *perché* succedeva vale più della 
   di `BootManager`, i due di `TurnManager` (carica e scontro) e quello di `PoliceAI`.
   Verificato con un grep il 16/08/26: se ne aggiungi uno, aggiungi anche il timeout.
 
+- **`PushResult.IsResolved == false` confonde due casi opposti** (22/08/26). Copre sia
+  "input non valido o unità non adiacenti" — dove non è successo niente — sia
+  "`ApplyPushChain` fallito a metà catena", dove **la plancia è corrotta**. Il `LogError` in
+  `PushResolution` dice *"invalid units, positions or adjacency"*, che per il secondo caso è
+  falso; e il `return` che segue salta morale, panico, allarme, intrusione e
+  `RefreshBoardState` su una plancia già mossa a metà. Serve un `Reason` nel `PushResult`.
+  ⚠ Non è un bug attivo: il fallimento a metà catena non è producibile per i motivi sotto.
 - **`ApplyPushChain` non è transazionale** (segnalato da entrambe le revisioni del
   16/08/26). Se un `SetPosition` fallisce a metà catena, le unità già spostate restano
   nelle celle nuove e le successive no: la griglia resta in uno stato parziale.
@@ -1901,6 +1968,40 @@ adesso, non da quando sarà lunga.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 39 (22/08/26) — resolver, servizi, e la prima rete di test
+*Come sopra: ogni cosa sta nella sezione che la riguarda. Qui l'elenco e dove guardare.*
+
+- 🟢 **Estrazione delle regole dagli esecutori** → sezione "Resolver, servizi e test".
+  Sei resolver e due servizi, tutti statici puri e senza `Debug.Log`. Da 74 file a 98.
+- 🟢 **82 test in EditMode** che asseriscono le regole documentate, non l'implementazione.
+- 🟢 **`UnitActionPresenter`**: le animazioni escono da `TurnManager` e il buco del timeout
+  sulla carica si chiude **per costruzione** — `PushResolution` è dopo lo `yield`, non più in
+  una callback. `ResolveOnce`/`FinalizeOnce` sono spariti perché non servono più.
+- 🟢 **Validazione della configurazione all'avvio**: un solo `LogError` con tutti gli errori,
+  poi il livello non parte. Sostituisce i `LogWarning` sparsi che lasciavano proseguire.
+- 🟢 **`CanPerformAction` chiuso anche su Chant e SitStand** (`UnitActionResolver`): non più
+  "sicuro per call graph" ma per contratto. Era la coda segnalata da tutte e tre le revisioni.
+- 🟢 **Tutti e sette i `TrySpendActionPoint` controllano l'esito**, carica compresa.
+- 🔴 **Regressione mia, trovata dalle revisioni**: passando `CanPerformAction` dentro
+  `CanThrow`/`CanPlaceBarricade` avevo **cancellato il controllo dei PA**. Lancio e barricata
+  erano gratis a 0 PA. ⚠ **Quarta volta** che una sostituzione di blocco si porta via una
+  guardia — la regola era già scritta e l'ho violata dando un frammento che sembrava completo.
+- 🔴 **Doppia sottoscrizione di `OnLeftClick`**, stessa causa: una riga di contesto in un
+  frammento, aggiunta invece che sostituita. Il protocollo a due clic diventava a un clic.
+- 🔴 **`FindReachablePostCell` cercava le celle dell'obiettivo invece dell'area del guinzaglio**
+  → sezione "Presidio". Due definizioni diverse di "sono al mio posto".
+- 🔴 **`_requiresSimultaneous` era un'eccezione alla finestra di due turni** → sezione
+  "Obiettivi". Adesso è solo un cancello.
+
+**Le due lezioni della tornata:**
+
+1. **Un frammento di patch con righe di contesto è un invito a duplicare.** Due dei tre bug
+   attivi di oggi nascono da lì, non dal ragionamento. Chi passa codice da incollare deve dare
+   **il metodo intero**, oppure dire esplicitamente cosa va sostituito e cosa no.
+2. **La revisione che non trova niente è la meno affidabile.** Delle tre, quella che ha
+   concluso *"il codice è robusto, le falle effettive sono chiuse"* girava su un albero che
+   conteneva due bug attivi. Le altre due li hanno trovati entrambe, indipendentemente.
 
 ## Changelog sessione 38 (20/08/26) — le revisioni esterne, e il presidio che funziona davvero
 *Voce corta di proposito: ogni cosa è documentata **nella sezione che la riguarda**, e
