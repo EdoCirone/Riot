@@ -369,7 +369,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         RecalculateCohesion();
         _boardChangedEvent?.Raise();
     }
-
     private void ApplyAuras()
     {
         AuraService.AuraResult result =
