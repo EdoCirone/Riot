@@ -83,7 +83,7 @@ autorevole per qualunque check di coerenza codice/documento.
 - Logica prima, animazione dopo: l'esecuzione risolve lo stato logico, poi
   l'animazione mostra uno stato già risolto.
 
-  🔴 **NON è un vincolo rigido, e fino al 18/08/26 questo file diceva che lo fosse.**
+  🔴 **NON è un vincolo rigido, e fino al 20/08/26 questo file diceva che lo fosse.**
   Trovato da una revisione esterna che aveva ricevuto l'istruzione di controllare le
   premesse del documento. Lo stato reale sono **tre tempi diversi**:
   | azione | quando cambia lo stato logico |
@@ -649,7 +649,7 @@ Cambiata l'08/08 su richiesta di Edoardo: adesso può scartare **chiunque** nell
 - Si occupa accumulando **celle-turno**: ogni turno si somma il numero di celle
   dell'obiettivo occupate da spezzoni vivi. A `Required` è **rivendicato** e non paga più.
 
-⚠ **`Required = Cells.Count + 1`, e il +1 non è una taratura** (aggiunto 18/08/26 dopo
+⚠ **`Required = Cells.Count + 1`, e il +1 non è una taratura** (aggiunto 20/08/26 dopo
 playtest). In un turno non si può accumulare più di `Cells.Count` celle-turno — le celle
 sono quelle. Quindi con `Required = Cells` bastava **coprire l'edificio** per rivendicarlo a
 fine turno, **senza che la polizia avesse mai un turno per reagire**: il livello si vinceva
@@ -658,6 +658,14 @@ mezzo pesa perché l'accumulo si azzera se molli la presa. Occupare smette di es
 "toccare" e diventa "tenere".
 ⚠ È facilissimo scambiarlo per un off-by-one: c'è un commento lungo sopra la proprietà.
 ⚠ Gli obiettivi da 1 cella passano da 1 a 2 celle-turno — voluto.
+
+⚠ **`_requiresSimultaneous` NON è un'eccezione alla finestra di due turni** (deciso 20/08/26,
+dopo che una revisione esterna aveva trovato che lo era). Il ramo simultaneo faceva
+`_progress = Required` e rivendicava **nello stesso tick**, cioè la garanzia valeva per tutti
+tranne lui. Adesso il flag è **solo un cancello**: se non tieni tutte le celle l'accumulo si
+azzera, altrimenti accumuli come tutti (`_progress += occupied`). Due turni, sempre.
+*Regola generale che ne esce: una garanzia con un'eccezione non è una garanzia, è una
+coincidenza — e nessuno si ricorda le eccezioni al momento di costruirci sopra.*
 - ⚠ **Se in un turno non c'è nessuno sopra, l'accumulo si AZZERA.** L'obiettivo è una
   finestra da difendere, non un lavoro da rosicchiare.
 - `_requiresSimultaneous` sull'SO ripristina il profilo "ti obbliga a spezzarti": servono
@@ -720,7 +728,7 @@ il presidio è una statua e il corteo gli cammina accanto. Le vie sono **due fam
 
 **1. Aggressione a un poliziotto** — passa tutta da `TurnManager.ReportAggression(victim,
 aggressor, origin = null)`, chiamata da `ExecuteSkirmish`, `ExecuteThrow` e `PushResolution`.
-🔴 **Fino al 18/08/26 l'allarme era scritto a mano nel solo `ExecuteSkirmish`**, quindi
+🔴 **Fino al 20/08/26 l'allarme era scritto a mano nel solo `ExecuteSkirmish`**, quindi
 **lanciare un sanpietrino o caricare un poliziotto non svegliava nessuno**: due modi di
 aggredire su tre erano muti, senza produrre nessun errore. Trovato da Edoardo in playtest.
 ⚠ Tre chiamanti ma **una decisione sola**: chi aggiunge un'azione ostile chiama
@@ -733,7 +741,7 @@ callback di `TurnManager.ExecuteMovement` **e da `PushResolution`**. Entrare in 
 non rivendicato sveglia il presidio nel raggio; su un obiettivo **già rivendicato** non
 scatta — l'ultimo obiettivo del livello sarebbe gratis, ma quello preso non deve suonare in
 eterno.
-🔴 La chiamata in `PushResolution` è del 18/08/26: la carica sposta l'attaccante, e finché il
+🔴 La chiamata in `PushResolution` è del 20/08/26: la carica sposta l'attaccante, e finché il
 controllo viveva solo in `ExecuteMovement` **entrare caricando era un modo legale di infilarsi
 in un edificio presidiato senza svegliare nessuno**. `HasChargeRoom` valida la destinazione con
 `IsCellAvailable`, che non guarda `IsObjective`.
@@ -754,7 +762,7 @@ secondari diventano lo strumento di diversivo** — entri in uno lontano, svegli
 presidio, e prendi il dichiarato mentre sono impegnati. Non serve una Zona Rossa né un coro
 provocatorio per avere una distrazione: c'è già, ed è emersa invece che essere progettata.
 
-🔴 **Due bug chiusi il 18/08/26 dalla revisione esterna, entrambi nel rientro al presidio.**
+🔴 **Due bug chiusi il 20/08/26 dalla revisione esterna, entrambi nel rientro al presidio.**
 - **`MoveTowards` impediva il rientro invece di imporlo**: troncava il percorso al primo passo
   fuori guinzaglio, ma chi è *già* fuori non poteva fare nemmeno il primo passo verso casa.
   ⚠ **La prima correzione era a metà** e va raccontata perché la lezione vale: ammetteva i
@@ -782,7 +790,8 @@ coroutine prima della riga che lo rimette a `false`, e l'input restava bloccato 
 Ora c'è un `LogError` in `Start` (**senza `return`**, o non si alzerebbe `_startPlayerTurnEvent`)
 e una guardia in `ExecutePoliceTurn` che salta il turno della polizia invece di piantarlo.
 
-⚠ **Non ancora playtestato al 18/08/26.** Il codice c'è ed è coerente, ma nessuno ha
+⚠ **Playtestato il 20/08/26 e funzionante** (i richiamati camminano verso il nuovo presidio,
+il lancio sveglia il presidio, l'inseguimento dura tre turni). Restano da tarare: nessuno ha
 verificato che i tre numeri (`_leashRadius` 4, `_alarmRadius` 4, `_alarmDuration` 3) diano
 un avversario giocabile. Sono manopole, e sono su `LVLManager` proprio per poterle girare.
 
@@ -888,7 +897,7 @@ se il lancio uccide, il bersaglio sparisce **mentre l'oggetto è ancora in volo*
 famiglia dell'animazione dell'arresto: qualcosa esce di scena troppo presto rispetto a
 quello che si vede.
 
-## Ricompilare durante il Play azzera i campi non serializzabili (18/08/26)
+## Ricompilare durante il Play azzera i campi non serializzabili (20/08/26)
 Sintomo: raffica di `NullReferenceException` in `CameraManager.OnEnable`,
 `InputHandler.OnEnable`/`OnDisable`, ripetute in cicli enable/disable. **Non è un bug del
 gioco**: succede quando Visual Studio ricompila mentre l'Editor è in Play.
@@ -1706,14 +1715,18 @@ Quello che si accumula fino ad allora, da affrontare in blocco:
   nessun effetto, perché `CanPerformAction` è controllato solo in `InputHandler`.
   ⚠ Prerequisito di qualunque azione nuova della polizia: finché la maschera è inerte,
   aggiungere lacrimogeni o scudi significa darli a tutti e sempre.
-  🔴 **Confermato dalla revisione esterna del 18/08/26, e il problema è più grosso di così**:
+  🔴 **Confermato dalla revisione esterna del 20/08/26, e il problema è più grosso di così**:
+  ✅ **CHIUSO il 20/08/26**: `CanPerformAction` è ora dentro `TacticalQuery.GetValidTargets`,
+  `CanThrow`, `CanPlaceBarricade` e `TurnManager.CanCharge`. In `InputHandler` il controllo
+  resta ma **spiega** invece di decidere. Diagnosi originale, conservata perché la forma
+  del difetto torna:
   `_allowedActions` **non è una regola, è un filtro dell'input**. `CanPerformAction` vive
   solo in `InputHandler`; `TurnManager.CanCharge` non lo consulta e `PoliceAI` chiama
   `CanCharge` direttamente. Quindi *qualunque* azione invocata da codice invece che da un
   bottone scavalca la maschera. Viola "una decisione, un posto solo": è una domanda di
   legalità che vive nello strato UI invece che in `TacticalQuery`.
 - 🔴 **Oscilla fra due celle** quando non può vincere nessuno scontro (visto in playtest il
-  18/08/26 contro un muro di Pacifisti seduti, Def 1+5+2 = 8 contro Atk 8). La passata 1 non
+  20/08/26 contro un muro di Pacifisti seduti, Def 1+5+2 = 8 contro Atk 8). La passata 1 non
   trova niente, la passata 2 si sposta di una cella, e da lì la "cella migliore" torna a
   essere quella di prima: avanti-indietro finché finiscono i PA. Tamponato con un
   `visitedThisTurn` che rifiuta una destinazione già visitata nel turno.
@@ -1889,7 +1902,7 @@ adesso, non da quando sarà lunga.
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
 
-## Changelog sessione 37 (18/08/26) — il presidio comincia a funzionare
+## Changelog sessione 38 (20/08/26) — le revisioni esterne, e il presidio che funziona davvero
 *Voce corta di proposito: ogni cosa è documentata **nella sezione che la riguarda**, e
 duplicarla qui è il difetto già segnalato in cima al file. Qui c'è solo l'elenco e dove
 guardare.*

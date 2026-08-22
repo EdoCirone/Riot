@@ -91,7 +91,6 @@ public class TurnManager : MonoBehaviour
         destinationCell = null;
 
         if (atk == null || def == null) return false;
-        if (atk == null || def == null) return false;
         if (!atk.IsAlive || !def.IsAlive) return false;
         if (def.IsSeated) return false;                       // barricata umana
 
@@ -423,8 +422,27 @@ public class TurnManager : MonoBehaviour
 
     #region Moviment
 
-    public bool ExecuteMovement(AbstractUnitsRunTime unit, List<HexCell> path, System.Action onComplete = null)
+    /// <summary>
+    /// Esegue il movimento lungo le celle indicate.
+    ///
+    /// Contratto:
+    /// - path non contiene la posizione iniziale dell'unità;
+    /// - ogni elemento rappresenta una cella da raggiungere;
+    /// - ogni elemento costa 1 punto azione;
+    /// - la collezione ricevuta non viene modificata.
+    /// </summary>
+    public bool ExecuteMovement(
+        AbstractUnitsRunTime unit,
+        IReadOnlyList<HexCell> path,
+        Action onComplete = null)
     {
+        if (unit == null || unit.PositionCell == null)
+        {
+            Debug.LogError("[MOVEMENT] Invalid unit or missing position");
+            onComplete?.Invoke();
+            return false;
+        }
+
         if (path == null || path.Count == 0)
         {
             _alertEvent?.Raise("No Path Found");
@@ -432,50 +450,65 @@ public class TurnManager : MonoBehaviour
             return false;
         }
 
-        // Check PA
-        int cost = path.Count;
+        if (path[0] == unit.PositionCell)
+        {
+            Debug.LogError(
+                "[MOVEMENT] Invalid path: the starting cell must not be included");
+
+            onComplete?.Invoke();
+            return false;
+        }
+
+        // Copia difensiva: l'animazione è asincrona e non deve dipendere
+        // da eventuali modifiche apportate dal chiamante alla lista originale.
+        List<HexCell> movementPath = new List<HexCell>(path);
+
+        int cost = movementPath.Count;
+
         if (unit.ActionPoints < cost)
         {
-            Debug.Log($"Insufficent PA to move ({cost} PA needed)");
+            Debug.Log(
+                $"Insufficient AP to move: {cost} required, {unit.ActionPoints} available");
+
             onComplete?.Invoke();
             return false;
         }
 
         GameObject unitGO = _unitsRenderer.GetGameObject(unit);
+
         if (unitGO == null)
         {
-            Debug.LogError($"GameObject don't found for {unit}");
+            Debug.LogError($"[MOVEMENT] GameObject not found for {unit}");
             onComplete?.Invoke();
             return false;
         }
 
         UnitMovement movement = unitGO.GetComponent<UnitMovement>();
+
         if (movement == null)
         {
-            Debug.LogError($"UnitMovement not found on {unitGO.name}");
+            Debug.LogError($"[MOVEMENT] UnitMovement not found on {unitGO.name}");
             onComplete?.Invoke();
             return false;
         }
 
         if (movement.IsMoving)
         {
+            Debug.LogWarning($"[MOVEMENT] {unitGO.name} is already moving");
             onComplete?.Invoke();
             return false;
         }
 
-        unit.TrySpendActionPoint(cost);
-
-        if (path[0] == unit.PositionCell)
-            path.RemoveAt(0);
-
-        if (path.Count == 0)
+        if (!unit.TrySpendActionPoint(cost))
         {
+            Debug.LogError($"[MOVEMENT] Failed to spend {cost} AP");
             onComplete?.Invoke();
-            return true;
+            return false;
         }
 
         _startFollowEvent?.Raise(unitGO);
-        movement.MoveAlongPath(path, _lvlManager.Map, () =>
+
+        movement.MoveAlongPath(movementPath, _lvlManager.Map, () =>
         {
             _unitsRenderer.UpdateView(unit);
             _lvlManager.RefreshBoardState();
@@ -634,7 +667,11 @@ public class TurnManager : MonoBehaviour
             return;
         }
 
-        spezzone.TrySpendActionPoint(item.ActionPointCost);
+        if (!spezzone.TrySpendActionPoint(item.ActionPointCost))
+        {
+            Debug.LogError($"[TURN] Throw passed CanThrow but AP were missing: legality and execution disagree");
+            return;
+        }
         spezzone.Inventory.ConsumeItem(item);
         _throwEvent.Raise(target);
         target.LoseMorale(item.MoralLost);
@@ -669,7 +706,12 @@ public class TurnManager : MonoBehaviour
             return false;
         }
 
-        spezzone.TrySpendActionPoint(item.ActionPointCost);
+        if (!spezzone.TrySpendActionPoint(item.ActionPointCost))
+        {
+            Debug.LogError($"[TURN] Barricade passed CanPlaceBarricade but AP were missing: legality and execution disagree");
+            return false;
+        }
+        spezzone.Inventory.ConsumeItem(item);
         spezzone.Inventory.ConsumeItem(item);
         targetCell.TryPlaceBarricade(new BarricadeRuntime(item));
 

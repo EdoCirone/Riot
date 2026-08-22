@@ -245,6 +245,7 @@ public static class TacticalQuery
         if (!unit.IsAlive) return false;
         if (!unit.CanPerformAction(ActionType.Throw)) return false;
         if (!unit.Inventory.HasItem(item)) return false;
+        if (unit.ActionPoints < item.ActionPointCost) return false;
 
         if (target.OccupiedBy is not PoliceRuntime police || !police.IsAlive) return false;
 
@@ -260,6 +261,7 @@ public static class TacticalQuery
         if (!unit.IsAlive) return false;
         if (!unit.CanPerformAction(ActionType.Barricade)) return false;
         if (!unit.Inventory.HasItem(item)) return false;
+        if (unit.ActionPoints < item.ActionPointCost) return false;
 
         if (unit.PositionCell.Coordinates.Distance(target.Coordinates) != 1) return false;
         if (target.IsObjective) return false;

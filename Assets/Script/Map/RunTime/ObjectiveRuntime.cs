@@ -70,20 +70,19 @@ public class ObjectiveRuntime
             return false;
         }
 
-        if (_data.RequiresSimultaneous)
+        // ⚠ Il requisito di simultaneità è un CANCELLO, non una regola di punteggio a parte.
+        // Prima questo ramo faceva _progress = Required, cioè rivendicava nello stesso tick:
+        // la finestra di reazione della polizia valeva per tutti gli obiettivi tranne questi.
+        // Una garanzia con un'eccezione non è una garanzia.
+        if (_data.RequiresSimultaneous && occupied < _cells.Count)
         {
-            if (occupied < _cells.Count)
-            {
-                _progress = 0;
+            if (_progress > 0)
                 Debug.Log($"[OBJ] {this}: needs all {_cells.Count} cells at once, only {occupied} held");
-                return false;
-            }
-            _progress = Required;
+            _progress = 0;
+            return false;
         }
-        else
-        {
-            _progress += occupied;
-        }
+
+        _progress += occupied;
 
         if (_progress >= Required)
         {

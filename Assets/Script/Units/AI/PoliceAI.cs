@@ -63,8 +63,8 @@ public class PoliceAI : MonoBehaviour
                         // ignorare in silenzio: o il presidio è murato, o gli sono stati
                         // assegnati più poliziotti di quante celle abbia. In entrambi i casi
                         // è un errore di dato del livello, e va detto.
-                        Debug.LogWarning($"[AI] {police} cannot reach any cell of {police.GuardedObjective}: " +
-                                         $"it stays out of position. Check the level data.");
+                        Debug.LogWarning($"[AI] {police} cannot reach any cell within leash of " +
+                               $"{police.GuardedObjective}: it stays out of position");
                         break;
                     }
 
@@ -180,35 +180,45 @@ public class PoliceAI : MonoBehaviour
     }
 
     /// <summary>
-    /// La cella del presidio verso cui rientrare: la più vicina **fra quelle
-    /// effettivamente RAGGIUNGIBILI**, non la più vicina e basta.
+    /// Dove rientrare: la cella raggiungibile più vicina che soddisfa il **guinzaglio**.
     ///
-    /// ⚠ La distinzione non è pedanteria. `PathFinder.FindPath` scarta ogni cella non
-    /// disponibile, **destinazione compresa**: quindi bastava che la cella geometricamente
-    /// più vicina fosse occupata — tipicamente da un collega dello stesso presidio — perché
-    /// il rientro fallisse, la passata 0 facesse `break`, e il poliziotto restasse fuori
-    /// guinzaglio **per sempre**, senza nemmeno attaccare chi aveva accanto.
-    /// Caso concreto in cui succede sempre: un obiettivo da 3 celle con 4 poliziotti assegnati.
+    /// ⚠ NON una cella dell'obiettivo. Le due cose sembrano la stessa e non lo sono:
+    /// `IsWithinLeash` dice "entro LeashRadius dall'edificio", che è un'area di decine di
+    /// celle; puntare alle sole celle dell'edificio è un requisito molto più stretto di
+    /// quello che la regola chiede. Con le celle dell'obiettivo occupate dai colleghi —
+    /// 3 celle e 4 poliziotti, la situazione che il volantino produce — il rientro
+    /// risultava impossibile pur essendo banale, e il log accusava i dati del livello.
     ///
-    /// Restituisce null se nessuna cella del presidio è raggiungibile: è un caso che il
-    /// chiamante deve trattare esplicitamente, non un valore di ripiego.
+    /// La BFS visita in ordine di distanza crescente, quindi la prima cella buona è già
+    /// la migliore: una sola ricerca al posto di una A* per ogni cella dell'obiettivo.
     /// </summary>
     private HexCoordinates? FindReachablePostCell(PoliceRuntime police)
     {
-        ObjectiveRuntime post = police.GuardedObjective;
-        if (post == null) return null;
+        if (police.GuardedObjective == null) return null;
 
-        HexCoordinates from = police.PositionCell.Coordinates;
+        HexCoordinates start = police.PositionCell.Coordinates;
 
-        // Candidate ordinate per distanza: si prova la più vicina, poi la seconda, e via.
-        List<HexCell> candidates = new List<HexCell>(post.Cells);
-        candidates.Sort((a, b) =>
-            from.Distance(a.Coordinates).CompareTo(from.Distance(b.Coordinates)));
+        HashSet<HexCoordinates> seen = new() { start };
+        Queue<HexCoordinates> queue = new();
+        queue.Enqueue(start);
 
-        foreach (HexCell cell in candidates)
+        while (queue.Count > 0)
         {
-            List<HexCoordinates> path = _turnManager.PathFinder.FindPath(from, cell.Coordinates, _lvlManager.Map);
-            if (path != null && path.Count > 1) return cell.Coordinates;
+            HexCoordinates current = queue.Dequeue();
+
+            foreach (HexCoordinates dir in HexCoordinates.Directions)
+            {
+                HexCoordinates next = current + dir;
+                if (!seen.Add(next)) continue;
+                if (!_lvlManager.Map.TryGetCell(next, out HexCell cell)) continue;
+
+                // Stesso filtro del PathFinter: se la BFS ci arriva, l'A* trova la strada.
+                if (!TacticalQuery.IsCellAvailable(cell)) continue;
+
+                if (IsWithinLeash(police, next)) return next;
+
+                queue.Enqueue(next);
+            }
         }
 
         return null;

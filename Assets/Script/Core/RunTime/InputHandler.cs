@@ -73,8 +73,6 @@ public class InputHandler : MonoBehaviour
         _inputSystem ??= new InputSystem_Actions();
 
         _inputSystem.UI.LeftClick.performed += OnLeftClick;
-
-        _inputSystem.UI.LeftClick.performed += OnLeftClick;
         _inputSystem.UI.RightClick.performed += OnRightClick;
 
         _actionButtonClickedEvent.Subscribe(OnActionButtonClicked);
