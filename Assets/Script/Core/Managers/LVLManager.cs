@@ -61,8 +61,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     [Tooltip("Print a map coverage report at Start: garrison per objective, and how far the " +
          "corteo has to walk to reach each one.")]
-    [SerializeField] private bool _logCoverageReport = true;
-
+    [SerializeField] private bool _logCoverageDiagnostics;
 
     private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
     private List<PoliceRuntime> _policeOfLVL = new List<PoliceRuntime>();
@@ -193,8 +192,8 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
         RefreshBoardState();
 
-        if (_logCoverageReport)
-            LogCoverageReport();
+        if (_logCoverageDiagnostics)
+            LogCoverageDiagnostics();
     }
 
     /// <summary>Unità piazzate a mano in scena: oggi la polizia. La cella la deducono
@@ -569,118 +568,19 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
         RaiseAlarmAround(cell, $"{unit} entered {cell.Objective}");
     }
-    private MeetingPointRuntime ResolveMeetingPoint()
+
+    [ContextMenu("Log coverage diagnostics")]
+    public void LogCoverageDiagnostics()
     {
-        if (_meetingPoint == null || _map == null) return null;
+        string report = LevelCoverageDiagnostics.Build(
+            _map,
+            _meetingPoint,
+            _declared,
+            _spezzoniOfLVL,
+            _policeOfLVL
+        );
 
-        foreach (MeetingPointRuntime candidate in _map.MeetingPoints)
-            if (candidate.Data == _meetingPoint) return candidate;
-
-        return null;
-    }
-
-    /// <summary>
-    /// BFS multi-sorgente dalle celle del ritrovo. ⚠ Guarda SOLO il terreno, non chi lo
-    /// occupa: misura la mappa, non il traffico del momento. Un report che cambia perché
-    /// un poliziotto è due celle più in là non serve a progettare il livello.
-    /// </summary>
-    private Dictionary<HexCoordinates, int> StepsFrom(IReadOnlyList<HexCell> sources)
-    {
-        Dictionary<HexCoordinates, int> steps = new();
-        Queue<HexCoordinates> queue = new();
-
-        foreach (HexCell source in sources)
-        {
-            if (source == null) continue;
-            steps[source.Coordinates] = 0;
-            queue.Enqueue(source.Coordinates);
-        }
-
-        while (queue.Count > 0)
-        {
-            HexCoordinates current = queue.Dequeue();
-            int next = steps[current] + 1;
-
-            foreach (HexCoordinates dir in HexCoordinates.Directions)
-            {
-                HexCoordinates neighbor = current + dir;
-                if (steps.ContainsKey(neighbor)) continue;
-                if (!_map.TryGetCell(neighbor, out HexCell cell)) continue;
-                if (!cell.Type.IsWalkable) continue;
-
-                steps[neighbor] = next;
-                queue.Enqueue(neighbor);
-            }
-        }
-
-        return steps;
-    }
-
-    /// <summary>
-    /// Dice se il livello è progettato o è capitato, senza doverlo giocare: quanti
-    /// poliziotti difendono cosa, e quanto ci mette il corteo ad arrivarci.
-    /// </summary>
-    [ContextMenu("Log coverage report")]
-    public void LogCoverageReport()
-    {
-        if (_map == null || _map.Objectives == null) return;
-
-        MeetingPointRuntime meeting = ResolveMeetingPoint();
-        Dictionary<HexCoordinates, int> steps = meeting != null ? StepsFrom(meeting.Cells) : null;
-
-        // Due passi, non uno: il corteo compatto va alla velocità del più lento, ma una
-        // singola unità veloce mandata avanti va al proprio. La differenza fra le due
-        // colonne È il prezzo dello spezzarsi (GDD cap. 19).
-        int slow = int.MaxValue;
-        int fast = 1;
-        foreach (SpezzoneRuntime spezzone in _spezzoniOfLVL)
-        {
-            if (!spezzone.IsAlive) continue;
-            if (spezzone.MaxActionPoints < slow) slow = spezzone.MaxActionPoints;
-            if (spezzone.MaxActionPoints > fast) fast = spezzone.MaxActionPoints;
-        }
-        if (slow == int.MaxValue || slow <= 0) slow = 1;
-
-        System.Text.StringBuilder report = new();
-        report.AppendLine($"[COVERAGE] {_map.Objectives.Count} objective(s), {_policeOfLVL.Count} police, " +
-                          $"corteo of {_spezzoniOfLVL.Count} from " +
-                          $"{(meeting != null ? meeting.ToString() : "NO MEETING POINT")}, " +
-                          $"pace {slow}-{fast} AP/turn");
-        report.AppendLine("[COVERAGE] objective                     cells  garrison   steps  packed   solo");
-
-        int unguarded = 0;
-        int unreachable = 0;
-
-        foreach (ObjectiveRuntime objective in _map.Objectives)
-        {
-            int garrison = 0;
-            foreach (PoliceRuntime police in _policeOfLVL)
-                if (police.IsAlive && police.GuardedObjective == objective) garrison++;
-
-            if (garrison == 0) unguarded++;
-
-            int best = int.MaxValue;
-            if (steps != null)
-                foreach (HexCell cell in objective.Cells)
-                    if (steps.TryGetValue(cell.Coordinates, out int d) && d < best) best = d;
-
-            bool reachable = best != int.MaxValue;
-            if (!reachable) unreachable++;
-
-            string stepText = reachable ? best.ToString() : "--";
-            string slowText = reachable ? Mathf.CeilToInt(best / (float)slow).ToString() : "--";
-            string fastText = reachable ? Mathf.CeilToInt(best / (float)fast).ToString() : "--";
-            string mark = objective == _declared ? "   <<< DECLARED" : "";
-
-            report.AppendLine($"[COVERAGE] {objective.ToString().PadRight(30)}" +
-                              $"{objective.Cells.Count,5}{garrison,10}{stepText,8}{slowText,8}{fastText,7}{mark}");
-        }
-
-        report.AppendLine($"[COVERAGE] {unguarded} objective(s) with no garrison at all");
-
-        if (unreachable > 0)
-            report.AppendLine($"[COVERAGE] ⚠ {unreachable} objective(s) the corteo cannot reach on foot: check the map");
-
-        Debug.Log(report.ToString());
+        if (!string.IsNullOrEmpty(report))
+            Debug.Log(report);
     }
 }
