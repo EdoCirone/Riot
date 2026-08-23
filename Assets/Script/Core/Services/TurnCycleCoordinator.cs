@@ -32,6 +32,9 @@ public sealed class TurnCycleCoordinator
 
         _level.RefreshBoardState();
 
+        // La sconfitta per Coesione ha priorità sull'occupazione
+        // risolta dall'EndPlayerTurnEvent: un corteo già disperso
+        // non può rivendicare l'obiettivo.
         if (_level.CheckCohesionDefeat())
             yield break;
 

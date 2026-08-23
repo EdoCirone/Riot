@@ -25,11 +25,11 @@ public class PoliceAI : MonoBehaviour
     }
     public IEnumerator ExecutePoliceActions()
     {
-        // ⚠ Chiuso ma NON bloccante. Il pattern _isValid altrove significa "non iscriverti
-        // a niente"; qui significa "termina subito", perché chi aspetta questa coroutine è
-        // TurnManager: se non finisse, _waitingForPolice resterebbe true e il turno non
-        // tornerebbe mai al giocatore. Fallire in silenzio è meglio che piantare la partita.
-        if (!_isValid) yield break;
+        // Il coordinatore del ciclo attende questa coroutine.
+        // Se la configurazione è invalida deve terminare subito,
+        // così il controllo può tornare al giocatore.
+        if (!_isValid)
+            yield break;
 
         foreach (var police in _lvlManager.Police)
         {
@@ -302,23 +302,5 @@ public class PoliceAI : MonoBehaviour
 
         return targets;
     }
-
-    private SpezzoneRuntime FoundNearestSpezzone(PoliceRuntime police)
-    {
-        SpezzoneRuntime nearest = null;
-        int minDistance = int.MaxValue;
-        foreach (var spezzone in _lvlManager.Spezzoni)
-        {
-            if (!spezzone.IsAlive) continue;
-            int distance = police.PositionCell.Coordinates.Distance(spezzone.PositionCell.Coordinates);
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                nearest = spezzone;
-            }
-        }
-        return nearest;
-    }
-
 
 }
