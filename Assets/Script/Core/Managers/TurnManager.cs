@@ -386,7 +386,32 @@ public class TurnManager : MonoBehaviour
         {
             _unitsRenderer.UpdateView(unit);
             _lvlManager.RefreshBoardState();
-            _lvlManager.CheckObjectiveIntrusion(unit);
+
+            HashSet<ObjectiveRuntime> enteredObjectives = new();
+
+            foreach (HexCell traversedCell in movementPath)
+            {
+                if (traversedCell == null ||
+                    !traversedCell.IsObjective)
+                {
+                    continue;
+                }
+
+                ObjectiveRuntime objective =
+                    traversedCell.Objective;
+
+                if (objective == null ||
+                    !enteredObjectives.Add(objective))
+                {
+                    continue;
+                }
+
+                _lvlManager.CheckObjectiveIntrusion(
+                    unit,
+                    traversedCell
+                );
+            }
+
             _stopFollowEvent?.Raise();
             onComplete?.Invoke();
         });

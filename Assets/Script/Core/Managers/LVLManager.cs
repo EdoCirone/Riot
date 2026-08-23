@@ -436,17 +436,26 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     }
 
     /// <summary>Entrare in un obiettivo non rivendicato fa scattare l'allarme (GDD 19.6).</summary>
-    public void CheckObjectiveIntrusion(AbstractUnitsRunTime unit)
+    public void CheckObjectiveIntrusion(
+        AbstractUnitsRunTime unit,
+        HexCell cell = null)
     {
-        if (unit is not SpezzoneRuntime) return;
+        if (unit is not SpezzoneRuntime)
+            return;
 
-        HexCell cell = unit.PositionCell;
-        if (cell == null || !cell.IsObjective) return;
-        if (cell.Objective.IsClaimed) return;
+        cell ??= unit.PositionCell;
 
-        RaiseAlarmAround(cell, $"{unit} entered {cell.Objective}");
+        if (cell == null || !cell.IsObjective)
+            return;
+
+        if (cell.Objective.IsClaimed)
+            return;
+
+        RaiseAlarmAround(
+            cell,
+            $"{unit} entered {cell.Objective}"
+        );
     }
-
     [ContextMenu("Log coverage diagnostics")]
     public void LogCoverageDiagnostics()
     {
