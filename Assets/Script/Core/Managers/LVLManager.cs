@@ -188,7 +188,16 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         SpawnRoster();
 
         ResolveDeclaredObjective();
-        AssignGarrisons();
+
+        PoliceGarrisonCoordinator.Assign(
+            _policeOfLVL,
+            _map.Objectives,
+            _declared,
+            _unitsRenderer,
+            _engagementRules,
+            _leashRadius,
+            _declaredReinforcement
+        );
 
         RefreshBoardState();
 
@@ -402,137 +411,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         _gameOver = true;
         _turnManager.enabled = false;
         return true;
-    }
-
-    /// <summary>
-    /// Ogni poliziotto riceve un obiettivo da presidiare, in DUE passate.
-    /// 1ª — quello dichiarato sul suo componente, oppure il più vicino a dove si trova.
-    /// 2ª — il volantino è pubblico: una quota del presidio libero si sposta sull'obiettivo
-    /// DICHIARATO dal giocatore. È questo che rende "dichiarare" una scelta con un costo.
-    /// ⚠ Chi ha un obiettivo scritto a mano sull'UnitsSetup è immune: quello è un ordine del
-    /// level designer, non un ripiego, e non va sovrascritto da una percentuale.
-    /// </summary>
-    private void AssignGarrisons()
-    {
-        // rules e radius si conservano perché servono anche alla 2ª passata
-        List<(PoliceRuntime police, bool pinned, EngagementRules rules, int radius)> assigned = new();
-
-        foreach (PoliceRuntime police in _policeOfLVL)
-        {
-            ObjectiveRuntime target = null;
-            bool pinned = false;
-
-            GameObject go = _unitsRenderer.GetGameObject(police);
-            UnitsSetup setup = go != null ? go.GetComponent<UnitsSetup>() : null;
-
-            if (setup != null && setup.GuardedObjective != null)
-            {
-                foreach (ObjectiveRuntime candidate in _map.Objectives)
-                    if (candidate.Data == setup.GuardedObjective) { target = candidate; break; }
-
-                if (target == null)
-                    Debug.LogError($"[GARRISON] {police}: declared objective '{setup.GuardedObjective.name}' is not on this map");
-                else
-                    pinned = true;
-            }
-
-            if (target == null) target = NearestObjective(police.PositionCell.Coordinates);
-
-            EngagementRules rules = (setup != null && setup.OverrideEngagement)
-                ? setup.EngagementRules
-                : _engagementRules;
-
-            int radius = (setup != null && setup.LeashRadiusOverride >= 0)
-                ? setup.LeashRadiusOverride
-                : _leashRadius;
-
-            police.AssignGuard(target, rules, radius);
-            assigned.Add((police, pinned, rules, radius));
-
-            Debug.Log(target != null
-                ? $"[GARRISON] {police} guards {target} — {rules}, radius {radius}"
-                : $"[GARRISON] {police} has no objective to guard: it will roam");
-        }
-
-        ReinforceDeclaredObjective(assigned);
-    }
-
-    /// <summary>
-    /// Il volantino è pubblico: la polizia sa dove punta il corteo e ci concentra una quota
-    /// del presidio. Vengono richiamati i più VICINI all'obiettivo dichiarato fra quelli che
-    /// non lo stanno già presidiando — quindi dichiarare apre un buco proprio ACCANTO a ciò
-    /// che hai dichiarato. È lì che nasce il diversivo, senza doverlo progettare a parte.
-    /// </summary>
-    private void ReinforceDeclaredObjective(
-        List<(PoliceRuntime police, bool pinned, EngagementRules rules, int radius)> assigned)
-    {
-        if (_declared == null) return;
-        if (_declaredReinforcement <= 0f) return;
-
-        List<(PoliceRuntime police, EngagementRules rules, int radius, int distance)> candidates = new();
-
-        foreach (var entry in assigned)
-        {
-            if (entry.pinned) continue;
-            if (!entry.police.IsAlive) continue;
-            if (entry.police.GuardedObjective == _declared) continue;
-
-            candidates.Add((entry.police, entry.rules, entry.radius,
-                DistanceToObjective(entry.police.PositionCell.Coordinates, _declared)));
-        }
-
-        if (candidates.Count == 0)
-        {
-            Debug.Log($"[GARRISON] flyer is public but nobody can answer it: " +
-                      $"every free unit already guards {_declared}, the rest are pinned");
-            return;
-        }
-
-        candidates.Sort((a, b) => a.distance.CompareTo(b.distance));
-
-        // ⚠ CeilToInt e non RoundToInt: con pochi poliziotti l'arrotondamento (che in Unity
-        // è bancario, 0.5 -> 0) annullerebbe il richiamo senza dirlo. Il volantino non deve
-        // mai poter essere ignorato: se c'è un candidato, almeno uno risponde.
-        int toMove = Mathf.CeilToInt(candidates.Count * _declaredReinforcement);
-        toMove = Mathf.Min(toMove, candidates.Count);
-
-        for (int i = 0; i < toMove; i++)
-        {
-            var c = candidates[i];
-            ObjectiveRuntime left = c.police.GuardedObjective;
-            c.police.AssignGuard(_declared, c.rules, c.radius);
-            Debug.Log($"[GARRISON] {c.police} pulled from {left} to the declared {_declared} (distance {c.distance})");
-        }
-
-        Debug.Log($"[GARRISON] flyer is public: {toMove} of {candidates.Count} free unit(s) reinforce {_declared}");
-    }
-
-    private static int DistanceToObjective(HexCoordinates from, ObjectiveRuntime objective)
-    {
-        int best = int.MaxValue;
-        if (objective == null) return best;
-
-        foreach (HexCell cell in objective.Cells)
-        {
-            int d = from.Distance(cell.Coordinates);
-            if (d < best) best = d;
-        }
-
-        return best;
-    }
-
-    private ObjectiveRuntime NearestObjective(HexCoordinates from)
-    {
-        ObjectiveRuntime nearest = null;
-        int best = int.MaxValue;
-
-        foreach (ObjectiveRuntime objective in _map.Objectives)
-        {
-            int d = DistanceToObjective(from, objective);
-            if (d < best) { best = d; nearest = objective; }
-        }
-
-        return nearest;
     }
 
     /// <summary>
