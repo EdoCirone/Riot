@@ -39,8 +39,7 @@ public class TurnManager : MonoBehaviour
     private UnitActionPresenter _actionPresenter;
 
     private bool _isConfigured;
-    private bool _waitingForPolice = false;
-
+    private TurnCycleCoordinator _turnCycle;
 
     public PathFinder PathFinder => _pathFinder;
     public GameEventSO EndPlayerTurnEvent => _endPlayerTurnEvent;
@@ -49,7 +48,8 @@ public class TurnManager : MonoBehaviour
     public UnitEventSO ThrowEvent => _throwEvent;
     private bool IsCellAvailable(HexCell cell) => TacticalQuery.IsCellAvailable(cell);
     public bool IsConfigured => _isConfigured;
-    public bool IsPoliceTurn => _waitingForPolice;
+    public bool IsPoliceTurn =>
+        _turnCycle != null && _turnCycle.IsPoliceTurn;
 
     //Helper method to determine the cause of morale loss based on the source unit type
     private static MoraleLossCause CauseFrom(AbstractUnitsRunTime source)
@@ -114,6 +114,13 @@ public class TurnManager : MonoBehaviour
                             _skirmishLoseEvent,
                             _skirmishParEvent
                             );
+        _turnCycle = new TurnCycleCoordinator(
+                        _lvlManager,
+                        _policeAI,
+                        _unitsRenderer,
+                        _startPlayerTurnEvent,
+                        _endPlayerTurnEvent
+                        );
 
         _startPlayerTurnEvent.Raise();
     }
@@ -709,47 +716,6 @@ public class TurnManager : MonoBehaviour
 
     #region Police
 
-    private IEnumerator ExecutePoliceTurn()
-    {
-        // ⚠ Senza questa guardia un _policeAI non assegnato è un HARD LOCK, non un errore.
-        // EndTurn ha già messo _waitingForPolice = true; la NullReferenceException ucciderebbe
-        // la coroutine PRIMA della riga che lo rimette a false, e l'input resterebbe bloccato
-        // per sempre con CanAcceptPlayerInput. Si salta il turno della polizia e si va avanti:
-        // una partita senza avversario è diagnosticabile, una partita congelata no.
-        if (_policeAI != null)
-            yield return StartCoroutine(_policeAI.ExecutePoliceActions());
-        else
-            Debug.LogError("[TURN] PoliceAI not assigned in TurnManager: the police turn is skipped");
-
-        Debug.Log("--- FINE TURNO POLIZIA ---");
-        _waitingForPolice = false;
-
-        if (!_lvlManager.IsGameActive)
-        {
-            yield break;
-        }
-
-        foreach (var spezzone in _lvlManager.Spezzoni)
-        {
-            if (!spezzone.IsAlive) continue;
-            spezzone.RefillActionPoints();
-        }
-
-        // Il panico della POLIZIA scala qui: hanno appena finito il loro turno.
-        foreach (var police in _lvlManager.Police)
-        {
-            if (!police.IsAlive) continue;
-            police.TickPanic();
-            _unitsRenderer.UpdateView(police);
-        }
-
-        foreach (var police in _lvlManager.Police)
-            if (police.IsAlive) police.TickAlarm();
-
-        _lvlManager.RefreshBoardState();
-        _startPlayerTurnEvent.Raise();
-    }
-
     /// <summary>
     /// Un poliziotto è stato aggredito da uno spezzone: il presidio attorno si sveglia.
     ///
@@ -777,38 +743,20 @@ public class TurnManager : MonoBehaviour
     #endregion
     public void EndTurn()
     {
-        if (_waitingForPolice) return;
-
-        _lvlManager.RefreshBoardState();
-        if (_lvlManager.CheckCohesionDefeat()) return;
-
-        _waitingForPolice = true;
-        _endPlayerTurnEvent.Raise();
-
-        if (!_lvlManager.IsGameActive)
+        if (_turnCycle == null)
         {
-            _waitingForPolice = false;
+            Debug.LogError(
+                "[TURN] TurnCycleCoordinator not initialized"
+            );
+
             return;
         }
 
-        Debug.Log("--- TURNO POLIZIA ---");
+        if (_turnCycle.IsPoliceTurn)
+            return;
 
-        foreach (var police in _lvlManager.Police)
-        {
-            if (!police.IsAlive) continue;
-            police.RefillActionPoints();
-        }
-
-        // Il panico degli SPEZZONI scala qui: il giocatore sta chiudendo il proprio turno.
-        foreach (var spezzone in _lvlManager.Spezzoni)
-        {
-            if (!spezzone.IsAlive) continue;
-            spezzone.TickPanic();
-            _unitsRenderer.UpdateView(spezzone);
-        }
-
-        _lvlManager.RefreshBoardState();
-
-        StartCoroutine(ExecutePoliceTurn());
+        StartCoroutine(
+            _turnCycle.CompletePlayerTurn()
+        );
     }
 }
