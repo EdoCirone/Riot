@@ -52,8 +52,8 @@ autorevole per qualunque check di coerenza codice/documento.
 - Turno polizia: `PoliceAI.ExecutePoliceActions` — coroutine sequenziale, una
   unità alla volta, ognuna agisce finché ha PA.
 - Ricarica PA in DUE momenti distinti (NON simultanea): i PA della polizia si
-  ricaricano in `TurnManager.EndTurn` (prima che la polizia agisca); i PA degli
-  spezzoni si ricaricano in `ExecutePoliceTurn` DOPO che la polizia ha agito,
+  ricaricano prima che la polizia agisca; i PA degli
+  spezzoni si ricaricano DOPO che la polizia ha agito,
   poi si rilancia l'evento di fine turno.
 
 ## Architettura — regole fondamentali
@@ -104,10 +104,13 @@ autorevole per qualunque check di coerenza codice/documento.
   l'animazione**", che è vera ovunque. "Prima" è vero solo per alcune azioni, e chi ci
   costruisce sopra dando per scontato il resto sbaglia.*
 
-## Resolver, servizi e test (RIFATTO 22/08/26) — la struttura è cambiata
+## Resolver, servizi e test (RIFATTO 22-23/08/26) — la struttura è cambiata
 `Core/Resolver/`, `Core/Services/`, `Test/Editor/`, `Units/Visualization/UnitActionPresenter.cs`.
-Il progetto è passato da **74 file / 7.302 righe** a **98 / 11.322**, e ~4.000 righe sono
+Il progetto è passato da **74 file / 7.302 righe** a **101 / 11.622**, e ~4.300 righe sono
 strato nuovo, non feature: **82 test in 14 file** e l'estrazione delle regole dagli esecutori.
+
+⚠ **I due god script si sono dimezzati**: `TurnManager` da 917 a **762** righe, `LVLManager`
+da 709 a **464**. I metodi estratti sono **spariti** dai manager, non copiati — verificato.
 
 **Il nuovo strato, e chi fa cosa:**
 
@@ -122,8 +125,17 @@ strato nuovo, non feature: **82 test in 14 file** e l'estrazione delle regole da
 | `AuraService` | statica pura | `Resolve` → `AuraResult` |
 | `CohesionService` | statica pura | `Calculate` |
 | `UnitActionPresenter` | classe C# (non MonoBehaviour) | animazioni di scontro e carica, con timeout a 5s |
+| `TurnCycleCoordinator` | classe C# (istanza, tiene `IsPoliceTurn`) | **tutto il ciclo turni**, estratto da `TurnManager` il 23/08 |
+| `PoliceGarrisonCoordinator` | statica | assegnazione presidi + richiamo del volantino, estratto da `LVLManager` |
+| `LevelCoverageDiagnostics` | statica | costruisce il report di copertura e **restituisce una stringa** invece di loggare |
 
 ⚠ **`CombatResolver` si è spostato** da `GenericStatic/` a `Core/Resolver/`.
+
+⚠ **Distinzione da tenere: resolver ≠ coordinatore.** I sei resolver e i due servizi puri
+(`AuraService`, `CohesionService`) **non contengono un solo `Debug.`** — decidono e basta.
+I coordinatori invece loggano, ed è giusto: orchestrano e devono raccontare cosa succede
+(assegnazione dei presidi, errori di dato del livello, confini di turno). Se ti ritrovi a
+scrivere un log dentro un resolver, hai messo il codice nel posto sbagliato.
 
 ⚠ **I resolver non contengono NESSUN `Debug.Log`.** Restituiscono un esito tipizzato
 (`UnitActionFailure`, `SkirmishFailure`, `ItemActionFailure`) e chi logga è il chiamante.
@@ -142,6 +154,35 @@ PushResolution(atk, def);
 `PushResolution` sta **dopo lo yield**: gira sempre, esattamente una volta, timeout o no.
 ⚠ **`ResolveOnce` e il flag `resolved` non esistono più e non vanno reintrodotti**: il percorso
 che li rendeva necessari è sparito. Stessa cosa per `FinalizeOnce` nello scontro.
+
+### Il ciclo turni vive in `TurnCycleCoordinator.CompletePlayerTurn()` (23/08/26)
+`TurnManager.EndTurn()` è diventato un guscio: valida, controlla che non sia già il turno
+della polizia, e lancia la coroutine del coordinatore. **`ExecutePoliceTurn` non esiste più.**
+
+L'ordine dentro `CompletePlayerTurn` **è la regola**, non un dettaglio. Nell'ordine:
+
+1. `RefreshBoardState()` → `CheckCohesionDefeat()` — se il corteo è disperso, si esce qui;
+2. `IsPoliceTurn = true`, poi `_endPlayerTurnEvent.Raise()` (è qui che gli obiettivi avanzano);
+3. **guardia `IsGameActive` subito dopo il Raise**, perché un listener può aver chiuso la
+   partita e `enabled = false` non ferma un metodo già in esecuzione;
+4. PA della **polizia** ricaricati, panico degli **spezzoni** decrementato;
+5. `PoliceAI.ExecutePoliceActions()` (saltata con `LogError` se `_policeAI` è nullo);
+6. `IsPoliceTurn = false`, seconda guardia `IsGameActive`;
+7. PA degli **spezzoni** ricaricati, panico della **polizia** decrementato, `TickAlarm()`;
+8. `RefreshBoardState()` e `_startPlayerTurnEvent.Raise()`.
+
+⚠ **`_waitingForPolice` NON esiste più.** Prima erano due flag che dovevano restare
+d'accordo; ora `IsPoliceTurn` è uno solo e appartiene al coordinatore. `TurnManager` lo
+inoltra con `_turnCycle != null && _turnCycle.IsPoliceTurn`, e il verso è voluto: se il
+coordinatore manca la proprietà vale **false**, quindi l'input resta vivo e solo il Fine turno
+logga errore. Con `true` il giocatore sarebbe bloccato per sempre — è la stessa scelta
+"fallisci degradando, non piantando" del `_policeAI` nullo.
+
+⚠ **Una regola di gioco vive nell'ordine dei punti 1 e 2**: la sconfitta per Coesione è
+controllata **prima** che gli obiettivi avanzino. Quindi se nello stesso turno perderesti per
+Coesione e vinceresti per obiettivo, **vince la sconfitta**. È difendibile — non rivendichi un
+ministero con un corteo disperso — ma oggi esiste solo come ordine di due righe: se sposti il
+`CheckCohesionDefeat` dopo il `Raise`, cambi una regola senza accorgertene.
 
 ### Validazione della configurazione all'avvio
 `LVLManager.ValidateReferences()` (chiamata in `Awake`) + `TurnManager.CollectConfigurationErrors(...)`.
@@ -163,6 +204,12 @@ accorcia un panico più lungo*, *`GetPanicWave` non muta niente*.
 la documentazione.** È l'unica rete che il progetto abbia mai avuto contro le regressioni.
 ⚠ Non esiste nessun `.asmdef`: i test compilano nell'assembly Editor. Funziona, ma non c'è
 confine e non girano fuori dall'Editor. Due asmdef serviranno il giorno della CI.
+
+⚠ **I tre coordinatori del 23/08 non hanno test**, e il conto è fermo a 82. Il codice più
+giovane è il meno coperto — ironico proprio su `TurnCycleCoordinator`, che è il posto dove
+questo progetto ha storicamente prodotto i suoi blocchi. È anche il più difficile da testare
+(dipende da `LVLManager`, `PoliceAI` e `UnitsRenderer`, tutti MonoBehaviour), quindi la scelta
+è ragionevole; ma è il buco da chiudere per primo se un giorno il turno si pianta di nuovo.
 
 ## Manager
 GameManager (reset/quit) / LVLManager (setup unità, score, win/lose, celle
