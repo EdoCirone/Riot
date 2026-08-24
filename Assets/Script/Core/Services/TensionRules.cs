@@ -3,6 +3,7 @@ public static class TensionRules
 {
     public const int MinValue = 0;
     public const int MaxValue = 100;
+    public const int ObjectiveEntryDelta = 10;
 
     public static int GetInitialTension(int repression)
     {

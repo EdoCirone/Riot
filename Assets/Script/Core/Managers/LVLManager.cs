@@ -70,6 +70,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
     private List<PoliceRuntime> _policeOfLVL = new List<PoliceRuntime>();
+    private readonly HashSet<ObjectiveRuntime> _objectivesThatRaisedTension = new();
 
     private LevelTension _tension;
     private ObjectiveRuntime _declared;
@@ -439,6 +440,25 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         _turnManager.enabled = false;
         return true;
     }
+    public bool ChangeTension(
+    int delta,
+    string reason)
+    {
+        if (_tension == null || delta == 0)
+            return false;
+
+        int previous = _tension.Current;
+
+        if (!_tension.Change(delta))
+            return false;
+
+        Debug.Log(
+            $"[TENSION] {previous} -> {_tension.Current}: " +
+            reason
+        );
+
+        return true;
+    }
 
     /// <summary>
     /// Sveglia il presidio attorno a un incidente. ⚠ È l'unico modo per staccare la polizia
@@ -463,6 +483,10 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     }
 
     /// <summary>Entrare in un obiettivo non rivendicato fa scattare l'allarme (GDD 19.6).</summary>
+    /// <summary>
+    /// Entering an unclaimed objective raises the local alarm.
+    /// The first entry into each objective also raises Tension.
+    /// </summary>
     public void CheckObjectiveIntrusion(
         AbstractUnitsRunTime unit,
         HexCell cell = null)
@@ -475,12 +499,22 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         if (cell == null || !cell.IsObjective)
             return;
 
-        if (cell.Objective.IsClaimed)
+        ObjectiveRuntime objective = cell.Objective;
+
+        if (objective.IsClaimed)
             return;
 
         RaiseAlarmAround(
             cell,
-            $"{unit} entered {cell.Objective}"
+            $"{unit} entered {objective}"
+        );
+
+        if (!_objectivesThatRaisedTension.Add(objective))
+            return;
+
+        ChangeTension(
+            TensionRules.ObjectiveEntryDelta,
+            $"first entry into {objective}"
         );
     }
     [ContextMenu("Log coverage diagnostics")]
