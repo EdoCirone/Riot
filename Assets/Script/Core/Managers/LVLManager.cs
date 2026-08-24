@@ -482,7 +482,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             Debug.Log($"[ALARM] {reason}: {woken} unit(s) woken for {_alarmDuration} turn(s)");
     }
 
-    /// <summary>Entrare in un obiettivo non rivendicato fa scattare l'allarme (GDD 19.6).</summary>
     /// <summary>
     /// Entering an unclaimed objective raises the local alarm.
     /// The first entry into each objective also raises Tension.
