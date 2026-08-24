@@ -1,6 +1,5 @@
-﻿using UnityEngine;
-
-public class TensionRules
+﻿
+public static class TensionRules
 {
     public const int MinValue = 0;
     public const int MaxValue = 100;
