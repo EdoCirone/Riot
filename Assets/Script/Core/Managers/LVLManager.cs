@@ -21,6 +21,14 @@ public class LVLManager : MonoBehaviour, IGameEventListener
              "il livello, domani lo deciderà l'Assemblea.")]
     [SerializeField] private MeetingPointSO _meetingPoint;
 
+    [Header("Run state (temporary)")]
+    [Tooltip("Temporary Repression value until RunManager provides it.")]
+    [Range(
+    TensionRules.MinValue,
+    TensionRules.MaxValue
+    )]
+    [SerializeField] private int _startingRepression;
+
     [System.Serializable]
     public struct RosterEntry
     {
@@ -56,9 +64,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     [Tooltip("How many turns a woken unit stays hostile before returning to its post.")]
     [SerializeField] private int _alarmDuration = 3;
 
-    [Tooltip("Condotta del presidio. Interruttore manuale finché non esiste la Tensione.")]
-    [SerializeField] private EngagementRules _engagementRules = EngagementRules.Containment;
-
     [Tooltip("Print a map coverage report at Start: garrison per objective, and how far the " +
          "corteo has to walk to reach each one.")]
     [SerializeField] private bool _logCoverageDiagnostics;
@@ -66,6 +71,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
     private List<PoliceRuntime> _policeOfLVL = new List<PoliceRuntime>();
 
+    private LevelTension _tension;
     private ObjectiveRuntime _declared;
 
     private bool _gameOver = false;
@@ -75,7 +81,14 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     public TurnManager TurnManager => _turnManager;
     public HexGrid Map => _map;
     public UnitsRenderer Renderer => _unitsRenderer;
-    public EngagementRules EngagementRules => _engagementRules;
+    public LevelTension Tension => _tension;
+
+    public int CurrentTension =>
+        _tension?.Current ?? TensionRules.MinValue;
+
+    public EngagementRules AppliedEngagementRules =>
+        _tension?.AppliedRules
+        ?? EngagementRules.Containment;
 
     public List<SpezzoneRuntime> Spezzoni => _spezzoniOfLVL;
     public List<PoliceRuntime> Police => _policeOfLVL;
@@ -97,11 +110,19 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     {
         _isConfigured = ValidateReferences();
 
-        if (_isConfigured)
+        if (!_isConfigured)
+        {
+            _gameOver = true;
+            enabled = false;
             return;
+        }
 
-        _gameOver = true;
-        enabled = false;
+        int initialTension =
+            TensionRules.GetInitialTension(
+                _startingRepression
+            );
+
+        _tension = new LevelTension(initialTension);
     }
 
     private bool ValidateReferences()
@@ -184,6 +205,12 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     {
         if (!_isConfigured) return;
 
+        Debug.Log(
+                $"[TENSION] Repression {_startingRepression} " +
+                $"-> initial tension {_tension.Current} " +
+                $"({_tension.AppliedRules})"
+                   );
+
         SpawnSceneUnits();
         SpawnRoster();
 
@@ -194,7 +221,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             _map.Objectives,
             _declared,
             _unitsRenderer,
-            _engagementRules,
+            _tension.AppliedRules,
             _leashRadius,
             _declaredReinforcement
         );
