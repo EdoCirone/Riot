@@ -206,10 +206,10 @@ public class TurnManager : MonoBehaviour
         PushResolution(atk, def);
     }
     private void PushResolution(
-     AbstractUnitsRunTime atk,
-     AbstractUnitsRunTime def)
+      AbstractUnitsRunTime atk,
+      AbstractUnitsRunTime def)
     {
-        HexCell impactCell = def?.PositionCell;
+        HexCell collisionCell = def?.PositionCell;
 
         PushResolver.PushResult pushResult =
             PushResolver.Resolve(atk, def, _map);
@@ -233,7 +233,7 @@ public class TurnManager : MonoBehaviour
         {
             Debug.Log(
                 $"[PUSH] no exit: {def} removed at " +
-                $"{impactCell?.Coordinates}"
+                $"{collisionCell?.Coordinates}"
             );
         }
         else
@@ -244,17 +244,24 @@ public class TurnManager : MonoBehaviour
             );
         }
 
+        HexCell panicOrigin = collisionCell;
+
         if (def.IsAlive)
         {
-            impactCell = def.PositionCell;
+            panicOrigin = def.PositionCell;
 
             def.LoseMorale(1, CauseFrom(atk));
             _unitsRenderer.FlashDamage(def);
         }
 
-        ApplyPanicWave(impactCell, def);
+        ApplyPanicWave(panicOrigin, def);
 
-        ReportAggression(def, atk, impactCell);
+        ReportAggression(
+            def,
+            atk,
+            _lvlManager.TensionSettings.ViolentCharge,
+            collisionCell
+        );
 
         _lvlManager.CheckObjectiveIntrusion(atk);
 
@@ -480,6 +487,8 @@ public class TurnManager : MonoBehaviour
             yield break;
         }
 
+        HexCell impactCell = def?.PositionCell;
+
         CombatResolver.SkirmishResolution resolution =
             CombatResolver.ResolveSkirmish(
                 atk,
@@ -508,7 +517,12 @@ public class TurnManager : MonoBehaviour
 
         _lvlManager.RefreshBoardState();
 
-        ReportAggression(def, atk);
+        ReportAggression(
+            def,
+            atk,
+            _lvlManager.TensionSettings.PlayerInitiatedSkirmish,
+            impactCell
+        );
     }
 
     #endregion
@@ -562,6 +576,8 @@ public class TurnManager : MonoBehaviour
         if (atk is not SpezzoneRuntime spezzone)
             return;
 
+        HexCell impactCell = target?.PositionCell;
+
         ItemActionResolver.ItemActionResult result =
             ItemActionResolver.ResolveThrow(
                 spezzone,
@@ -584,7 +600,12 @@ public class TurnManager : MonoBehaviour
 
         _throwEvent.Raise(target);
 
-        ReportAggression(target, spezzone);
+        ReportAggression(
+            target,
+            spezzone,
+            item.TensionImpact,
+            impactCell
+        );
 
         _unitsRenderer.UpdateView(target);
         _lvlManager.RefreshBoardState();
@@ -754,16 +775,32 @@ public class TurnManager : MonoBehaviour
     /// L'origine è un parametro opzionale perché la carica deve passare la cella dell'URTO,
     /// catturata prima della spinta: dopo, la vittima si è spostata o è uscita di scena.
     /// </summary>
-    private void ReportAggression(AbstractUnitsRunTime victim, AbstractUnitsRunTime aggressor,
-                                  HexCell origin = null)
+    private void ReportAggression(
+        AbstractUnitsRunTime victim,
+        AbstractUnitsRunTime aggressor,
+        int tensionDelta,
+        HexCell origin = null)
     {
-        if (victim is not PoliceRuntime) return;
-        if (aggressor is not SpezzoneRuntime) return;
+        if (victim is not PoliceRuntime)
+            return;
+
+        if (aggressor is not SpezzoneRuntime)
+            return;
+
+        _lvlManager.ChangeTension(
+            tensionDelta,
+            $"{aggressor} attacked {victim}"
+        );
 
         origin ??= victim.PositionCell;
-        if (origin == null) return;
 
-        _lvlManager.RaiseAlarmAround(origin, $"{victim} attacked by {aggressor}");
+        if (origin == null)
+            return;
+
+        _lvlManager.RaiseAlarmAround(
+            origin,
+            $"{victim} attacked by {aggressor}"
+        );
     }
     #endregion
     public void EndTurn()

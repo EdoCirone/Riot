@@ -11566,7 +11566,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57.05
+  m_fontSize: 56.85
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13082,7 +13082,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57.05
+  m_fontSize: 56.85
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13187,6 +13187,7 @@ MonoBehaviour:
   _declaredObjective: {fileID: 11400000, guid: 388b404d1c3d4514b964b58ee5cfbcde, type: 2}
   _meetingPoint: {fileID: 11400000, guid: d03132b7d922c514b947e757cef1178a, type: 2}
   _startingRepression: 0
+  _tensionSettings: {fileID: 11400000, guid: 4cb9a433e402e5743abb25e724dd6619, type: 2}
   _startingRoster:
   - prefab: {fileID: 1315868516837607815, guid: 0dabffa6ce305974ba1ae29b7697aa5c, type: 3}
     equipment:

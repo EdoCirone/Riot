@@ -28,6 +28,8 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     TensionRules.MaxValue
     )]
     [SerializeField] private int _startingRepression;
+    [Tooltip("Shared balance values for tension-generating actions.")]
+    [SerializeField] private TensionSettingsSO _tensionSettings;
 
     [System.Serializable]
     public struct RosterEntry
@@ -83,6 +85,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     public HexGrid Map => _map;
     public UnitsRenderer Renderer => _unitsRenderer;
     public LevelTension Tension => _tension;
+    public TensionSettingsSO TensionSettings => _tensionSettings;
 
     public int CurrentTension =>
         _tension?.Current ?? TensionRules.MinValue;
@@ -171,6 +174,9 @@ public class LVLManager : MonoBehaviour, IGameEventListener
                     errors.Add($"Prefab mancante nel roster, elemento {i}");
             }
         }
+
+        if (_tensionSettings == null)
+            errors.Add("TensionSettings not assigned");
 
         if (errors.Count == 0)
             return true;
@@ -512,7 +518,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             return;
 
         ChangeTension(
-            TensionRules.ObjectiveEntryDelta,
+            _tensionSettings.ObjectiveEntry,
             $"first entry into {objective}"
         );
     }
