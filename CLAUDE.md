@@ -211,6 +211,54 @@ questo progetto ha storicamente prodotto i suoi blocchi. È anche il più diffic
 (dipende da `LVLManager`, `PoliceAI` e `UnitsRenderer`, tutti MonoBehaviour), quindi la scelta
 è ragionevole; ma è il buco da chiudere per primo se un giorno il turno si pianta di nuovo.
 
+## Tensione (IMPLEMENTATA 24-25/08/26) — GDD cap. 8
+`Core/Services/TensionRules.cs` (statica pura) + `Core/Services/LevelTension.cs` (classe C#
+istanza) + `Core/Data/TensionSettingsSO.cs` + `UI/HUD/TensionHUDView.cs`.
+**È il pezzo che dà un arco al livello**: prima il turno 12 era identico al turno 2.
+
+- **Scala 0-100.** `TensionRules.GetInitialTension(repression)` traduce la Repressione del
+  livello nel punto di partenza (≤30 → 0, ≤60 → 10, ≤90 → 30, oltre → 40).
+- **Fasce → regole d'ingaggio**: `≤29 Containment`, `≤59 Engage`, oltre `Sweep`.
+- **Tre sorgenti**, tutte su `TensionSettingsSO`: primo ingresso in un obiettivo (10),
+  scontro iniziato dal giocatore (10), carica (20). Più `ThrowItemSO.TensionImpact`, che è
+  **per oggetto**: un sanpietrino e un molotov non pesano uguale.
+- ⚠ **L'ingresso in un obiettivo alza la Tensione UNA VOLTA SOLA per obiettivo**
+  (`_objectivesThatRaisedTension`, un `HashSet`). Senza, entrare e uscire dalla stessa porta
+  sarebbe una pompa infinita.
+- ⚠ **Il guinzaglio varia per fascia** (`TensionSettings.GetLeashRadius`): Containment 4,
+  Engage 8. È il *"il raggio si allarga con la Tensione"* del cap. 8. `Sweep` prende lo
+  stesso valore di `Engage` ma è irrilevante, perché `PoliceAI` ignora il guinzaglio in Sweep.
+
+### Dove si applica: `TurnCycleCoordinator.ApplyPendingPoliceResponse()`
+Chiamata **dopo** la guardia `IsGameActive` e **prima** della ricarica PA e di
+`ExecutePoliceActions`: la polizia sale di fascia *prima* di agire, non dopo.
+
+⚠ **Gli override per unità sopravvivono all'escalation**, ed è il punto delicato:
+```csharp
+if (police.OverridesEngagementRules) ruleOverridesPreserved++;
+else if (police.ApplyLevelEngagementRules(rules)) rulesUpdated++;
+```
+Un piantone che il level designer ha messo in `Sweep` ci resta anche a Tensione zero, e uno
+con guinzaglio personalizzato non se lo vede riscrivere. `PoliceRuntime` espone
+`OverridesEngagementRules` / `OverridesLeashRadius` apposta.
+
+⚠ **`AssignGuard` e `ReassignGuard` sono separati**: il primo assegna tutto (obiettivo,
+regole, raggio) allo spawn, il secondo cambia **solo l'obiettivo** ed è quello che usa il
+richiamo del volantino. Prima passava tutto dallo stesso metodo e il richiamo riscriveva
+anche le regole.
+
+### L'escalation è immediata, non telegrafata (deciso 25/08/26)
+Una prima versione aveva `BeginPlayerTurn()` e teneva un flag
+`_changeWasPendingAtPlayerTurnStart`: il cambio di fascia si applicava solo al turno di
+polizia **successivo**, dando al giocatore un turno intero di preavviso.
+**Rimossa apposta.** Adesso `PreparePoliceTurn()` applica il bersaglio appena è diverso:
+alzi la Tensione e la polizia sale di fascia nello stesso ciclo di turno.
+*Motivo: il preavviso separava l'azione dalla conseguenza di due turni, e la relazione
+causa-effetto si perdeva. Meglio immediato e leggibile.*
+⚠ `HasPendingRulesChange` e `TargetRules` sono rimasti ma **non hanno più lettori fuori dai
+test**: erano al servizio del preavviso. Servono ancora come stato per il HUD nell'intervallo
+fra l'azione e il Fine turno — se non li si usa per quello, sono da togliere.
+
 ## Manager
 GameManager (reset/quit) / LVLManager (setup unità, score, win/lose, celle
 obiettivo) / TurnManager (esecuzione azioni, ciclo turni) / CameraManager

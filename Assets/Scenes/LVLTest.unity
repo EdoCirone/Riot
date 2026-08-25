@@ -11863,7 +11863,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 56.85
+  m_fontSize: 57.25
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -12162,6 +12162,10 @@ PrefabInstance:
     - target: {fileID: 1223380818050418741, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: _overrideEngagement
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1223380818050418741, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
+      propertyPath: _leashRadiusOverride
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 3385265451044002913, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_Name
@@ -13530,7 +13534,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 56.85
+  m_fontSize: 57.25
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
