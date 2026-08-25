@@ -13429,7 +13429,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CohesionHUDView
   _lvlManager: {fileID: 2130109798}
-  _cohesionText: {fileID: 0}
+  _cohesionText: {fileID: 107098524}
   _boardChangedEvent: {fileID: 11400000, guid: 28827dbfca004774faaac84e3e68ee1b, type: 2}
 --- !u!114 &2123567735
 MonoBehaviour:
@@ -13444,7 +13444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TurnHUDView
   _lvlManager: {fileID: 2130109798}
-  _turnText: {fileID: 0}
+  _turnText: {fileID: 1270013670}
   _startPlayerTurnEvent: {fileID: 11400000, guid: a82b422d354c8a64bb15021fed8e5b95, type: 2}
 --- !u!1 &2129216555
 GameObject:
