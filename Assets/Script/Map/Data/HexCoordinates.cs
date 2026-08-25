@@ -22,7 +22,7 @@ public struct HexCoordinates : System.IEquatable<HexCoordinates>
 
     // Le 6 direzioni flat-top in coordinate axial.
     // Ordine: E, NE, NW, W, SW, SE
-   
+
     public static readonly HexCoordinates[] Directions = new HexCoordinates[]
     {
         new HexCoordinates( 1,  0), // Est

@@ -137,7 +137,6 @@ public class InputHandler : MonoBehaviour
             return;
         }
 
-
         if (_selectedAction != ActionType.None)
         {
             HandleActionClick(clickCell);
@@ -181,7 +180,7 @@ public class InputHandler : MonoBehaviour
             }
             return;
         }
-        // Stato: spezzone selezionato, c'è un pending bersaglio 
+        // Stato: spezzone selezionato, c'è un pending bersaglio
         if (_pendingTarget != null)
         {
             if (clickCell.OccupiedBy == _pendingTarget)
@@ -198,7 +197,7 @@ public class InputHandler : MonoBehaviour
             return;
         }
 
-        // Stato: spezzone selezionato, nessun pending 
+        // Stato: spezzone selezionato, nessun pending
         if (clickCell.OccupiedBy == null)
         {
             TrySetPendingDestination(clickCell);
@@ -215,7 +214,6 @@ public class InputHandler : MonoBehaviour
             _selectedSpezzone = other;
             SetSelectedAction(ActionType.None);
             _unitSelectedEvent?.Raise(_selectedSpezzone);
-
         }
     }
 
@@ -323,7 +321,6 @@ public class InputHandler : MonoBehaviour
         HexCoordinates defCoord = _pendingTarget.PositionCell.Coordinates;
         int distance = atkCoord.Distance(defCoord);
 
-
         bool success;
         if (distance == 1)
         {
@@ -370,7 +367,6 @@ public class InputHandler : MonoBehaviour
         }
 
         OnActionComplete();
-
     }
 
     private void TrySetPendingDestination(HexCell cell)

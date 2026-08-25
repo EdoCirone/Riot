@@ -70,4 +70,3 @@ public class InGamePanelManager : MonoBehaviour
         _optionPanel.GetComponent<MenuPanelView>()?.Hide();
     }
 }
-

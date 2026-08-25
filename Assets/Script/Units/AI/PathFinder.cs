@@ -91,4 +91,3 @@ public class PathFinder : MonoBehaviour
         return a.Distance(b);
     }
 }
-

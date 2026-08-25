@@ -10,7 +10,6 @@ public class HexCell
     private ObjectiveRuntime _objective;
     private MeetingPointRuntime _meetingPoint;
 
-
     public ObjectiveRuntime Objective => _objective;
     public AbstractUnitsRunTime OccupiedBy => _occupiedBy;
     public BarricadeRuntime Barricade => _barricade;

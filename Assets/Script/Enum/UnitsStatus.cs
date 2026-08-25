@@ -1,7 +1,6 @@
-﻿public enum UnitsStatus { 
+﻿public enum UnitsStatus {
 
     Alive,
     Arrested,
     Disperse
-
 }

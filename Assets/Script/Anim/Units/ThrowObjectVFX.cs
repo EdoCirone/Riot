@@ -14,7 +14,7 @@ public class ThrowObjectVFX : MonoBehaviour
     [SerializeField] private UnitEventSO _throwObjectEvent;
     [SerializeField] private UnitEventSO _unitSelected;
     [SerializeField] private ItemEventSO _itemSelectedEvent;
-    
+
     private ItemSO _selectedItem;
     private void SaveItem(ItemSO item) => _selectedItem = item;
 
@@ -89,7 +89,4 @@ public class ThrowObjectVFX : MonoBehaviour
             Destroy(throwObject);
         });
     }
-
 }
-
-

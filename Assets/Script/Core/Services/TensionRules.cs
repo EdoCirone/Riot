@@ -42,7 +42,6 @@ public static class TensionRules
             return MaxValue;
 
         return (int)result;
-
     }
 
     private static int ClampToScale(int value)
@@ -53,5 +52,4 @@ public static class TensionRules
             return MaxValue;
         return value;
     }
-
 }

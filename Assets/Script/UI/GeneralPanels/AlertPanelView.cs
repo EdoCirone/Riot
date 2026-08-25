@@ -21,7 +21,7 @@ public class AlertPanelView : MonoBehaviour
             return;
         }
         _isValid = true;
-        _canvasGroup.alpha = 0f;   
+        _canvasGroup.alpha = 0f;
     }
 
     private void OnEnable()
@@ -32,14 +32,14 @@ public class AlertPanelView : MonoBehaviour
     private void OnDisable()
     {
         if (!_isValid) return;
-        _alertEvent.Unsubscribe(ShowMessage);  
+        _alertEvent.Unsubscribe(ShowMessage);
     }
 
     private void ShowMessage(string message)
     {
-        _hideTween?.Kill();             
+        _hideTween?.Kill();
         _messageText.text = message;
-        _canvasGroup.alpha = 1f;         
+        _canvasGroup.alpha = 1f;
 
         // dopo displayDuration, svanisci
         _hideTween = DOVirtual.DelayedCall(_displayDuration, () =>

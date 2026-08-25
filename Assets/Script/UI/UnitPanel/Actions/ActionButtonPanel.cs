@@ -5,8 +5,8 @@ public class ActionButtonPanel : MonoBehaviour
     [SerializeField] private ActionSlotUI[] _slots;
 
     [Header("Events")]
-    [SerializeField] private ActionEventSO _actionButtonClickedEvent; 
-    [SerializeField] private ActionEventSO _actionSelectedEvent;       
+    [SerializeField] private ActionEventSO _actionButtonClickedEvent;
+    [SerializeField] private ActionEventSO _actionSelectedEvent;
 
     private bool _isValid;
 
@@ -37,7 +37,7 @@ public class ActionButtonPanel : MonoBehaviour
         if (action == ActionType.None)
         {
             foreach (var slot in _slots)
-                slot.SetActive(true); 
+                slot.SetActive(true);
             return;
         }
 

@@ -9,7 +9,6 @@ public class HexGridEditor : Editor
     private int _initHeight = 10;
     private HexTypeSO _defaultType;
 
-
     private void OnEnable()
     {
         HexGrid hexGrid = (HexGrid)target;
@@ -22,7 +21,6 @@ public class HexGridEditor : Editor
         _defaultType = hexGrid.InitDefaultType;
     }
 
-
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -33,7 +31,6 @@ public class HexGridEditor : Editor
             if (hexGrid.HexMapData == null) { Debug.LogError("..."); return; }
             hexGrid.GenerateGrid();
         }
-
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Initialize Map", EditorStyles.boldLabel);
@@ -78,10 +75,9 @@ public class HexGridEditor : Editor
         Event e = Event.current;
         HexGrid hexGrid = (HexGrid)target;
 
-
         if (e.type == EventType.MouseDown && e.button == 0 && !e.alt)
         {
-            e.Use(); // Consume the event so it doesn't propagate further   
+            e.Use(); // Consume the event so it doesn't propagate further
 
             Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
 
@@ -99,7 +95,6 @@ public class HexGridEditor : Editor
             int col = Mathf.RoundToInt(localX / (hexGrid.CellSize * 1.5f));
             int row = Mathf.RoundToInt(localY / (hexGrid.CellSize * Mathf.Sqrt(3)) - 0.5f * (col & 1));
 
-
             if (hexGrid.HexMapData == null) return;
             if (col < 0 || col >= hexGrid.HexMapData.Width) return;
             if (row < 0 || row >= hexGrid.HexMapData.Height) return;
@@ -116,10 +111,6 @@ public class HexGridEditor : Editor
 
             Debug.Log($"Painted ({col}, {row}) with {selectedType.name}");
             SceneView.RepaintAll();
-
         }
-
-
     }
-
 }

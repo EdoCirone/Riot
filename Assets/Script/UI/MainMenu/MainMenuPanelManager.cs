@@ -27,9 +27,8 @@ public class MainMenuPanelManager : MonoBehaviour
     public void CloseAll()
     {
         if (_openPanel == null) return;
-        
+
             _openPanel.Hide();
             _openPanel = null;
-        
     }
 }

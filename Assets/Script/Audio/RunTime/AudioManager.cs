@@ -21,7 +21,6 @@ public class AudioManager : MonoBehaviour
     private void Awake()
     {
 
-
         if (_audioMixer == null)
         {
             Debug.LogWarning("Set the mixer");
@@ -40,7 +39,6 @@ public class AudioManager : MonoBehaviour
         LoadAudioSettings();
         _isValid = true;
     }
-
 
     private void OnEnable()
     {
@@ -128,7 +126,6 @@ public class AudioManager : MonoBehaviour
     public float GetGeneralVolume() => GetLinearVolume("VolumeMaster");
     public float GetMusicVolume() => GetLinearVolume("VolumeMusic");
     public float GetSFXVolume() => GetLinearVolume("VolumeSFX");
-
 
     #endregion
 }

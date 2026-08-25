@@ -27,7 +27,6 @@ public class OptionPanelView : MonoBehaviour
         _masterSlider.onValueChanged.AddListener(_audioManager.SetGeneralAudio);
         _musicSlider.onValueChanged.AddListener(_audioManager.SetMusicVolume);
         _sfxSlider.onValueChanged.AddListener(_audioManager.SetSFXVolume);
-
     }
 
     public void Close()
@@ -41,5 +40,4 @@ public class OptionPanelView : MonoBehaviour
         _audioManager.SaveAudioSettings();
         _audioManager = null;
     }
-
 }

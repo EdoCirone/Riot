@@ -3,7 +3,7 @@
 public class InventoryView : MonoBehaviour
 {
     [Header("Slots")]
-    [SerializeField] private InventorySlotUI[] _slots;   
+    [SerializeField] private InventorySlotUI[] _slots;
 
     [Header("Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
@@ -48,7 +48,7 @@ public class InventoryView : MonoBehaviour
         if (unit is SpezzoneRuntime spezzone)
             ShowInventory(spezzone.Inventory);
         else
-            ClearAllSlots();  
+            ClearAllSlots();
     }
 
     private void OnUnitDeselected() => ClearAllSlots();
@@ -59,9 +59,9 @@ public class InventoryView : MonoBehaviour
         for (int i = 0; i < _slots.Length; i++)
         {
             if (i < slots.Count)
-                _slots[i].SetItem(slots[i].Item, slots[i].Quantity);   
+                _slots[i].SetItem(slots[i].Item, slots[i].Quantity);
             else
-                _slots[i].Clear();                                      
+                _slots[i].Clear();
         }
     }
 

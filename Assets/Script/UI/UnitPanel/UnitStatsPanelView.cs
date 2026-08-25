@@ -8,7 +8,7 @@ public class UnitStatsPanelView : MonoBehaviour
     [SerializeField] private LVLManager _lvlManager;
 
     [Header("Panel Root")]
-    [SerializeField] private GameObject _panelRoot;   
+    [SerializeField] private GameObject _panelRoot;
     [SerializeField] private CanvasGroup _canvasGroup;
 
     [Header("Avatar")]
@@ -35,8 +35,6 @@ public class UnitStatsPanelView : MonoBehaviour
     [SerializeField] private GameEventSO _endPlayerTurnEvent;
     [SerializeField] private GameEventSO _startPlayerTurnEvent;
 
-    
-
     private AbstractUnitsRunTime _currentUnit;
     private bool _isValid = false;
 
@@ -61,7 +59,7 @@ public class UnitStatsPanelView : MonoBehaviour
         _avatarImage.preserveAspect = true;
         _isValid = true;
         _canvasGroup.alpha = 0;
-        _canvasGroup.blocksRaycasts = false;   
+        _canvasGroup.blocksRaycasts = false;
     }
 
     private void OnEnable()
@@ -69,8 +67,8 @@ public class UnitStatsPanelView : MonoBehaviour
         if (!_isValid) return;
         _unitSelectedEvent.Subscribe(Show);
         _unitDeselectedEvent.Subscribe(Hide);
-        _startPlayerTurnEvent.Subscribe(Hide);   
-        _endPlayerTurnEvent.Subscribe(Hide);   
+        _startPlayerTurnEvent.Subscribe(Hide);
+        _endPlayerTurnEvent.Subscribe(Hide);
     }
     private void OnDisable()
     {
@@ -81,19 +79,19 @@ public class UnitStatsPanelView : MonoBehaviour
         _endPlayerTurnEvent.Unsubscribe(Hide);
     }
 
-    private void Show(AbstractUnitsRunTime unit)   
+    private void Show(AbstractUnitsRunTime unit)
     {
         if (unit == null) return;
         _currentUnit = unit;
         Refresh();
-        if (_canvasGroup.alpha >= 1f) return;  
+        if (_canvasGroup.alpha >= 1f) return;
         _canvasGroup.DOKill();
         _canvasGroup.blocksRaycasts = true;
         _canvasGroup.DOFade(1, 0.2f);
-        _panelRoot.transform.DOScale(1f, 0.2f).From(0.9f);  
+        _panelRoot.transform.DOScale(1f, 0.2f).From(0.9f);
     }
 
-    private void Hide()   
+    private void Hide()
     {
         _canvasGroup.DOKill();
         _canvasGroup.blocksRaycasts = false;

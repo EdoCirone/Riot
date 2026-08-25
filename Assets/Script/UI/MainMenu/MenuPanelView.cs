@@ -39,14 +39,12 @@ public class MenuPanelView : MonoBehaviour
             return;
         }
 
-
         _showPosition = _panelRect.anchoredPosition;
         _hiddenPosition = _showPosition + Vector2.right * _hiddenOffsetX;
 
         _panelRect.anchoredPosition = _hiddenPosition;
         _panelGroup.interactable = false;
         _panelGroup.blocksRaycasts = false;
-
     }
 
     private void OnDisable()

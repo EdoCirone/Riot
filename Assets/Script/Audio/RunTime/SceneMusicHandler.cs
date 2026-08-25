@@ -6,5 +6,4 @@ public class SceneMusicHandler : MonoBehaviour
     [SerializeField] AudioClip _clip;
 
     private void Start() => _playevent?.Raise(_clip);
-
 }

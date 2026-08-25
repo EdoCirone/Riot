@@ -32,5 +32,4 @@ public class SpezzoneRuntime : AbstractUnitsRunTime
     }
 
     public override GameObject GraphicsPrefab => _spezzone.GraphicsPrefab;
-
 }

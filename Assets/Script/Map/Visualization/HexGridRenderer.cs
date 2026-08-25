@@ -56,7 +56,6 @@ public class HexGridRenderer : MonoBehaviour
         }
     }
 
-
     private Color BaseColorOf(HexCell cell)
     {
         HexTypeSO type = cell.Type ?? _defaultHexType;

@@ -31,13 +31,12 @@ public class UnitStatusView : MonoBehaviour
     [SerializeField] private Color _damageFlash = new Color(1f, 0.3f, 0.3f);
     [SerializeField] private float _flashDuration = 0.15f;
 
-
     private SpriteRenderer[] _tintables;
     private Color[] _baseColors;
     private Color _currentTint = Color.white;
 
     private float _wiggleBaseX;
-    
+
     private Tween _flashTween;
     private Tween _wiggleTween;
 

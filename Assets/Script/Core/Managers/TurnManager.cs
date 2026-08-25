@@ -33,7 +33,6 @@ public class TurnManager : MonoBehaviour
     [Header("AlertEvents")]
     [SerializeField] private StringEventSO _alertEvent;
 
-
     private HexGrid _map;
     private UnitsRenderer _unitsRenderer;
     private UnitActionPresenter _actionPresenter;
@@ -426,7 +425,7 @@ public class TurnManager : MonoBehaviour
         return true;
     }
 
-    //Metodo che mi serve per evitare la sovraposizione 
+    //Metodo che mi serve per evitare la sovraposizione
     public HexCoordinates? FindBestAdjacentCell(HexCoordinates from, HexCoordinates targetCoord)
     {
         HexCoordinates[] neighbors = targetCoord.GetNeighbors();
@@ -614,7 +613,6 @@ public class TurnManager : MonoBehaviour
     #endregion
 
     #region Barricade
-
 
     public bool ExecuteBarricade(
      AbstractUnitsRunTime atk,

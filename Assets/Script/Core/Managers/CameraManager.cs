@@ -48,7 +48,6 @@ public class CameraManager : MonoBehaviour
     private float _currentMoveSpeed;
     private float _currentZoomSpeed;
 
-
     private void Awake()
     {
         if (_mainCamera == null) _mainCamera = Camera.main;
@@ -86,7 +85,7 @@ public class CameraManager : MonoBehaviour
         if (_startPlayerTurnEvent != null)
             _startPlayerTurnEvent.Subscribe(OnPlayerTurnStart);
         if (_endPlayerTurnEvent != null)
-            _endPlayerTurnEvent.Subscribe(OnPoliceTurnStart); 
+            _endPlayerTurnEvent.Subscribe(OnPoliceTurnStart);
         if (_startFollowEvent != null)
             _startFollowEvent.Subscribe(StartFollow);
         if (_stopFollowEvent != null)
@@ -124,8 +123,6 @@ public class CameraManager : MonoBehaviour
             _startPlayerTurnEvent.Unsubscribe(OnPlayerTurnStart);
         if (_endPlayerTurnEvent != null)
             _endPlayerTurnEvent.Unsubscribe(OnPoliceTurnStart);
-
-
     }
 
     #region Callbacks Input
@@ -139,7 +136,6 @@ public class CameraManager : MonoBehaviour
     {
         _moveInput = Vector2.zero;
     }
-
 
     #endregion
 
@@ -250,7 +246,6 @@ public class CameraManager : MonoBehaviour
 
             ApplyScrollZoomStep(zoomInput.y);
             return;
-
         }
 
         _currentZoomSpeed = zoomInput.y * _stepSize;
@@ -277,7 +272,6 @@ public class CameraManager : MonoBehaviour
 
     #endregion
 
-
     #region Center On Units
 
     private void CenterCamera(AbstractUnitsRunTime unit)
@@ -285,7 +279,7 @@ public class CameraManager : MonoBehaviour
         if (unit is SpezzoneRuntime)
             _lastPlayerUnit = unit;
 
-        if (unit is PoliceRuntime && !_isPoliceTurn) 
+        if (unit is PoliceRuntime && !_isPoliceTurn)
             return;
 
         if (_followTarget != null) return;
@@ -321,20 +315,19 @@ public class CameraManager : MonoBehaviour
         _lastCenteredUnit = null;
     }
 
-    private void OnPoliceTurnStart() 
+    private void OnPoliceTurnStart()
     {
         _isPoliceTurn = true;
     }
 
     private void OnPlayerTurnStart()
     {
-        _isPoliceTurn = false; 
+        _isPoliceTurn = false;
         if (_lastPlayerUnit == null) return;
         if (!_lastPlayerUnit.IsAlive) return;
         _lastCenteredUnit = null;
         CenterCamera(_lastPlayerUnit);
     }
-
 
     #endregion
 }

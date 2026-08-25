@@ -12,7 +12,6 @@ public class PoliceRuntime : AbstractUnitsRunTime
 
     /// <summary>Un'unità allarmata ignora il guinzaglio e ingaggia, a qualunque condotta.</summary>
 
-
     public EngagementRules EngagementRules => _engagementRules;
     public int LeashRadius => _leashRadius;
     public bool IsAlarmed => _alarmTurnsLeft > 0;
@@ -29,7 +28,6 @@ public class PoliceRuntime : AbstractUnitsRunTime
     public override int AuraMor => _police.AuraMor;
     public bool OverridesEngagementRules => _overridesEngagementRules;
     public bool OverridesLeashRadius => _overridesLeashRadius;
-
 
     public override GameObject GraphicsPrefab => _police.GraphicsPrefab;
     public ObjectiveRuntime GuardedObjective => _guardedObjective;

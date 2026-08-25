@@ -28,7 +28,6 @@ public class HexTypeSO : ScriptableObject
     [SerializeField] int _modifierA;
     [SerializeField] private int _modifierB;
 
-
     public string DisplayType => _displayType;
     public string Id => _id;
 

@@ -8,11 +8,10 @@ public interface IGameEventListener
     void OnEventRaised();
 }
 
-
 [CreateAssetMenu(fileName = "NuovoEventoGioco", menuName = "RIOT/Events/Evento Gioco")]
 public class GameEventSO : ScriptableObject
 {
-    
+
     private List<IGameEventListener> _listeners = new List<IGameEventListener>();
     private List<System.Action> _actions = new List<System.Action>();
 

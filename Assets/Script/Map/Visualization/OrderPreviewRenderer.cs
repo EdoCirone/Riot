@@ -24,10 +24,10 @@ public class OrderPreviewRenderer : MonoBehaviour
     [SerializeField] private ItemEventSO _itemSelectedEvent;
 
     private bool _isValid = false;
-    
+
     private ItemSO _selectedItem;
     private AbstractUnitsRunTime _selectedUnit;
-    
+
     private ActionType _currentAction = ActionType.None;
     private List<HexCoordinates> _highlightedCells = new();
 
@@ -35,7 +35,7 @@ public class OrderPreviewRenderer : MonoBehaviour
     {
         if (_hexGridRenderer == null || _grid == null ||
             _unitSelectedEvent == null || _unitDeselectedEvent == null ||
-            _actionSelectedEvent == null || _itemSelectedEvent == null)   
+            _actionSelectedEvent == null || _itemSelectedEvent == null)
         {
             Debug.LogWarning("OrderPreviewRenderer: missing References");
             return;
@@ -124,7 +124,7 @@ public class OrderPreviewRenderer : MonoBehaviour
     private void OnActionSelected(ActionType action)
     {
         _currentAction = action;
-        if (_selectedItem != null && _selectedItem.Action != action)  
+        if (_selectedItem != null && _selectedItem.Action != action)
             _selectedItem = null;
         RefreshActionHighlight();
     }

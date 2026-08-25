@@ -11,7 +11,7 @@ public static class TacticalQuery
     private const int SitCost = 1;
     private const int StandCost = 2;
 
-    public const int PanicSteps = 2;         
+    public const int PanicSteps = 2;
     public const int PanicTurnsCorteo = 3;
     public const int PanicTurnsPolice = 1;
 
@@ -147,7 +147,7 @@ public static class TacticalQuery
         {
             HexCoordinates neighborCoord = unit.PositionCell.Coordinates + dir;
             if (!map.TryGetCell(neighborCoord, out HexCell cell)) continue;
-           
+
             AbstractUnitsRunTime neighbor = cell.OccupiedBy;
             if (neighbor == null) continue;
             if (!neighbor.IsAlive) continue;

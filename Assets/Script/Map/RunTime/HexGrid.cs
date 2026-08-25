@@ -4,7 +4,7 @@ using UnityEngine;
 public class HexGrid : MonoBehaviour
 {
     public enum CoordinateLabelMode { Off, SpecialCellsOnly, AllCells }
-    
+
     [Header("Grid Reference")]
     [SerializeField] private HexMapSO _hexMapData;
 
@@ -40,7 +40,7 @@ public class HexGrid : MonoBehaviour
     public Bounds WorldBounds => _worldBounds;
 
     private readonly List<ObjectiveRuntime> _objectives = new List<ObjectiveRuntime>();
-   
+
     public IReadOnlyList<ObjectiveRuntime> Objectives => _objectives;
     Dictionary<HexCoordinates, HexCell> _cells = new Dictionary<HexCoordinates, HexCell>();
 
@@ -53,7 +53,6 @@ public class HexGrid : MonoBehaviour
 
         GenerateGrid();
     }
-
 
     public void GenerateGrid()
     {

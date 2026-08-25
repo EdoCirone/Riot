@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class ActionSlotUI : MonoBehaviour, IPointerClickHandler
 {
-    [SerializeField] private ActionType _action;   
-    [SerializeField] private Image _iconImage;     
-    [SerializeField] private TextMeshProUGUI _hotkeyText; 
+    [SerializeField] private ActionType _action;
+    [SerializeField] private Image _iconImage;
+    [SerializeField] private TextMeshProUGUI _hotkeyText;
 
     private ActionButtonPanel _owner;
 

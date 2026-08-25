@@ -33,12 +33,12 @@ public class SFXSO : ScriptableObject
         if (_clips.Length == 1) return _clips[0];
 
         int index;
-        
+
         do { index = Random.Range(0, _clips.Length); }
         while (index == _lastIndex);
 
         _lastIndex = index;
-        
+
         return _clips[index];
     }
 }

@@ -24,7 +24,6 @@ public class MovementSettingsSO : ScriptableObject
     public float BobAmplitude => _bobAmplitude;
     public float BobDuration => _bobDuration;
 
-
     public float MoveDuration => _moveDuration;
     public float WindupDistance => _windupDistance;
     public float WindupDuration => _windupDuration;
@@ -35,5 +34,4 @@ public class MovementSettingsSO : ScriptableObject
     public float SkirmishEndDistance => _skirmishEndDistance;
     public float SkirmishAtkDuration => _skirmishAtkDuration;
     public float HitReactionDistance => _hitReactionDistance;
-
 }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public abstract class AbstractUnitsRunTime 
+public abstract class AbstractUnitsRunTime
 {
     protected HexCell _positionCell;
     protected UnitsStatus _status;
@@ -28,7 +28,7 @@ public abstract class AbstractUnitsRunTime
     public bool IsSeated => _isSeated;
     public int PanicTurnsLeft => _panicTurnsLeft;
     public bool IsPanicked => _panicTurnsLeft > 0;
-    
+
     public abstract Sprite Avatar { get; }
     public abstract int Atk { get; }
     public abstract int Def { get; }
@@ -52,7 +52,6 @@ public abstract class AbstractUnitsRunTime
         _maxMorale = morale;
         _actionPoints = actionPoints;
         _maxActionPoints = actionPoints;
-
     }
     #region PointActions
     public bool TrySpendActionPoint(int amount)
@@ -103,7 +102,6 @@ public abstract class AbstractUnitsRunTime
     {
         if (_panicTurnsLeft > 0) _panicTurnsLeft--;
     }
-
 
     public void ApplyAuraMorale(int bonus)
     {
