@@ -47,6 +47,8 @@ public sealed class TurnCycleCoordinator
             yield break;
         }
 
+        ApplyPendingEngagementRules();
+
         Debug.Log("--- TURNO POLIZIA ---");
 
         foreach (PoliceRuntime police in _level.Police)
@@ -109,5 +111,43 @@ public sealed class TurnCycleCoordinator
 
         _level.RefreshBoardState();
         _startPlayerTurnEvent.Raise();
+    }
+
+    private void ApplyPendingEngagementRules()
+    {
+        LevelTension tension = _level.Tension;
+
+        if (tension == null
+            || !tension.PreparePoliceTurn())
+        {
+            return;
+        }
+
+        int updated = 0;
+        int overridesPreserved = 0;
+
+        foreach (PoliceRuntime police in _level.Police)
+        {
+            if (police == null || !police.IsAlive)
+                continue;
+
+            if (police.OverridesEngagementRules)
+            {
+                overridesPreserved++;
+                continue;
+            }
+
+            if (police.ApplyLevelEngagementRules(
+                tension.AppliedRules))
+            {
+                updated++;
+            }
+        }
+
+        Debug.Log(
+            $"[TENSION] Police rules changed to " +
+            $"{tension.AppliedRules}: {updated} unit(s) " +
+            $"updated, {overridesPreserved} override(s) preserved"
+        );
     }
 }
