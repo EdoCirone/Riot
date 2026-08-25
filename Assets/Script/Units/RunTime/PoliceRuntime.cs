@@ -14,6 +14,7 @@ public class PoliceRuntime : AbstractUnitsRunTime
     public EngagementRules EngagementRules => _engagementRules;
     public int LeashRadius => _leashRadius;
     public bool IsAlarmed => _alarmTurnsLeft > 0;
+    private bool _overridesEngagementRules;
 
     public override string DisplayName => _police.DisplayName;
 
@@ -24,6 +25,8 @@ public class PoliceRuntime : AbstractUnitsRunTime
     public override int AuraAtk => _police.AuraAtk;
     public override int AuraDef => _police.AuraDef;
     public override int AuraMor => _police.AuraMor;
+    public bool OverridesEngagementRules => _overridesEngagementRules;
+
 
     public override GameObject GraphicsPrefab => _police.GraphicsPrefab;
     public ObjectiveRuntime GuardedObjective => _guardedObjective;
@@ -39,12 +42,35 @@ public class PoliceRuntime : AbstractUnitsRunTime
     {
         return _police.CanPerformAction(action);
     }
-    public void AssignGuard(ObjectiveRuntime objective, EngagementRules rules, int leashRadius)
+    public void AssignGuard(
+        ObjectiveRuntime objective,
+        EngagementRules rules,
+        int leashRadius,
+        bool overridesEngagementRules)
     {
         _guardedObjective = objective;
         _engagementRules = rules;
         _leashRadius = leashRadius;
+        _overridesEngagementRules =
+            overridesEngagementRules;
     }
     public void RaiseAlarm(int turns) => _alarmTurnsLeft = Mathf.Max(_alarmTurnsLeft, turns);
     public void TickAlarm() { if (_alarmTurnsLeft > 0) _alarmTurnsLeft--; }
+
+    public void ReassignGuard(ObjectiveRuntime objective)
+    {
+        _guardedObjective = objective;
+    }
+
+    public bool ApplyLevelEngagementRules(EngagementRules rules)
+    {
+        if (_overridesEngagementRules
+            || _engagementRules == rules)
+        {
+            return false;
+        }
+
+        _engagementRules = rules;
+        return true;
+    }
 }

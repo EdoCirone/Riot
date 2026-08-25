@@ -15,11 +15,7 @@ public static class PoliceGarrisonCoordinator
         if (policeUnits == null || objectives == null)
             return;
 
-        List<(
-            PoliceRuntime police,
-            bool pinned,
-            EngagementRules rules,
-            int radius)> assigned = new();
+        List<(PoliceRuntime police, bool pinned)> assigned = new();
 
         foreach (PoliceRuntime police in policeUnits)
         {
@@ -72,8 +68,10 @@ public static class PoliceGarrisonCoordinator
                 );
             }
 
+            bool overridesEngagementRules = setup != null && setup.OverrideEngagement;
+
             EngagementRules rules =
-                setup != null && setup.OverrideEngagement
+                overridesEngagementRules
                     ? setup.EngagementRules
                     : defaultRules;
 
@@ -83,14 +81,7 @@ public static class PoliceGarrisonCoordinator
                     ? setup.LeashRadiusOverride
                     : defaultLeashRadius;
 
-            police.AssignGuard(target, rules, radius);
-
-            assigned.Add((
-                police,
-                pinned,
-                rules,
-                radius
-            ));
+            police.AssignGuard(target, rules, radius, overridesEngagementRules);
 
             Debug.Log(
                 target != null
@@ -99,6 +90,8 @@ public static class PoliceGarrisonCoordinator
                     : $"[GARRISON] {police} has no objective " +
                       "to guard: it will roam"
             );
+
+            assigned.Add((police,pinned));
         }
 
         ReinforceDeclaredObjective(
@@ -109,11 +102,9 @@ public static class PoliceGarrisonCoordinator
     }
 
     private static void ReinforceDeclaredObjective(
-        List<(
-            PoliceRuntime police,
-            bool pinned,
-            EngagementRules rules,
-            int radius)> assigned,
+    List<(
+        PoliceRuntime police,
+        bool pinned)> assigned,
         ObjectiveRuntime declaredObjective,
         float declaredReinforcement)
     {
@@ -123,11 +114,7 @@ public static class PoliceGarrisonCoordinator
             return;
         }
 
-        List<(
-            PoliceRuntime police,
-            EngagementRules rules,
-            int radius,
-            int distance)> candidates = new();
+        List<( PoliceRuntime police,int distance)> candidates = new();
 
         foreach (var entry in assigned)
         {
@@ -141,8 +128,6 @@ public static class PoliceGarrisonCoordinator
 
             candidates.Add((
                 entry.police,
-                entry.rules,
-                entry.radius,
                 DistanceToObjective(
                     entry.police.PositionCell.Coordinates,
                     declaredObjective
@@ -178,11 +163,7 @@ public static class PoliceGarrisonCoordinator
             ObjectiveRuntime previousObjective =
                 candidate.police.GuardedObjective;
 
-            candidate.police.AssignGuard(
-                declaredObjective,
-                candidate.rules,
-                candidate.radius
-            );
+            candidate.police.ReassignGuard(declaredObjective);
 
             Debug.Log(
                 $"[GARRISON] {candidate.police} pulled from " +
