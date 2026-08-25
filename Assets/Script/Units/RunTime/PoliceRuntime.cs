@@ -5,8 +5,10 @@ public class PoliceRuntime : AbstractUnitsRunTime
     private PoliceSO _police;
     private ObjectiveRuntime _guardedObjective;
     private EngagementRules _engagementRules = EngagementRules.Containment;
+
     private int _leashRadius;
     private int _alarmTurnsLeft;
+    private bool _overridesLeashRadius;
 
     /// <summary>Un'unità allarmata ignora il guinzaglio e ingaggia, a qualunque condotta.</summary>
 
@@ -26,6 +28,7 @@ public class PoliceRuntime : AbstractUnitsRunTime
     public override int AuraDef => _police.AuraDef;
     public override int AuraMor => _police.AuraMor;
     public bool OverridesEngagementRules => _overridesEngagementRules;
+    public bool OverridesLeashRadius => _overridesLeashRadius;
 
 
     public override GameObject GraphicsPrefab => _police.GraphicsPrefab;
@@ -43,17 +46,21 @@ public class PoliceRuntime : AbstractUnitsRunTime
         return _police.CanPerformAction(action);
     }
     public void AssignGuard(
-        ObjectiveRuntime objective,
-        EngagementRules rules,
-        int leashRadius,
-        bool overridesEngagementRules)
+     ObjectiveRuntime objective,
+     EngagementRules rules,
+     int leashRadius,
+     bool overridesEngagementRules,
+     bool overridesLeashRadius)
     {
         _guardedObjective = objective;
         _engagementRules = rules;
         _leashRadius = leashRadius;
         _overridesEngagementRules =
             overridesEngagementRules;
+        _overridesLeashRadius =
+            overridesLeashRadius;
     }
+
     public void RaiseAlarm(int turns) => _alarmTurnsLeft = Mathf.Max(_alarmTurnsLeft, turns);
     public void TickAlarm() { if (_alarmTurnsLeft > 0) _alarmTurnsLeft--; }
 
@@ -71,6 +78,19 @@ public class PoliceRuntime : AbstractUnitsRunTime
         }
 
         _engagementRules = rules;
+        return true;
+    }
+
+    public bool ApplyLevelLeashRadius(
+    int leashRadius)
+    {
+        if (_overridesLeashRadius
+            || _leashRadius == leashRadius)
+        {
+            return false;
+        }
+
+        _leashRadius = leashRadius;
         return true;
     }
 }

@@ -40,11 +40,12 @@ public class PoliceEngagementRulesTests
         PoliceRuntime police = CreatePolice();
 
         police.AssignGuard(
-            objective: null,
-            EngagementRules.Containment,
-            leashRadius: 4,
-            overridesEngagementRules: false
-        );
+                objective: null,
+                EngagementRules.Containment,
+                leashRadius: 4,
+                overridesEngagementRules: false,
+                overridesLeashRadius: false
+            );
 
         bool changed =
             police.ApplyLevelEngagementRules(
@@ -67,7 +68,8 @@ public class PoliceEngagementRulesTests
             objective: null,
             EngagementRules.Sweep,
             leashRadius: 4,
-            overridesEngagementRules: true
+            overridesEngagementRules: true,
+            overridesLeashRadius: false
         );
 
         bool changed =
@@ -80,5 +82,45 @@ public class PoliceEngagementRulesTests
             police.EngagementRules,
             Is.EqualTo(EngagementRules.Sweep)
         );
+    }
+
+    [Test]
+    public void LevelDrivenUnit_AcceptsNewLeashRadius()
+    {
+        PoliceRuntime police = CreatePolice();
+
+        police.AssignGuard(
+            objective: null,
+            EngagementRules.Containment,
+            leashRadius: 4,
+            overridesEngagementRules: false,
+            overridesLeashRadius: false
+        );
+
+        bool changed =
+            police.ApplyLevelLeashRadius(8);
+
+        Assert.That(changed, Is.True);
+        Assert.That(police.LeashRadius, Is.EqualTo(8));
+    }
+
+    [Test]
+    public void OverriddenUnit_IgnoresLevelLeashRadius()
+    {
+        PoliceRuntime police = CreatePolice();
+
+        police.AssignGuard(
+            objective: null,
+            EngagementRules.Containment,
+            leashRadius: 2,
+            overridesEngagementRules: false,
+            overridesLeashRadius: true
+        );
+
+        bool changed =
+            police.ApplyLevelLeashRadius(8);
+
+        Assert.That(changed, Is.False);
+        Assert.That(police.LeashRadius, Is.EqualTo(2));
     }
 }

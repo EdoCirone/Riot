@@ -75,13 +75,22 @@ public static class PoliceGarrisonCoordinator
                     ? setup.EngagementRules
                     : defaultRules;
 
-            int radius =
-                setup != null &&
-                setup.LeashRadiusOverride >= 0
-                    ? setup.LeashRadiusOverride
-                    : defaultLeashRadius;
+            bool overridesLeashRadius =
+                     setup != null
+                     && setup.LeashRadiusOverride >= 0;
 
-            police.AssignGuard(target, rules, radius, overridesEngagementRules);
+            int radius =
+                    overridesLeashRadius
+                        ? setup.LeashRadiusOverride
+                        : defaultLeashRadius;
+
+            police.AssignGuard(
+                             target,
+                             rules,
+                             radius,
+                             overridesEngagementRules,
+                             overridesLeashRadius
+                         );
 
             Debug.Log(
                 target != null
