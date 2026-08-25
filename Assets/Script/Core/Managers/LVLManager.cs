@@ -49,6 +49,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     [SerializeField] private GameEventSO _winEvent;
     [SerializeField] private GameEventSO _loseEvent;
     [SerializeField] private GameEventSO _boardChangedEvent;
+    [SerializeField] private GameEventSO _tensionChangedEvent;
 
     [Header("Police garrison")]
     [Tooltip("Quanto un poliziotto può allontanarsi dall'obiettivo che difende. " +
@@ -150,6 +151,8 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         {
             errors.Add("HexGrid senza HexMapSO");
         }
+        if (_tensionChangedEvent == null)
+            errors.Add("TensionChangedEvent not assigned");
 
         if (_unitsRenderer == null)
             errors.Add("UnitsRenderer non assegnato");
@@ -462,6 +465,8 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             $"[TENSION] {previous} -> {_tension.Current}: " +
             reason
         );
+
+        _tensionChangedEvent.Raise();
 
         return true;
     }
