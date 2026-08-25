@@ -47,7 +47,7 @@ public sealed class TurnCycleCoordinator
             yield break;
         }
 
-        ApplyPendingEngagementRules();
+        ApplyPendingPoliceResponse();
 
         Debug.Log("--- TURNO POLIZIA ---");
 
@@ -113,18 +113,25 @@ public sealed class TurnCycleCoordinator
         _startPlayerTurnEvent.Raise();
     }
 
-    private void ApplyPendingEngagementRules()
+    private void ApplyPendingPoliceResponse()
     {
         LevelTension tension = _level.Tension;
 
-        if (tension == null
-            || !tension.PreparePoliceTurn())
+        if (tension == null ||
+            !tension.PreparePoliceTurn())
         {
             return;
         }
 
-        int updated = 0;
-        int overridesPreserved = 0;
+        EngagementRules rules = tension.AppliedRules;
+
+        int leashRadius =
+            _level.TensionSettings.GetLeashRadius(rules);
+
+        int rulesUpdated = 0;
+        int ruleOverridesPreserved = 0;
+        int leashesUpdated = 0;
+        int leashOverridesPreserved = 0;
 
         foreach (PoliceRuntime police in _level.Police)
         {
@@ -133,21 +140,30 @@ public sealed class TurnCycleCoordinator
 
             if (police.OverridesEngagementRules)
             {
-                overridesPreserved++;
-                continue;
+                ruleOverridesPreserved++;
+            }
+            else if (police.ApplyLevelEngagementRules(rules))
+            {
+                rulesUpdated++;
             }
 
-            if (police.ApplyLevelEngagementRules(
-                tension.AppliedRules))
+            if (police.OverridesLeashRadius)
             {
-                updated++;
+                leashOverridesPreserved++;
+            }
+            else if (police.ApplyLevelLeashRadius(leashRadius))
+            {
+                leashesUpdated++;
             }
         }
 
         Debug.Log(
-            $"[TENSION] Police rules changed to " +
-            $"{tension.AppliedRules}: {updated} unit(s) " +
-            $"updated, {overridesPreserved} override(s) preserved"
+            $"[TENSION] Police response changed to {rules}, " +
+            $"radius {leashRadius}: " +
+            $"{rulesUpdated} rule update(s), " +
+            $"{ruleOverridesPreserved} rule override(s), " +
+            $"{leashesUpdated} leash update(s), " +
+            $"{leashOverridesPreserved} leash override(s)"
         );
     }
 }
