@@ -52,9 +52,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     [SerializeField] private GameEventSO _tensionChangedEvent;
 
     [Header("Police garrison")]
-    [Tooltip("Quanto un poliziotto può allontanarsi dall'obiettivo che difende. " +
-             "Domani sarà funzione di Repressione e Tensione.")]
-    [SerializeField] private int _leashRadius = 4;
 
     [Tooltip("Share of the free garrison pulled onto the objective declared in the flyer. " +
             "0 = the flyer changes nothing, 1 = everyone converges on it.")]
@@ -104,7 +101,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     /// <summary>Turni giocati finora. ⚠ Conta in SU: non c'è un limite di turni, e il
     /// contatore non fa perdere (GDD 20.4-bis, decisione parcheggiata).</summary>
     public int CurrentTurn => _currentTurn;
-    public int LeashRadius => _leashRadius;
 
     public ObjectiveRuntime DeclaredObjective => _declared;
     public IReadOnlyList<ObjectiveRuntime> Objectives => _map != null ? _map.Objectives : null;
@@ -227,14 +223,14 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         ResolveDeclaredObjective();
 
         PoliceGarrisonCoordinator.Assign(
-            _policeOfLVL,
-            _map.Objectives,
-            _declared,
-            _unitsRenderer,
-            _tension.AppliedRules,
-            _leashRadius,
-            _declaredReinforcement
-        );
+                                 _policeOfLVL,
+                                 _map.Objectives,
+                                 _declared,
+                                 _unitsRenderer,
+                                 _tension.AppliedRules,
+                                 _tensionSettings.GetLeashRadius(_tension.AppliedRules),
+                                 _declaredReinforcement
+                                );
 
         RefreshBoardState();
 
