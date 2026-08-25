@@ -117,16 +117,15 @@ public sealed class TurnCycleCoordinator
     {
         LevelTension tension = _level.Tension;
 
-        if (tension == null ||
-            !tension.PreparePoliceTurn())
+        if (tension == null
+            || !tension.PreparePoliceTurn())
         {
             return;
         }
 
         EngagementRules rules = tension.AppliedRules;
 
-        int leashRadius =
-            _level.TensionSettings.GetLeashRadius(rules);
+        int leashRadius = _level.TensionSettings.GetLeashRadius(rules);
 
         int rulesUpdated = 0;
         int ruleOverridesPreserved = 0;

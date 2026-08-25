@@ -9,10 +9,7 @@ public static class PanicResolver
         public int Steps { get; }
         public int PanicTurns { get; }
 
-        public PanicEffect(
-            AbstractUnitsRunTime unit,
-            int steps,
-            int panicTurns)
+        public PanicEffect(AbstractUnitsRunTime unit, int steps, int panicTurns)
         {
             Unit = unit;
             Steps = steps;
@@ -20,18 +17,14 @@ public static class PanicResolver
         }
     }
 
-    public static IReadOnlyList<PanicEffect> Resolve(
-        HexCell origin,
-        AbstractUnitsRunTime epicentre,
-        HexGrid map)
+    public static IReadOnlyList<PanicEffect> Resolve(HexCell origin, AbstractUnitsRunTime epicentre, HexGrid map)
     {
         List<PanicEffect> effects = new();
 
         if (origin == null || epicentre == null || map == null)
             return effects;
 
-        List<(AbstractUnitsRunTime unit, int steps)> wave =
-            TacticalQuery.GetPanicWave(origin, epicentre, map);
+        List<(AbstractUnitsRunTime unit, int steps)> wave = TacticalQuery.GetPanicWave(origin, epicentre, map);
 
         int baseTurns = epicentre is PoliceRuntime
             ? TacticalQuery.PanicTurnsPolice
@@ -43,13 +36,7 @@ public static class PanicResolver
 
             entry.unit.ApplyPanic(turns);
 
-            effects.Add(
-                new PanicEffect(
-                    entry.unit,
-                    entry.steps,
-                    entry.unit.PanicTurnsLeft
-                )
-            );
+            effects.Add(new PanicEffect(entry.unit, entry.steps, entry.unit.PanicTurnsLeft));
         }
 
         return effects;

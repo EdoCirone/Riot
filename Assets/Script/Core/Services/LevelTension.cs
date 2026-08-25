@@ -8,18 +8,13 @@
         private set;
     }
 
-    public EngagementRules TargetRules =>
-        TensionRules.GetEngagementRules(Current);
+    public EngagementRules TargetRules => TensionRules.GetEngagementRules(Current);
 
-    public bool HasPendingRulesChange =>
-        TargetRules != AppliedRules;
+    public bool HasPendingRulesChange => TargetRules != AppliedRules;
 
     public LevelTension(int initialTension)
     {
-        Current = TensionRules.ApplyDelta(
-            initialTension,
-            0
-        );
+        Current = TensionRules.ApplyDelta(initialTension, 0);
 
         AppliedRules = TargetRules;
     }
@@ -28,10 +23,7 @@
     {
         int previous = Current;
 
-        Current = TensionRules.ApplyDelta(
-            Current,
-            delta
-        );
+        Current = TensionRules.ApplyDelta(Current, delta);
 
         return Current != previous;
     }

@@ -27,10 +27,10 @@
             return false;
 
         if (!TacticalQuery.HasChargeRoom(
-                attacker.PositionCell.Coordinates,
-                defender.PositionCell.Coordinates,
-                map,
-                out HexCoordinates destination))
+            attacker.PositionCell.Coordinates,
+            defender.PositionCell.Coordinates,
+            map,
+            out HexCoordinates destination))
         {
             return false;
         }

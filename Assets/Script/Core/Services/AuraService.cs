@@ -6,8 +6,7 @@ public static class AuraService
     {
         public IReadOnlyList<AbstractUnitsRunTime> RemovedUnits { get; }
 
-        public AuraResult(
-            IReadOnlyList<AbstractUnitsRunTime> removedUnits)
+        public AuraResult(IReadOnlyList<AbstractUnitsRunTime> removedUnits)
         {
             RemovedUnits = removedUnits;
         }
@@ -30,8 +29,7 @@ public static class AuraService
         {
             someoneFell = false;
 
-            List<(AbstractUnitsRunTime unit, int bonus)> pending =
-                new();
+            List<(AbstractUnitsRunTime unit, int bonus)> pending = new();
 
             if (spezzoni != null)
             {
@@ -40,8 +38,7 @@ public static class AuraService
                     if (unit == null || !unit.IsAlive)
                         continue;
 
-                    int bonus =
-                        TacticalQuery.GetAuraBonus(unit, map).Mor;
+                    int bonus = TacticalQuery.GetAuraBonus(unit, map).Mor;
 
                     pending.Add((unit, bonus));
                 }
@@ -54,8 +51,7 @@ public static class AuraService
                     if (unit == null || !unit.IsAlive)
                         continue;
 
-                    int bonus =
-                        TacticalQuery.GetAuraBonus(unit, map).Mor;
+                    int bonus = TacticalQuery.GetAuraBonus(unit, map).Mor;
 
                     pending.Add((unit, bonus));
                 }

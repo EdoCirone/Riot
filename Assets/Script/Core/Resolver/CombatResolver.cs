@@ -32,27 +32,14 @@ public static class CombatResolver
             HitUnits = hitUnits;
         }
 
-        public static SkirmishResolution Success(
-            CombatResult result,
-            IReadOnlyList<AbstractUnitsRunTime> hitUnits)
+        public static SkirmishResolution Success(CombatResult result, IReadOnlyList<AbstractUnitsRunTime> hitUnits)
         {
-            return new SkirmishResolution(
-                true,
-                SkirmishFailure.None,
-                result,
-                hitUnits
-            );
+            return new SkirmishResolution(true, SkirmishFailure.None, result, hitUnits);
         }
 
-        public static SkirmishResolution Fail(
-            SkirmishFailure failure)
+        public static SkirmishResolution Fail(SkirmishFailure failure)
         {
-            return new SkirmishResolution(
-                false,
-                failure,
-                result: null,
-                new List<AbstractUnitsRunTime>()
-            );
+            return new SkirmishResolution(false, failure, result: null, new List<AbstractUnitsRunTime>());
         }
     }
 
@@ -66,85 +53,57 @@ public static class CombatResolver
             || !attacker.IsAlive
             || !defender.IsAlive)
         {
-            return SkirmishResolution.Fail(
-                SkirmishFailure.InvalidUnit
-            );
+            return SkirmishResolution.Fail(SkirmishFailure.InvalidUnit);
         }
 
         if (attacker.PositionCell == null
             || defender.PositionCell == null)
         {
-            return SkirmishResolution.Fail(
-                SkirmishFailure.InvalidPosition
-            );
+            return SkirmishResolution.Fail(SkirmishFailure.InvalidPosition);
         }
 
-        if (attacker.PositionCell.Coordinates.Distance(
-                defender.PositionCell.Coordinates) != 1)
+        if (attacker.PositionCell.Coordinates.Distance(defender.PositionCell.Coordinates) != 1)
         {
-            return SkirmishResolution.Fail(
-                SkirmishFailure.NotAdjacent
-            );
+            return SkirmishResolution.Fail(SkirmishFailure.NotAdjacent);
         }
 
         if (!attacker.TrySpendActionPoint(SkirmishCost))
         {
-            return SkirmishResolution.Fail(
-                SkirmishFailure.InsufficientActionPoints
-            );
+            return SkirmishResolution.Fail(SkirmishFailure.InsufficientActionPoints);
         }
 
-        CombatResult result =
-            Resolve(attacker, defender, map);
+        CombatResult result = Resolve(attacker, defender, map);
 
         List<AbstractUnitsRunTime> hitUnits = new();
 
         switch (result)
         {
             case CombatResult.Win:
-                defender.LoseMorale(
-                    1,
-                    CauseFrom(attacker)
-                );
+                defender.LoseMorale(1, CauseFrom(attacker));
 
                 hitUnits.Add(defender);
                 break;
 
             case CombatResult.Lose:
-                attacker.LoseMorale(
-                    1,
-                    CauseFrom(defender)
-                );
+                attacker.LoseMorale(1, CauseFrom(defender));
 
                 hitUnits.Add(attacker);
                 break;
 
             case CombatResult.Par:
-                attacker.LoseMorale(
-                    1,
-                    CauseFrom(defender)
-                );
+                attacker.LoseMorale(1, CauseFrom(defender));
 
-                defender.LoseMorale(
-                    1,
-                    CauseFrom(attacker)
-                );
+                defender.LoseMorale(1, CauseFrom(attacker));
 
                 hitUnits.Add(attacker);
                 hitUnits.Add(defender);
                 break;
         }
 
-        return SkirmishResolution.Success(
-            result,
-            hitUnits
-        );
+        return SkirmishResolution.Success(result, hitUnits);
     }
 
-    public static CombatResult Resolve(
-        AbstractUnitsRunTime attacker,
-        AbstractUnitsRunTime defender,
-        HexGrid map)
+    public static CombatResult Resolve(AbstractUnitsRunTime attacker, AbstractUnitsRunTime defender, HexGrid map)
     {
         int atk = GetEffectiveAtk(attacker, map);
         int def = GetEffectiveDef(defender, map);
@@ -158,24 +117,19 @@ public static class CombatResolver
         return CombatResult.Par;
     }
 
-    public static int GetEffectiveAtk(
-        AbstractUnitsRunTime unit,
-        HexGrid map)
+    public static int GetEffectiveAtk(AbstractUnitsRunTime unit, HexGrid map)
     {
         return unit.Atk
             + TacticalQuery.GetAuraBonus(unit, map).Atk;
     }
 
-    public static int GetEffectiveDef(
-        AbstractUnitsRunTime unit,
-        HexGrid map)
+    public static int GetEffectiveDef(AbstractUnitsRunTime unit, HexGrid map)
     {
         return unit.Def
             + TacticalQuery.GetAuraBonus(unit, map).Def;
     }
 
-    private static MoraleLossCause CauseFrom(
-        AbstractUnitsRunTime source)
+    private static MoraleLossCause CauseFrom(AbstractUnitsRunTime source)
     {
         return source is PoliceRuntime
             ? MoraleLossCause.PoliceContact

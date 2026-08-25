@@ -14,16 +14,9 @@ public static class LevelCoverageDiagnostics
         if (map == null || map.Objectives == null)
             return string.Empty;
 
-        MeetingPointRuntime meeting =
-            ResolveMeetingPoint(
-                map,
-                meetingPointData
-            );
+        MeetingPointRuntime meeting = ResolveMeetingPoint(map, meetingPointData);
 
-        Dictionary<HexCoordinates, int> steps =
-            meeting != null
-                ? StepsFrom(map, meeting.Cells)
-                : null;
+        Dictionary<HexCoordinates, int> steps = meeting != null ? StepsFrom(map, meeting.Cells) : null;
 
         int slow = int.MaxValue;
         int fast = 1;
@@ -67,8 +60,8 @@ public static class LevelCoverageDiagnostics
 
             foreach (PoliceRuntime policeUnit in police)
             {
-                if (policeUnit.IsAlive &&
-                    policeUnit.GuardedObjective == objective)
+                if (policeUnit.IsAlive
+                    && policeUnit.GuardedObjective == objective)
                 {
                     garrison++;
                 }
@@ -83,10 +76,7 @@ public static class LevelCoverageDiagnostics
             {
                 foreach (HexCell cell in objective.Cells)
                 {
-                    if (steps.TryGetValue(
-                            cell.Coordinates,
-                            out int distance) &&
-                        distance < best)
+                    if (steps.TryGetValue(cell.Coordinates, out int distance) && distance < best)
                     {
                         best = distance;
                     }
@@ -98,27 +88,13 @@ public static class LevelCoverageDiagnostics
             if (!reachable)
                 unreachable++;
 
-            string stepText =
-                reachable ? best.ToString() : "--";
+            string stepText = reachable ? best.ToString() : "--";
 
-            string slowText =
-                reachable
-                    ? Mathf.CeilToInt(
-                        best / (float)slow
-                    ).ToString()
-                    : "--";
+            string slowText = reachable ? Mathf.CeilToInt(best / (float)slow).ToString() : "--";
 
-            string fastText =
-                reachable
-                    ? Mathf.CeilToInt(
-                        best / (float)fast
-                    ).ToString()
-                    : "--";
+            string fastText = reachable ? Mathf.CeilToInt(best / (float)fast).ToString() : "--";
 
-            string mark =
-                objective == declaredObjective
-                    ? "   <<< DECLARED"
-                    : "";
+            string mark = objective == declaredObjective ? "   <<< DECLARED" : "";
 
             report.AppendLine(
                 $"[COVERAGE] " +
@@ -148,9 +124,7 @@ public static class LevelCoverageDiagnostics
         return report.ToString();
     }
 
-    private static MeetingPointRuntime ResolveMeetingPoint(
-        HexGrid map,
-        MeetingPointSO meetingPointData)
+    private static MeetingPointRuntime ResolveMeetingPoint(HexGrid map, MeetingPointSO meetingPointData)
     {
         if (map == null || meetingPointData == null)
             return null;
@@ -165,9 +139,7 @@ public static class LevelCoverageDiagnostics
         return null;
     }
 
-    private static Dictionary<HexCoordinates, int> StepsFrom(
-        HexGrid map,
-        IReadOnlyList<HexCell> sources)
+    private static Dictionary<HexCoordinates, int> StepsFrom(HexGrid map, IReadOnlyList<HexCell> sources)
     {
         Dictionary<HexCoordinates, int> steps = new();
         Queue<HexCoordinates> queue = new();
@@ -189,21 +161,18 @@ public static class LevelCoverageDiagnostics
             foreach (HexCoordinates direction
                      in HexCoordinates.Directions)
             {
-                HexCoordinates neighbor =
-                    current + direction;
+                HexCoordinates neighbor = current + direction;
 
                 if (steps.ContainsKey(neighbor))
                     continue;
 
-                if (!map.TryGetCell(
-                        neighbor,
-                        out HexCell cell))
+                if (!map.TryGetCell(neighbor, out HexCell cell))
                 {
                     continue;
                 }
 
-                if (cell.Type == null ||
-                    !cell.Type.IsWalkable)
+                if (cell.Type == null
+                    || !cell.Type.IsWalkable)
                 {
                     continue;
                 }

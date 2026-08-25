@@ -25,18 +25,12 @@ public static class PoliceGarrisonCoordinator
             ObjectiveRuntime target = null;
             bool pinned = false;
 
-            GameObject go =
-                unitsRenderer != null
-                    ? unitsRenderer.GetGameObject(police)
-                    : null;
+            GameObject go = unitsRenderer != null ? unitsRenderer.GetGameObject(police) : null;
 
-            UnitsSetup setup =
-                go != null
-                    ? go.GetComponent<UnitsSetup>()
-                    : null;
+            UnitsSetup setup = go != null ? go.GetComponent<UnitsSetup>() : null;
 
-            if (setup != null &&
-                setup.GuardedObjective != null)
+            if (setup != null
+                && setup.GuardedObjective != null)
             {
                 foreach (ObjectiveRuntime candidate in objectives)
                 {
@@ -62,35 +56,18 @@ public static class PoliceGarrisonCoordinator
 
             if (target == null)
             {
-                target = NearestObjective(
-                    police.PositionCell.Coordinates,
-                    objectives
-                );
+                target = NearestObjective(police.PositionCell.Coordinates, objectives);
             }
 
             bool overridesEngagementRules = setup != null && setup.OverrideEngagement;
 
-            EngagementRules rules =
-                overridesEngagementRules
-                    ? setup.EngagementRules
-                    : defaultRules;
+            EngagementRules rules = overridesEngagementRules ? setup.EngagementRules : defaultRules;
 
-            bool overridesLeashRadius =
-                     setup != null
-                     && setup.LeashRadiusOverride >= 0;
+            bool overridesLeashRadius = setup != null && setup.LeashRadiusOverride >= 0;
 
-            int radius =
-                    overridesLeashRadius
-                        ? setup.LeashRadiusOverride
-                        : defaultLeashRadius;
+            int radius = overridesLeashRadius ? setup.LeashRadiusOverride : defaultLeashRadius;
 
-            police.AssignGuard(
-                             target,
-                             rules,
-                             radius,
-                             overridesEngagementRules,
-                             overridesLeashRadius
-                         );
+            police.AssignGuard(target, rules, radius, overridesEngagementRules, overridesLeashRadius);
 
             Debug.Log(
                 target != null
@@ -103,22 +80,16 @@ public static class PoliceGarrisonCoordinator
             assigned.Add((police,pinned));
         }
 
-        ReinforceDeclaredObjective(
-            assigned,
-            declaredObjective,
-            declaredReinforcement
-        );
+        ReinforceDeclaredObjective(assigned, declaredObjective, declaredReinforcement);
     }
 
     private static void ReinforceDeclaredObjective(
-    List<(
-        PoliceRuntime police,
-        bool pinned)> assigned,
+        List<(PoliceRuntime police, bool pinned)> assigned,
         ObjectiveRuntime declaredObjective,
         float declaredReinforcement)
     {
-        if (declaredObjective == null ||
-            declaredReinforcement <= 0f)
+        if (declaredObjective == null
+            || declaredReinforcement <= 0f)
         {
             return;
         }
@@ -127,9 +98,9 @@ public static class PoliceGarrisonCoordinator
 
         foreach (var entry in assigned)
         {
-            if (entry.pinned ||
-                !entry.police.IsAlive ||
-                entry.police.GuardedObjective ==
+            if (entry.pinned
+                || !entry.police.IsAlive
+                || entry.police.GuardedObjective ==
                 declaredObjective)
             {
                 continue;
@@ -137,10 +108,7 @@ public static class PoliceGarrisonCoordinator
 
             candidates.Add((
                 entry.police,
-                DistanceToObjective(
-                    entry.police.PositionCell.Coordinates,
-                    declaredObjective
-                )
+                DistanceToObjective(entry.police.PositionCell.Coordinates, declaredObjective)
             ));
         }
 
@@ -155,13 +123,9 @@ public static class PoliceGarrisonCoordinator
             return;
         }
 
-        candidates.Sort(
-            (a, b) => a.distance.CompareTo(b.distance)
-        );
+        candidates.Sort((a, b) => a.distance.CompareTo(b.distance));
 
-        int toMove = Mathf.CeilToInt(
-            candidates.Count * declaredReinforcement
-        );
+        int toMove = Mathf.CeilToInt(candidates.Count * declaredReinforcement);
 
         toMove = Mathf.Min(toMove, candidates.Count);
 
@@ -169,8 +133,7 @@ public static class PoliceGarrisonCoordinator
         {
             var candidate = candidates[i];
 
-            ObjectiveRuntime previousObjective =
-                candidate.police.GuardedObjective;
+            ObjectiveRuntime previousObjective = candidate.police.GuardedObjective;
 
             candidate.police.ReassignGuard(declaredObjective);
 
@@ -189,19 +152,14 @@ public static class PoliceGarrisonCoordinator
         );
     }
 
-    private static ObjectiveRuntime NearestObjective(
-        HexCoordinates origin,
-        IReadOnlyList<ObjectiveRuntime> objectives)
+    private static ObjectiveRuntime NearestObjective(HexCoordinates origin, IReadOnlyList<ObjectiveRuntime> objectives)
     {
         ObjectiveRuntime nearest = null;
         int bestDistance = int.MaxValue;
 
         foreach (ObjectiveRuntime objective in objectives)
         {
-            int distance = DistanceToObjective(
-                origin,
-                objective
-            );
+            int distance = DistanceToObjective(origin, objective);
 
             if (distance >= bestDistance)
                 continue;
@@ -213,9 +171,7 @@ public static class PoliceGarrisonCoordinator
         return nearest;
     }
 
-    private static int DistanceToObjective(
-        HexCoordinates origin,
-        ObjectiveRuntime objective)
+    private static int DistanceToObjective(HexCoordinates origin, ObjectiveRuntime objective)
     {
         if (objective == null)
             return int.MaxValue;
@@ -224,8 +180,7 @@ public static class PoliceGarrisonCoordinator
 
         foreach (HexCell cell in objective.Cells)
         {
-            int distance =
-                origin.Distance(cell.Coordinates);
+            int distance = origin.Distance(cell.Coordinates);
 
             if (distance < bestDistance)
                 bestDistance = distance;

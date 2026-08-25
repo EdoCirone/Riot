@@ -4,9 +4,7 @@ public static class CohesionService
 {
     private const int CohesionPerDirectedAdjacency = 10;
 
-    public static int Calculate(
-        IReadOnlyList<SpezzoneRuntime> units,
-        HexGrid map)
+    public static int Calculate(IReadOnlyList<SpezzoneRuntime> units, HexGrid map)
     {
         if (units == null || map == null)
             return 0;
