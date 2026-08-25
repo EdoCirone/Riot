@@ -13667,7 +13667,6 @@ MonoBehaviour:
   _loseEvent: {fileID: 11400000, guid: 9f2e74c24576edc4db87ac001db19051, type: 2}
   _boardChangedEvent: {fileID: 11400000, guid: 28827dbfca004774faaac84e3e68ee1b, type: 2}
   _tensionChangedEvent: {fileID: 11400000, guid: 8e1712854c3ec64438feaa23d0aa212c, type: 2}
-  _leashRadius: 4
   _declaredReinforcement: 0.5
   _alarmRadius: 4
   _alarmDuration: 3
