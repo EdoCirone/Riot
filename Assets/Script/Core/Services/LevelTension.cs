@@ -1,7 +1,5 @@
 ﻿public sealed class LevelTension
 {
-    private bool _changeWasPendingAtPlayerTurnStart;
-
     public int Current { get; private set; }
 
     public EngagementRules AppliedRules
@@ -38,23 +36,11 @@
         return Current != previous;
     }
 
-    public void BeginPlayerTurn()
-    {
-        _changeWasPendingAtPlayerTurnStart =
-            HasPendingRulesChange;
-    }
-
     public bool PreparePoliceTurn()
     {
         EngagementRules target = TargetRules;
 
-        bool shouldApply =
-            _changeWasPendingAtPlayerTurnStart
-            && target != AppliedRules;
-
-        _changeWasPendingAtPlayerTurnStart = false;
-
-        if (!shouldApply)
+        if (target == AppliedRules)
             return false;
 
         AppliedRules = target;

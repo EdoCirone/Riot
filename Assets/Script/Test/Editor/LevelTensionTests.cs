@@ -79,46 +79,66 @@ public class LevelTensionTests
     }
 
     [Test]
-    public void Escalation_IsAppliedAfterAFullFollowingPlayerTurn()
+    public void Escalation_IsAppliedAtNextPoliceTurn()
     {
         LevelTension tension =
             new LevelTension(20);
 
-        tension.BeginPlayerTurn();
         tension.Change(10);
 
-        bool appliedImmediately =
-            tension.PreparePoliceTurn();
+        Assert.That(
+            tension.TargetRules,
+            Is.EqualTo(EngagementRules.Engage)
+        );
 
-        Assert.That(appliedImmediately, Is.False);
         Assert.That(
             tension.AppliedRules,
             Is.EqualTo(EngagementRules.Containment)
         );
 
-        tension.BeginPlayerTurn();
+        Assert.That(
+            tension.HasPendingRulesChange,
+            Is.True
+        );
 
-        bool appliedAfterGraceTurn =
-            tension.PreparePoliceTurn();
+        bool applied = tension.PreparePoliceTurn();
 
-        Assert.That(appliedAfterGraceTurn, Is.True);
+        Assert.That(applied, Is.True);
         Assert.That(
             tension.AppliedRules,
             Is.EqualTo(EngagementRules.Engage)
         );
+
+        Assert.That(
+            tension.HasPendingRulesChange,
+            Is.False
+        );
     }
 
     [Test]
-    public void PendingEscalation_IsCancelledByDeescalation()
+    public void ChangeWithinSameBand_DoesNotApplyRules()
     {
         LevelTension tension =
             new LevelTension(20);
 
-        tension.BeginPlayerTurn();
-        tension.Change(10);
-        tension.PreparePoliceTurn();
+        tension.Change(5);
 
-        tension.BeginPlayerTurn();
+        bool applied = tension.PreparePoliceTurn();
+
+        Assert.That(applied, Is.False);
+        Assert.That(
+            tension.AppliedRules,
+            Is.EqualTo(EngagementRules.Containment)
+        );
+    }
+
+    [Test]
+    public void ChangeCancelledBeforePoliceTurn_IsNotApplied()
+    {
+        LevelTension tension =
+            new LevelTension(20);
+
+        tension.Change(10);
         tension.Change(-10);
 
         bool applied = tension.PreparePoliceTurn();
@@ -136,17 +156,12 @@ public class LevelTensionTests
     }
 
     [Test]
-    public void PendingChange_AppliesTheCurrentTargetBand()
+    public void CrossingSeveralBands_AppliesCurrentTarget()
     {
         LevelTension tension =
             new LevelTension(20);
 
-        tension.BeginPlayerTurn();
-        tension.Change(10);
-        tension.PreparePoliceTurn();
-
-        tension.BeginPlayerTurn();
-        tension.Change(30);
+        tension.Change(40);
 
         bool applied = tension.PreparePoliceTurn();
 
@@ -158,31 +173,16 @@ public class LevelTensionTests
     }
 
     [Test]
-    public void Deescalation_UsesTheSameGracePeriod()
+    public void Deescalation_IsAppliedAtNextPoliceTurn()
     {
         LevelTension tension =
             new LevelTension(60);
 
-        tension.BeginPlayerTurn();
         tension.Change(-1);
 
-        Assert.That(
-            tension.PreparePoliceTurn(),
-            Is.False
-        );
+        bool applied = tension.PreparePoliceTurn();
 
-        Assert.That(
-            tension.AppliedRules,
-            Is.EqualTo(EngagementRules.Sweep)
-        );
-
-        tension.BeginPlayerTurn();
-
-        Assert.That(
-            tension.PreparePoliceTurn(),
-            Is.True
-        );
-
+        Assert.That(applied, Is.True);
         Assert.That(
             tension.AppliedRules,
             Is.EqualTo(EngagementRules.Engage)
