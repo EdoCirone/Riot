@@ -12234,11 +12234,11 @@ PrefabInstance:
       objectReference: {fileID: 1144096843}
     - target: {fileID: 1223380818050418741, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: _engagementRules
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1223380818050418741, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: _overrideEngagement
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3385265451044002913, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
       propertyPath: m_Name
