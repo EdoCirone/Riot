@@ -47,16 +47,13 @@ public class TurnManager : MonoBehaviour
     public UnitEventSO ThrowEvent => _throwEvent;
     private bool IsCellAvailable(HexCell cell) => TacticalQuery.IsCellAvailable(cell);
     public bool IsConfigured => _isConfigured;
-    public bool IsPoliceTurn =>
-        _turnCycle != null && _turnCycle.IsPoliceTurn;
+    public bool IsPoliceTurn => _turnCycle != null && _turnCycle.IsPoliceTurn;
 
     //Helper method to determine the cause of morale loss based on the source unit type
     private static MoraleLossCause CauseFrom(AbstractUnitsRunTime source)
     => source is PoliceRuntime ? MoraleLossCause.PoliceContact : MoraleLossCause.Other;
 
-    public void CollectConfigurationErrors(
-    LVLManager expectedLevel,
-    List<string> errors)
+    public void CollectConfigurationErrors(LVLManager expectedLevel, List<string> errors)
     {
         int initialErrorCount = errors.Count;
 
@@ -107,35 +104,27 @@ public class TurnManager : MonoBehaviour
         _map = _lvlManager.Map;
 
         _actionPresenter = new UnitActionPresenter(
-                            _map,
-                            _unitsRenderer,
-                            _skirmishWinEvent,
-                            _skirmishLoseEvent,
-                            _skirmishParEvent
-                            );
+            _map,
+            _unitsRenderer,
+            _skirmishWinEvent,
+            _skirmishLoseEvent,
+            _skirmishParEvent
+        );
         _turnCycle = new TurnCycleCoordinator(
-                        _lvlManager,
-                        _policeAI,
-                        _unitsRenderer,
-                        _startPlayerTurnEvent,
-                        _endPlayerTurnEvent
-                        );
+            _lvlManager,
+            _policeAI,
+            _unitsRenderer,
+            _startPlayerTurnEvent,
+            _endPlayerTurnEvent
+        );
 
         _startPlayerTurnEvent.Raise();
     }
     #region Charge
 
-    public bool CanCharge(
-        AbstractUnitsRunTime atk,
-        AbstractUnitsRunTime def,
-        out HexCell destinationCell)
+    public bool CanCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, out HexCell destinationCell)
     {
-        return ChargeResolver.CanStart(
-            atk,
-            def,
-            _map,
-            out destinationCell
-        );
+        return ChargeResolver.CanStart(atk, def, _map, out destinationCell);
     }
 
     public void StartCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
@@ -149,9 +138,7 @@ public class TurnManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    public IEnumerator ExecuteCharge(
-        AbstractUnitsRunTime atk,
-        AbstractUnitsRunTime def)
+    public IEnumerator ExecuteCharge(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
         if (_actionPresenter == null)
         {
@@ -162,10 +149,7 @@ public class TurnManager : MonoBehaviour
             yield break;
         }
 
-        if (!CanCharge(
-                atk,
-                def,
-                out HexCell destinationCell))
+        if (!CanCharge(atk, def, out HexCell destinationCell))
         {
             Debug.Log(
                 "[CHARGE] Invalid target, alignment, " +
@@ -175,8 +159,7 @@ public class TurnManager : MonoBehaviour
             yield break;
         }
 
-        if (!atk.TrySpendActionPoint(
-                TacticalQuery.ChargeCost))
+        if (!atk.TrySpendActionPoint(TacticalQuery.ChargeCost))
         {
             Debug.LogError(
                 "[CHARGE] Failed to spend action points " +
@@ -196,22 +179,15 @@ public class TurnManager : MonoBehaviour
             yield break;
         }
 
-        yield return _actionPresenter.PlayCharge(
-            atk,
-            def,
-            destinationCell
-        );
+        yield return _actionPresenter.PlayCharge(atk, def, destinationCell);
 
         PushResolution(atk, def);
     }
-    private void PushResolution(
-      AbstractUnitsRunTime atk,
-      AbstractUnitsRunTime def)
+    private void PushResolution(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
         HexCell collisionCell = def?.PositionCell;
 
-        PushResolver.PushResult pushResult =
-            PushResolver.Resolve(atk, def, _map);
+        PushResolver.PushResult pushResult = PushResolver.Resolve(atk, def, _map);
 
         if (!pushResult.IsResolved)
         {
@@ -255,12 +231,7 @@ public class TurnManager : MonoBehaviour
 
         ApplyPanicWave(panicOrigin, def);
 
-        ReportAggression(
-            def,
-            atk,
-            _lvlManager.TensionSettings.ViolentCharge,
-            collisionCell
-        );
+        ReportAggression(def, atk, _lvlManager.TensionSettings.ViolentCharge, collisionCell);
 
         _lvlManager.CheckObjectiveIntrusion(atk);
 
@@ -275,9 +246,7 @@ public class TurnManager : MonoBehaviour
     /// Applica l'onda. NON chiama RefreshBoardState: lo fa il chiamante, che di solito
     /// sta risolvendo qualcosa di più grande (la carica) e deve ricalcolare una volta sola.
     /// </summary>
-    private void ApplyPanicWave(
-        HexCell origin,
-        AbstractUnitsRunTime epicentre)
+    private void ApplyPanicWave(HexCell origin, AbstractUnitsRunTime epicentre)
     {
         if (origin == null)
         {
@@ -285,8 +254,7 @@ public class TurnManager : MonoBehaviour
             return;
         }
 
-        IReadOnlyList<PanicResolver.PanicEffect> effects =
-            PanicResolver.Resolve(origin, epicentre, _map);
+        IReadOnlyList<PanicResolver.PanicEffect> effects = PanicResolver.Resolve(origin, epicentre, _map);
 
         foreach (PanicResolver.PanicEffect effect in effects)
         {
@@ -311,10 +279,7 @@ public class TurnManager : MonoBehaviour
     /// - ogni elemento costa 1 punto azione;
     /// - la collezione ricevuta non viene modificata.
     /// </summary>
-    public bool ExecuteMovement(
-        AbstractUnitsRunTime unit,
-        IReadOnlyList<HexCell> path,
-        Action onComplete = null)
+    public bool ExecuteMovement(AbstractUnitsRunTime unit, IReadOnlyList<HexCell> path, Action onComplete = null)
     {
         if (unit == null || unit.PositionCell == null)
         {
@@ -341,7 +306,7 @@ public class TurnManager : MonoBehaviour
 
         // Copia difensiva: l'animazione è asincrona e non deve dipendere
         // da eventuali modifiche apportate dal chiamante alla lista originale.
-        List<HexCell> movementPath = new List<HexCell>(path);
+        List<HexCell> movementPath = new(path);
 
         int cost = movementPath.Count;
 
@@ -397,25 +362,21 @@ public class TurnManager : MonoBehaviour
 
             foreach (HexCell traversedCell in movementPath)
             {
-                if (traversedCell == null ||
-                    !traversedCell.IsObjective)
+                if (traversedCell == null
+                    || !traversedCell.IsObjective)
                 {
                     continue;
                 }
 
-                ObjectiveRuntime objective =
-                    traversedCell.Objective;
+                ObjectiveRuntime objective = traversedCell.Objective;
 
-                if (objective == null ||
-                    !enteredObjectives.Add(objective))
+                if (objective == null
+                    || !enteredObjectives.Add(objective))
                 {
                     continue;
                 }
 
-                _lvlManager.CheckObjectiveIntrusion(
-                    unit,
-                    traversedCell
-                );
+                _lvlManager.CheckObjectiveIntrusion(unit, traversedCell);
             }
 
             _stopFollowEvent?.Raise();
@@ -451,31 +412,19 @@ public class TurnManager : MonoBehaviour
 
     #region Scontri
 
-    public void StartSkirmish(
-        AbstractUnitsRunTime atk,
-        AbstractUnitsRunTime def,
-        Action onComplete)
+    public void StartSkirmish(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
     {
-        StartCoroutine(
-            SkirmishWithCallback(atk, def, onComplete)
-        );
+        StartCoroutine(SkirmishWithCallback(atk, def, onComplete));
     }
 
-    private IEnumerator SkirmishWithCallback(
-        AbstractUnitsRunTime atk,
-        AbstractUnitsRunTime def,
-        Action onComplete)
+    private IEnumerator SkirmishWithCallback(AbstractUnitsRunTime atk, AbstractUnitsRunTime def, Action onComplete)
     {
-        yield return StartCoroutine(
-            ExecuteSkirmish(atk, def)
-        );
+        yield return StartCoroutine(ExecuteSkirmish(atk, def));
 
         onComplete?.Invoke();
     }
 
-    public IEnumerator ExecuteSkirmish(
-        AbstractUnitsRunTime atk,
-        AbstractUnitsRunTime def)
+    public IEnumerator ExecuteSkirmish(AbstractUnitsRunTime atk, AbstractUnitsRunTime def)
     {
         if (_actionPresenter == null)
         {
@@ -488,12 +437,7 @@ public class TurnManager : MonoBehaviour
 
         HexCell impactCell = def?.PositionCell;
 
-        CombatResolver.SkirmishResolution resolution =
-            CombatResolver.ResolveSkirmish(
-                atk,
-                def,
-                _map
-            );
+        CombatResolver.SkirmishResolution resolution = CombatResolver.ResolveSkirmish(atk, def, _map);
 
         if (!resolution.Succeeded)
         {
@@ -505,23 +449,14 @@ public class TurnManager : MonoBehaviour
             yield break;
         }
 
-        yield return _actionPresenter.PlaySkirmish(
-            atk,
-            def,
-            resolution.Result.Value
-        );
+        yield return _actionPresenter.PlaySkirmish(atk, def, resolution.Result.Value);
 
         _unitsRenderer.UpdateView(atk);
         _unitsRenderer.UpdateView(def);
 
         _lvlManager.RefreshBoardState();
 
-        ReportAggression(
-            def,
-            atk,
-            _lvlManager.TensionSettings.PlayerInitiatedSkirmish,
-            impactCell
-        );
+        ReportAggression(def, atk, _lvlManager.TensionSettings.PlayerInitiatedSkirmish, impactCell);
     }
 
     #endregion
@@ -529,10 +464,10 @@ public class TurnManager : MonoBehaviour
     #region Item Check
 
     private void ReportItemActionFailure(
-    ItemActionFailure failure,
-    ItemSO item,
-    string missingItemMessage,
-    string invalidTargetMessage)
+        ItemActionFailure failure,
+        ItemSO item,
+        string missingItemMessage,
+        string invalidTargetMessage)
     {
         switch (failure)
         {
@@ -541,9 +476,7 @@ public class TurnManager : MonoBehaviour
                 break;
 
             case ItemActionFailure.InsufficientActionPoints:
-                _alertEvent?.Raise(
-                    $"Not enough AP, {item?.ActionPointCost ?? 0} needed"
-                );
+                _alertEvent?.Raise($"Not enough AP, {item?.ActionPointCost ?? 0} needed");
                 break;
 
             case ItemActionFailure.InvalidTarget:
@@ -567,23 +500,14 @@ public class TurnManager : MonoBehaviour
     #endregion
 
     #region Lancio
-    public void ExecuteThrow(
-     AbstractUnitsRunTime atk,
-     PoliceRuntime target,
-     ThrowItemSO item)
+    public void ExecuteThrow(AbstractUnitsRunTime atk, PoliceRuntime target, ThrowItemSO item)
     {
         if (atk is not SpezzoneRuntime spezzone)
             return;
 
         HexCell impactCell = target?.PositionCell;
 
-        ItemActionResolver.ItemActionResult result =
-            ItemActionResolver.ResolveThrow(
-                spezzone,
-                target,
-                item,
-                _map
-            );
+        ItemActionResolver.ItemActionResult result = ItemActionResolver.ResolveThrow(spezzone, target, item, _map);
 
         if (!result.Succeeded)
         {
@@ -599,12 +523,7 @@ public class TurnManager : MonoBehaviour
 
         _throwEvent.Raise(target);
 
-        ReportAggression(
-            target,
-            spezzone,
-            item.TensionImpact,
-            impactCell
-        );
+        ReportAggression(target, spezzone, item.TensionImpact, impactCell);
 
         _unitsRenderer.UpdateView(target);
         _lvlManager.RefreshBoardState();
@@ -614,20 +533,12 @@ public class TurnManager : MonoBehaviour
 
     #region Barricade
 
-    public bool ExecuteBarricade(
-     AbstractUnitsRunTime atk,
-     HexCell targetCell,
-     BarricadeSO item)
+    public bool ExecuteBarricade(AbstractUnitsRunTime atk, HexCell targetCell, BarricadeSO item)
     {
         if (atk is not SpezzoneRuntime spezzone)
             return false;
 
-        ItemActionResolver.ItemActionResult result =
-            ItemActionResolver.ResolveBarricade(
-                spezzone,
-                targetCell,
-                item
-            );
+        ItemActionResolver.ItemActionResult result = ItemActionResolver.ResolveBarricade(spezzone, targetCell, item);
 
         if (!result.Succeeded)
         {
@@ -648,14 +559,9 @@ public class TurnManager : MonoBehaviour
 
         if (item.GraphicPrefab != null)
         {
-            Vector3 worldPosition =
-                _map.GridToWorld(targetCell.Coordinates);
+            Vector3 worldPosition = _map.GridToWorld(targetCell.Coordinates);
 
-            Instantiate(
-                item.GraphicPrefab,
-                worldPosition,
-                Quaternion.identity
-            );
+            Instantiate(item.GraphicPrefab, worldPosition, Quaternion.identity);
         }
         else
         {
@@ -672,16 +578,12 @@ public class TurnManager : MonoBehaviour
 
     #region Chant & SitDown
 
-    private void ReportUnitActionFailure(
-        string actionName,
-        UnitActionResolver.UnitActionResult result)
+    private void ReportUnitActionFailure(string actionName, UnitActionResolver.UnitActionResult result)
     {
         switch (result.Failure)
         {
             case UnitActionFailure.InsufficientActionPoints:
-                _alertEvent?.Raise(
-                    $"Not enough AP, {result.ActionPointCost} needed"
-                );
+                _alertEvent?.Raise($"Not enough AP, {result.ActionPointCost} needed");
                 break;
 
             case UnitActionFailure.ActionNotAllowed:
@@ -706,11 +608,7 @@ public class TurnManager : MonoBehaviour
 
     public bool ExecuteChant(AbstractUnitsRunTime caster)
     {
-        UnitActionResolver.UnitActionResult result =
-            UnitActionResolver.ResolveChant(
-                caster,
-                _map
-            );
+        UnitActionResolver.UnitActionResult result = UnitActionResolver.ResolveChant(caster, _map);
 
         if (!result.Succeeded)
         {
@@ -718,8 +616,7 @@ public class TurnManager : MonoBehaviour
             return false;
         }
 
-        foreach (AbstractUnitsRunTime affectedUnit
-                 in result.AffectedUnits)
+        foreach (AbstractUnitsRunTime affectedUnit in result.AffectedUnits)
         {
             _unitsRenderer.UpdateView(affectedUnit);
         }
@@ -730,8 +627,7 @@ public class TurnManager : MonoBehaviour
 
     public bool ExecuteSitStand(AbstractUnitsRunTime unit)
     {
-        UnitActionResolver.UnitActionResult result =
-            UnitActionResolver.ResolveSitStand(unit);
+        UnitActionResolver.UnitActionResult result = UnitActionResolver.ResolveSitStand(unit);
 
         if (!result.Succeeded)
         {
@@ -739,8 +635,7 @@ public class TurnManager : MonoBehaviour
             return false;
         }
 
-        foreach (AbstractUnitsRunTime affectedUnit
-                 in result.AffectedUnits)
+        foreach (AbstractUnitsRunTime affectedUnit in result.AffectedUnits)
         {
             _unitsRenderer.UpdateView(affectedUnit);
         }
@@ -785,20 +680,14 @@ public class TurnManager : MonoBehaviour
         if (aggressor is not SpezzoneRuntime)
             return;
 
-        _lvlManager.ChangeTension(
-            tensionDelta,
-            $"{aggressor} attacked {victim}"
-        );
+        _lvlManager.ChangeTension(tensionDelta, $"{aggressor} attacked {victim}");
 
         origin ??= victim.PositionCell;
 
         if (origin == null)
             return;
 
-        _lvlManager.RaiseAlarmAround(
-            origin,
-            $"{victim} attacked by {aggressor}"
-        );
+        _lvlManager.RaiseAlarmAround(origin, $"{victim} attacked by {aggressor}");
     }
     #endregion
     public void EndTurn()
@@ -815,8 +704,6 @@ public class TurnManager : MonoBehaviour
         if (_turnCycle.IsPoliceTurn)
             return;
 
-        StartCoroutine(
-            _turnCycle.CompletePlayerTurn()
-        );
+        StartCoroutine(_turnCycle.CompletePlayerTurn());
     }
 }
