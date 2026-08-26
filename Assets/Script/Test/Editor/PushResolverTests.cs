@@ -9,12 +9,9 @@ public class PushResolverTests
     {
         private readonly bool _canBeArrested;
 
-        protected override bool CanBeArrested =>
-            _canBeArrested;
+        protected override bool CanBeArrested => _canBeArrested;
 
-        public TestUnit(
-            HexCell position,
-            bool canBeArrested = false)
+        public TestUnit(HexCell position, bool canBeArrested = false)
             : base(position, UnitsStatus.Alive, 10, 4)
         {
             _canBeArrested = canBeArrested;
@@ -45,19 +42,16 @@ public class PushResolverTests
     [SetUp]
     public void SetUp()
     {
-        _walkableType =
-            ScriptableObject.CreateInstance<HexTypeSO>();
+        _walkableType = ScriptableObject.CreateInstance<HexTypeSO>();
 
         _createdAssets.Add(_walkableType);
 
-        SerializedObject serializedType =
-            new SerializedObject(_walkableType);
+        SerializedObject serializedType = new(_walkableType);
 
         serializedType.FindProperty("_isWalkable").boolValue = true;
         serializedType.ApplyModifiedPropertiesWithoutUndo();
 
-        _mapData =
-            ScriptableObject.CreateInstance<HexMapSO>();
+        _mapData = ScriptableObject.CreateInstance<HexMapSO>();
 
         _createdAssets.Add(_mapData);
         _mapData.Initialize(8, 8, _walkableType);
@@ -65,11 +59,9 @@ public class PushResolverTests
         _gridObject = new GameObject("Push Test Grid");
         _grid = _gridObject.AddComponent<HexGrid>();
 
-        SerializedObject serializedGrid =
-            new SerializedObject(_grid);
+        SerializedObject serializedGrid = new(_grid);
 
-        serializedGrid.FindProperty("_hexMapData")
-            .objectReferenceValue = _mapData;
+        serializedGrid.FindProperty("_hexMapData").objectReferenceValue = _mapData;
 
         serializedGrid.ApplyModifiedPropertiesWithoutUndo();
 
@@ -89,10 +81,7 @@ public class PushResolverTests
 
     private HexCell Cell(int q, int r)
     {
-        bool found = _grid.TryGetCell(
-            new HexCoordinates(q, r),
-            out HexCell cell
-        );
+        bool found = _grid.TryGetCell(new HexCoordinates(q, r), out HexCell cell);
 
         Assert.That(found, Is.True);
         return cell;
@@ -100,18 +89,11 @@ public class PushResolverTests
 
     private PoliceRuntime CreatePolice(HexCell position)
     {
-        PoliceSO data =
-            ScriptableObject.CreateInstance<PoliceSO>();
+        PoliceSO data = ScriptableObject.CreateInstance<PoliceSO>();
 
         _createdAssets.Add(data);
 
-        return new PoliceRuntime(
-            position,
-            UnitsStatus.Alive,
-            data,
-            morale: 10,
-            actionPoint: 4
-        );
+        return new PoliceRuntime(position, UnitsStatus.Alive, data, morale: 10, actionPoint: 4);
     }
 
     [Test]
@@ -120,8 +102,7 @@ public class PushResolverTests
         TestUnit pusher = new TestUnit(Cell(1, 1));
         TestUnit pushed = new TestUnit(Cell(2, 1));
 
-        PushResolver.PushResult result =
-            PushResolver.Resolve(pusher, pushed, _grid);
+        PushResolver.PushResult result = PushResolver.Resolve(pusher, pushed, _grid);
 
         Assert.That(result.IsResolved, Is.True);
         Assert.That(result.WasRemoved, Is.False);
@@ -138,8 +119,7 @@ public class PushResolverTests
         TestUnit pushed = new TestUnit(Cell(2, 1));
         TestUnit blocker = new TestUnit(Cell(3, 1));
 
-        PushResolver.PushResult result =
-            PushResolver.Resolve(pusher, pushed, _grid);
+        PushResolver.PushResult result = PushResolver.Resolve(pusher, pushed, _grid);
 
         Assert.That(result.IsResolved, Is.True);
         Assert.That(result.WasRemoved, Is.False);
@@ -155,56 +135,35 @@ public class PushResolverTests
         TestUnit pushed = new TestUnit(Cell(2, 1));
         TestUnit blocker = new TestUnit(Cell(3, 1));
 
-        TestUnit seatedStopper =
-            new TestUnit(Cell(4, 1));
+        TestUnit seatedStopper = new(Cell(4, 1));
 
         seatedStopper.SitDown();
 
-        TestUnit sideBlocker =
-            new TestUnit(Cell(3, 2));
+        TestUnit sideBlocker = new(Cell(3, 2));
 
-        PushResolver.PushResult result =
-            PushResolver.Resolve(pusher, pushed, _grid);
+        PushResolver.PushResult result = PushResolver.Resolve(pusher, pushed, _grid);
 
         Assert.That(result.IsResolved, Is.True);
         Assert.That(result.WasRemoved, Is.False);
         Assert.That(result.Moves.Count, Is.EqualTo(2));
 
-        Assert.That(
-            pushed.PositionCell,
-            Is.SameAs(Cell(3, 1))
-        );
+        Assert.That(pushed.PositionCell, Is.SameAs(Cell(3, 1)));
 
-        Assert.That(
-            blocker.PositionCell,
-            Is.SameAs(Cell(4, 0))
-        );
+        Assert.That(blocker.PositionCell, Is.SameAs(Cell(4, 0)));
 
-        Assert.That(
-            seatedStopper.PositionCell,
-            Is.SameAs(Cell(4, 1))
-        );
+        Assert.That(seatedStopper.PositionCell, Is.SameAs(Cell(4, 1)));
 
-        Assert.That(
-            sideBlocker.PositionCell,
-            Is.SameAs(Cell(3, 2))
-        );
+        Assert.That(sideBlocker.PositionCell, Is.SameAs(Cell(3, 2)));
     }
 
     [Test]
     public void Resolve_ArrestsUnitWhenPolicePushHasNoExit()
     {
-        PoliceRuntime pusher =
-            CreatePolice(Cell(6, 4));
+        PoliceRuntime pusher = CreatePolice(Cell(6, 4));
 
-        TestUnit pushed =
-            new TestUnit(
-                Cell(7, 4),
-                canBeArrested: true
-            );
+        TestUnit pushed = new(Cell(7, 4), canBeArrested: true);
 
-        PushResolver.PushResult result =
-            PushResolver.Resolve(pusher, pushed, _grid);
+        PushResolver.PushResult result = PushResolver.Resolve(pusher, pushed, _grid);
 
         Assert.That(result.IsResolved, Is.True);
         Assert.That(result.WasRemoved, Is.True);
@@ -219,8 +178,7 @@ public class PushResolverTests
         TestUnit pusher = new TestUnit(Cell(1, 1));
         TestUnit pushed = new TestUnit(Cell(3, 1));
 
-        PushResolver.PushResult result =
-            PushResolver.Resolve(pusher, pushed, _grid);
+        PushResolver.PushResult result = PushResolver.Resolve(pusher, pushed, _grid);
 
         Assert.That(result.IsResolved, Is.False);
         Assert.That(result.WasRemoved, Is.False);

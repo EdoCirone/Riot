@@ -19,17 +19,14 @@ public class CohesionServiceTests
         _gridObject = new GameObject("Cohesion Test Grid");
         _grid = _gridObject.AddComponent<HexGrid>();
 
-        SerializedObject serializedGrid =
-            new SerializedObject(_grid);
+        SerializedObject serializedGrid = new(_grid);
 
-        serializedGrid.FindProperty("_hexMapData")
-            .objectReferenceValue = _mapData;
+        serializedGrid.FindProperty("_hexMapData").objectReferenceValue = _mapData;
 
         serializedGrid.ApplyModifiedPropertiesWithoutUndo();
         _grid.GenerateGrid();
 
-        _spezzoneData =
-            ScriptableObject.CreateInstance<SpezzoneSO>();
+        _spezzoneData = ScriptableObject.CreateInstance<SpezzoneSO>();
     }
 
     [TearDown]
@@ -42,10 +39,7 @@ public class CohesionServiceTests
 
     private HexCell Cell(int q, int r)
     {
-        bool found = _grid.TryGetCell(
-            new HexCoordinates(q, r),
-            out HexCell cell
-        );
+        bool found = _grid.TryGetCell(new HexCoordinates(q, r), out HexCell cell);
 
         Assert.That(found, Is.True);
         return cell;
@@ -53,13 +47,7 @@ public class CohesionServiceTests
 
     private SpezzoneRuntime CreateUnit(int q, int r)
     {
-        return new SpezzoneRuntime(
-            Cell(q, r),
-            UnitsStatus.Alive,
-            _spezzoneData,
-            morale: 10,
-            actionPoints: 4
-        );
+        return new SpezzoneRuntime(Cell(q, r), UnitsStatus.Alive, _spezzoneData, morale: 10, actionPoints: 4);
     }
 
     [Test]
@@ -67,15 +55,9 @@ public class CohesionServiceTests
     {
         List<SpezzoneRuntime> units = new();
 
-        Assert.That(
-            CohesionService.Calculate(null, _grid),
-            Is.Zero
-        );
+        Assert.That(CohesionService.Calculate(null, _grid), Is.Zero);
 
-        Assert.That(
-            CohesionService.Calculate(units, null),
-            Is.Zero
-        );
+        Assert.That(CohesionService.Calculate(units, null), Is.Zero);
     }
 
     [Test]
@@ -83,8 +65,7 @@ public class CohesionServiceTests
     {
         List<SpezzoneRuntime> units = new();
 
-        int cohesion =
-            CohesionService.Calculate(units, _grid);
+        int cohesion = CohesionService.Calculate(units, _grid);
 
         Assert.That(cohesion, Is.Zero);
     }
@@ -97,8 +78,7 @@ public class CohesionServiceTests
             CreateUnit(1, 1)
         };
 
-        int cohesion =
-            CohesionService.Calculate(units, _grid);
+        int cohesion = CohesionService.Calculate(units, _grid);
 
         Assert.That(cohesion, Is.Zero);
     }
@@ -112,8 +92,7 @@ public class CohesionServiceTests
             CreateUnit(2, 1)
         };
 
-        int cohesion =
-            CohesionService.Calculate(units, _grid);
+        int cohesion = CohesionService.Calculate(units, _grid);
 
         Assert.That(cohesion, Is.EqualTo(20));
     }
@@ -128,8 +107,7 @@ public class CohesionServiceTests
             CreateUnit(3, 1)
         };
 
-        int cohesion =
-            CohesionService.Calculate(units, _grid);
+        int cohesion = CohesionService.Calculate(units, _grid);
 
         Assert.That(cohesion, Is.EqualTo(40));
     }
@@ -146,13 +124,9 @@ public class CohesionServiceTests
             removed
         };
 
-        removed.LoseMorale(
-            10,
-            MoraleLossCause.Other
-        );
+        removed.LoseMorale(10, MoraleLossCause.Other);
 
-        int cohesion =
-            CohesionService.Calculate(units, _grid);
+        int cohesion = CohesionService.Calculate(units, _grid);
 
         Assert.That(cohesion, Is.Zero);
     }

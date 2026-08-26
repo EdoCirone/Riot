@@ -8,17 +8,8 @@ public class CombatResolverTests
         private readonly int _atk;
         private readonly int _def;
 
-        public TestUnit(
-            int atk,
-            int def,
-            HexCell positionCell = null,
-            int morale = 10,
-            int actionPoints = 4)
-            : base(
-                positionCell,
-                UnitsStatus.Alive,
-                morale,
-                actionPoints)
+        public TestUnit(int atk, int def, HexCell positionCell = null, int morale = 10, int actionPoints = 4)
+            : base(positionCell, UnitsStatus.Alive, morale, actionPoints)
         {
             _atk = atk;
             _def = def;
@@ -49,22 +40,11 @@ public class CombatResolverTests
         int defenderDef,
         CombatResult expectedResult)
     {
-        TestUnit attacker = new TestUnit(
-            atk: attackerAtk,
-            def: 0
-        );
+        TestUnit attacker = new(atk: attackerAtk, def: 0);
 
-        TestUnit defender = new TestUnit(
-            atk: 0,
-            def: defenderDef
-        );
+        TestUnit defender = new(atk: 0, def: defenderDef);
 
-        CombatResult result =
-            CombatResolver.Resolve(
-                attacker,
-                defender,
-                map: null
-            );
+        CombatResult result = CombatResolver.Resolve(attacker, defender, map: null);
 
         Assert.That(result, Is.EqualTo(expectedResult));
     }
@@ -72,22 +52,11 @@ public class CombatResolverTests
     [Test]
     public void EffectiveStats_WithoutMapReturnBaseStats()
     {
-        TestUnit unit = new TestUnit(
-            atk: 7,
-            def: 5
-        );
+        TestUnit unit = new(atk: 7, def: 5);
 
-        int effectiveAtk =
-            CombatResolver.GetEffectiveAtk(
-                unit,
-                map: null
-            );
+        int effectiveAtk = CombatResolver.GetEffectiveAtk(unit, map: null);
 
-        int effectiveDef =
-            CombatResolver.GetEffectiveDef(
-                unit,
-                map: null
-            );
+        int effectiveDef = CombatResolver.GetEffectiveDef(unit, map: null);
 
         Assert.That(effectiveAtk, Is.EqualTo(7));
         Assert.That(effectiveDef, Is.EqualTo(5));
@@ -104,110 +73,47 @@ public class CombatResolverTests
         int expectedDefenderMorale,
         int expectedHitCount)
     {
-        HexCell attackerCell = new HexCell(
-            new HexCoordinates(0, 0),
-            type: null
-        );
+        HexCell attackerCell = new(new HexCoordinates(0, 0), type: null);
 
-        HexCell defenderCell = new HexCell(
-            new HexCoordinates(1, 0),
-            type: null
-        );
+        HexCell defenderCell = new(new HexCoordinates(1, 0), type: null);
 
-        TestUnit attacker = new TestUnit(
-            atk: attackerAtk,
-            def: 0,
-            positionCell: attackerCell
-        );
+        TestUnit attacker = new(atk: attackerAtk, def: 0, positionCell: attackerCell);
 
-        TestUnit defender = new TestUnit(
-            atk: 0,
-            def: defenderDef,
-            positionCell: defenderCell
-        );
+        TestUnit defender = new(atk: 0, def: defenderDef, positionCell: defenderCell);
 
-        CombatResolver.SkirmishResolution resolution =
-            CombatResolver.ResolveSkirmish(
-                attacker,
-                defender,
-                map: null
-            );
+        CombatResolver.SkirmishResolution resolution = CombatResolver.ResolveSkirmish(attacker, defender, map: null);
 
         Assert.That(resolution.Succeeded, Is.True);
 
-        Assert.That(
-            resolution.Failure,
-            Is.EqualTo(
-                CombatResolver.SkirmishFailure.None
-            )
-        );
+        Assert.That(resolution.Failure, Is.EqualTo(CombatResolver.SkirmishFailure.None));
 
-        Assert.That(
-            resolution.Result,
-            Is.EqualTo(expectedResult)
-        );
+        Assert.That(resolution.Result, Is.EqualTo(expectedResult));
 
-        Assert.That(
-            resolution.HitUnits.Count,
-            Is.EqualTo(expectedHitCount)
-        );
+        Assert.That(resolution.HitUnits.Count, Is.EqualTo(expectedHitCount));
 
-        Assert.That(
-            attacker.ActionPoints,
-            Is.EqualTo(3)
-        );
+        Assert.That(attacker.ActionPoints, Is.EqualTo(3));
 
-        Assert.That(
-            attacker.Morale,
-            Is.EqualTo(expectedAttackerMorale)
-        );
+        Assert.That(attacker.Morale, Is.EqualTo(expectedAttackerMorale));
 
-        Assert.That(
-            defender.Morale,
-            Is.EqualTo(expectedDefenderMorale)
-        );
+        Assert.That(defender.Morale, Is.EqualTo(expectedDefenderMorale));
     }
 
     [Test]
     public void ResolveSkirmish_RejectsNonAdjacentUnitsWithoutMutation()
     {
-        HexCell attackerCell = new HexCell(
-            new HexCoordinates(0, 0),
-            type: null
-        );
+        HexCell attackerCell = new(new HexCoordinates(0, 0), type: null);
 
-        HexCell defenderCell = new HexCell(
-            new HexCoordinates(2, 0),
-            type: null
-        );
+        HexCell defenderCell = new(new HexCoordinates(2, 0), type: null);
 
-        TestUnit attacker = new TestUnit(
-            atk: 5,
-            def: 0,
-            positionCell: attackerCell
-        );
+        TestUnit attacker = new(atk: 5, def: 0, positionCell: attackerCell);
 
-        TestUnit defender = new TestUnit(
-            atk: 0,
-            def: 4,
-            positionCell: defenderCell
-        );
+        TestUnit defender = new(atk: 0, def: 4, positionCell: defenderCell);
 
-        CombatResolver.SkirmishResolution resolution =
-            CombatResolver.ResolveSkirmish(
-                attacker,
-                defender,
-                map: null
-            );
+        CombatResolver.SkirmishResolution resolution = CombatResolver.ResolveSkirmish(attacker, defender, map: null);
 
         Assert.That(resolution.Succeeded, Is.False);
 
-        Assert.That(
-            resolution.Failure,
-            Is.EqualTo(
-                CombatResolver.SkirmishFailure.NotAdjacent
-            )
-        );
+        Assert.That(resolution.Failure, Is.EqualTo(CombatResolver.SkirmishFailure.NotAdjacent));
 
         Assert.That(resolution.Result, Is.Null);
         Assert.That(attacker.ActionPoints, Is.EqualTo(4));
@@ -218,45 +124,19 @@ public class CombatResolverTests
     [Test]
     public void ResolveSkirmish_RejectsInsufficientActionPoints()
     {
-        HexCell attackerCell = new HexCell(
-            new HexCoordinates(0, 0),
-            type: null
-        );
+        HexCell attackerCell = new(new HexCoordinates(0, 0), type: null);
 
-        HexCell defenderCell = new HexCell(
-            new HexCoordinates(1, 0),
-            type: null
-        );
+        HexCell defenderCell = new(new HexCoordinates(1, 0), type: null);
 
-        TestUnit attacker = new TestUnit(
-            atk: 5,
-            def: 0,
-            positionCell: attackerCell,
-            actionPoints: 0
-        );
+        TestUnit attacker = new(atk: 5, def: 0, positionCell: attackerCell, actionPoints: 0);
 
-        TestUnit defender = new TestUnit(
-            atk: 0,
-            def: 4,
-            positionCell: defenderCell
-        );
+        TestUnit defender = new(atk: 0, def: 4, positionCell: defenderCell);
 
-        CombatResolver.SkirmishResolution resolution =
-            CombatResolver.ResolveSkirmish(
-                attacker,
-                defender,
-                map: null
-            );
+        CombatResolver.SkirmishResolution resolution = CombatResolver.ResolveSkirmish(attacker, defender, map: null);
 
         Assert.That(resolution.Succeeded, Is.False);
 
-        Assert.That(
-            resolution.Failure,
-            Is.EqualTo(
-                CombatResolver.SkirmishFailure
-                    .InsufficientActionPoints
-            )
-        );
+        Assert.That(resolution.Failure, Is.EqualTo(CombatResolver.SkirmishFailure.InsufficientActionPoints));
 
         Assert.That(attacker.ActionPoints, Is.Zero);
         Assert.That(attacker.Morale, Is.EqualTo(10));

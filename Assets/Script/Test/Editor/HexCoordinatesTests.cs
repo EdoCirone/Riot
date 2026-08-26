@@ -9,18 +9,15 @@ public class HexCoordinatesTests
     [TestCase(12, -3)]
     public void CubeCoordinates_AlwaysRespectInvariant(int q, int r)
     {
-        HexCoordinates coordinates = new HexCoordinates(q, r);
+        HexCoordinates coordinates = new(q, r);
 
-        Assert.That(
-            coordinates.Q + coordinates.R + coordinates.S,
-            Is.EqualTo(0)
-        );
+        Assert.That(coordinates.Q + coordinates.R + coordinates.S, Is.EqualTo(0));
     }
 
     [Test]
     public void Distance_FromCoordinateToItself_IsZero()
     {
-        HexCoordinates coordinates = new HexCoordinates(3, -2);
+        HexCoordinates coordinates = new(3, -2);
 
         int distance = coordinates.Distance(coordinates);
 
@@ -31,15 +28,10 @@ public class HexCoordinatesTests
     [TestCase(0, 0, 1, -1, 1)]
     [TestCase(0, 0, 3, -2, 3)]
     [TestCase(-2, 4, 3, -1, 5)]
-    public void Distance_ReturnsExpectedValue(
-        int startQ,
-        int startR,
-        int endQ,
-        int endR,
-        int expectedDistance)
+    public void Distance_ReturnsExpectedValue(int startQ, int startR, int endQ, int endR, int expectedDistance)
     {
-        HexCoordinates start = new HexCoordinates(startQ, startR);
-        HexCoordinates end = new HexCoordinates(endQ, endR);
+        HexCoordinates start = new(startQ, startR);
+        HexCoordinates end = new(endQ, endR);
 
         int distance = start.Distance(end);
 
@@ -50,11 +42,10 @@ public class HexCoordinatesTests
     [Test]
     public void GetNeighbors_ReturnsSixUniqueAdjacentCoordinates()
     {
-        HexCoordinates center = new HexCoordinates(4, -2);
+        HexCoordinates center = new(4, -2);
 
         HexCoordinates[] neighbors = center.GetNeighbors();
-        HashSet<HexCoordinates> uniqueNeighbors =
-            new HashSet<HexCoordinates>(neighbors);
+        HashSet<HexCoordinates> uniqueNeighbors = new(neighbors);
 
         Assert.That(neighbors.Length, Is.EqualTo(6));
         Assert.That(uniqueNeighbors.Count, Is.EqualTo(6));
@@ -71,12 +62,9 @@ public class HexCoordinatesTests
     [TestCase(12, -3)]
     public void WorldConversion_RoundTripPreservesCoordinates(int q, int r)
     {
-        HexCoordinates original = new HexCoordinates(q, r);
+        HexCoordinates original = new(q, r);
 
-        HexCoordinates converted = HexCoordinates.FromWorldPosition(
-            original.ToWorldPosition(1f),
-            1f
-        );
+        HexCoordinates converted = HexCoordinates.FromWorldPosition(original.ToWorldPosition(1f), 1f);
 
         Assert.That(converted, Is.EqualTo(original));
     }

@@ -43,9 +43,8 @@ public class PanicWaveTests
         _mapData.Initialize(width: 5, height: 5, defaultType: null);
         _createdAssets.Add(_mapData);
 
-        SerializedObject serializedGrid = new SerializedObject(_grid);
-        serializedGrid.FindProperty("_hexMapData").objectReferenceValue =
-            _mapData;
+        SerializedObject serializedGrid = new(_grid);
+        serializedGrid.FindProperty("_hexMapData").objectReferenceValue = _mapData;
         serializedGrid.ApplyModifiedPropertiesWithoutUndo();
 
         _grid.GenerateGrid();
@@ -66,23 +65,14 @@ public class PanicWaveTests
 
     private HexCell Cell(int q, int r)
     {
-        bool found = _grid.TryGetCell(
-            new HexCoordinates(q, r),
-            out HexCell cell
-        );
+        bool found = _grid.TryGetCell(new HexCoordinates(q, r), out HexCell cell);
 
-        Assert.That(
-            found,
-            Is.True,
-            $"La cella ({q}, {r}) non esiste nella mappa di test"
-        );
+        Assert.That(found, Is.True, $"La cella ({q}, {r}) non esiste nella mappa di test");
 
         return cell;
     }
 
-    private static int? StepsOf(
-        List<(AbstractUnitsRunTime unit, int steps)> wave,
-        AbstractUnitsRunTime target)
+    private static int? StepsOf(List<(AbstractUnitsRunTime unit, int steps)> wave, AbstractUnitsRunTime target)
     {
         foreach ((AbstractUnitsRunTime unit, int steps) entry in wave)
         {
@@ -98,13 +88,7 @@ public class PanicWaveTests
         PoliceSO data = ScriptableObject.CreateInstance<PoliceSO>();
         _createdAssets.Add(data);
 
-        return new PoliceRuntime(
-            position,
-            UnitsStatus.Alive,
-            data,
-            morale: 10,
-            actionPoint: 4
-        );
+        return new PoliceRuntime(position, UnitsStatus.Alive, data, morale: 10, actionPoint: 4);
     }
 
     [Test]
@@ -218,8 +202,7 @@ public class PanicWaveTests
 
         epicentre.LoseMorale(10, MoraleLossCause.Other);
 
-        List<(AbstractUnitsRunTime unit, int steps)> wave =
-            TacticalQuery.GetPanicWave(origin, epicentre, _grid);
+        List<(AbstractUnitsRunTime unit, int steps)> wave = TacticalQuery.GetPanicWave(origin, epicentre, _grid);
 
         Assert.That(StepsOf(wave, epicentre), Is.Null);
         Assert.That(StepsOf(wave, adjacent), Is.EqualTo(1));
@@ -232,11 +215,7 @@ public class PanicWaveTests
         TestUnit epicentre = new TestUnit(Cell(1, 1));
         TestUnit adjacent = new TestUnit(Cell(2, 1));
 
-        TacticalQuery.GetPanicWave(
-            epicentre.PositionCell,
-            epicentre,
-            _grid
-        );
+        TacticalQuery.GetPanicWave(epicentre.PositionCell, epicentre, _grid);
 
         Assert.That(epicentre.IsPanicked, Is.False);
         Assert.That(adjacent.IsPanicked, Is.False);
@@ -290,11 +269,7 @@ public class PanicWaveTests
 
         adjacent.ApplyPanic(5);
 
-        PanicResolver.Resolve(
-            epicentre.PositionCell,
-            epicentre,
-            _grid
-        );
+        PanicResolver.Resolve(epicentre.PositionCell, epicentre, _grid);
 
         Assert.That(epicentre.PanicTurnsLeft, Is.EqualTo(3));
         Assert.That(adjacent.PanicTurnsLeft, Is.EqualTo(5));

@@ -12,12 +12,9 @@ public class TensionRulesTests
     [TestCase(91, 40)]
     [TestCase(100, 40)]
     [TestCase(110, 40)]
-    public void GetInitialTension_ReturnsCompressedValue(
-        int repression,
-        int expected)
+    public void GetInitialTension_ReturnsCompressedValue(int repression, int expected)
     {
-        int result =
-            TensionRules.GetInitialTension(repression);
+        int result = TensionRules.GetInitialTension(repression);
 
         Assert.That(result, Is.EqualTo(expected));
     }
@@ -30,12 +27,9 @@ public class TensionRulesTests
     [TestCase(60, EngagementRules.Sweep)]
     [TestCase(100, EngagementRules.Sweep)]
     [TestCase(110, EngagementRules.Sweep)]
-    public void GetEngagementRules_ReturnsExpectedBand(
-        int tension,
-        EngagementRules expected)
+    public void GetEngagementRules_ReturnsExpectedBand(int tension, EngagementRules expected)
     {
-        EngagementRules result =
-            TensionRules.GetEngagementRules(tension);
+        EngagementRules result = TensionRules.GetEngagementRules(tension);
 
         Assert.That(result, Is.EqualTo(expected));
     }
@@ -46,13 +40,9 @@ public class TensionRulesTests
     [TestCase(5, -10, 0)]
     [TestCase(100, int.MaxValue, 100)]
     [TestCase(0, int.MinValue, 0)]
-    public void ApplyDelta_ClampsResultToScale(
-        int current,
-        int delta,
-        int expected)
+    public void ApplyDelta_ClampsResultToScale(int current, int delta, int expected)
     {
-        int result =
-            TensionRules.ApplyDelta(current, delta);
+        int result = TensionRules.ApplyDelta(current, delta);
 
         Assert.That(result, Is.EqualTo(expected));
     }

@@ -43,8 +43,7 @@ public class ChargeResolverTests
     {
         _walkableType = ScriptableObject.CreateInstance<HexTypeSO>();
 
-        SerializedObject serializedType =
-            new SerializedObject(_walkableType);
+        SerializedObject serializedType = new(_walkableType);
 
         serializedType.FindProperty("_isWalkable").boolValue = true;
         serializedType.ApplyModifiedPropertiesWithoutUndo();
@@ -55,9 +54,8 @@ public class ChargeResolverTests
         _gridObject = new GameObject("Charge Test Grid");
         _grid = _gridObject.AddComponent<HexGrid>();
 
-        SerializedObject serializedGrid = new SerializedObject(_grid);
-        serializedGrid.FindProperty("_hexMapData").objectReferenceValue =
-            _mapData;
+        SerializedObject serializedGrid = new(_grid);
+        serializedGrid.FindProperty("_hexMapData").objectReferenceValue = _mapData;
         serializedGrid.ApplyModifiedPropertiesWithoutUndo();
 
         _grid.GenerateGrid();
@@ -73,10 +71,7 @@ public class ChargeResolverTests
 
     private HexCell Cell(int q, int r)
     {
-        bool found = _grid.TryGetCell(
-            new HexCoordinates(q, r),
-            out HexCell cell
-        );
+        bool found = _grid.TryGetCell(new HexCoordinates(q, r), out HexCell cell);
 
         Assert.That(found, Is.True);
         return cell;
@@ -85,15 +80,10 @@ public class ChargeResolverTests
     [Test]
     public void CanStart_ReturnsDestinationForValidCharge()
     {
-        TestUnit attacker = new TestUnit(Cell(1, 1));
-        TestUnit defender = new TestUnit(Cell(4, 1));
+        TestUnit attacker = new(Cell(1, 1));
+        TestUnit defender = new(Cell(4, 1));
 
-        bool result = ChargeResolver.CanStart(
-            attacker,
-            defender,
-            _grid,
-            out HexCell destination
-        );
+        bool result = ChargeResolver.CanStart(attacker, defender, _grid, out HexCell destination);
 
         Assert.That(result, Is.True);
         Assert.That(destination, Is.SameAs(Cell(3, 1)));
@@ -102,15 +92,10 @@ public class ChargeResolverTests
     [Test]
     public void CanStart_ReturnsFalseWhenUnitsAreNotAligned()
     {
-        TestUnit attacker = new TestUnit(Cell(1, 1));
-        TestUnit defender = new TestUnit(Cell(4, 0));
+        TestUnit attacker = new(Cell(1, 1));
+        TestUnit defender = new(Cell(4, 0));
 
-        bool result = ChargeResolver.CanStart(
-            attacker,
-            defender,
-            _grid,
-            out HexCell destination
-        );
+        bool result = ChargeResolver.CanStart(attacker, defender, _grid, out HexCell destination);
 
         Assert.That(result, Is.False);
         Assert.That(destination, Is.Null);
@@ -119,16 +104,11 @@ public class ChargeResolverTests
     [Test]
     public void CanStart_ReturnsFalseWhenRunUpIsBlocked()
     {
-        TestUnit attacker = new TestUnit(Cell(1, 1));
-        TestUnit blocker = new TestUnit(Cell(2, 1));
-        TestUnit defender = new TestUnit(Cell(4, 1));
+        TestUnit attacker = new(Cell(1, 1));
+        TestUnit blocker = new(Cell(2, 1));
+        TestUnit defender = new(Cell(4, 1));
 
-        bool result = ChargeResolver.CanStart(
-            attacker,
-            defender,
-            _grid,
-            out HexCell destination
-        );
+        bool result = ChargeResolver.CanStart(attacker, defender, _grid, out HexCell destination);
 
         Assert.That(result, Is.False);
         Assert.That(destination, Is.Null);
@@ -138,17 +118,11 @@ public class ChargeResolverTests
     [Test]
     public void CanStart_ReturnsFalseWithInsufficientActionPoints()
     {
-        TestUnit attacker =
-            new TestUnit(Cell(1, 1), actionPoints: 3);
+        TestUnit attacker = new(Cell(1, 1), actionPoints: 3);
 
-        TestUnit defender = new TestUnit(Cell(4, 1));
+        TestUnit defender = new(Cell(4, 1));
 
-        bool result = ChargeResolver.CanStart(
-            attacker,
-            defender,
-            _grid,
-            out _
-        );
+        bool result = ChargeResolver.CanStart(attacker, defender, _grid, out _);
 
         Assert.That(result, Is.False);
     }
@@ -156,17 +130,11 @@ public class ChargeResolverTests
     [Test]
     public void CanStart_ReturnsFalseWhenChargeActionIsNotAllowed()
     {
-        TestUnit attacker =
-            new TestUnit(Cell(1, 1), canCharge: false);
+        TestUnit attacker = new(Cell(1, 1), canCharge: false);
 
-        TestUnit defender = new TestUnit(Cell(4, 1));
+        TestUnit defender = new(Cell(4, 1));
 
-        bool result = ChargeResolver.CanStart(
-            attacker,
-            defender,
-            _grid,
-            out _
-        );
+        bool result = ChargeResolver.CanStart(attacker, defender, _grid, out _);
 
         Assert.That(result, Is.False);
     }
@@ -174,16 +142,11 @@ public class ChargeResolverTests
     [Test]
     public void CanStart_ReturnsFalseAgainstSeatedDefender()
     {
-        TestUnit attacker = new TestUnit(Cell(1, 1));
-        TestUnit defender = new TestUnit(Cell(4, 1));
+        TestUnit attacker = new(Cell(1, 1));
+        TestUnit defender = new(Cell(4, 1));
         defender.SitDown();
 
-        bool result = ChargeResolver.CanStart(
-            attacker,
-            defender,
-            _grid,
-            out _
-        );
+        bool result = ChargeResolver.CanStart(attacker, defender, _grid, out _);
 
         Assert.That(result, Is.False);
     }
@@ -191,22 +154,13 @@ public class ChargeResolverTests
     [Test]
     public void CanStart_ReturnsFalseForMissingReferences()
     {
-        TestUnit attacker = new TestUnit(Cell(1, 1));
-        TestUnit defender = new TestUnit(Cell(4, 1));
+        TestUnit attacker = new(Cell(1, 1));
+        TestUnit defender = new(Cell(4, 1));
 
-        Assert.That(
-            ChargeResolver.CanStart(null, defender, _grid, out _),
-            Is.False
-        );
+        Assert.That(ChargeResolver.CanStart(null, defender, _grid, out _), Is.False);
 
-        Assert.That(
-            ChargeResolver.CanStart(attacker, null, _grid, out _),
-            Is.False
-        );
+        Assert.That(ChargeResolver.CanStart(attacker, null, _grid, out _), Is.False);
 
-        Assert.That(
-            ChargeResolver.CanStart(attacker, defender, null, out _),
-            Is.False
-        );
+        Assert.That(ChargeResolver.CanStart(attacker, defender, null, out _), Is.False);
     }
 }

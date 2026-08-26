@@ -36,7 +36,7 @@ public class HexCellTests
     {
         HexCell origin = CreateCell(0, 0);
         HexCell destination = CreateCell(1, 0);
-        TestUnit unit = new TestUnit(origin);
+        TestUnit unit = new(origin);
 
         bool moved = unit.SetPosition(destination);
 
@@ -52,8 +52,8 @@ public class HexCellTests
         HexCell origin = CreateCell(0, 0);
         HexCell destination = CreateCell(1, 0);
 
-        TestUnit movingUnit = new TestUnit(origin);
-        TestUnit occupyingUnit = new TestUnit(destination);
+        TestUnit movingUnit = new(origin);
+        TestUnit occupyingUnit = new(destination);
 
         bool moved = movingUnit.SetPosition(destination);
 
@@ -67,7 +67,7 @@ public class HexCellTests
     public void SetPosition_ReturnsFalseWhenDestinationIsNull()
     {
         HexCell origin = CreateCell(0, 0);
-        TestUnit unit = new TestUnit(origin);
+        TestUnit unit = new(origin);
 
         bool moved = unit.SetPosition(null);
 
@@ -82,8 +82,8 @@ public class HexCellTests
         HexCell ownerCell = CreateCell(0, 0);
         HexCell otherCell = CreateCell(1, 0);
 
-        TestUnit owner = new TestUnit(ownerCell);
-        TestUnit other = new TestUnit(otherCell);
+        TestUnit owner = new(ownerCell);
+        TestUnit other = new(otherCell);
 
         ownerCell.Vacate(other);
 
@@ -117,8 +117,8 @@ public class HexCellTests
     {
         HexCell origin = CreateCell(0, 0);
         HexCell destination = CreateCell(1, 0);
-        TestUnit unit = new TestUnit(origin);
-        BarricadeRuntime barricade = new BarricadeRuntime(null);
+        TestUnit unit = new(origin);
+        BarricadeRuntime barricade = new(null);
 
         bool placed = destination.TryPlaceBarricade(barricade);
         bool movedWhileBlocked = unit.SetPosition(destination);

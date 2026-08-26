@@ -22,8 +22,7 @@ public class ItemActionResolverTests
     {
         _walkableType = CreateAsset<HexTypeSO>();
 
-        SerializedObject serializedType =
-            new SerializedObject(_walkableType);
+        SerializedObject serializedType = new(_walkableType);
 
         serializedType.FindProperty("_isWalkable").boolValue = true;
         serializedType.ApplyModifiedPropertiesWithoutUndo();
@@ -34,35 +33,23 @@ public class ItemActionResolverTests
         _gridObject = new GameObject("Item Action Test Grid");
         _grid = _gridObject.AddComponent<HexGrid>();
 
-        SerializedObject serializedGrid =
-            new SerializedObject(_grid);
+        SerializedObject serializedGrid = new(_grid);
 
-        serializedGrid.FindProperty("_hexMapData")
-            .objectReferenceValue = _mapData;
+        serializedGrid.FindProperty("_hexMapData").objectReferenceValue = _mapData;
 
         serializedGrid.ApplyModifiedPropertiesWithoutUndo();
         _grid.GenerateGrid();
 
         _spezzoneData = CreateAsset<SpezzoneSO>();
-        ConfigureActions(
-            _spezzoneData,
-            ActionType.Throw | ActionType.Barricade
-        );
+        ConfigureActions(_spezzoneData, ActionType.Throw | ActionType.Barricade);
 
         _policeData = CreateAsset<PoliceSO>();
 
         _throwItem = CreateAsset<ThrowItemSO>();
-        ConfigureThrowItem(
-            _throwItem,
-            actionPointCost: 2,
-            moraleLost: 2
-        );
+        ConfigureThrowItem(_throwItem, actionPointCost: 2, moraleLost: 2);
 
         _barricadeItem = CreateAsset<BarricadeSO>();
-        ConfigureItem(
-            _barricadeItem,
-            actionPointCost: 2
-        );
+        ConfigureItem(_barricadeItem, actionPointCost: 2);
     }
 
     [TearDown]
@@ -76,92 +63,58 @@ public class ItemActionResolverTests
         _createdAssets.Clear();
     }
 
-    private T CreateAsset<T>()
-        where T : ScriptableObject
+    private T CreateAsset<T>() where T : ScriptableObject
     {
         T asset = ScriptableObject.CreateInstance<T>();
         _createdAssets.Add(asset);
         return asset;
     }
 
-    private static void ConfigureActions(
-        UnitsSO data,
-        ActionType actions)
+    private static void ConfigureActions(UnitsSO data, ActionType actions)
     {
-        SerializedObject serialized =
-            new SerializedObject(data);
+        SerializedObject serialized = new(data);
 
-        serialized.FindProperty("_allowedActions").intValue =
-            (int)actions;
+        serialized.FindProperty("_allowedActions").intValue = (int)actions;
 
         serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    private static void ConfigureItem(
-        ItemSO item,
-        int actionPointCost)
+    private static void ConfigureItem(ItemSO item, int actionPointCost)
     {
-        SerializedObject serialized =
-            new SerializedObject(item);
+        SerializedObject serialized = new(item);
 
-        serialized.FindProperty("_actionPointCost").intValue =
-            actionPointCost;
+        serialized.FindProperty("_actionPointCost").intValue = actionPointCost;
 
         serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    private static void ConfigureThrowItem(
-        ThrowItemSO item,
-        int actionPointCost,
-        int moraleLost)
+    private static void ConfigureThrowItem(ThrowItemSO item, int actionPointCost, int moraleLost)
     {
-        SerializedObject serialized =
-            new SerializedObject(item);
+        SerializedObject serialized = new(item);
 
-        serialized.FindProperty("_actionPointCost").intValue =
-            actionPointCost;
+        serialized.FindProperty("_actionPointCost").intValue = actionPointCost;
 
-        serialized.FindProperty("_moralLost").intValue =
-            moraleLost;
+        serialized.FindProperty("_moralLost").intValue = moraleLost;
 
         serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private HexCell Cell(int q, int r)
     {
-        bool found = _grid.TryGetCell(
-            new HexCoordinates(q, r),
-            out HexCell cell
-        );
+        bool found = _grid.TryGetCell(new HexCoordinates(q, r), out HexCell cell);
 
         Assert.That(found, Is.True);
         return cell;
     }
 
-    private SpezzoneRuntime CreateActor(
-        HexCell position,
-        int actionPoints = 4)
+    private SpezzoneRuntime CreateActor(HexCell position, int actionPoints = 4)
     {
-        return new SpezzoneRuntime(
-            position,
-            UnitsStatus.Alive,
-            _spezzoneData,
-            morale: 10,
-            actionPoints
-        );
+        return new SpezzoneRuntime(position, UnitsStatus.Alive, _spezzoneData, morale: 10, actionPoints);
     }
 
-    private PoliceRuntime CreatePolice(
-        HexCell position,
-        int morale = 5)
+    private PoliceRuntime CreatePolice(HexCell position, int morale = 5)
     {
-        return new PoliceRuntime(
-            position,
-            UnitsStatus.Alive,
-            _policeData,
-            morale,
-            actionPoint: 4
-        );
+        return new PoliceRuntime(position, UnitsStatus.Alive, _policeData, morale, actionPoint: 4);
     }
 
     [Test]
@@ -172,13 +125,7 @@ public class ItemActionResolverTests
 
         actor.Inventory.AddItem(_throwItem, 2);
 
-        ItemActionResolver.ItemActionResult result =
-            ItemActionResolver.ResolveThrow(
-                actor,
-                target,
-                _throwItem,
-                _grid
-            );
+        ItemActionResolver.ItemActionResult result = ItemActionResolver.ResolveThrow(actor, target, _throwItem, _grid);
 
         Assert.That(result.Succeeded, Is.True);
         Assert.That(result.Failure, Is.EqualTo(ItemActionFailure.None));
@@ -194,19 +141,10 @@ public class ItemActionResolverTests
         SpezzoneRuntime actor = CreateActor(Cell(1, 1));
         PoliceRuntime target = CreatePolice(Cell(3, 1));
 
-        ItemActionResolver.ItemActionResult result =
-            ItemActionResolver.ResolveThrow(
-                actor,
-                target,
-                _throwItem,
-                _grid
-            );
+        ItemActionResolver.ItemActionResult result = ItemActionResolver.ResolveThrow(actor, target, _throwItem, _grid);
 
         Assert.That(result.Succeeded, Is.False);
-        Assert.That(
-            result.Failure,
-            Is.EqualTo(ItemActionFailure.MissingItem)
-        );
+        Assert.That(result.Failure, Is.EqualTo(ItemActionFailure.MissingItem));
 
         Assert.That(actor.ActionPoints, Is.EqualTo(4));
         Assert.That(target.Morale, Is.EqualTo(5));
@@ -220,19 +158,10 @@ public class ItemActionResolverTests
 
         actor.Inventory.AddItem(_throwItem);
 
-        ItemActionResolver.ItemActionResult result =
-            ItemActionResolver.ResolveThrow(
-                actor,
-                target,
-                _throwItem,
-                _grid
-            );
+        ItemActionResolver.ItemActionResult result = ItemActionResolver.ResolveThrow(actor, target, _throwItem, _grid);
 
         Assert.That(result.Succeeded, Is.False);
-        Assert.That(
-            result.Failure,
-            Is.EqualTo(ItemActionFailure.InvalidTarget)
-        );
+        Assert.That(result.Failure, Is.EqualTo(ItemActionFailure.InvalidTarget));
 
         Assert.That(actor.ActionPoints, Is.EqualTo(4));
         Assert.That(actor.Inventory.HasItem(_throwItem), Is.True);
@@ -247,12 +176,7 @@ public class ItemActionResolverTests
 
         actor.Inventory.AddItem(_barricadeItem, 2);
 
-        ItemActionResolver.ItemActionResult result =
-            ItemActionResolver.ResolveBarricade(
-                actor,
-                target,
-                _barricadeItem
-            );
+        ItemActionResolver.ItemActionResult result = ItemActionResolver.ResolveBarricade(actor, target, _barricadeItem);
 
         Assert.That(result.Succeeded, Is.True);
         Assert.That(actor.ActionPoints, Is.EqualTo(2));
@@ -270,18 +194,10 @@ public class ItemActionResolverTests
         CreatePolice(target);
         actor.Inventory.AddItem(_barricadeItem);
 
-        ItemActionResolver.ItemActionResult result =
-            ItemActionResolver.ResolveBarricade(
-                actor,
-                target,
-                _barricadeItem
-            );
+        ItemActionResolver.ItemActionResult result = ItemActionResolver.ResolveBarricade(actor, target, _barricadeItem);
 
         Assert.That(result.Succeeded, Is.False);
-        Assert.That(
-            result.Failure,
-            Is.EqualTo(ItemActionFailure.InvalidTarget)
-        );
+        Assert.That(result.Failure, Is.EqualTo(ItemActionFailure.InvalidTarget));
 
         Assert.That(actor.ActionPoints, Is.EqualTo(4));
         Assert.That(actor.Inventory.HasItem(_barricadeItem), Is.True);
@@ -291,26 +207,15 @@ public class ItemActionResolverTests
     [Test]
     public void ResolveBarricade_RejectsInsufficientActionPoints()
     {
-        SpezzoneRuntime actor =
-            CreateActor(Cell(1, 1), actionPoints: 1);
+        SpezzoneRuntime actor = CreateActor(Cell(1, 1), actionPoints: 1);
 
         HexCell target = Cell(2, 1);
         actor.Inventory.AddItem(_barricadeItem);
 
-        ItemActionResolver.ItemActionResult result =
-            ItemActionResolver.ResolveBarricade(
-                actor,
-                target,
-                _barricadeItem
-            );
+        ItemActionResolver.ItemActionResult result = ItemActionResolver.ResolveBarricade(actor, target, _barricadeItem);
 
         Assert.That(result.Succeeded, Is.False);
-        Assert.That(
-            result.Failure,
-            Is.EqualTo(
-                ItemActionFailure.InsufficientActionPoints
-            )
-        );
+        Assert.That(result.Failure, Is.EqualTo(ItemActionFailure.InsufficientActionPoints));
 
         Assert.That(actor.ActionPoints, Is.EqualTo(1));
         Assert.That(actor.Inventory.HasItem(_barricadeItem), Is.True);

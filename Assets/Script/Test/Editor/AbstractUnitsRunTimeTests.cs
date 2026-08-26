@@ -9,15 +9,8 @@ public class AbstractUnitsRunTimeTests
 
         protected override bool CanBeArrested => _canBeArrested;
 
-        public TestUnit(
-            int actionPoints,
-            int morale = 10,
-            bool canBeArrested = false)
-            : base(
-                new HexCell(new HexCoordinates(0, 0), null),
-                UnitsStatus.Alive,
-                morale,
-                actionPoints)
+        public TestUnit(int actionPoints, int morale = 10, bool canBeArrested = false)
+            : base(new HexCell(new HexCoordinates(0, 0), null), UnitsStatus.Alive, morale, actionPoints)
         {
             _canBeArrested = canBeArrested;
             _positionCell.TryOccupy(this);
@@ -41,7 +34,7 @@ public class AbstractUnitsRunTimeTests
     [Test]
     public void TrySpendActionPoint_DecreasesAvailablePoints()
     {
-        TestUnit unit = new TestUnit(actionPoints: 4);
+        TestUnit unit = new(actionPoints: 4);
 
         bool result = unit.TrySpendActionPoint(2);
 
@@ -52,7 +45,7 @@ public class AbstractUnitsRunTimeTests
     [Test]
     public void TrySpendActionPoint_DoesNotSpendWhenPointsAreInsufficient()
     {
-        TestUnit unit = new TestUnit(actionPoints: 2);
+        TestUnit unit = new(actionPoints: 2);
 
         bool result = unit.TrySpendActionPoint(3);
 
@@ -64,7 +57,7 @@ public class AbstractUnitsRunTimeTests
     [TestCase(-2)]
     public void TrySpendActionPoint_RejectsNonPositiveAmounts(int amount)
     {
-        TestUnit unit = new TestUnit(actionPoints: 4);
+        TestUnit unit = new(actionPoints: 4);
 
         bool result = unit.TrySpendActionPoint(amount);
 
@@ -75,7 +68,7 @@ public class AbstractUnitsRunTimeTests
     [Test]
     public void RefillActionPoints_RestoresMaximumPoints()
     {
-        TestUnit unit = new TestUnit(actionPoints: 4);
+        TestUnit unit = new(actionPoints: 4);
         unit.TrySpendActionPoint(3);
 
         unit.RefillActionPoints();
@@ -87,7 +80,7 @@ public class AbstractUnitsRunTimeTests
     [Test]
     public void LoseMorale_DecreasesMoraleWithoutRemovingUnit()
     {
-        TestUnit unit = new TestUnit(actionPoints: 4, morale: 10);
+        TestUnit unit = new(actionPoints: 4, morale: 10);
         HexCell cell = unit.PositionCell;
 
         unit.LoseMorale(3);
@@ -100,7 +93,7 @@ public class AbstractUnitsRunTimeTests
     [Test]
     public void GainMorale_DoesNotExceedMaximum()
     {
-        TestUnit unit = new TestUnit(actionPoints: 4, morale: 10);
+        TestUnit unit = new(actionPoints: 4, morale: 10);
         unit.LoseMorale(4);
 
         unit.GainMorale(20);
@@ -112,7 +105,7 @@ public class AbstractUnitsRunTimeTests
     [Test]
     public void LoseMorale_WhenMoraleReachesZero_DispersesAndVacatesCell()
     {
-        TestUnit unit = new TestUnit(actionPoints: 4, morale: 10);
+        TestUnit unit = new(actionPoints: 4, morale: 10);
         HexCell cell = unit.PositionCell;
 
         unit.LoseMorale(10, MoraleLossCause.Other);
@@ -126,10 +119,7 @@ public class AbstractUnitsRunTimeTests
     [Test]
     public void LoseMorale_FromPoliceContact_ArrestsArrestableUnit()
     {
-        TestUnit unit = new TestUnit(
-            actionPoints: 4,
-            morale: 10,
-            canBeArrested: true);
+        TestUnit unit = new(actionPoints: 4, morale: 10, canBeArrested: true);
 
         HexCell cell = unit.PositionCell;
 
@@ -144,7 +134,7 @@ public class AbstractUnitsRunTimeTests
     [TestCase(-3)]
     public void GainMorale_IgnoresNonPositiveAmounts(int amount)
     {
-        TestUnit unit = new TestUnit(actionPoints: 4, morale: 10);
+        TestUnit unit = new(actionPoints: 4, morale: 10);
         unit.LoseMorale(4);
 
         unit.GainMorale(amount);
@@ -156,7 +146,7 @@ public class AbstractUnitsRunTimeTests
     [TestCase(-3)]
     public void LoseMorale_IgnoresNonPositiveAmounts(int amount)
     {
-        TestUnit unit = new TestUnit(actionPoints: 4, morale: 10);
+        TestUnit unit = new(actionPoints: 4, morale: 10);
 
         unit.LoseMorale(amount);
 
