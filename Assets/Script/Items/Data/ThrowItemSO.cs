@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(
-    fileName = "ThrowItemSO",
-    menuName = "RIOT/Items/ThrowItemSO"
-)]
+[CreateAssetMenu(fileName = "ThrowItemSO", menuName = "RIOT/Items/ThrowItemSO")]
 public class ThrowItemSO : ItemSO
 {
     [SerializeField] private int _moralLost;
