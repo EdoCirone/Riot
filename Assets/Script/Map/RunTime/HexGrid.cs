@@ -18,11 +18,11 @@ public class HexGrid : MonoBehaviour
     [Header("Coordinates")]
 
     [Tooltip("Off = niente. SpecialCellsOnly = solo obiettivi e ritrovi. AllCells = tutte, " +
-             "utile per autorare ma leggibile solo da vicino.")]
+        "utile per autorare ma leggibile solo da vicino.")]
     [SerializeField] private CoordinateLabelMode _coordinateLabels = CoordinateLabelMode.SpecialCellsOnly;
 
     [Tooltip("Le etichette compaiono solo sotto questo livello di zoom della Scene view. " +
-             "Più basso = devi essere più vicino.")]
+        "Più basso = devi essere più vicino.")]
     [SerializeField] private float _labelMaxZoom = 12f;
     [SerializeField] private bool _showObjectiveNames = false;
 
@@ -39,12 +39,12 @@ public class HexGrid : MonoBehaviour
     private Bounds _worldBounds;
     public Bounds WorldBounds => _worldBounds;
 
-    private readonly List<ObjectiveRuntime> _objectives = new List<ObjectiveRuntime>();
+    private readonly List<ObjectiveRuntime> _objectives = new();
 
     public IReadOnlyList<ObjectiveRuntime> Objectives => _objectives;
-    Dictionary<HexCoordinates, HexCell> _cells = new Dictionary<HexCoordinates, HexCell>();
+    Dictionary<HexCoordinates, HexCell> _cells = new();
 
-    private readonly List<MeetingPointRuntime> _meetingPoints = new List<MeetingPointRuntime>();
+    private readonly List<MeetingPointRuntime> _meetingPoints = new();
     public IReadOnlyList<MeetingPointRuntime> MeetingPoints => _meetingPoints;
 
     private void Awake()
@@ -65,7 +65,7 @@ public class HexGrid : MonoBehaviour
             {
                 int q = col;
                 int r = row - (col - parity) / 2;
-                HexCoordinates coords = new HexCoordinates(q, r);
+                HexCoordinates coords = new(q, r);
                 HexTypeSO type = _hexMapData.GetCellType(col, row);
                 _cells[coords] = new HexCell(coords, type);
             }
@@ -83,8 +83,8 @@ public class HexGrid : MonoBehaviour
             _worldBounds = new Bounds(Vector3.zero, Vector3.zero);
             return;
         }
-        Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-        Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+        Vector3 min = new(float.MaxValue, float.MaxValue, float.MaxValue);
+        Vector3 max = new(float.MinValue, float.MinValue, float.MinValue);
         foreach (var cell in _cells.Values)
         {
             Vector3 worldPos = GridToWorld(cell.Coordinates);
@@ -92,7 +92,7 @@ public class HexGrid : MonoBehaviour
             max = Vector3.Max(max, worldPos);
         }
 
-        Vector3 padding = new Vector3(_cellSize, _cellSize, 0f);
+        Vector3 padding = new(_cellSize, _cellSize, 0f);
         min -= padding;
         max += padding;
 
@@ -132,7 +132,7 @@ public class HexGrid : MonoBehaviour
             {
                 int q = col;
                 int r = row - (col - parity) / 2;
-                HexCoordinates coords = new HexCoordinates(q, r);
+                HexCoordinates coords = new(q, r);
                 Vector3 center = GridToWorld(coords);
 
                 HexTypeSO type = _hexMapData.GetCellType(col, row);
@@ -156,7 +156,7 @@ public class HexGrid : MonoBehaviour
 
                 if (_showObjectiveNames && objective != null && objective.Cells[0] == generatedCell)
                     UnityEditor.Handles.Label(center + Vector3.up * _cellSize * 0.55f,
-                                              objective.ToString(), CoordStyle);
+                        objective.ToString(), CoordStyle);
 #endif
             }
         }
@@ -214,7 +214,7 @@ public class HexGrid : MonoBehaviour
             }
 
             List<HexCell> group = FloodGroup(anchor, c => c.Type != null && c.Type.IsObjectiveGround);
-            ObjectiveRuntime runtime = new ObjectiveRuntime(data, group);
+            ObjectiveRuntime runtime = new(data, group);
             foreach (HexCell cell in group) cell.BindObjective(runtime);
             _objectives.Add(runtime);
 
@@ -262,7 +262,7 @@ public class HexGrid : MonoBehaviour
             }
 
             List<HexCell> group = FloodGroup(anchor, c => c.Type != null && c.Type.IsMeetingGround);
-            MeetingPointRuntime runtime = new MeetingPointRuntime(data, group);
+            MeetingPointRuntime runtime = new(data, group);
             foreach (HexCell cell in group) cell.BindMeetingPoint(runtime);
             _meetingPoints.Add(runtime);
 
@@ -285,9 +285,9 @@ public class HexGrid : MonoBehaviour
     /// </summary>
     private List<HexCell> FloodGroup(HexCell start, System.Func<HexCell, bool> isSameGround)
     {
-        List<HexCell> group = new List<HexCell>();
-        HashSet<HexCoordinates> seen = new HashSet<HexCoordinates>();
-        Queue<HexCell> queue = new Queue<HexCell>();
+        List<HexCell> group = new();
+        HashSet<HexCoordinates> seen = new();
+        Queue<HexCell> queue = new();
 
         queue.Enqueue(start);
         seen.Add(start.Coordinates);

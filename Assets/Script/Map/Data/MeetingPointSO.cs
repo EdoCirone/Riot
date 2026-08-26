@@ -13,12 +13,11 @@ public class MeetingPointSO : ScriptableObject
 
     [Header("Posizione")]
     [Tooltip("UNA cella qualsiasi del ritrovo. Le altre vengono raccolte per adiacenza " +
-             "fra le celle dipinte come terreno di ritrovo.")]
+        "fra le celle dipinte come terreno di ritrovo.")]
     [SerializeField] private HexCoordinates _anchor;
 
     public string DisplayName => _displayName;
     public HexCoordinates Anchor => _anchor;
 
-    public override string ToString()
-        => string.IsNullOrEmpty(_displayName) ? name : _displayName;
+    public override string ToString() => string.IsNullOrEmpty(_displayName) ? name : _displayName;
 }

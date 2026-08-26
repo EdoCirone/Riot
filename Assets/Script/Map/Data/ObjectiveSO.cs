@@ -26,6 +26,5 @@ public class ObjectiveSO : ScriptableObject
     public int Points => _points;
     public bool RequiresSimultaneous => _requiresSimultaneous;
 
-    public override string ToString()
-        => string.IsNullOrEmpty(_displayName) ? name : _displayName;
+    public override string ToString() => string.IsNullOrEmpty(_displayName) ? name : _displayName;
 }

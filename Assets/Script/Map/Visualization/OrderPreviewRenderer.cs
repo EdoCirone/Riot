@@ -8,14 +8,14 @@ public class OrderPreviewRenderer : MonoBehaviour
     [SerializeField] private HexGrid _grid;
 
     [Header("Colors")]
-    [SerializeField] private Color _reachableColor = new Color(0.3f, 0.8f, 1f, 0.8f);
+    [SerializeField] private Color _reachableColor = new(0.3f, 0.8f, 1f, 0.8f);
     [SerializeField] private Color _attackableColor = Color.red;
     [SerializeField] private Color _chargeColor = Color.yellow;
-    [SerializeField] private Color _throwColor = new Color(1f, 0.5f, 0f, 0.8f);
-    [SerializeField] private Color _barricadeColor = new Color(0.55f, 0.35f, 0.15f, 0.8f);
-    [SerializeField] private Color _chantColor = new Color(1f, 0.85f, 0f, 0.8f);
-    [SerializeField] private Color _chantAreaColor = new Color(1f, 0.85f, 0f, 0.35f);
-    [SerializeField] private Color _sitStandColor = new Color(0.6f, 0.6f, 0.6f, 0.8f);
+    [SerializeField] private Color _throwColor = new(1f, 0.5f, 0f, 0.8f);
+    [SerializeField] private Color _barricadeColor = new(0.55f, 0.35f, 0.15f, 0.8f);
+    [SerializeField] private Color _chantColor = new(1f, 0.85f, 0f, 0.8f);
+    [SerializeField] private Color _chantAreaColor = new(1f, 0.85f, 0f, 0.35f);
+    [SerializeField] private Color _sitStandColor = new(0.6f, 0.6f, 0.6f, 0.8f);
 
     [Header("Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
@@ -33,9 +33,12 @@ public class OrderPreviewRenderer : MonoBehaviour
 
     private void Awake()
     {
-        if (_hexGridRenderer == null || _grid == null ||
-            _unitSelectedEvent == null || _unitDeselectedEvent == null ||
-            _actionSelectedEvent == null || _itemSelectedEvent == null)
+        if (_hexGridRenderer == null
+            || _grid == null
+            || _unitSelectedEvent == null
+            || _unitDeselectedEvent == null
+            || _actionSelectedEvent == null
+            || _itemSelectedEvent == null)
         {
             Debug.LogWarning("OrderPreviewRenderer: missing References");
             return;
@@ -78,8 +81,7 @@ public class OrderPreviewRenderer : MonoBehaviour
 
         if (unit.IsSeated) return;
 
-        var visited = TacticalQuery.GetReachable(
-            unit.PositionCell.Coordinates, unit.ActionPoints, _grid);
+        var visited = TacticalQuery.GetReachable(unit.PositionCell.Coordinates, unit.ActionPoints, _grid);
         HighlightReachable(unit, visited);
         HighlightAttackable(unit, visited);
     }
@@ -154,8 +156,7 @@ public class OrderPreviewRenderer : MonoBehaviour
 
         if (_selectedUnit == null) return;
 
-        var targets = TacticalQuery.GetValidTargets(
-            _selectedUnit, _currentAction, _selectedItem, _grid);
+        var targets = TacticalQuery.GetValidTargets(_selectedUnit, _currentAction, _selectedItem, _grid);
 
         Color color = _currentAction switch
         {

@@ -15,7 +15,7 @@ public class ObjectiveLabelView : MonoBehaviour
     [SerializeField] private Transform _labelsParent;
 
     [Header("Layout")]
-    [SerializeField] private Vector3 _offset = new Vector3(0f, 0.4f, 0f);
+    [SerializeField] private Vector3 _offset = new(0f, 0.4f, 0f);
 
     [Header("Events")]
     [SerializeField] private GameEventSO _startPlayerTurnEvent;

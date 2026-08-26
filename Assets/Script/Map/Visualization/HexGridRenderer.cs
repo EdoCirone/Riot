@@ -11,7 +11,7 @@ public class HexGridRenderer : MonoBehaviour
 
     [Header("Objective feedback")]
     [SerializeField] private float _occupiedDarkening = 0.6f;
-    [SerializeField] private Color _claimedColor = new Color(0.45f, 1f, 0.45f, 1f);
+    [SerializeField] private Color _claimedColor = new(0.45f, 1f, 0.45f, 1f);
 
     [Header("Events")]
     [SerializeField] private GameEventSO _boardChangedEvent;
