@@ -217,11 +217,7 @@ public class UnitMovement : MonoBehaviour
         StartCoroutine(ChargeSequence(windupTarget, cellDestination, grid, onComplete));
     }
 
-    private IEnumerator ChargeSequence(
-        Vector3 windupTarget,
-        HexCell cellDestination,
-        HexGrid grid,
-        Action onComplete)
+    private IEnumerator ChargeSequence(Vector3 windupTarget, HexCell cellDestination, HexGrid grid, Action onComplete)
     {
         _isMoving = true;
 

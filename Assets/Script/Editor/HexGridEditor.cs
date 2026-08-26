@@ -41,9 +41,9 @@ public class HexGridEditor : Editor
         if (GUILayout.Button("Initialize Map"))
         {
             if (EditorUtility.DisplayDialog(
-                   "Initialize map",
-                   "Are you sure? this operation reset the map settings",
-                   "Yes", "Cancel"))
+                    "Initialize map",
+                    "Are you sure? this operation reset the map settings",
+                    "Yes", "Cancel"))
 
                 if (hexGrid.HexMapData != null && _defaultType != null)
                 {
@@ -61,9 +61,7 @@ public class HexGridEditor : Editor
             for (int i = 0; i < palette.Length; i++)
             {
                 if (palette[i] == null) continue;
-                string label = string.IsNullOrEmpty(palette[i].DisplayType)
-                    ? palette[i].name
-                    : palette[i].DisplayType;
+                string label = string.IsNullOrEmpty(palette[i].DisplayType) ? palette[i].name : palette[i].DisplayType;
                 if (GUILayout.Button(label))
                     _selectedTypeIndex = i;
             }
@@ -81,7 +79,7 @@ public class HexGridEditor : Editor
 
             Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
 
-            Plane plane = new Plane(Vector3.forward, Vector3.zero);
+            Plane plane = new(Vector3.forward, Vector3.zero);
 
             if (!plane.Raycast(ray, out float distance))
                 return;
