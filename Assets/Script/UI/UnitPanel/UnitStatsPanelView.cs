@@ -46,7 +46,10 @@ public class UnitStatsPanelView : MonoBehaviour
             return;
         }
 
-        if (_unitSelectedEvent == null || _unitDeselectedEvent == null || _startPlayerTurnEvent == null || _endPlayerTurnEvent == null)
+        if (_unitSelectedEvent == null
+            || _unitDeselectedEvent == null
+            || _startPlayerTurnEvent == null
+            || _endPlayerTurnEvent == null)
         {
             Debug.LogWarning("Events missing in UnitStatsPanelView");
             return;
@@ -105,17 +108,15 @@ public class UnitStatsPanelView : MonoBehaviour
 
         _avatarImage.sprite = _currentUnit.Avatar;
 
-        _morBar.value = _currentUnit.MaxMorale > 0
-            ? (float)_currentUnit.Morale / _currentUnit.MaxMorale
-            : 0f;
+        _morBar.value = _currentUnit.MaxMorale > 0 ? (float)_currentUnit.Morale / _currentUnit.MaxMorale : 0f;
 
         if (_aptBar != null)
         {
             _aptBar.value = _currentUnit.MaxActionPoints > 0
-            ? (float)_currentUnit.ActionPoints / _currentUnit.MaxActionPoints
-            : 0f;
+                ? (float)_currentUnit.ActionPoints / _currentUnit.MaxActionPoints
+                : 0f;
         }
-        if(_aptValueText != null)
+        if (_aptValueText != null)
             _aptValueText.text = _currentUnit.ActionPoints.ToString();
 
         if (_statusText != null)

@@ -11,16 +11,13 @@ public sealed class TensionHUDView : MonoBehaviour
 
     [Header("Band colors")]
     [SerializeField]
-    private Color _containmentColor =
-    new Color32(70, 150, 255, 255);
+    private Color _containmentColor = new Color32(70, 150, 255, 255);
 
     [SerializeField]
-    private Color _engageColor =
-        new Color32(255, 190, 60, 255);
+    private Color _engageColor = new Color32(255, 190, 60, 255);
 
     [SerializeField]
-    private Color _sweepColor =
-        new Color32(255, 65, 95, 255);
+    private Color _sweepColor = new Color32(255, 65, 95, 255);
 
     [Header("Events")]
     [SerializeField] private GameEventSO _tensionChangedEvent;
@@ -34,9 +31,7 @@ public sealed class TensionHUDView : MonoBehaviour
             || _fillImage == null
             || _tensionChangedEvent == null)
         {
-            Debug.LogWarning(
-                "Reference missing in TensionHUDView"
-            );
+            Debug.LogWarning("Reference missing in TensionHUDView");
 
             return;
         }
@@ -70,11 +65,9 @@ public sealed class TensionHUDView : MonoBehaviour
     {
         int value = _lvlManager.CurrentTension;
 
-        _tensionText.text =
-            $"TENSIONE {value} / {TensionRules.MaxValue}";
+        _tensionText.text = $"TENSIONE {value} / {TensionRules.MaxValue}";
 
-        _fillImage.fillAmount =
-            value / (float)TensionRules.MaxValue;
+        _fillImage.fillAmount = value / (float)TensionRules.MaxValue;
 
         _fillImage.color = GetBandColor(value);
     }
