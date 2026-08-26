@@ -23,10 +23,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     [Header("Run state (temporary)")]
     [Tooltip("Temporary Repression value until RunManager provides it.")]
-    [Range(
-    TensionRules.MinValue,
-    TensionRules.MaxValue
-    )]
+    [Range(TensionRules.MinValue, TensionRules.MaxValue)]
     [SerializeField] private int _startingRepression;
     [Tooltip("Shared balance values for tension-generating actions.")]
     [SerializeField] private TensionSettingsSO _tensionSettings;
@@ -68,8 +65,8 @@ public class LVLManager : MonoBehaviour, IGameEventListener
          "corteo has to walk to reach each one.")]
     [SerializeField] private bool _logCoverageDiagnostics;
 
-    private List<SpezzoneRuntime> _spezzoniOfLVL = new List<SpezzoneRuntime>();
-    private List<PoliceRuntime> _policeOfLVL = new List<PoliceRuntime>();
+    private List<SpezzoneRuntime> _spezzoniOfLVL = new();
+    private List<PoliceRuntime> _policeOfLVL = new();
     private readonly HashSet<ObjectiveRuntime> _objectivesThatRaisedTension = new();
 
     private LevelTension _tension;
@@ -85,12 +82,9 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     public LevelTension Tension => _tension;
     public TensionSettingsSO TensionSettings => _tensionSettings;
 
-    public int CurrentTension =>
-        _tension?.Current ?? TensionRules.MinValue;
+    public int CurrentTension => _tension?.Current ?? TensionRules.MinValue;
 
-    public EngagementRules AppliedEngagementRules =>
-        _tension?.AppliedRules
-        ?? EngagementRules.Containment;
+    public EngagementRules AppliedEngagementRules => _tension?.AppliedRules ?? EngagementRules.Containment;
 
     public List<SpezzoneRuntime> Spezzoni => _spezzoniOfLVL;
     public List<PoliceRuntime> Police => _policeOfLVL;
@@ -118,17 +112,14 @@ public class LVLManager : MonoBehaviour, IGameEventListener
             return;
         }
 
-        int initialTension =
-            TensionRules.GetInitialTension(
-                _startingRepression
-            );
+        int initialTension = TensionRules.GetInitialTension(_startingRepression);
 
         _tension = new LevelTension(initialTension);
     }
 
     private bool ValidateReferences()
     {
-        List<string> errors = new List<string>();
+        List<string> errors = new();
 
         if (_turnManager == null)
         {
@@ -223,14 +214,14 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         ResolveDeclaredObjective();
 
         PoliceGarrisonCoordinator.Assign(
-                                 _policeOfLVL,
-                                 _map.Objectives,
-                                 _declared,
-                                 _unitsRenderer,
-                                 _tension.AppliedRules,
-                                 _tensionSettings.GetLeashRadius(_tension.AppliedRules),
-                                 _declaredReinforcement
-                                );
+            _policeOfLVL,
+            _map.Objectives,
+            _declared,
+            _unitsRenderer,
+            _tension.AppliedRules,
+            _tensionSettings.GetLeashRadius(_tension.AppliedRules),
+            _declaredReinforcement
+        );
 
         RefreshBoardState();
 
@@ -401,7 +392,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     public void RestartLVL()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(
-        UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
 
     public void RefreshBoardState()
@@ -412,15 +403,9 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     }
     private void ApplyAuras()
     {
-        AuraService.AuraResult result =
-            AuraService.Resolve(
-                _spezzoniOfLVL,
-                _policeOfLVL,
-                _map
-            );
+        AuraService.AuraResult result = AuraService.Resolve(_spezzoniOfLVL, _policeOfLVL, _map);
 
-        foreach (AbstractUnitsRunTime removed
-                 in result.RemovedUnits)
+        foreach (AbstractUnitsRunTime removed in result.RemovedUnits)
         {
             _unitsRenderer.UpdateView(removed);
         }
@@ -428,10 +413,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
     private void RecalculateCohesion()
     {
-        Cohesion = CohesionService.Calculate(
-            _spezzoniOfLVL,
-            _map
-        );
+        Cohesion = CohesionService.Calculate(_spezzoniOfLVL, _map);
     }
 
     public bool CheckCohesionDefeat()
@@ -445,9 +427,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         _turnManager.enabled = false;
         return true;
     }
-    public bool ChangeTension(
-    int delta,
-    string reason)
+    public bool ChangeTension(int delta, string reason)
     {
         if (_tension == null || delta == 0)
             return false;
@@ -493,9 +473,7 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     /// Entering an unclaimed objective raises the local alarm.
     /// The first entry into each objective also raises Tension.
     /// </summary>
-    public void CheckObjectiveIntrusion(
-        AbstractUnitsRunTime unit,
-        HexCell cell = null)
+    public void CheckObjectiveIntrusion(AbstractUnitsRunTime unit, HexCell cell = null)
     {
         if (unit is not SpezzoneRuntime)
             return;
@@ -510,29 +488,17 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         if (objective.IsClaimed)
             return;
 
-        RaiseAlarmAround(
-            cell,
-            $"{unit} entered {objective}"
-        );
+        RaiseAlarmAround(cell, $"{unit} entered {objective}");
 
         if (!_objectivesThatRaisedTension.Add(objective))
             return;
 
-        ChangeTension(
-            _tensionSettings.ObjectiveEntry,
-            $"first entry into {objective}"
-        );
+        ChangeTension(_tensionSettings.ObjectiveEntry, $"first entry into {objective}");
     }
     [ContextMenu("Log coverage diagnostics")]
     public void LogCoverageDiagnostics()
     {
-        string report = LevelCoverageDiagnostics.Build(
-            _map,
-            _meetingPoint,
-            _declared,
-            _spezzoniOfLVL,
-            _policeOfLVL
-        );
+        string report = LevelCoverageDiagnostics.Build(_map, _meetingPoint, _declared, _spezzoniOfLVL, _policeOfLVL);
 
         if (!string.IsNullOrEmpty(report))
             Debug.Log(report);
