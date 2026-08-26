@@ -40,8 +40,7 @@ public class InputHandler : MonoBehaviour
 
     //Costanti utili per la gestione dello stato seduto in modo che se volessi aggiungere un'azione non dovrei riscriverla più volte
     private const string SeatedAlert = "you are sitting, can only stand up or chant";
-    private static readonly ActionType SeatedActions =
-    ActionType.None | ActionType.SitStand | ActionType.Chant;
+    private static readonly ActionType SeatedActions = ActionType.None | ActionType.SitStand | ActionType.Chant;
 
     //Check for blocking player input, for example when the police are executing their turn or when an action is being executed
     private bool CanAcceptPlayerInput =>
@@ -53,8 +52,10 @@ public class InputHandler : MonoBehaviour
     {
         _inputSystem = new InputSystem_Actions();
 
-        if (_lvlManager == null || _actionButtonClickedEvent == null
-            || _endTurnButtonClickedEvent == null || _itemSelectedEvent == null)
+        if (_lvlManager == null
+            || _actionButtonClickedEvent == null
+            || _endTurnButtonClickedEvent == null
+            || _itemSelectedEvent == null)
         {
             Debug.LogWarning("InputHandler: riferimenti mancanti");
             return;
@@ -295,7 +296,7 @@ public class InputHandler : MonoBehaviour
             return;
         }
 
-        List<HexCell> path = new List<HexCell>();
+        List<HexCell> path = new();
         for (int i = 1; i < pathCoords.Count; i++)
         {
             if (_grid.TryGetCell(pathCoords[i], out HexCell cell))
@@ -340,7 +341,7 @@ public class InputHandler : MonoBehaviour
             else
             {
                 List<HexCoordinates> pathCoords = _turnManager.PathFinder.FindPath(atkCoord, option.MoveDestination, _grid);
-                List<HexCell> path = new List<HexCell>();
+                List<HexCell> path = new();
                 for (int i = 1; i < pathCoords.Count; i++)
                 {
                     if (_grid.TryGetCell(pathCoords[i], out HexCell cell))
@@ -440,11 +441,11 @@ public class InputHandler : MonoBehaviour
     private bool IsPointerOverUI()
     {
         if (EventSystem.current == null) return false;
-        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        PointerEventData eventData = new(EventSystem.current)
         {
             position = Mouse.current.position.ReadValue()
         };
-        List<RaycastResult> results = new List<RaycastResult>();
+        List<RaycastResult> results = new();
         EventSystem.current.RaycastAll(eventData, results);
         return results.Count > 0;
     }
