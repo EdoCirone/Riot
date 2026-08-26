@@ -12,8 +12,8 @@ public interface IGameEventListener
 public class GameEventSO : ScriptableObject
 {
 
-    private List<IGameEventListener> _listeners = new List<IGameEventListener>();
-    private List<System.Action> _actions = new List<System.Action>();
+    private List<IGameEventListener> _listeners = new();
+    private List<System.Action> _actions = new();
 
     public void Subscribe(IGameEventListener listener)
     {

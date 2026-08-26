@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(
-    fileName = "TensionSettings",
-    menuName = "RIOT/Tension/Settings"
-)]
+[CreateAssetMenu(fileName = "TensionSettings", menuName = "RIOT/Tension/Settings")]
 public sealed class TensionSettingsSO : ScriptableObject
 {
     [Header("Global tension events")]
@@ -27,17 +24,13 @@ public sealed class TensionSettingsSO : ScriptableObject
     [Min(0)]
     [SerializeField] private int _engageLeashRadius = 8;
 
-    public int ObjectiveEntry =>
-        _objectiveEntry;
+    public int ObjectiveEntry => _objectiveEntry;
 
-    public int PlayerInitiatedSkirmish =>
-        _playerInitiatedSkirmish;
+    public int PlayerInitiatedSkirmish => _playerInitiatedSkirmish;
 
-    public int ViolentCharge =>
-        _violentCharge;
+    public int ViolentCharge => _violentCharge;
 
-    public int GetLeashRadius(
-        EngagementRules rules)
+    public int GetLeashRadius(EngagementRules rules)
     {
         return rules switch
         {

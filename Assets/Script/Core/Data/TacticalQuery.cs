@@ -15,11 +15,9 @@ public static class TacticalQuery
     public const int PanicTurnsCorteo = 3;
     public const int PanicTurnsPolice = 1;
 
-    public static int GetSitStandCost(AbstractUnitsRunTime unit)
-    => unit != null && unit.IsSeated ? StandCost : SitCost;
+    public static int GetSitStandCost(AbstractUnitsRunTime unit) => unit != null && unit.IsSeated ? StandCost : SitCost;
 
-    public static Dictionary<HexCoordinates, int> GetReachable(
-       HexCoordinates start, int budget, HexGrid map)
+    public static Dictionary<HexCoordinates, int> GetReachable(HexCoordinates start, int budget, HexGrid map)
     {
         Dictionary<HexCoordinates, int> visited = new();
         Queue<(HexCoordinates coord, int cost)> queue = new();
@@ -138,7 +136,7 @@ public static class TacticalQuery
 
     public static AuraBonus GetAuraBonus(AbstractUnitsRunTime unit, HexGrid map)
     {
-        AuraBonus total = new AuraBonus();
+        AuraBonus total = new();
         if (unit == null || unit.PositionCell == null || map == null) return total;
 
         if (unit.IsPanicked) return total;
@@ -165,7 +163,7 @@ public static class TacticalQuery
     }
 
     public static AttackOption GetAttackOption(HexCoordinates from, HexCoordinates targetCoord, int budget, HexGrid map,
-     Dictionary<HexCoordinates, int> precomputedVisited = null)
+        Dictionary<HexCoordinates, int> precomputedVisited = null)
     {
         if (budget < 1) return new AttackOption { IsValid = false };
 
@@ -202,7 +200,7 @@ public static class TacticalQuery
     }
 
     public static bool HasChargeRoom(HexCoordinates atkCoord, HexCoordinates defCoord,
-                                 HexGrid map, out HexCoordinates chargeDestination)
+        HexGrid map, out HexCoordinates chargeDestination)
     {
         chargeDestination = default;
         if (map == null) return false;
@@ -214,8 +212,8 @@ public static class TacticalQuery
         if (dir == null) return false;
 
         HexCoordinates dirValue = dir.Value;
-        HexCoordinates firstStep = new HexCoordinates(atkCoord.Q + dirValue.Q, atkCoord.R + dirValue.R);
-        HexCoordinates secondStep = new HexCoordinates(atkCoord.Q + dirValue.Q * 2, atkCoord.R + dirValue.R * 2);
+        HexCoordinates firstStep = new(atkCoord.Q + dirValue.Q, atkCoord.R + dirValue.R);
+        HexCoordinates secondStep = new(atkCoord.Q + dirValue.Q * 2, atkCoord.R + dirValue.R * 2);
 
         if (!map.TryGetCell(firstStep, out HexCell firstCell) || !IsCellAvailable(firstCell)) return false;
         if (!map.TryGetCell(secondStep, out HexCell secondCell) || !IsCellAvailable(secondCell)) return false;
