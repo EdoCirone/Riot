@@ -122,9 +122,7 @@ public abstract class AbstractUnitsRunTime
         _morale = Mathf.Min(_morale + amount, MaxMorale);
     }
 
-    public void LoseMorale(
-        int amount,
-        MoraleLossCause cause = MoraleLossCause.Other)
+    public void LoseMorale(int amount, MoraleLossCause cause = MoraleLossCause.Other)
     {
         if (amount <= 0)
             return;

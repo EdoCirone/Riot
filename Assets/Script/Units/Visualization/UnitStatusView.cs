@@ -20,15 +20,15 @@ public class UnitStatusView : MonoBehaviour
     [Header("Tint")]
     [Tooltip("Grigio freddo: legge come 'spento'. sr.color moltiplica, non desatura — " +
              "per una desaturazione vera servirebbe un parametro nello shader.")]
-    [SerializeField] private Color _panicTint = new Color(0.62f, 0.66f, 0.74f);
-    [SerializeField] private Color _seatedTint = new Color(0.55f, 0.72f, 1f);
+    [SerializeField] private Color _panicTint = new(0.62f, 0.66f, 0.74f);
+    [SerializeField] private Color _seatedTint = new(0.55f, 0.72f, 1f);
 
     [Header("Panic wiggle")]
     [SerializeField] private float _wiggleDistance = 0.02f;
     [SerializeField] private float _wiggleDuration = 0.08f;
 
     [Header("Damage flash")]
-    [SerializeField] private Color _damageFlash = new Color(1f, 0.3f, 0.3f);
+    [SerializeField] private Color _damageFlash = new(1f, 0.3f, 0.3f);
     [SerializeField] private float _flashDuration = 0.15f;
 
     private SpriteRenderer[] _tintables;

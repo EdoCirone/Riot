@@ -44,19 +44,17 @@ public class PoliceRuntime : AbstractUnitsRunTime
         return _police.CanPerformAction(action);
     }
     public void AssignGuard(
-     ObjectiveRuntime objective,
-     EngagementRules rules,
-     int leashRadius,
-     bool overridesEngagementRules,
-     bool overridesLeashRadius)
+        ObjectiveRuntime objective,
+        EngagementRules rules,
+        int leashRadius,
+        bool overridesEngagementRules,
+        bool overridesLeashRadius)
     {
         _guardedObjective = objective;
         _engagementRules = rules;
         _leashRadius = leashRadius;
-        _overridesEngagementRules =
-            overridesEngagementRules;
-        _overridesLeashRadius =
-            overridesLeashRadius;
+        _overridesEngagementRules = overridesEngagementRules;
+        _overridesLeashRadius = overridesLeashRadius;
     }
 
     public void RaiseAlarm(int turns) => _alarmTurnsLeft = Mathf.Max(_alarmTurnsLeft, turns);
@@ -79,8 +77,7 @@ public class PoliceRuntime : AbstractUnitsRunTime
         return true;
     }
 
-    public bool ApplyLevelLeashRadius(
-    int leashRadius)
+    public bool ApplyLevelLeashRadius(int leashRadius)
     {
         if (_overridesLeashRadius
             || _leashRadius == leashRadius)

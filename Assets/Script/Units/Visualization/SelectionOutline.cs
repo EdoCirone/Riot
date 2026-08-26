@@ -26,8 +26,10 @@ public class SelectionOutline : MonoBehaviour
 
     private void Awake()
     {
-        if (_unitSelectedEvent == null || _policeSelectedEvent == null
-            || _unitDeselectedEvent == null || _policeDeselectedEvent == null)
+        if (_unitSelectedEvent == null
+            || _policeSelectedEvent == null
+            || _unitDeselectedEvent == null
+            || _policeDeselectedEvent == null)
         {
             Debug.LogWarning($"SelectionOutline: missing event references on {name}");
             return;
@@ -40,7 +42,7 @@ public class SelectionOutline : MonoBehaviour
     {
         foreach (SpriteRenderer sr in GetComponentsInChildren<SpriteRenderer>())
         {
-            GameObject go = new GameObject("Outline_" + sr.name);
+            GameObject go = new("Outline_" + sr.name);
             go.transform.SetParent(sr.transform, false);
 
             SpriteRenderer outlineSr = go.AddComponent<SpriteRenderer>();
@@ -49,7 +51,7 @@ public class SelectionOutline : MonoBehaviour
             outlineSr.sortingLayerName = "Outline";
             outlineSr.sortingOrder = 0;
 
-            MaterialPropertyBlock mpb = new MaterialPropertyBlock();
+            MaterialPropertyBlock mpb = new();
             outlineSr.GetPropertyBlock(mpb);
             mpb.SetColor("_OutlineColor", _outlineColor);
             outlineSr.SetPropertyBlock(mpb);

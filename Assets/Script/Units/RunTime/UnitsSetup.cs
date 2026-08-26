@@ -72,7 +72,7 @@ public class UnitsSetup : MonoBehaviour
         if (_unit is SpezzoneSO spezzone)
         {
             SpezzoneRuntime spezzoneRuntime =
-                new SpezzoneRuntime(cell, UnitsStatus.Alive, spezzone, spezzone.Mor, spezzone.ActionPoints);
+                new(cell, UnitsStatus.Alive, spezzone, spezzone.Mor, spezzone.ActionPoints);
 
             foreach (var s in _startingInventory)
             {

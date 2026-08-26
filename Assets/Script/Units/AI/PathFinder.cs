@@ -8,18 +8,18 @@ public class PathFinder : MonoBehaviour
 
         //A* Algorithm implementation goes here
 
-        Dictionary<HexCoordinates, int> gCost = new Dictionary<HexCoordinates, int>();
-        Dictionary<HexCoordinates, HexCoordinates> cameFrom = new Dictionary<HexCoordinates, HexCoordinates>();
+        Dictionary<HexCoordinates, int> gCost = new();
+        Dictionary<HexCoordinates, HexCoordinates> cameFrom = new();
 
         gCost[start] = 0;
 
-        List<HexCoordinates> foundCell = new List<HexCoordinates>();
-        List<HexCoordinates> checkedCell = new List<HexCoordinates>();
+        List<HexCoordinates> foundCell = new();
+        List<HexCoordinates> checkedCell = new();
 
         foundCell.Add(start);
         bool pathFound = false;
 
-        List<HexCoordinates> path = new List<HexCoordinates>();
+        List<HexCoordinates> path = new();
         while (foundCell.Count > 0)
         {
             // FoundMinimumF restituisce sempre un valore: parte da foundcells[0] ed è

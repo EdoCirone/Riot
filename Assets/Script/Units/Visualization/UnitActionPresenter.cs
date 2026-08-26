@@ -26,13 +26,10 @@ public sealed class UnitActionPresenter
         _skirmishParEvent = skirmishParEvent;
     }
 
-    public IEnumerator PlaySkirmish(
-        AbstractUnitsRunTime attacker,
-        AbstractUnitsRunTime defender,
-        CombatResult result)
+    public IEnumerator PlaySkirmish(AbstractUnitsRunTime attacker, AbstractUnitsRunTime defender, CombatResult result)
     {
-        if (attacker?.PositionCell == null ||
-            defender?.PositionCell == null)
+        if (attacker?.PositionCell == null
+            || defender?.PositionCell == null)
         {
             Debug.LogError(
                 "[SKIRMISH] Cannot present units without positions"
@@ -41,8 +38,7 @@ public sealed class UnitActionPresenter
             yield break;
         }
 
-        GameObject attackerObject =
-            _unitsRenderer.GetGameObject(attacker);
+        GameObject attackerObject = _unitsRenderer.GetGameObject(attacker);
 
         if (attackerObject == null)
         {
@@ -53,8 +49,7 @@ public sealed class UnitActionPresenter
             yield break;
         }
 
-        UnitMovement attackerMovement =
-            attackerObject.GetComponent<UnitMovement>();
+        UnitMovement attackerMovement = attackerObject.GetComponent<UnitMovement>();
 
         if (attackerMovement == null)
         {
@@ -66,23 +61,13 @@ public sealed class UnitActionPresenter
             yield break;
         }
 
-        GameObject defenderObject =
-            _unitsRenderer.GetGameObject(defender);
+        GameObject defenderObject = _unitsRenderer.GetGameObject(defender);
 
-        UnitMovement defenderMovement =
-            defenderObject != null
-                ? defenderObject.GetComponent<UnitMovement>()
-                : null;
+        UnitMovement defenderMovement = defenderObject != null ? defenderObject.GetComponent<UnitMovement>() : null;
 
-        Vector3 defenderWorldPosition =
-            _map.GridToWorld(
-                defender.PositionCell.Coordinates
-            );
+        Vector3 defenderWorldPosition = _map.GridToWorld(defender.PositionCell.Coordinates);
 
-        Vector3 attackerWorldPosition =
-            _map.GridToWorld(
-                attacker.PositionCell.Coordinates
-            );
+        Vector3 attackerWorldPosition = _map.GridToWorld(attacker.PositionCell.Coordinates);
 
         bool completed = false;
 
@@ -91,9 +76,7 @@ public sealed class UnitActionPresenter
             onComplete: () => completed = true,
             onImpact: () =>
             {
-                defenderMovement?.PlayHitReaction(
-                    attackerWorldPosition
-                );
+                defenderMovement?.PlayHitReaction(attackerWorldPosition);
 
                 RaiseCombatResult(result);
             }
@@ -134,14 +117,11 @@ public sealed class UnitActionPresenter
         }
     }
 
-    public IEnumerator PlayCharge(
-    AbstractUnitsRunTime attacker,
-    AbstractUnitsRunTime defender,
-    HexCell destinationCell)
+    public IEnumerator PlayCharge(AbstractUnitsRunTime attacker, AbstractUnitsRunTime defender, HexCell destinationCell)
     {
-        if (attacker == null ||
-            defender?.PositionCell == null ||
-            destinationCell == null)
+        if (attacker == null
+            || defender?.PositionCell == null
+            || destinationCell == null)
         {
             Debug.LogError(
                 "[CHARGE] Cannot present invalid units or destination"
@@ -150,8 +130,7 @@ public sealed class UnitActionPresenter
             yield break;
         }
 
-        GameObject attackerObject =
-            _unitsRenderer.GetGameObject(attacker);
+        GameObject attackerObject = _unitsRenderer.GetGameObject(attacker);
 
         if (attackerObject == null)
         {
@@ -162,8 +141,7 @@ public sealed class UnitActionPresenter
             yield break;
         }
 
-        UnitMovement movement =
-            attackerObject.GetComponent<UnitMovement>();
+        UnitMovement movement = attackerObject.GetComponent<UnitMovement>();
 
         if (movement == null)
         {
@@ -175,19 +153,11 @@ public sealed class UnitActionPresenter
             yield break;
         }
 
-        Vector3 defenderWorldPosition =
-            _map.GridToWorld(
-                defender.PositionCell.Coordinates
-            );
+        Vector3 defenderWorldPosition = _map.GridToWorld(defender.PositionCell.Coordinates);
 
         bool completed = false;
 
-        movement.PlayCharge(
-            destinationCell,
-            defenderWorldPosition,
-            _map,
-            () => completed = true
-        );
+        movement.PlayCharge(destinationCell, defenderWorldPosition, _map, () => completed = true);
 
         float elapsed = 0f;
 

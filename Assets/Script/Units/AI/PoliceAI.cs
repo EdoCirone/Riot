@@ -104,7 +104,8 @@ public class PoliceAI : MonoBehaviour
                         }
 
                         // La carica sposta l'attaccante: la destinazione deve stare nel guinzaglio.
-                        if (distance == 3 && _turnManager.CanCharge(police, target, out HexCell chargeCell)
+                        if (distance == 3
+                            && _turnManager.CanCharge(police, target, out HexCell chargeCell)
                             && IsWithinLeash(police, chargeCell.Coordinates))
                         {
                             Debug.Log($"[AI] {police} charges {target}: pushing, stats do not matter");
@@ -241,7 +242,7 @@ public class PoliceAI : MonoBehaviour
         }
 
         int maxSteps = Mathf.Min(police.ActionPoints, pathCoords.Count - 1);
-        List<HexCell> path = new List<HexCell>();
+        List<HexCell> path = new();
 
         // ⚠ Il guinzaglio serve a impedirti di ALLONTANARTI, non a dettarti la strada di
         // casa. Se sei già fuori raggio stai rientrando, e il percorso non va vincolato:
@@ -287,7 +288,7 @@ public class PoliceAI : MonoBehaviour
     /// </summary>
     private List<SpezzoneRuntime> GetTargetsByDistance(PoliceRuntime police)
     {
-        List<SpezzoneRuntime> targets = new List<SpezzoneRuntime>();
+        List<SpezzoneRuntime> targets = new();
 
         foreach (var spezzone in _lvlManager.Spezzoni)
         {

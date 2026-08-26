@@ -20,7 +20,7 @@ public class SpezzoneRuntime : AbstractUnitsRunTime
     public Inventory Inventory => _inventory;
 
     public SpezzoneRuntime(HexCell pos, UnitsStatus stato, SpezzoneSO spezzone, int morale, int actionPoints)
-     : base(pos, stato, morale, actionPoints)
+        : base(pos, stato, morale, actionPoints)
     {
         _spezzone = spezzone;
         pos.TryOccupy(this);
