@@ -147,8 +147,7 @@ public class CameraManager : MonoBehaviour
         {
             Vector3 targetPos = _followTarget.position;
             targetPos.z = _mainCamera.transform.position.z;
-            Vector3 lerpedPos = Vector3.Lerp(
-                _mainCamera.transform.position, targetPos, _followSpeed * Time.deltaTime);
+            Vector3 lerpedPos = Vector3.Lerp(_mainCamera.transform.position, targetPos, _followSpeed * Time.deltaTime);
             _mainCamera.transform.position = ClampToCameraBounds(lerpedPos);
             return;
         }
@@ -172,11 +171,7 @@ public class CameraManager : MonoBehaviour
         // ---- ZOOM ----
         if (Mathf.Abs(_currentZoomSpeed) > 0.001f && _mainCamera.orthographic)
         {
-            float targetSize = Mathf.Clamp(
-                _mainCamera.orthographicSize - _currentZoomSpeed,
-                _minZoom,
-                _maxZoom
-            );
+            float targetSize = Mathf.Clamp(_mainCamera.orthographicSize - _currentZoomSpeed, _minZoom, _maxZoom);
             _mainCamera.orthographicSize = Mathf.Lerp(
                 _mainCamera.orthographicSize,
                 targetSize,
