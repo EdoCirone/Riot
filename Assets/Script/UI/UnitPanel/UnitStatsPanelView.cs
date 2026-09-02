@@ -154,7 +154,7 @@ public class UnitStatsPanelView : MonoBehaviour
         if (unit is not PoliceRuntime police || !police.IsAlarmed)
             return "";
 
-        string turns = police.AlarmTurnsLeft == 1 ? "TURNO" : "TURNI";
-        return $"ALLARME — {police.AlarmTurnsLeft} {turns}";
+        string turns = police.AlarmTurnsLeft == 1 ? "TURN" : "TURNS";
+        return $"ALARM — {police.AlarmTurnsLeft} {turns}";
     }
 }
