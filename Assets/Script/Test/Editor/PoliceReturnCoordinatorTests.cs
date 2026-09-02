@@ -288,4 +288,26 @@ public class PoliceReturnCoordinatorTests
             Is.SameAs(stationBlocker)
         );
     }
+    [Test]
+    public void HasPoliceStation_WhenMapContainsStation_ReturnsTrue()
+    {
+        Assert.That(
+            _mapData.HasPoliceStation,
+            Is.True
+        );
+    }
+    [Test]
+    public void HasPoliceStation_WhenStationIsRemoved_ReturnsFalse()
+    {
+        _mapData.SetCellType(
+            col: 3,
+            row: 3,
+            type: _walkableType
+        );
+
+        Assert.That(
+            _mapData.HasPoliceStation,
+            Is.False
+        );
+    }
 }

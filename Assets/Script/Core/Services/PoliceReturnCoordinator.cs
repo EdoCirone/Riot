@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NUnit.Framework;
+using System.Collections.Generic;
 
 public sealed class PoliceReturnCoordinator
 {
@@ -144,4 +145,5 @@ public sealed class PoliceReturnCoordinator
         return cell?.Type != null
             && TacticalQuery.IsCellAvailable(cell);
     }
+
 }

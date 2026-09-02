@@ -132,12 +132,20 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
         if (_map == null)
         {
-            errors.Add("HexGrid non assegnata");
+            errors.Add("HexGrid not assigned");
         }
         else if (_map.HexMapData == null)
         {
-            errors.Add("HexGrid senza HexMapSO");
+            errors.Add("HexGrid has no HexMapSO");
         }
+        else if (HasScenePolice()
+                 && !_map.HexMapData.HasPoliceStation)
+        {
+            errors.Add(
+                "Police units are present but the map has no police station"
+            );
+        }
+
         if (_tensionChangedEvent == null)
             errors.Add("TensionChangedEvent not assigned");
 
@@ -502,5 +510,21 @@ public class LVLManager : MonoBehaviour, IGameEventListener
 
         if (!string.IsNullOrEmpty(report))
             Debug.Log(report);
+    }
+
+    private static bool HasScenePolice()
+    {
+        UnitsSetup[] setups =
+            FindObjectsByType<UnitsSetup>(
+                FindObjectsInactive.Exclude
+            );
+
+        foreach (UnitsSetup setup in setups)
+        {
+            if (setup != null && setup.IsPoliceSetup)
+                return true;
+        }
+
+        return false;
     }
 }

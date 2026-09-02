@@ -22,6 +22,7 @@ public class UnitsSetup : MonoBehaviour
     [SerializeField] private int _leashRadiusOverride = -1;
 
     public bool OverrideEngagement => _overrideEngagement;
+    public bool IsPoliceSetup => _unit is PoliceSO;
     public EngagementRules EngagementRules => _engagementRules;
     public int LeashRadiusOverride => _leashRadiusOverride;
 

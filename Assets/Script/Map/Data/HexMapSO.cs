@@ -49,4 +49,20 @@ public class HexMapSO : ScriptableObject
             return; // fuori dai limiti
         _cells[row * _width + col] = type;
     }
+    public bool HasPoliceStation
+    {
+        get
+        {
+            if (_cells == null)
+                return false;
+
+            foreach (HexTypeSO type in _cells)
+            {
+                if (type != null && type.IsPoliceStation)
+                    return true;
+            }
+
+            return false;
+        }
+    }
 }
