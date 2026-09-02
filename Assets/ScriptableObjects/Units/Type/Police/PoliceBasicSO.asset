@@ -18,6 +18,9 @@ MonoBehaviour:
   _graphicsPrefab: {fileID: 3385265451044002913, guid: 59947b83b8bff0b42ac430f22608d255, type: 3}
   _atk: 8
   _def: 4
-  _mor: 5
+  _mor: 4
   _actionPoints: 5
+  _auraAtk: 0
+  _auraDef: 0
+  _auraMor: 0
   _allowedActions: 1

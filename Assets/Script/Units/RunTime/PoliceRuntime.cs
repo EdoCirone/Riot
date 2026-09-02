@@ -14,6 +14,7 @@ public class PoliceRuntime : AbstractUnitsRunTime
 
     public EngagementRules EngagementRules => _engagementRules;
     public int LeashRadius => _leashRadius;
+    public int RedeployTurns => _police.RedeployTurns;
     public bool IsAlarmed => _alarmTurnsLeft > 0;
     public int AlarmTurnsLeft => _alarmTurnsLeft;
 
@@ -88,6 +89,30 @@ public class PoliceRuntime : AbstractUnitsRunTime
         }
 
         _leashRadius = leashRadius;
+        return true;
+    }
+    public bool TryReturnToBoard(HexCell returnCell)
+    {
+        if (_status != UnitsStatus.Disperse)
+            return false;
+
+        if (returnCell?.Type == null || !returnCell.Type.IsWalkable)
+            return false;
+
+        if (!returnCell.TryOccupy(this))
+            return false;
+
+        _positionCell = returnCell;
+        _status = UnitsStatus.Alive;
+
+        _auraMoraleBonus = 0;
+        _morale = _maxMorale;
+        RefillActionPoints();
+
+        ClearPanic();
+        _isSeated = false;
+        _alarmTurnsLeft = 0;
+
         return true;
     }
 }

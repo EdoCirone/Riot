@@ -46,16 +46,23 @@ public class UnitsRenderer : MonoBehaviour
             return;
         }
 
+        GameObject root = go.transform.root.gameObject;
         UnitStatusView statusView = go.GetComponent<UnitStatusView>();
 
         if (!unit.IsAlive)
         {
             statusView?.Clear();
-            go.transform.root.gameObject.SetActive(false);
+            root.SetActive(false);
             return;
         }
 
-        go.transform.root.position = _grid.GridToWorld(unit.PositionCell.Coordinates);
-        statusView?.Refresh(unit.IsPanicked, unit.IsSeated);
+        root.SetActive(true);
+        root.transform.position =
+            _grid.GridToWorld(unit.PositionCell.Coordinates);
+
+        statusView?.Refresh(
+            unit.IsPanicked,
+            unit.IsSeated
+        );
     }
 }

@@ -11,6 +11,8 @@ public sealed class TurnCycleCoordinator
 
     public bool IsPoliceTurn { get; private set; }
 
+    private readonly PoliceReturnCoordinator _policeReturnCoordinator = new();
+
     public TurnCycleCoordinator(
         LVLManager level,
         PoliceAI policeAI,
@@ -48,6 +50,19 @@ public sealed class TurnCycleCoordinator
         }
 
         ApplyPendingPoliceResponse();
+
+        foreach (PoliceRuntime police
+         in _policeReturnCoordinator.ProcessTurnStart(
+             _level.Police,
+             _level.Map))
+        {
+            _renderer.UpdateView(police);
+
+            Debug.Log(
+                $"[POLICE RETURN] {police} returned at " +
+                $"{police.PositionCell.Coordinates}"
+            );
+        }
 
         Debug.Log("--- TURNO POLIZIA ---");
 
@@ -134,7 +149,7 @@ public sealed class TurnCycleCoordinator
 
         foreach (PoliceRuntime police in _level.Police)
         {
-            if (police == null || !police.IsAlive)
+            if (police == null)
                 continue;
 
             if (police.OverridesEngagementRules)
