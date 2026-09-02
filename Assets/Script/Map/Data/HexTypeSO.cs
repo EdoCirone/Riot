@@ -16,12 +16,14 @@ public class HexTypeSO : ScriptableObject
     [Header("Properties")]
     [SerializeField] private bool _isWalkable;
 
-    [FormerlySerializedAs("_isObjective")]
+    [FormerlySerializedAs("Type")]
     [SerializeField] private bool _isObjectiveGround;
 
     [SerializeField] private bool _isRedZone;
 
     [SerializeField] private bool _isMeetingGround;
+
+    [SerializeField] private bool _isPoliceStation;
 
     //two generic modifiers that can be usefull
     [Header("Modifiers")]
@@ -37,6 +39,7 @@ public class HexTypeSO : ScriptableObject
     public bool IsWalkable => _isWalkable;
     public bool IsObjectiveGround => _isObjectiveGround;
     public bool IsMeetingGround => _isMeetingGround;
+    public bool IsPoliceStation => _isPoliceStation;
 
     public bool IsRedZone => _isRedZone;
     public int ModifierA => _modifierA;

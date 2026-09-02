@@ -44,6 +44,9 @@ public class HexGrid : MonoBehaviour
     public IReadOnlyList<ObjectiveRuntime> Objectives => _objectives;
     Dictionary<HexCoordinates, HexCell> _cells = new();
 
+    private readonly List<HexCell> _policeStations = new();
+    public IReadOnlyList<HexCell> PoliceStations => _policeStations;
+
     private readonly List<MeetingPointRuntime> _meetingPoints = new();
     public IReadOnlyList<MeetingPointRuntime> MeetingPoints => _meetingPoints;
 
@@ -58,6 +61,7 @@ public class HexGrid : MonoBehaviour
     {
         if (_hexMapData == null) return;
         _cells.Clear();
+        _policeStations.Clear();
         for (int col = 0; col < _hexMapData.Width; col++)
         {
             int parity = col & 1;
@@ -67,7 +71,11 @@ public class HexGrid : MonoBehaviour
                 int r = row - (col - parity) / 2;
                 HexCoordinates coords = new(q, r);
                 HexTypeSO type = _hexMapData.GetCellType(col, row);
-                _cells[coords] = new HexCell(coords, type);
+                HexCell cell = new(coords, type);
+                _cells[coords] = cell;
+
+                if (type != null && type.IsPoliceStation)
+                    _policeStations.Add(cell);
             }
         }
 

@@ -7852,12 +7852,13 @@ MonoBehaviour:
   _gizmoColor: {r: 1, g: 0, b: 0.2750727, a: 1}
   _coordinateLabels: 1
   _labelMaxZoom: 12
-  _showObjectiveNames: 0
+  _showObjectiveNames: 1
   _paintPalette:
   - {fileID: 11400000, guid: 4ed08f76f5fbf49498fc2148060029b2, type: 2}
   - {fileID: 11400000, guid: 9931c65d32c00dc48848ea147350baea, type: 2}
   - {fileID: 11400000, guid: 8f9b8a23fc556fc4dba9973013d00ba0, type: 2}
   - {fileID: 11400000, guid: 36c4379c3eddca749b4ffbac0898983d, type: 2}
+  - {fileID: 11400000, guid: 25af2819cb90b13429c0330a48a7a444, type: 2}
   _initDefaultType: {fileID: 11400000, guid: 4ed08f76f5fbf49498fc2148060029b2, type: 2}
 --- !u!114 &1144096844
 MonoBehaviour:
