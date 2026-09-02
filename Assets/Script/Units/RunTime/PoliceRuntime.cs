@@ -15,6 +15,8 @@ public class PoliceRuntime : AbstractUnitsRunTime
     public EngagementRules EngagementRules => _engagementRules;
     public int LeashRadius => _leashRadius;
     public bool IsAlarmed => _alarmTurnsLeft > 0;
+    public int AlarmTurnsLeft => _alarmTurnsLeft;
+
     private bool _overridesEngagementRules;
 
     public override string DisplayName => _police.DisplayName;

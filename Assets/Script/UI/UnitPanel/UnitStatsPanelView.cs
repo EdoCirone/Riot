@@ -28,6 +28,7 @@ public class UnitStatsPanelView : MonoBehaviour
 
     [Header("Status")]
     [SerializeField] private TextMeshProUGUI _statusText;
+    [SerializeField] private TextMeshProUGUI _alarmTurnsText;
 
     [Header("Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
@@ -122,6 +123,9 @@ public class UnitStatsPanelView : MonoBehaviour
         if (_statusText != null)
             _statusText.text = DescribeStatus(_currentUnit);
 
+        if (_alarmTurnsText != null)
+            _alarmTurnsText.text = DescribeAlarm(_currentUnit);
+
         TacticalQuery.AuraBonus aura = TacticalQuery.GetAuraBonus(_currentUnit, _lvlManager.Map);
 
         _atkText.text = FormatStat(_currentUnit.Atk, aura.Atk);
@@ -144,5 +148,13 @@ public class UnitStatsPanelView : MonoBehaviour
             return "SEATED — can only stand up or chant";
 
         return "";
+    }
+    private static string DescribeAlarm(AbstractUnitsRunTime unit)
+    {
+        if (unit is not PoliceRuntime police || !police.IsAlarmed)
+            return "";
+
+        string turns = police.AlarmTurnsLeft == 1 ? "TURNO" : "TURNI";
+        return $"ALLARME — {police.AlarmTurnsLeft} {turns}";
     }
 }
