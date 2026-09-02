@@ -16,7 +16,7 @@ public class HexTypeSO : ScriptableObject
     [Header("Properties")]
     [SerializeField] private bool _isWalkable;
 
-    [FormerlySerializedAs("Type")]
+    [FormerlySerializedAs("_isObjective")]
     [SerializeField] private bool _isObjectiveGround;
 
     [SerializeField] private bool _isRedZone;
