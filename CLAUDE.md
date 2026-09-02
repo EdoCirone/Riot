@@ -5,10 +5,16 @@ DISSENSO (ex RIOT) — gioco tattico a turni 2D in Unity 6000.4.5f1 (URP).
 Il giocatore comanda un corteo politico (spezzoni) su una griglia esagonale flat-top contro forze di polizia.
 Lingua team: italiano. Commit e commenti in italiano. Nomi variabili/classi in inglese.
 
-## Gli altri documenti (allineati 13/08/26)
+## Gli altri documenti (allineati 02/09/26)
 - **Documento di Progetto**: `D:\GDDRIOT\RIOT_Project_Document_v29.md` — stato del codice
   (Sezione 0) e cronologia per sessione. Le versioni vecchie stanno in
   `D:\GDDRIOT\Archivio\`.
+  🔴 **Dal 02/09/26 la copia viva sta su Google Drive**, non su disco: la cartella `GDDRIOT`
+  è stata spostata lì perché git è riservato alle repository tecniche. **Il file locale può
+  quindi essere più vecchio di quello vero.** Prima di citarne un numero o una decisione,
+  chiedere quale delle due copie è aggiornata — è esattamente il difetto che questo
+  progetto ha già pagato tre volte con voci rilette invece che riverificate, e adesso ha
+  due sorgenti invece di una.
   ⚠ **Il v26 non esiste e non va cercato**: creato il 05/08 e sovrascritto dal v27 senza
   passare dall'archivio (errore, confermato il 13/08). Nessun contenuto perso — il
   changelog della sessione 28 è dentro il v27 e quindi dentro il v28. Il salto v25 → v27
@@ -16,8 +22,9 @@ Lingua team: italiano. Commit e commenti in italiano. Nomi variabili/classi in i
   ⚠ **Da sess.29 il changelog per sessione sta nella Sezione 0** del Documento di
   Progetto (blocchi "Novità sess.NN"), non più in fondo nell'elenco delle sessioni, che
   si ferma alla 28. Due posti per la stessa cosa: da riunificare.
-- **GDD**: `D:\GDDRIOT\` numerati 00-**20**. Il **cap. 20 (Assemblea e Volantino)** è nuovo
-  del 13/08/26, e il **cap. 8 (Polizia)** è stato riscritto lo stesso giorno: la polizia
+- **GDD**: `D:\GDDRIOT\` numerati 00-**21** (il **cap. 21, Tutorial e Insegnamento**, è
+  comparso dopo il 18/08 e questo file non lo citava). Il **cap. 20 (Assemblea e Volantino)**
+  è del 13/08/26, e il **cap. 8 (Polizia)** è stato riscritto lo stesso giorno: la polizia
   passa da inseguitore a **presidio** con guinzaglio, allarme locale e regole d'ingaggio
   per fascia di Repressione. Sono i due capitoli da leggere per primi se si riprende in
   mano il design.
@@ -107,10 +114,28 @@ autorevole per qualunque check di coerenza codice/documento.
 ## Resolver, servizi e test (RIFATTO 22-23/08/26) — la struttura è cambiata
 `Core/Resolver/`, `Core/Services/`, `Test/Editor/`, `Units/Visualization/UnitActionPresenter.cs`.
 Il progetto è passato da **74 file / 7.302 righe** a **101 / 11.622**, e ~4.300 righe sono
-strato nuovo, non feature: **82 test in 14 file** e l'estrazione delle regole dagli esecutori.
+strato nuovo, non feature: l'estrazione delle regole dagli esecutori e la prima rete di test.
 
-⚠ **I due god script si sono dimezzati**: `TurnManager` da 917 a **762** righe, `LVLManager`
-da 709 a **464**. I metodi estratti sono **spariti** dai manager, non copiati — verificato.
+⚠ **NUMERI RIMISURATI IL 02/09/26** — quelli qui sopra sono la fotografia del 23/08 e vanno
+letti come storia, non come stato:
+
+| | 23/08 (scritto qui) | 02/09 (misurato) |
+|---|---|---|
+| file `.cs` | 101 | **112** |
+| righe | 11.622 | **11.981** |
+| test | 82 in 14 file | **20 file, 97 `[Test]` + 59 `[TestCase]`** |
+| `TurnManager` | 762 | **709** |
+| `LVLManager` | 464 | **506** |
+
+⚠ **`LVLManager` è ricresciuto** (464 → 506): l'estrazione non è una cosa che si fa una
+volta. E il secondo file del progetto adesso non è più `LVLManager` ma **`InputHandler`, 624
+righe** — cresciuto in silenzio mentre si spezzavano i due god script dichiarati. Nessun
+documento lo nomina come problema. È lo stesso meccanismo della sess.33 (*"un componente
+eredita le responsabilità dei riferimenti che possiede"*): non è stato deciso, è successo.
+
+⚠ **I due god script si sono dimezzati**: `TurnManager` da 917 a 762 righe (oggi 709),
+`LVLManager` da 709 a 464 (oggi 506). I metodi estratti sono **spariti** dai manager, non
+copiati — verificato.
 
 **Il nuovo strato, e chi fa cosa:**
 
@@ -205,11 +230,72 @@ la documentazione.** È l'unica rete che il progetto abbia mai avuto contro le r
 ⚠ Non esiste nessun `.asmdef`: i test compilano nell'assembly Editor. Funziona, ma non c'è
 confine e non girano fuori dall'Editor. Due asmdef serviranno il giorno della CI.
 
-⚠ **I tre coordinatori del 23/08 non hanno test**, e il conto è fermo a 82. Il codice più
-giovane è il meno coperto — ironico proprio su `TurnCycleCoordinator`, che è il posto dove
-questo progetto ha storicamente prodotto i suoi blocchi. È anche il più difficile da testare
-(dipende da `LVLManager`, `PoliceAI` e `UnitsRenderer`, tutti MonoBehaviour), quindi la scelta
-è ragionevole; ma è il buco da chiudere per primo se un giorno il turno si pianta di nuovo.
+✅ **La copertura è quasi raddoppiata fra il 23/08 e il 02/09**: da 14 file a **20**, e sono
+arrivati anche i test sui pezzi che prima non ne avevano — `PoliceReturnCoordinatorTests`
+(291 righe, terzo file più lungo del progetto), `PoliceEngagementRulesTests`,
+`TensionSettingsTests`, più i test di base che mancavano da sempre (`HexCellTests`,
+`HexCoordinatesTests`, `HexDirectionFinderTests`, `InventoryTests`, `TacticalQueryTests`,
+`AbstractUnitsRunTimeTests`).
+⚠ Diagnosi del 23/08 conservata perché la previsione era giusta: *"il codice più giovane è il
+meno coperto, ed è il buco da chiudere per primo"*. È stato chiuso.
+⚠ **Resta scoperto `TurnCycleCoordinator`**, che è il posto dove questo progetto ha
+storicamente prodotto i suoi blocchi, ed è anche il più difficile da testare (dipende da
+`LVLManager`, `PoliceAI` e `UnitsRenderer`, tutti MonoBehaviour).
+
+## Rientro della polizia dalla questura (IMPLEMENTATO 02/09/26)
+`Core/Services/PoliceReturnCoordinator.cs` (classe C# istanza, tiene un `HashSet` di chi
+aspetta) + `PoliceRuntime.TryReturnToBoard` + `HexTypeSO.IsPoliceStation` +
+`HexGrid.PoliceStations` + l'asset `PoliceStationGroundSO`. Su `MapLvl1Data` ci sono
+**3 celle di questura**.
+
+- **Stessa forma degli altri terreni speciali**: un pennello (`_isPoliceStation` su
+  `HexTypeSO`) e una lista raccolta da `HexGrid.GenerateGrid`. ⚠ **A differenza di obiettivi
+  e ritrovi non c'è flood fill né ancora**: le celle stazione sono una lista piatta, non
+  gruppi. Non serve — non devono avere identità, solo essere un posto dove ricomparire.
+- `TurnCycleCoordinator.CompletePlayerTurn` chiama `ProcessTurnStart` **dopo**
+  `ApplyPendingPoliceResponse` e **prima** della ricarica PA: chi rientra agisce già in
+  quel turno.
+- **Due passate, e l'ordine conta**: prima si tenta il rientro di chi era già in coda, poi
+  si registra chi è disperso *adesso*. Al contrario, un poliziotto disperso in questo stesso
+  turno rientrerebbe immediatamente.
+- `FindReturnCell` prova la stazione più vicina e, se occupata, i suoi sei vicini. Fallisce
+  restituendo `null` e riprovando il turno dopo — **degrada, non pianta**.
+- La stazione "più vicina" si misura **dall'obiettivo che quel poliziotto presidia**, non da
+  dove è morto (`DistanceToAssignment`): torna in servizio vicino al suo posto.
+
+🔴 **È un CAMBIO DI DESIGN e va deciso apposta, perché ridefinisce una meccanica esistente.**
+`TryReturnToBoard` rimette in gioco con `_morale = _maxMorale`, PA pieni, panico azzerato,
+allarme azzerato, `IsSeated` false. Ogni poliziotto disperso torna. Quindi **logorare la
+polizia non ottiene più niente di permanente**: lo **scontro** — che questo documento
+definisce *"l'unica azione che si può perdere"* e il cui ruolo dichiarato è **logorare** —
+adesso compra solo tempo. La carica sposta, lo scontro… ritarda.
+È difendibile e anzi tematicamente forte (una questura genera rinforzi, un corteo no: è
+un'asimmetria nel verso giusto, e dà un senso al *tenere* un obiettivo invece di ripulire la
+mappa). Ma finché non è scritto nel GDD, il gioco ha due meccaniche che dicono cose diverse
+sullo stesso gesto.
+
+⚠ **Nessuna validazione avvisa se un livello ha poliziotti e zero celle di questura.**
+`FindNearestStation` esce con `null` su `PoliceStations.Count == 0` e non succede niente, in
+silenzio. È la stessa forma delle 24 celle obiettivo orfane e del flag `_isObjective`
+azzerato: il livello gira, semplicemente una meccanica non esiste. Una riga in
+`LVLManager.ValidateReferences` (o un `LogWarning`: ci sono poliziotti, non ci sono stazioni)
+chiude il caso — e il posto giusto c'è già.
+
+⚠ **`DistanceToAssignment` legge `police.PositionCell` su un'unità dispersa**, che per il bug
+noto (`Disperse()` non azzera `_positionCell`) punta a una cella ormai di qualcun altro.
+Danno massimo: sceglie la stazione sbagliata, mai una posizione illegale. **È il terzo
+appoggio involontario a quel bug** — dopo la resurrezione nella spinta (05/08) e l'origine
+dell'onda di panico (08/08). La lezione registrata allora era *"non costruire sopra un bug
+che hai già deciso di demolire"*, e il conto dice che si continua a farlo: quando `_positionCell`
+verrà azzerato, questi tre punti vanno cercati insieme.
+
+⚠ **Doppio `RefillActionPoints` sul rientrante**: uno dentro `TryReturnToBoard`, uno nel ciclo
+subito dopo. Idempotente quindi innocuo, ma dice che la decisione "rientra a piena forza e
+agisce subito" è presa in due posti — e uno dei due la prende per caso.
+
+⚠ **`UnitsRenderer.UpdateView` ha ora `SetActive(true)` sul ramo vivo**, ed è quello che rende
+visibile il rientro. Prima disattivava soltanto: un'unità che tornava viva restava invisibile.
+Chi tocca quel metodo deve sapere che i due rami adesso sono simmetrici apposta.
 
 ## Tensione (IMPLEMENTATA 24-25/08/26) — GDD cap. 8
 `Core/Services/TensionRules.cs` (statica pura) + `Core/Services/LevelTension.cs` (classe C#
@@ -1564,6 +1650,24 @@ con la diagnosi, perché la spiegazione del *perché* succedeva vale più della 
   *Nota di metodo: questa voce è rientrata tre volte perché ogni volta si correggeva il file
   invece della causa. Un difetto che ricompare dopo essere stato "chiuso" non è stato chiuso:
   è stato spostato più avanti nel tempo.*
+
+  ✅ **Riverificata il 02/09/26, quindici giorni e 38 file dopo: 112 su 112 in UTF-8 con BOM,
+  zero eccezioni.** È l'unica voce di questo documento che possa dirsi chiusa con una prova
+  invece che con un'affermazione — e la prova è proprio il tempo passato senza che rientrasse,
+  visto che nel frattempo si sono scritti resolver, coordinatori, test e commenti italiani a
+  volontà. **La differenza fra le tre volte precedenti e questa è l'`.editorconfig`**: prima si
+  toglievano i sintomi, adesso l'errore non è più commettibile.
+- 🔴 **`_moralLost` è sopravvissuto al rinomina moral → morale del 02/09/26, ed è una mina.**
+  `ThrowItemSO` ha ancora `[SerializeField] private int _moralLost;` e `public int MoralLost`,
+  letto da `ItemActionResolver`. Sono gli unici due punti rimasti col nome vecchio.
+  ⚠ **Non rinominarlo a cuor leggero**: il campo è **serializzato** e vale `1` su
+  `MolotvSO.asset` e `SanPietrinoSO.asset`. Senza `[FormerlySerializedAs("_moralLost")]` i due
+  oggetti lanciabili perdono il danno **in silenzio** — nessun errore, il sanpietrino smette
+  semplicemente di fare male. È **letteralmente** la trappola disinnescata due giorni fa su
+  `_isObjective`, e nello stesso commit in cui la si stava chiudendo.
+  *Nota di metodo: un rinomina "di coerenza" lasciato a metà è peggio di uno non fatto,
+  perché il nome vecchio smette di sembrare intenzionale e il prossimo che lo vede lo
+  sistema senza sospettare che sia un campo su disco.*
 - **Campi dati dichiarati e mai letti** (censiti 06/08/26). Due asset ne hanno:
   - `MovementSettingsSO`: `ChargeBumpDistance/Duration`, `SkirmishBumpDistance/Duration`.
     ⚠ In più, l'asset **non contiene `_hitReactionDistance`**: il campo esiste nel codice
@@ -2063,6 +2167,44 @@ adesso, non da quando sarà lunga.
 (Il pannello How to Play è FATTO: contenitore e testo, confermato da Edoardo il
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
+
+## Changelog sessione 40 (02/09/26) — rientro della polizia, e un check dopo venti giorni
+Sessione di verifica su un codice cresciuto senza che questo file lo seguisse. **Il codice sta
+meglio del documento**: tutti gli invarianti dichiarati reggono, e quello che non tornava erano
+i numeri.
+
+- 🟢 **Rientro della polizia dalla questura** → sezione dedicata in PARTE 1.
+  `PoliceReturnCoordinator`, `IsPoliceStation`, `PoliceStationGroundSO`, 3 celle su `MapLvl1Data`.
+- 🟢 **Copertura quasi raddoppiata**: 14 → **20 file di test**, e i pezzi più giovani non sono
+  più i meno coperti. Chiusa una previsione del 23/08.
+- ✅ **Verificati uno per uno, tutti veri**: `ExecutePoliceTurn`, `_waitingForPolice`,
+  `ResolveOnce`, `FinalizeOnce`, `NearestPostCell`, `TryStepAside`, `CalculatePushDestination`
+  hanno **zero occorrenze** — le rimozioni dichiarate sono rimozioni, non spostamenti. Zero
+  singleton statici. L'unico `== UnitsStatus.Alive` rimasto è la definizione di `IsAlive`.
+  I sei resolver e i servizi puri non contengono **un solo `Debug.`**: i log stanno nei due
+  coordinatori, che è la regola. Graffe e parentesi bilanciate su 112 file.
+- ✅ **I `WaitUntil` sono passati da cinque a tre**, tutti con timeout. I due spariti sono
+  quelli di `TurnManager`, sostituiti da `yield return` su `UnitActionPresenter`: il buco è
+  chiuso **per costruzione**, non per guardia. È il modo giusto di far sparire una voce.
+- ✅ **Codifica: 112/112 UTF-8 con BOM.** Vedi bug noti — è l'unica voce chiusa con una prova.
+- 🔴 **Numeri del documento tutti sbagliati** (101→112 file, 11.622→11.981 righe, 82 test→20
+  file, `TurnManager` 762→709, `LVLManager` 464→**506**). Vedi la tabella nella sezione resolver.
+- 🔴 **`LVLManager` è ricresciuto** e **`InputHandler` è il nuovo secondo file (624 righe)**,
+  cresciuto in silenzio mentre si spezzavano i due god script dichiarati.
+- 🔴 **`_moralLost` lasciato a metà nel rinomina** → bug noti. Campo serializzato con valori su
+  disco: rinominarlo senza `[FormerlySerializedAs]` svuota i due oggetti lanciabili in silenzio.
+- 🔴 **Terzo appoggio involontario a `_positionCell` non azzerato** (`DistanceToAssignment`).
+- ⚠ **Due `Debug.Log` ancora in italiano** in `TurnCycleCoordinator` (`--- TURNO POLIZIA ---`,
+  `--- FINE TURNO POLIZIA ---`): la regola dice inglese.
+- ⚠ **Il Documento di Progetto vive ora su Google Drive**, quindi la copia locale può essere
+  vecchia → vedi la testata di questo file.
+
+**La lezione della giornata:** su venti giorni e 44 file nuovi, **nessuno degli invarianti
+architetturali è stato violato** — hanno retto senza che nessuno li ricontrollasse. Ad avere
+ceduto sono state solo le **quantità**: conteggi, lunghezze, "quanti test ci sono". È una
+distinzione utile per sapere cosa rileggere: *una regola scritta bene si difende da sola,
+un numero no.* I numeri in un documento vanno rimisurati, mai riletti — e infatti l'unica cosa
+che questo file continua a sbagliare, da luglio, è dire quanto è grande qualcosa.
 
 ## Changelog sessione 39 (22/08/26) — resolver, servizi, e la prima rete di test
 *Come sopra: ogni cosa sta nella sezione che la riguarda. Qui l'elenco e dove guardare.*
