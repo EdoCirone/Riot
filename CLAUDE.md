@@ -6,15 +6,27 @@ Il giocatore comanda un corteo politico (spezzoni) su una griglia esagonale flat
 Lingua team: italiano. Commit e commenti in italiano. Nomi variabili/classi in inglese.
 
 ## Gli altri documenti (allineati 02/09/26)
-- **Documento di Progetto**: `D:\GDDRIOT\RIOT_Project_Document_v29.md` — stato del codice
-  (Sezione 0) e cronologia per sessione. Le versioni vecchie stanno in
-  `D:\GDDRIOT\Archivio\`.
-  🔴 **Dal 02/09/26 la copia viva sta su Google Drive**, non su disco: la cartella `GDDRIOT`
-  è stata spostata lì perché git è riservato alle repository tecniche. **Il file locale può
-  quindi essere più vecchio di quello vero.** Prima di citarne un numero o una decisione,
-  chiedere quale delle due copie è aggiornata — è esattamente il difetto che questo
-  progetto ha già pagato tre volte con voci rilette invece che riverificate, e adesso ha
-  due sorgenti invece di una.
+🔴 **La fonte autorevole è Google Drive, e non ce n'è un'altra.** Documento di Progetto e GDD
+vivono lì da quando la cartella `GDDRIOT` è stata spostata (git è riservato alle repository
+tecniche). Qualunque copia su disco è **soltanto una copia**, e va trattata come
+potenzialmente vecchia: non è una seconda fonte, non è un ripiego consultabile, non vale come
+riscontro. Se serve un numero o una decisione, si apre il Drive.
+*(Il motivo per cui questa riga è scritta così dura: questo progetto ha già pagato tre volte
+il costo di voci rilette invece che riverificate. Due sorgenti "quasi allineate" sono
+peggio di una sola, perché la seconda dà l'illusione di aver controllato.)*
+
+- **Documento di Progetto**: **`RIOT_Project_Document_v30.md`** — stato del codice (Sezione 0)
+  e cronologia per sessione.
+  <https://drive.google.com/file/d/1aPWS85JjXS3gIaBa71YQIHXWriZdmd9I/view?usp=drivesdk>
+  Il **v29 è archiviato** e non è più il documento corrente.
+  - Cartella GDD: <https://drive.google.com/drive/folders/1HHGmKcoob4kQt2jfcI1vKY-RGwZ6WXpc>
+  - Archivio: <https://drive.google.com/drive/folders/1ATSYuJHrl6vlwYl0r2kz7hujUgm6RU3m>
+
+⚠ **Più avanti in questo file compaiono percorsi `D:\GDDRIOT\...`**: sono **riferimenti
+storici**, conservati com'erano al momento in cui furono scritti, e **non indicano dove
+trovare il documento oggi**. Un capitolo si cerca per numero nella cartella Drive, mai per
+percorso locale.
+
   ⚠ **Il v26 non esiste e non va cercato**: creato il 05/08 e sovrascritto dal v27 senza
   passare dall'archivio (errore, confermato il 13/08). Nessun contenuto perso — il
   changelog della sessione 28 è dentro il v27 e quindi dentro il v28. Il salto v25 → v27
@@ -22,14 +34,18 @@ Lingua team: italiano. Commit e commenti in italiano. Nomi variabili/classi in i
   ⚠ **Da sess.29 il changelog per sessione sta nella Sezione 0** del Documento di
   Progetto (blocchi "Novità sess.NN"), non più in fondo nell'elenco delle sessioni, che
   si ferma alla 28. Due posti per la stessa cosa: da riunificare.
-- **GDD**: `D:\GDDRIOT\` numerati 00-**21** (il **cap. 21, Tutorial e Insegnamento**, è
-  comparso dopo il 18/08 e questo file non lo citava). Il **cap. 20 (Assemblea e Volantino)**
+- **GDD**: capitoli numerati 00-**21**, nella cartella Drive linkata sopra (il **cap. 21,
+  Tutorial e Insegnamento**, è comparso dopo il 18/08 e questo file non lo citava).
+  Il **cap. 20 (Assemblea e Volantino)**
   è del 13/08/26, e il **cap. 8 (Polizia)** è stato riscritto lo stesso giorno: la polizia
   passa da inseguitore a **presidio** con guinzaglio, allarme locale e regole d'ingaggio
   per fascia di Repressione. Sono i due capitoli da leggere per primi se si riprende in
   mano il design.
 - ⚠ Fino al 13/08/26 questo file citava i documenti sotto `D:\UnityProject\GDDRIOT\`,
-  percorso che non esiste. Cinque riferimenti corretti in una volta.
+  percorso che non esiste; poi ha citato `D:\GDDRIOT\`, che nel frattempo aveva smesso di
+  essere la fonte. **Terza correzione della stessa riga**: è il segno che un percorso in un
+  documento non fallisce mai rumorosamente, a differenza di un percorso nel codice — quindi
+  resta sbagliato finché qualcuno non lo legge per caso.
 
 ## Unity Version
 6000.4.5f1 — non aggiornare mai senza istruzione esplicita.
@@ -40,8 +56,10 @@ Build settings, in quest'ordine: Boot → MainMenu → LVLTest.
 - Assets/Scenes/MainMenu.unity — menu principale
 - Assets/Scenes/LVLTest.unity — scena di gioco (è quella che il documento chiamava
   erroneamente Main.unity)
-- Assets/_Recovery/0.unity — file di recupero da un crash dell'Editor, fuori dalle
-  build settings. Da cancellare dopo aver controllato che non contenga lavoro.
+
+✅ **`Assets/_Recovery/0.unity` non esiste più** (cancellata; era il file di recupero da un
+crash dell'Editor, fuori dalle build settings). Le tre scene qui sopra sono tutte quelle che
+ci sono.
 
 ---
 
@@ -242,15 +260,21 @@ meno coperto, ed è il buco da chiudere per primo"*. È stato chiuso.
 storicamente prodotto i suoi blocchi, ed è anche il più difficile da testare (dipende da
 `LVLManager`, `PoliceAI` e `UnitsRenderer`, tutti MonoBehaviour).
 
-## Rientro della polizia dalla questura (IMPLEMENTATO 02/09/26)
+## Rientro della polizia dalla caserma (IMPLEMENTATO 02/09/26)
 `Core/Services/PoliceReturnCoordinator.cs` (classe C# istanza, tiene un `HashSet` di chi
 aspetta) + `PoliceRuntime.TryReturnToBoard` + `HexTypeSO.IsPoliceStation` +
 `HexGrid.PoliceStations` + l'asset `PoliceStationGroundSO`. Su `MapLvl1Data` ci sono
-**3 celle di questura**.
+**3 celle di caserma**.
+
+⚠ **Terminologia**: nel design il punto di rischieramento si chiama **caserma** (è il termine
+del GDD cap. 8). I nomi tecnici restano in inglese e col nome vecchio —
+`PoliceStationGroundSO`, `HexTypeSO.IsPoliceStation`, `HexGrid.PoliceStations` — e non vanno
+rinominati per allinearli: `_isPoliceStation` è un campo **serializzato** con valori su disco,
+e il progetto ha già due voci di bug che raccontano cosa costa rinominarne uno.
 
 - **Stessa forma degli altri terreni speciali**: un pennello (`_isPoliceStation` su
   `HexTypeSO`) e una lista raccolta da `HexGrid.GenerateGrid`. ⚠ **A differenza di obiettivi
-  e ritrovi non c'è flood fill né ancora**: le celle stazione sono una lista piatta, non
+  e ritrovi non c'è flood fill né ancora**: le celle caserma sono una lista piatta, non
   gruppi. Non serve — non devono avere identità, solo essere un posto dove ricomparire.
 - `TurnCycleCoordinator.CompletePlayerTurn` chiama `ProcessTurnStart` **dopo**
   `ApplyPendingPoliceResponse` e **prima** della ricarica PA: chi rientra agisce già in
@@ -258,9 +282,9 @@ aspetta) + `PoliceRuntime.TryReturnToBoard` + `HexTypeSO.IsPoliceStation` +
 - **Due passate, e l'ordine conta**: prima si tenta il rientro di chi era già in coda, poi
   si registra chi è disperso *adesso*. Al contrario, un poliziotto disperso in questo stesso
   turno rientrerebbe immediatamente.
-- `FindReturnCell` prova la stazione più vicina e, se occupata, i suoi sei vicini. Fallisce
+- `FindReturnCell` prova la caserma più vicina e, se occupata, i suoi sei vicini. Fallisce
   restituendo `null` e riprovando il turno dopo — **degrada, non pianta**.
-- La stazione "più vicina" si misura **dall'obiettivo che quel poliziotto presidia**, non da
+- La caserma "più vicina" si misura **dall'obiettivo che quel poliziotto presidia**, non da
   dove è morto (`DistanceToAssignment`): torna in servizio vicino al suo posto.
 
 🔴 **È un CAMBIO DI DESIGN e va deciso apposta, perché ridefinisce una meccanica esistente.**
@@ -269,16 +293,16 @@ allarme azzerato, `IsSeated` false. Ogni poliziotto disperso torna. Quindi **log
 polizia non ottiene più niente di permanente**: lo **scontro** — che questo documento
 definisce *"l'unica azione che si può perdere"* e il cui ruolo dichiarato è **logorare** —
 adesso compra solo tempo. La carica sposta, lo scontro… ritarda.
-È difendibile e anzi tematicamente forte (una questura genera rinforzi, un corteo no: è
+È difendibile e anzi tematicamente forte (una caserma genera rinforzi, un corteo no: è
 un'asimmetria nel verso giusto, e dà un senso al *tenere* un obiettivo invece di ripulire la
 mappa). Ma finché non è scritto nel GDD, il gioco ha due meccaniche che dicono cose diverse
-sullo stesso gesto.
+sullo stesso gesto. **Questione aperta, non decisa qui.**
 
-⚠ **Nessuna validazione avvisa se un livello ha poliziotti e zero celle di questura.**
+⚠ **Nessuna validazione avvisa se un livello ha poliziotti e zero celle di caserma.**
 `FindNearestStation` esce con `null` su `PoliceStations.Count == 0` e non succede niente, in
 silenzio. È la stessa forma delle 24 celle obiettivo orfane e del flag `_isObjective`
 azzerato: il livello gira, semplicemente una meccanica non esiste. Una riga in
-`LVLManager.ValidateReferences` (o un `LogWarning`: ci sono poliziotti, non ci sono stazioni)
+`LVLManager.ValidateReferences` (o un `LogWarning`: ci sono poliziotti, non ci sono caserme)
 chiude il caso — e il posto giusto c'è già.
 
 ⚠ **`DistanceToAssignment` legge `police.PositionCell` su un'unità dispersa**, che per il bug
@@ -1756,7 +1780,7 @@ giocatore deve conoscere per giocare, non dettagli interni.
 
 # PRIORITÀ DI DESIGN (analisi 03/08/26)
 
-Analisi completa in `D:\GDDRIOT\16-Priorita-Identita-Ludica.md`. Sintesi per chi
+Analisi completa nel **GDD cap. 16 (Priorità e Identità Ludica)**, su Drive. Sintesi per chi
 scrive codice, perché condiziona COSA vale la pena implementare:
 
 **Il problema.** Il pilastro di design del GDD dice: "se una regola potrebbe stare
@@ -1838,7 +1862,7 @@ Differenze fra il piano e ciò che è stato fatto:
   Il panico è quindi **completo**: regola, propagazione, cura, e tre canali di lettura
   a schermo (tremore, tinta, testo).
 
-Design originale in `D:\GDDRIOT\17-Coesione-Adiacenza-e-Panico.md` §17.4 e §17.6:
+Design originale nel **GDD cap. 17 (Coesione, Adiacenza e Panico)** §17.4 e §17.6, su Drive:
 ⚠ **Il design è stato rivisto il 06/08/26**: il danno è uscito dalla propagazione.
 
 - Va in panico **chi PERDE** lo scontro di carica (superato l'08/08, vedi sopra).
@@ -2025,7 +2049,7 @@ verificato in altro modo: le diciassette conversioni passano tutte per due metod
 quindi non possono più essere in disaccordo fra loro.)*
 
 ### 2. Scena Assemblea — design ampliato il 13/08/26, vedi GDD cap. 20
-`D:\GDDRIOT\20-Assemblea-e-Volantino.md` (nuovo). L'Assemblea **non è solo comporre il
+**GDD cap. 20 (Assemblea e Volantino)**, su Drive. L'Assemblea **non è solo comporre il
 corteo**: nella stessa fase si scrive il **volantino**, che decide l'**appuntamento**
 (quindi le celle di partenza — chiude la domanda mai risolta del GDD cap. 2) e gli
 **obiettivi dichiarati** (quindi la condizione di vittoria, che sostituisce "accumula 30
@@ -2055,7 +2079,7 @@ partenza: oggi serve un errore di trascinamento nell'editor, domani basta una co
 ripetuta in un elenco. Va chiuso insieme al prerequisito 1 (vedi bug noti).
 
 ### 3. Obiettivi — design chiuso, e non è più l'ultimo della fila
-`D:\GDDRIOT\19-Obiettivi-e-Occupazione.md`. Occupazione per turni consecutivi, obiettivo
+**GDD cap. 19 (Obiettivi e Occupazione)**, su Drive. Occupazione per turni consecutivi, obiettivo
 rivendicato che non paga più, obiettivi configurabili via `ObjectiveSO`.
 
 ⚠ **Promosso il 13/08/26: è diventato prerequisito di due capitoli.**
@@ -2168,12 +2192,18 @@ adesso, non da quando sarà lunga.
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
 
-## Changelog sessione 40 (02/09/26) — rientro della polizia, e un check dopo venti giorni
+## Changelog sessione 42 (02/09/26) — rientro della polizia, e un check dopo venti giorni
+⚠ **Numerazione**: sess.40 = 23/08, sess.41 = 24-25/08, sess.42 = 02/09. In questo file le
+sessioni **40 e 41 non hanno un blocco changelog proprio**: il lavoro del 23/08
+(`TurnCycleCoordinator`, `PoliceGarrisonCoordinator`) è finito dentro il changelog della
+sess.39, e quello del 24-25/08 sta nella sezione "Tensione" della PARTE 1 senza changelog.
+Il conto per sessione sta nel Documento di Progetto su Drive, non qui.
+
 Sessione di verifica su un codice cresciuto senza che questo file lo seguisse. **Il codice sta
 meglio del documento**: tutti gli invarianti dichiarati reggono, e quello che non tornava erano
 i numeri.
 
-- 🟢 **Rientro della polizia dalla questura** → sezione dedicata in PARTE 1.
+- 🟢 **Rientro della polizia dalla caserma** → sezione dedicata in PARTE 1.
   `PoliceReturnCoordinator`, `IsPoliceStation`, `PoliceStationGroundSO`, 3 celle su `MapLvl1Data`.
 - 🟢 **Copertura quasi raddoppiata**: 14 → **20 file di test**, e i pezzi più giovani non sono
   più i meno coperti. Chiusa una previsione del 23/08.
