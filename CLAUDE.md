@@ -5,7 +5,7 @@ DISSENSO (ex RIOT) — gioco tattico a turni 2D in Unity 6000.4.5f1 (URP).
 Il giocatore comanda un corteo politico (spezzoni) su una griglia esagonale flat-top contro forze di polizia.
 Lingua team: italiano. Commit e commenti in italiano. Nomi variabili/classi in inglese.
 
-## Gli altri documenti (allineati 02/09/26)
+## Gli altri documenti (allineati 03/09/26)
 🔴 **La fonte autorevole è Google Drive, e non ce n'è un'altra.** Documento di Progetto e GDD
 vivono lì da quando la cartella `GDDRIOT` è stata spostata (git è riservato alle repository
 tecniche). Qualunque copia su disco è **soltanto una copia**, e va trattata come
@@ -134,19 +134,25 @@ autorevole per qualunque check di coerenza codice/documento.
 Il progetto è passato da **74 file / 7.302 righe** a **101 / 11.622**, e ~4.300 righe sono
 strato nuovo, non feature: l'estrazione delle regole dagli esecutori e la prima rete di test.
 
-⚠ **NUMERI RIMISURATI IL 02/09/26** — quelli qui sopra sono la fotografia del 23/08 e vanno
+⚠ **NUMERI RIMISURATI IL 03/09/26** — quelli qui sopra sono la fotografia del 23/08 e vanno
 letti come storia, non come stato:
 
-| | 23/08 (scritto qui) | 02/09 (misurato) |
+| | 23/08 (scritto qui) | 03/09 (misurato) |
 |---|---|---|
 | file `.cs` | 101 | **112** |
-| righe | 11.622 | **11.981** |
-| test | 82 in 14 file | **20 file, 97 `[Test]` + 59 `[TestCase]`** |
+| righe | 11.622 | **12.045** |
+| test | 82 in 14 file | **20 file, 158 casi** |
 | `TurnManager` | 762 | **709** |
-| `LVLManager` | 464 | **506** |
+| `LVLManager` | 464 | **530** |
 
-⚠ **`LVLManager` è ricresciuto** (464 → 506): l'estrazione non è una cosa che si fa una
-volta. E il secondo file del progetto adesso non è più `LVLManager` ma **`InputHandler`, 624
+📌 **Snapshot tecnico di riferimento: `4bbc000d`** (`main`, *Remove NUnit import from runtime
+service*). L'ultima verifica è del **03/09/26**: compilazione pulita e **158 test verdi**.
+⚠ **È una verifica MANUALE.** Non esiste una CI remota: quei 158 verdi valgono per la
+macchina e il momento in cui sono stati lanciati, non sono un cancello che impedisce a un
+commit rotto di entrare. Chi legge questo numero fra un mese deve rilanciarli, non fidarsi.
+
+⚠ **`LVLManager` è ricresciuto** (464 → 506 → **530**): l'estrazione non è una cosa che si fa
+una volta. E il secondo file del progetto adesso non è più `LVLManager` ma **`InputHandler`, 624
 righe** — cresciuto in silenzio mentre si spezzavano i due god script dichiarati. Nessun
 documento lo nomina come problema. È lo stesso meccanismo della sess.33 (*"un componente
 eredita le responsabilità dei riferimenti che possiede"*): non è stato deciso, è successo.
@@ -208,11 +214,30 @@ L'ordine dentro `CompletePlayerTurn` **è la regola**, non un dettaglio. Nell'or
 2. `IsPoliceTurn = true`, poi `_endPlayerTurnEvent.Raise()` (è qui che gli obiettivi avanzano);
 3. **guardia `IsGameActive` subito dopo il Raise**, perché un listener può aver chiuso la
    partita e `enabled = false` non ferma un metodo già in esecuzione;
-4. PA della **polizia** ricaricati, panico degli **spezzoni** decrementato;
-5. `PoliceAI.ExecutePoliceActions()` (saltata con `LogError` se `_policeAI` è nullo);
-6. `IsPoliceTurn = false`, seconda guardia `IsGameActive`;
-7. PA degli **spezzoni** ricaricati, panico della **polizia** decrementato, `TickAlarm()`;
-8. `RefreshBoardState()` e `_startPlayerTurnEvent.Raise()`.
+4. `ApplyPendingPoliceResponse()` — la Tensione applica la fascia **prima** che la polizia agisca;
+5. `PoliceReturnCoordinator.ProcessTurnStart(...)` — chi era in coda rientra dalla caserma;
+6. `_renderer.UpdateView(...)` su chi è rientrato, che è ciò che lo rende di nuovo visibile;
+7. PA della **polizia** ricaricati, panico degli **spezzoni** decrementato;
+8. `PoliceAI.ExecutePoliceActions()` (saltata con `LogError` se `_policeAI` è nullo);
+9. `IsPoliceTurn = false`, seconda guardia `IsGameActive`;
+10. PA degli **spezzoni** ricaricati, panico della **polizia** decrementato, `TickAlarm()`;
+11. `RefreshBoardState()` e `_startPlayerTurnEvent.Raise()`.
+
+⚠ **Un solo vincolo di ordine è davvero tale: `ProcessTurnStart` deve stare prima di
+`ExecutePoliceActions`.** Se il rientro avvenisse dopo, l'unità rientrerebbe e resterebbe
+ferma un turno — cioè cambierebbe la regola del GDD 8.8 ("riceve tutti i PA e può agire
+subito") senza toccarne una riga.
+
+Il resto non è vincolante e non va descritto come se lo fosse:
+- **la posizione rispetto alla ricarica generale dei PA (punto 7) oggi è indifferente**,
+  perché `TryReturnToBoard` ricarica già i PA per conto suo;
+- `_renderer.UpdateView` serve alla **coerenza visiva** — riattiva e riposiziona la
+  rappresentazione di chi è rientrato — non a rendere l'unità rilevabile dall'IA:
+  `PoliceAI` itera i Runtime, non i GameObject.
+
+⚠ **Il doppio `RefillActionPoints` resta ridondante ma innocuo**, ed è la ragione per cui
+l'ordine è più libero di quanto sembri: se un giorno si toglie il refill da
+`TryReturnToBoard`, il punto 5 diventa vincolato anche rispetto al 7.
 
 ⚠ **`_waitingForPolice` NON esiste più.** Prima erano due flag che dovevano restare
 d'accordo; ora `IsPoliceTurn` è uno solo e appartiene al coordinatore. `TurnManager` lo
@@ -258,9 +283,13 @@ arrivati anche i test sui pezzi che prima non ne avevano — `PoliceReturnCoordi
 meno coperto, ed è il buco da chiudere per primo"*. È stato chiuso.
 ⚠ **Resta scoperto `TurnCycleCoordinator`**, che è il posto dove questo progetto ha
 storicamente prodotto i suoi blocchi, ed è anche il più difficile da testare (dipende da
-`LVLManager`, `PoliceAI` e `UnitsRenderer`, tutti MonoBehaviour).
+`LVLManager`, `PoliceAI` e `UnitsRenderer`, tutti MonoBehaviour). Confermato al 03/09/26:
+`PoliceReturnCoordinatorTests` copre il coordinatore del rientro **in isolamento**, ma
+**nessun test automatico esercita il ciclo turni integrato** — l'ordine dei punti 4-6 sopra è
+verificato solo dal playtest a mano. È il limite reale della rete, ed è quello vero: 158 test
+verdi non dicono niente su una chiamata spostata di due righe dentro `CompletePlayerTurn`.
 
-## Rientro della polizia dalla caserma (IMPLEMENTATO 02/09/26)
+## Rientro della polizia dalla caserma — nucleo implementato 02/09/26, UX aperta
 `Core/Services/PoliceReturnCoordinator.cs` (classe C# istanza, tiene un `HashSet` di chi
 aspetta) + `PoliceRuntime.TryReturnToBoard` + `HexTypeSO.IsPoliceStation` +
 `HexGrid.PoliceStations` + l'asset `PoliceStationGroundSO`. Su `MapLvl1Data` ci sono
@@ -287,23 +316,57 @@ e il progetto ha già due voci di bug che raccontano cosa costa rinominarne uno.
 - La caserma "più vicina" si misura **dall'obiettivo che quel poliziotto presidia**, non da
   dove è morto (`DistanceToAssignment`): torna in servizio vicino al suo posto.
 
-🔴 **È un CAMBIO DI DESIGN e va deciso apposta, perché ridefinisce una meccanica esistente.**
-`TryReturnToBoard` rimette in gioco con `_morale = _maxMorale`, PA pieni, panico azzerato,
-allarme azzerato, `IsSeated` false. Ogni poliziotto disperso torna. Quindi **logorare la
-polizia non ottiene più niente di permanente**: lo **scontro** — che questo documento
-definisce *"l'unica azione che si può perdere"* e il cui ruolo dichiarato è **logorare** —
-adesso compra solo tempo. La carica sposta, lo scontro… ritarda.
-È difendibile e anzi tematicamente forte (una caserma genera rinforzi, un corteo no: è
-un'asimmetria nel verso giusto, e dà un senso al *tenere* un obiettivo invece di ripulire la
-mappa). Ma finché non è scritto nel GDD, il gioco ha due meccaniche che dicono cose diverse
-sullo stesso gesto. **Questione aperta, non decisa qui.**
+✅ **Il cambio di design è RATIFICATO nel GDD 8.8** (adottato 24/8/26, non più "questione
+aperta"). `TryReturnToBoard` rimette in gioco con `_morale = _maxMorale`, PA pieni, panico
+azzerato, allarme azzerato, `IsSeated` false — ed è **deliberato**: rientra pulita, non nello
+stato in cui si era dispersa, o si disperderebbe di nuovo al primo colpo.
 
-⚠ **Nessuna validazione avvisa se un livello ha poliziotti e zero celle di caserma.**
-`FindNearestStation` esce con `null` su `PoliceStations.Count == 0` e non succede niente, in
-silenzio. È la stessa forma delle 24 celle obiettivo orfane e del flag `_isObjective`
-azzerato: il livello gira, semplicemente una meccanica non esiste. Una riga in
-`LVLManager.ValidateReferences` (o un `LogWarning`: ci sono poliziotti, non ci sono caserme)
-chiude il caso — e il posto giusto c'è già.
+⚠ **La conseguenza sul bilanciamento resta vera e va tenuta presente**: ogni poliziotto
+disperso torna, quindi **logorare la polizia non ottiene più niente di permanente**. Lo
+**scontro** — il cui ruolo dichiarato è logorare — adesso compra solo tempo. La carica
+sposta, lo scontro ritarda. È l'asimmetria voluta — **l'apparato di polizia rimette in campo
+le proprie unità disperse, mentre il corteo non recupera automaticamente le proprie** — e dà
+un senso al *tenere* un obiettivo invece di ripulire la mappa. Non è più un'incoerenza fra
+codice e GDD: è una scelta scritta in entrambi.
+
+⚠ **Un poliziotto che rientra NON è un rinforzo**, ed è una distinzione da tenere nel
+vocabolario: è la stessa unità che torna. Le **riserve** sono unità *nuove*, un sistema
+separato e **non implementato** (GDD 8.8, fuori dalla Fetta 3A). Chiamare "rinforzo" il
+rientro fa sembrare costruito un pezzo che non esiste.
+
+⚠ **Playtestato end-to-end il 03/09/26**, sei passaggi verificati a mano: l'unità viene
+dispersa → salta il turno previsto → ricompare dalla caserma → torna visibile → l'IA la
+considera → agisce subito.
+
+✅ **La validazione c'è**: `LVLManager.ValidateReferences()` **blocca il livello** se trova
+unità di polizia in scena e nessuna caserma sulla mappa, usando `UnitsSetup.IsPoliceSetup` e
+`HexMapSO.HasPoliceStation`. Non è un `LogWarning` che lascia proseguire: entra nella lista
+di errori che impedisce l'avvio. Due test coprono `HasPoliceStation` (mappa con caserma →
+`true`, caserma rimossa → `false`).
+
+🟠 **`_redeployTurns` è predisposto ma non ancora letto.** `PoliceSO._redeployTurns`
+(`[Min(1)]`, default 1) è esposto da `PoliceRuntime.RedeployTurns`, e **nessuno lo legge**:
+`PoliceReturnCoordinator` non lo consulta. Conseguenza pratica: **oggi ogni unità aspetta un
+solo turno di polizia**, qualunque valore tu metta nell'asset. Il campo non è morto, è un
+gancio: chi lo troverà nell'Inspector deve sapere che girarlo non fa niente.
+
+🟠 **Il feedback al giocatore sul rientro imminente non è deciso né implementato.** Il GDD
+8.14 lo elenca come punto 7 della Fetta 3A (*"mostrare chiaramente al giocatore il rientro
+imminente, nel suo turno precedente"*) e 8.8 lo dà per adottato in design. **La forma non è
+stata scelta.** Quindi: il **nucleo funzionale del rientro è implementato e playtestato**,
+ma la Fetta 3A **non è chiusa sul piano UX** — e non va dichiarata tale.
+
+⚠ **Fuori dalla fetta corrente, e non vanno dati per imminenti**: riserve, tetto condiviso
+fra i due pool, Cellulari, caserme mobili, pannello intelligence.
+
+⚠ **`PoliceBasicSO._mor` vale 4 ed è intenzionale**: è una scelta di bilanciamento
+confermata, non una regressione entrata col commit del rientro. Va scritto perché il valore
+è basso e chi lo trova dopo aver letto di `_morale = _maxMorale` può pensare a un refuso.
+
+📌 **Sul commit corrente (`4bbc000d`)**: l'`using NUnit.Framework` era finito per errore in
+`PoliceReturnCoordinator.cs`, cioè in codice runtime, ed è stato rimosso. Verificato il
+03/09/26 con un grep su tutto `Assets/Script`: **zero riferimenti a NUnit fuori da
+`Test/Editor/`**. NUnit resta confinato ai test Editor, dove deve stare.
 
 ⚠ **`DistanceToAssignment` legge `police.PositionCell` su un'unità dispersa**, che per il bug
 noto (`Disperse()` non azzera `_positionCell`) punta a una cella ormai di qualcun altro.
