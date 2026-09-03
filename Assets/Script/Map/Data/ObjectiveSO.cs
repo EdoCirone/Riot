@@ -18,6 +18,14 @@ public class ObjectiveSO : ScriptableObject
     [Tooltip("Secondary Objective points.")]
     [SerializeField] private int _points = 10;
 
+    [Header("Deadline")]
+    [Tooltip("Clock time by which this objective must be claimed when declared.")]
+    [Range(0, 23)]
+    [SerializeField] private int _deadlineHour = 17;
+
+    [Range(0, 59)]
+    [SerializeField] private int _deadlineMinute;
+
     [Tooltip("If Active you have to Occupy every celL. If off you need n turn for n occupy cell")]
     [SerializeField] private bool _requiresSimultaneous = false;
 
