@@ -1,5 +1,4 @@
 ﻿using TMPro;
-using Unity.Burst.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
