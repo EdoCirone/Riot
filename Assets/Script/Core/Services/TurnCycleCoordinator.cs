@@ -34,9 +34,7 @@ public sealed class TurnCycleCoordinator
 
         _level.RefreshBoardState();
 
-        // La sconfitta per Coesione ha priorità sull'occupazione
-        // risolta dall'EndPlayerTurnEvent: un corteo già disperso
-        // non può rivendicare l'obiettivo.
+        // Un corteo già disperso non può iniziare il turno della polizia.
         if (_level.CheckCohesionDefeat())
             yield break;
 
@@ -125,6 +123,15 @@ public sealed class TurnCycleCoordinator
         }
 
         _level.RefreshBoardState();
+
+        if (_level.CheckCohesionDefeat())
+            yield break;
+
+        _level.CompleteRound();
+
+        if (!_level.IsGameActive)
+            yield break;
+
         _startPlayerTurnEvent.Raise();
     }
 

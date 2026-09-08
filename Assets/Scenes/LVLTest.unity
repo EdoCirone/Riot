@@ -12004,7 +12004,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57
+  m_fontSize: 57.25
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13675,7 +13675,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57
+  m_fontSize: 57.25
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13779,6 +13779,9 @@ MonoBehaviour:
   _unitsRenderer: {fileID: 1693072225}
   _declaredObjective: {fileID: 11400000, guid: 388b404d1c3d4514b964b58ee5cfbcde, type: 2}
   _meetingPoint: {fileID: 11400000, guid: d03132b7d922c514b947e757cef1178a, type: 2}
+  _defaultStartHour: 12
+  _defaultStartMinute: 0
+  _minutesPerTurn: 15
   _startingRepression: 0
   _tensionSettings: {fileID: 11400000, guid: 4cb9a433e402e5743abb25e724dd6619, type: 2}
   _startingRoster:

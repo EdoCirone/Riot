@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LVLManager : MonoBehaviour, IGameEventListener
+public class LVLManager : MonoBehaviour
 {
     [Header("LVL Reference")]
     [SerializeField] private TurnManager _turnManager;
@@ -104,8 +104,9 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     public bool IsConfigured => _isConfigured;
     public bool IsGameActive => _isConfigured && !_gameOver;
 
-    /// <summary>Turni giocati finora. ⚠ Conta in SU: non c'è un limite di turni, e il
-    /// contatore non fa perdere (GDD 20.4-bis, decisione parcheggiata).</summary>
+    /// <summary>
+    /// Indice del round corrente. Il round 0 inizia all'orario iniziale del livello.
+    /// </summary>
     public int CurrentTurn => _currentTurn;
     public int CurrentTimeMinutes => LevelTimeRules.CalculateCurrentMinutes(
             (_defaultStartHour * 60) + _defaultStartMinute,
@@ -208,18 +209,6 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         if (!_isConfigured) return;
 
         _currentTurn = 0;
-        _turnManager.EndPlayerTurnEvent.Subscribe(this);
-    }
-
-    private void OnDisable()
-    {
-        if (!_isConfigured)
-            return;
-
-        if (_turnManager == null || _turnManager.EndPlayerTurnEvent == null)
-            return;
-
-        _turnManager.EndPlayerTurnEvent.Unsubscribe(this);
     }
 
     private void Start()
@@ -390,25 +379,50 @@ public class LVLManager : MonoBehaviour, IGameEventListener
         Debug.LogError($"[LVL] Declared objective '{_declaredObjective.name}' is not on this map: check the Objectives array on HexMapSO");
     }
 
-    public void OnEventRaised()
+    public void CompleteRound()
     {
         if (_gameOver) return;
 
-        _currentTurn++;
-
-        // Un turno di occupazione per ogni obiettivo. L'accumulo si azzera da solo se in
-        // questo turno non c'era nessuno sopra (vedi ObjectiveRuntime.Tick).
         foreach (ObjectiveRuntime objective in _map.Objectives)
         {
             bool claimedNow = objective.Tick();
-            if (claimedNow && objective == _declared) WinLevel();
+
+            if (claimedNow && objective == _declared)
+            {
+                WinLevel();
+                return;
+            }
         }
+
+        if (_declared != null
+            && LevelTimeRules.HasReachedDeadline(
+                CurrentTimeMinutes,
+                _declared.Data.DeadlineMinutesFromMidnight))
+        {
+            LoseByDeadline();
+            return;
+        }
+
+        _currentTurn++;
     }
 
     private void WinLevel()
     {
-        Debug.Log($"[LVL] Declared objective claimed on turn {_currentTurn}: you win");
+        Debug.Log(
+            $"[LVL] Declared objective claimed at " +
+            $"{CurrentTimeMinutes / 60:00}:{CurrentTimeMinutes % 60:00}: you win");
+
         _winEvent.Raise();
+        _gameOver = true;
+        _turnManager.enabled = false;
+    }
+    private void LoseByDeadline()
+    {
+        Debug.Log(
+            $"[LVL] Objective deadline reached at " +
+            $"{CurrentTimeMinutes / 60:00}:{CurrentTimeMinutes % 60:00}: you lose");
+
+        _loseEvent.Raise();
         _gameOver = true;
         _turnManager.enabled = false;
     }
