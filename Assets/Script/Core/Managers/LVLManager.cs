@@ -21,6 +21,18 @@ public class LVLManager : MonoBehaviour, IGameEventListener
              "il livello, domani lo deciderà l'Assemblea.")]
     [SerializeField] private MeetingPointSO _meetingPoint;
 
+    [Header("Level time")]
+    [Tooltip("Fallback start time until the flyer provides it.")]
+    [Range(0, 23)]
+    [SerializeField] private int _defaultStartHour = 12;
+
+    [Range(0, 59)]
+    [SerializeField] private int _defaultStartMinute;
+
+    [Tooltip("How many in-game minutes pass each turn.")]
+    [Min(1)]
+    [SerializeField] private int _minutesPerTurn = 15;
+
     [Header("Run state (temporary)")]
     [Tooltip("Temporary Repression value until RunManager provides it.")]
     [Range(TensionRules.MinValue, TensionRules.MaxValue)]
@@ -95,6 +107,8 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     /// <summary>Turni giocati finora. ⚠ Conta in SU: non c'è un limite di turni, e il
     /// contatore non fa perdere (GDD 20.4-bis, decisione parcheggiata).</summary>
     public int CurrentTurn => _currentTurn;
+    public int CurrentTimeMinutes =>
+    (_defaultStartHour * 60) + _defaultStartMinute + (_currentTurn * _minutesPerTurn);
 
     public ObjectiveRuntime DeclaredObjective => _declared;
     public IReadOnlyList<ObjectiveRuntime> Objectives => _map != null ? _map.Objectives : null;
