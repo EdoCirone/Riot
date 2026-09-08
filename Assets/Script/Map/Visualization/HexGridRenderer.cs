@@ -4,6 +4,7 @@ using UnityEngine;
 public class HexGridRenderer : MonoBehaviour
 {
     [Header("Reference")]
+    [SerializeField] private LVLManager _lvlManager;
     [SerializeField] private HexGrid _grid;
 
     [Header("Type-based visuals")]
@@ -12,6 +13,7 @@ public class HexGridRenderer : MonoBehaviour
     [Header("Objective feedback")]
     [SerializeField] private float _occupiedDarkening = 0.6f;
     [SerializeField] private Color _claimedColor = new(0.45f, 1f, 0.45f, 1f);
+    [SerializeField] private Color _declaredObjectiveColor = new(0.2f, 0.75f, 1f, 1f);
 
     [Header("Events")]
     [SerializeField] private GameEventSO _boardChangedEvent;
@@ -21,7 +23,9 @@ public class HexGridRenderer : MonoBehaviour
 
     private void Awake()
     {
-        _isValid = _grid != null && _defaultHexType != null;
+        _isValid = _grid != null
+            && _defaultHexType != null
+            && _lvlManager != null;
         if (!_isValid) Debug.LogWarning("Reference missing in HexGridRenderer");
     }
 
@@ -65,6 +69,8 @@ public class HexGridRenderer : MonoBehaviour
         if (objective == null) return color;
 
         if (objective.IsClaimed) return _claimedColor;
+        if (objective.Data == _lvlManager.DeclaredObjectiveData)
+            color = _declaredObjectiveColor;
 
         if (cell.OccupiedBy is SpezzoneRuntime spezzone && spezzone.IsAlive)
         {

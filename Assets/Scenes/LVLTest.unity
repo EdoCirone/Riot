@@ -1932,7 +1932,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &283573225
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8567,10 +8567,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57b6f80666f7bff48b7199db96148bef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexGridRenderer
+  _lvlManager: {fileID: 2130109798}
   _grid: {fileID: 1144096843}
   _defaultHexType: {fileID: 11400000, guid: 9931c65d32c00dc48848ea147350baea, type: 2}
   _occupiedDarkening: 0.6
   _claimedColor: {r: 0.45, g: 1, b: 0.45, a: 1}
+  _declaredObjectiveColor: {r: 0.2, g: 0.75, b: 1, a: 1}
   _boardChangedEvent: {fileID: 11400000, guid: 28827dbfca004774faaac84e3e68ee1b, type: 2}
 --- !u!114 &1144096843
 MonoBehaviour:

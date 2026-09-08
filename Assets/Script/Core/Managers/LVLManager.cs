@@ -119,6 +119,7 @@ public class LVLManager : MonoBehaviour
         _declaredObjective.DeadlineMinutesFromMidnight);
 
     public ObjectiveRuntime DeclaredObjective => _declared;
+    public ObjectiveSO DeclaredObjectiveData => _declaredObjective;
     public IReadOnlyList<ObjectiveRuntime> Objectives => _map != null ? _map.Objectives : null;
 
     public int Cohesion { get; private set; }
