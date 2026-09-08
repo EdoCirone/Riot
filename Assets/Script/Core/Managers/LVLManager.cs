@@ -394,6 +394,8 @@ public class LVLManager : MonoBehaviour
             }
         }
 
+        // Il round della scadenza è giocabile: la conquista ha priorità
+        // sulla sconfitta per tempo.
         if (_declared != null
             && LevelTimeRules.HasReachedDeadline(
                 CurrentTimeMinutes,
@@ -416,6 +418,7 @@ public class LVLManager : MonoBehaviour
         _gameOver = true;
         _turnManager.enabled = false;
     }
+
     private void LoseByDeadline()
     {
         Debug.Log(
