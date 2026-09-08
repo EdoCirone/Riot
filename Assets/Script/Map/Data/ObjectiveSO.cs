@@ -33,6 +33,7 @@ public class ObjectiveSO : ScriptableObject
     public HexCoordinates Anchor => _anchor;
     public int Points => _points;
     public bool RequiresSimultaneous => _requiresSimultaneous;
+    public int DeadlineMinutesFromMidnight => _deadlineHour * 60 + _deadlineMinute;
 
     public override string ToString() => string.IsNullOrEmpty(_displayName) ? name : _displayName;
 }
