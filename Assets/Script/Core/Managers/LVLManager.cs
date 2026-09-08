@@ -107,8 +107,10 @@ public class LVLManager : MonoBehaviour, IGameEventListener
     /// <summary>Turni giocati finora. ⚠ Conta in SU: non c'è un limite di turni, e il
     /// contatore non fa perdere (GDD 20.4-bis, decisione parcheggiata).</summary>
     public int CurrentTurn => _currentTurn;
-    public int CurrentTimeMinutes =>
-    (_defaultStartHour * 60) + _defaultStartMinute + (_currentTurn * _minutesPerTurn);
+    public int CurrentTimeMinutes => LevelTimeRules.CalculateCurrentMinutes(
+            (_defaultStartHour * 60) + _defaultStartMinute,
+            _currentTurn,
+            _minutesPerTurn);
 
     public ObjectiveRuntime DeclaredObjective => _declared;
     public IReadOnlyList<ObjectiveRuntime> Objectives => _map != null ? _map.Objectives : null;
