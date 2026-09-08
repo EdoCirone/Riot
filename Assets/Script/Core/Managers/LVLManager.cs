@@ -112,6 +112,11 @@ public class LVLManager : MonoBehaviour
             (_defaultStartHour * 60) + _defaultStartMinute,
             _currentTurn,
             _minutesPerTurn);
+    public bool IsDeadlineRound =>
+    _declaredObjective != null
+    && LevelTimeRules.HasReachedDeadline(
+        CurrentTimeMinutes,
+        _declaredObjective.DeadlineMinutesFromMidnight);
 
     public ObjectiveRuntime DeclaredObjective => _declared;
     public IReadOnlyList<ObjectiveRuntime> Objectives => _map != null ? _map.Objectives : null;
