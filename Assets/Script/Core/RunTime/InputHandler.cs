@@ -9,6 +9,7 @@ public class InputHandler : MonoBehaviour
     [Header("Reference")]
     [SerializeField] private LVLManager _lvlManager;
     [SerializeField] private HexGrid _grid;
+    [SerializeField] private GameplayInputGate _inputGate;
 
     [Header("Units Events")]
     [SerializeField] private UnitEventSO _unitSelectedEvent;
@@ -44,9 +45,10 @@ public class InputHandler : MonoBehaviour
 
     //Check for blocking player input, for example when the police are executing their turn or when an action is being executed
     private bool CanAcceptPlayerInput =>
-    !_isExecutingAction
-    && _lvlManager != null && _lvlManager.IsGameActive
-    && _turnManager != null && !_turnManager.IsPoliceTurn;
+        !_isExecutingAction
+        && !_inputGate.IsBlocked
+        && _lvlManager != null && _lvlManager.IsGameActive
+        && _turnManager != null && !_turnManager.IsPoliceTurn;
 
     private void Awake()
     {
@@ -55,6 +57,7 @@ public class InputHandler : MonoBehaviour
         if (_lvlManager == null
             || _actionButtonClickedEvent == null
             || _endTurnButtonClickedEvent == null
+            || _inputGate == null
             || _itemSelectedEvent == null)
         {
             Debug.LogWarning("InputHandler: riferimenti mancanti");
@@ -251,6 +254,7 @@ public class InputHandler : MonoBehaviour
 
     private void TryEndTurn()
     {
+        if (_inputGate != null && _inputGate.IsBlocked) return;
         if (_isExecutingAction) return;
         if (_lvlManager == null || !_lvlManager.IsGameActive) return;
 

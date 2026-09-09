@@ -6480,6 +6480,7 @@ GameObject:
   m_Component:
   - component: {fileID: 819720193}
   - component: {fileID: 819720194}
+  - component: {fileID: 819720195}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -6514,6 +6515,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fb4e531cf1f514419405072aafc41a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
+--- !u!114 &819720195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 819720192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e48a5749dffefd42bb46990e21770a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameplayInputGate
 --- !u!1 &837969658
 GameObject:
   m_ObjectHideFlags: 0
@@ -15786,6 +15799,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InputHandler
   _lvlManager: {fileID: 2130109798}
   _grid: {fileID: 1144096843}
+  _inputGate: {fileID: 819720195}
   _unitSelectedEvent: {fileID: 11400000, guid: a09052d97df468f49bddfd9d63ca0f29, type: 2}
   _unitDeselectedEvent: {fileID: 11400000, guid: 6592294ff1c895a4cb56bba59c48821a, type: 2}
   _policeSelectedEvent: {fileID: 11400000, guid: 93aeb65fcb4a88444b8f15479fbd1575, type: 2}
