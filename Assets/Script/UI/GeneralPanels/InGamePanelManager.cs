@@ -7,6 +7,10 @@ public class InGamePanelManager : MonoBehaviour
     [SerializeField] GameObject _winPanel;
     [SerializeField] GameObject _menuPanel;
     [SerializeField] GameObject _optionPanel;
+    [SerializeField] private MinimapHUDView _minimapHUDView;
+
+    [Header("Input")]
+    [SerializeField] private GameplayInputGate _inputGate;
 
     [Header("Events")]
     [SerializeField] GameEventSO _loseEvent;
@@ -16,11 +20,17 @@ public class InGamePanelManager : MonoBehaviour
 
     private void Awake()
     {
-        if (_losePanel == null || _winPanel == null)
+        if (_losePanel == null
+         || _winPanel == null
+         || _menuPanel == null
+         || _optionPanel == null
+         || _minimapHUDView == null
+         || _inputGate == null)
         {
-            Debug.Log("Panels Missing in InGamePanelManager");
+            Debug.LogWarning("Reference missing in InGamePanelManager", this);
             return;
         }
+
         if (_loseEvent == null || _winEvent == null)
         {
             Debug.Log("Event Missing in InGamePanelManager");
@@ -42,18 +52,39 @@ public class InGamePanelManager : MonoBehaviour
 
     private void OnDisable()
     {
+        _inputGate?.Release(this);
+
         if (!_isValid) return;
+
         _winEvent.Unsubscribe(OnWin);
         _loseEvent.Unsubscribe(OnLose);
     }
-    private void OnWin() { _winPanel.SetActive(true); }
-    private void OnLose() { _losePanel.SetActive(true); }
 
-    public void OnMenuButtonClick() { _menuPanel.SetActive(true); }
+    private void OnWin()
+    {
+        CloseAllPanel();
+        _inputGate.Acquire(this);
+        _winPanel.SetActive(true);
+    }
+
+    private void OnLose()
+    {
+        CloseAllPanel();
+        _inputGate.Acquire(this);
+        _losePanel.SetActive(true);
+    }
+
+    public void OnMenuButtonClick()
+    {
+        CloseAllPanel();
+        _inputGate.Acquire(this);
+        _menuPanel.SetActive(true);
+    }
 
     public void OnOptionButtonClick()
     {
         CloseAllPanel();
+        _inputGate.Acquire(this);
 
         _optionPanel.SetActive(true);
         _optionPanel.GetComponent<OptionPanelView>()?.Open();
@@ -65,8 +96,11 @@ public class InGamePanelManager : MonoBehaviour
         _losePanel?.SetActive(false);
         _winPanel?.SetActive(false);
         _menuPanel?.SetActive(false);
+        _minimapHUDView?.Close();
 
         _optionPanel?.GetComponent<OptionPanelView>()?.Close();
-        _optionPanel.GetComponent<MenuPanelView>()?.Hide();
+        _optionPanel?.GetComponent<MenuPanelView>()?.Hide();
+
+        _inputGate?.Release(this);
     }
 }

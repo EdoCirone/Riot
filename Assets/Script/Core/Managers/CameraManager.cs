@@ -7,6 +7,7 @@ public class CameraManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private Camera _mainCamera;
     [SerializeField] private HexGrid _map;
+    [SerializeField] private GameplayInputGate _inputGate;
 
     [Header("Movement Settings")]
     [SerializeField] private float _cameraMoveMaxSpeed = 5f;
@@ -50,6 +51,8 @@ public class CameraManager : MonoBehaviour
 
     private void Awake()
     {
+        if (_inputGate == null)
+            Debug.LogWarning("GameplayInputGate not assigned.");
         if (_mainCamera == null) _mainCamera = Camera.main;
         if (_mainCamera == null) Debug.LogWarning("Main Camera not found.");
         if (_map == null) Debug.LogWarning("HexGrid not assigned.");
@@ -143,6 +146,14 @@ public class CameraManager : MonoBehaviour
 
     private void Update()
     {
+        if (_inputGate != null && _inputGate.IsBlocked)
+        {
+            _moveInput = Vector2.zero;
+            _currentMoveSpeed = 0f;
+            _currentZoomSpeed = 0f;
+            return;
+        }
+
         if (_followTarget != null)
         {
             Vector3 targetPos = _followTarget.position;
@@ -234,11 +245,16 @@ public class CameraManager : MonoBehaviour
 
     private void OnZoomPerformed(InputAction.CallbackContext ctx)
     {
+        if (_inputGate != null && _inputGate.IsBlocked)
+        {
+            _currentZoomSpeed = 0f;
+            return;
+        }
+
         Vector2 zoomInput = ctx.ReadValue<Vector2>();
 
         if (ctx.control.device is Mouse)
         {
-
             ApplyScrollZoomStep(zoomInput.y);
             return;
         }

@@ -7,6 +7,7 @@ public class MinimapHUDView : MonoBehaviour
     [SerializeField] private RectTransform _minimapContent;
     [SerializeField] private CanvasGroup _canvasGroup;
     [SerializeField] private Camera _minimapCamera;
+    [SerializeField] private GameplayInputGate _inputGate;
 
     [Header("State")]
     [SerializeField] private bool _startsOpen;
@@ -24,7 +25,8 @@ public class MinimapHUDView : MonoBehaviour
     {
         if (_minimapContent == null
             || _canvasGroup == null
-            || _minimapCamera == null)
+            || _minimapCamera == null
+            || _inputGate == null)
         {
             Debug.LogWarning("Reference missing in MinimapHUDView", this);
             enabled = false;
@@ -37,6 +39,7 @@ public class MinimapHUDView : MonoBehaviour
     private void OnDisable()
     {
         _sequence?.Kill();
+        _inputGate?.Release(this);
     }
 
     public void Toggle()
@@ -53,6 +56,7 @@ public class MinimapHUDView : MonoBehaviour
 
         _sequence?.Kill();
         _isOpen = true;
+        _inputGate.Acquire(this);
 
         _minimapContent.gameObject.SetActive(true);
         _minimapCamera.enabled = true;
@@ -89,6 +93,7 @@ public class MinimapHUDView : MonoBehaviour
 
                 _minimapContent.gameObject.SetActive(false);
                 _minimapCamera.enabled = false;
+                _inputGate.Release(this);
             });
     }
 
@@ -106,5 +111,10 @@ public class MinimapHUDView : MonoBehaviour
         _canvasGroup.interactable = isOpen;
         _canvasGroup.blocksRaycasts = isOpen;
         _minimapCamera.enabled = isOpen;
+
+        if (isOpen)
+            _inputGate.Acquire(this);
+        else
+            _inputGate.Release(this);
     }
 }
