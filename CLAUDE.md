@@ -5,7 +5,7 @@ DISSENSO (ex RIOT) — gioco tattico a turni 2D in Unity 6000.4.5f1 (URP).
 Il giocatore comanda un corteo politico (spezzoni) su una griglia esagonale flat-top contro forze di polizia.
 Lingua team: italiano. Commit e commenti in italiano. Nomi variabili/classi in inglese.
 
-## Gli altri documenti (allineati 03/09/26)
+## Gli altri documenti (allineati 09/09/26)
 🔴 **La fonte autorevole è Google Drive, e non ce n'è un'altra.** Documento di Progetto e GDD
 vivono lì da quando la cartella `GDDRIOT` è stata spostata (git è riservato alle repository
 tecniche). Qualunque copia su disco è **soltanto una copia**, e va trattata come
@@ -134,20 +134,20 @@ autorevole per qualunque check di coerenza codice/documento.
 Il progetto è passato da **74 file / 7.302 righe** a **101 / 11.622**, e ~4.300 righe sono
 strato nuovo, non feature: l'estrazione delle regole dagli esecutori e la prima rete di test.
 
-⚠ **NUMERI RIMISURATI IL 03/09/26** — quelli qui sopra sono la fotografia del 23/08 e vanno
+⚠ **NUMERI RIMISURATI IL 09/09/26** — quelli qui sopra sono la fotografia del 23/08 e vanno
 letti come storia, non come stato:
 
-| | 23/08 (scritto qui) | 03/09 (misurato) |
+| | 23/08 (scritto qui) | 09/09 (misurato) |
 |---|---|---|
-| file `.cs` | 101 | **112** |
-| righe | 11.622 | **12.045** |
-| test | 82 in 14 file | **20 file, 158 casi** |
-| `TurnManager` | 762 | **709** |
-| `LVLManager` | 464 | **530** |
+| file `.cs` | 101 | **118** |
+| righe | 11.622 | **12.510** |
+| test | 82 in 14 file | **22 file, 170 casi** |
+| `TurnManager` | 762 | 709 |
+| `LVLManager` | 464 | 530 |
 
-📌 **Snapshot tecnico di riferimento: `4bbc000d`** (`main`, *Remove NUnit import from runtime
-service*). L'ultima verifica è del **03/09/26**: compilazione pulita e **158 test verdi**.
-⚠ **È una verifica MANUALE.** Non esiste una CI remota: quei 158 verdi valgono per la
+📌 **Snapshot tecnico di riferimento: `d1a60c97`** (`main`, *Block gameplay input behind modal
+panels*). L'ultima verifica è del **09/09/26**: compilazione pulita e **170 test verdi**.
+⚠ **È una verifica MANUALE.** Non esiste una CI remota: quei 170 verdi valgono per la
 macchina e il momento in cui sono stati lanciati, non sono un cancello che impedisce a un
 commit rotto di entrare. Chi legge questo numero fra un mese deve rilanciarli, non fidarsi.
 
@@ -221,7 +221,15 @@ L'ordine dentro `CompletePlayerTurn` **è la regola**, non un dettaglio. Nell'or
 8. `PoliceAI.ExecutePoliceActions()` (saltata con `LogError` se `_policeAI` è nullo);
 9. `IsPoliceTurn = false`, seconda guardia `IsGameActive`;
 10. PA degli **spezzoni** ricaricati, panico della **polizia** decrementato, `TickAlarm()`;
-11. `RefreshBoardState()` e `_startPlayerTurnEvent.Raise()`.
+11. `RefreshBoardState()`, poi **`CheckCohesionDefeat()` una seconda volta**;
+12. **`_level.CompleteRound()`** — è qui che avanzano obiettivi, orologio ed esito del livello;
+13. terza guardia `IsGameActive`, poi `_startPlayerTurnEvent.Raise()`.
+
+⚠ **La precedenza degli esiti è l'ordine dei punti 11-12, e non è un dettaglio**:
+**Coesione → conquista → scadenza**. La sconfitta per Coesione è controllata *prima* di
+completare il round; dentro `CompleteRound` gli obiettivi avanzano *prima* del controllo di
+scadenza. Quindi al round della scadenza, se l'obiettivo viene rivendicato **si vince**, e
+solo se non lo è **si perde per tempo**.
 
 ⚠ **Un solo vincolo di ordine è davvero tale: `ProcessTurnStart` deve stare prima di
 `ExecutePoliceActions`.** Se il rientro avvenisse dopo, l'unità rientrerebbe e resterebbe
@@ -384,6 +392,37 @@ agisce subito" è presa in due posti — e uno dei due la prende per caso.
 visibile il rientro. Prima disattivava soltanto: un'unità che tornava viva restava invisibile.
 Chi tocca quel metodo deve sapere che i due rami adesso sono simmetrici apposta.
 
+## Tempo del livello e scadenza dell'obiettivo (IMPLEMENTATI 09/09/26)
+`Core/Services/LevelTimeRules.cs` (statica pura, due funzioni) + campi su `LVLManager` +
+`ObjectiveSO`. **Il limite di turni non è più parcheggiato**: adesso il livello ha un
+orologio e l'obiettivo ha un'ora entro cui va occupato.
+
+- **L'orario iniziale è un fallback serializzato su `LVLManager`**: `_defaultStartHour` 12,
+  `_defaultStartMinute` 0. ⚠ Il tooltip lo dice esplicitamente — *"Fallback start time until
+  the flyer provides it"*: **domani l'ora di partenza arriverà dal volantino**, e il
+  collegamento **non è implementato**. Oggi è un valore di scena.
+- **Ogni round completo avanza di `_minutesPerTurn`, oggi 15.** Il **round 0 corrisponde
+  all'orario iniziale**: `CurrentTimeMinutes = start + turnIndex * minutesPerTurn`, e
+  `_currentTurn` viene incrementato **in fondo** a `CompleteRound`.
+- **La scadenza appartiene all'obiettivo, non al livello**: `ObjectiveSO._deadlineHour` /
+  `_deadlineMinute`, esposti da `DeadlineMinutesFromMidnight`. Su
+  `MinisteroEconomiaObjectiveSO` valgono **17:00**.
+- `LevelTimeRules` contiene **solo** il calcolo puro (`CalculateCurrentMinutes`) e il
+  confronto (`HasReachedDeadline`, un `>=`). Nessuno stato, nessun riferimento a Unity:
+  è ciò che la rende collaudabile — **6 casi in `LevelTimeRulesTests`**.
+- **Il round della scadenza è giocabile.** Con partenza 12:00, scadenza 17:00 e round da 15
+  minuti sono **21 round giocabili**, incluso quello delle 17:00.
+
+⚠ **`LVLManager` non ascolta più `EndPlayerTurnEvent` per completare il round.** Non
+implementa più `IGameEventListener` e non si iscrive a niente: è
+`TurnCycleCoordinator.CompletePlayerTurn` a chiamare **direttamente** `_level.CompleteRound()`,
+nel punto ordinato del ciclo (punto 12).
+⚠ **Non è un abbandono degli event channel come pattern.** È una chiamata diretta scelta per
+un'operazione **sincrona la cui posizione nel ciclo del turno è essa stessa una regola**: con
+un evento, l'ordine fra Coesione, conquista e scadenza dipenderebbe da chi si è iscritto per
+ultimo (`EventChannelSO.Raise` itera all'indietro). Gli eventi restano il collegamento
+normale per tutto il resto.
+
 ## Tensione (IMPLEMENTATA 24-25/08/26) — GDD cap. 8
 `Core/Services/TensionRules.cs` (statica pura) + `Core/Services/LevelTension.cs` (classe C#
 istanza) + `Core/Data/TensionSettingsSO.cs` + `UI/HUD/TensionHUDView.cs`.
@@ -431,6 +470,78 @@ causa-effetto si perdeva. Meglio immediato e leggibile.*
 ⚠ `HasPendingRulesChange` e `TargetRules` sono rimasti ma **non hanno più lettori fuori dai
 test**: erano al servizio del preavviso. Servono ancora come stato per il HUD nell'intervallo
 fra l'azione e il Fine turno — se non li si usa per quello, sono da togliere.
+
+## `GameplayInputGate` — blocco degli input di gameplay (IMPLEMENTATO 09/09/26)
+`Core/Services/GameplayInputGate.cs`, MonoBehaviour di 26 righe. **È uno stato centralizzato
+che si interroga, non un evento**: chi vuole sapere se può accettare input chiede
+`IsBlocked`, nessuno viene notificato.
+
+- Tiene gli owner in un **`HashSet<EntityId>`**. `Acquire(Object)` aggiunge, `Release(Object)`
+  toglie, `IsBlocked => _owners.Count > 0`.
+- **Lo stesso owner non può duplicarsi** (è un set), e **con più owner rilasciarne uno non
+  sblocca gli altri**: è la proprietà che permette a minimappa e pannelli di sovrapporsi
+  senza pestarsi i piedi.
+- **Gli owner `null` vengono ignorati** in entrambi i metodi.
+- **`OnDisable()` svuota il set**, come sicurezza di ciclo di vita.
+- **Sei test EditMode** (`GameplayInputGateTests`) coprono esattamente il contratto pubblico:
+  gate nuovo non bloccato, acquire blocca, release sblocca, rilascio di un owner su due,
+  doppio acquire dello stesso owner, acquire di `null`.
+
+**Chi lo consulta:**
+- `InputHandler` — dentro `CanAcceptPlayerInput`, quindi copre tutti i punti d'ingresso del
+  gameplay; **e anche `TryEndTurn`**, che ha una sua guardia separata perché non passa da lì.
+- `CameraManager` — in `Update` azzera movimento, trascinamento e zoom continuo; **e in
+  `OnZoomPerformed`**. ⚠ Il secondo controllo non è ridondante: la rotellina applica lo zoom
+  **dentro la callback dell'Input System**, cioè prima che `Update` giri.
+
+**Chi lo acquisisce:**
+- `MinimapHUDView` — `Acquire` all'apertura. ⚠ **Durante l'animazione di chiusura il blocco
+  resta attivo**: il `Release` sta nell'`OnComplete` della sequenza, più uno in `OnDisable`.
+- `InGamePanelManager` — `Acquire` per Menu, Options, Win e Lose. Prima di aprirne uno chiama
+  `CloseAllPanel()`, che chiude gli altri pannelli **e ordina la chiusura della minimappa**.
+  Le chiusure di Menu e Options passano da `CloseAllPanel()`, che rilascia.
+
+🔴 **Cosa NON fa, e va scritto perché il nome suggerisce di più**: non disabilita l'Input
+System, non blocca l'`EventSystem`, non mette in pausa le coroutine, non ferma l'IA o la
+simulazione, non equivale a `Time.timeScale = 0`. **Blocca soltanto i sistemi che lo
+interrogano** — oggi `InputHandler` e `CameraManager`. La UI resta viva e cliccabile: è
+esattamente ciò che permette di premere il pulsante Minimap mentre il gate è preso.
+
+## Minimappa (IMPLEMENTATA 09/09/26)
+`UI/HUD/MinimapHUDView.cs` + una **seconda camera ortografica** dedicata che disegna su una
+**RenderTexture** (`Assets/Art/RenderTexture/MinimapRT.renderTexture`), mostrata nella HUD.
+
+- Apertura e chiusura dal pulsante **Minimap**, chiusura anche dalla **X**. Animazione
+  DOTween (scala + fade, `SetUpdate(true)`).
+- ⚠ **La camera della minimappa viene disattivata a pannello chiuso** (`_minimapCamera.enabled
+  = false`), sia nella chiusura animata sia in `SetImmediate`: non è solo un pannello nascosto,
+  è una camera che smette di renderizzare.
+- La minimappa viene **chiusa prima** che si aprano Menu, Options, Win o Lose, via
+  `CloseAllPanel()`.
+
+⚠ **Il GameObject `BlockRay` è stato rimosso apposta** (zero occorrenze in `LVLTest.unity`).
+Serviva a intercettare i raycast, ma bloccava anche il pulsante Minimap — cioè rendeva
+impossibile richiudere ciò che aveva aperto. Il blocco degli input di gameplay è passato al
+`GameplayInputGate`, che è una cosa diversa: **la UI resta interattiva, il gameplay no.**
+
+## HUD: orologio e obiettivo dichiarato (IMPLEMENTATI 09/09/26)
+- **`TurnHUDView`** disegna un **orologio analogico** (lancette ora e minuti ruotate da
+  `CurrentTimeMinutes`) più l'**ora digitale** `HH:mm`. Si aggiorna su
+  `_startPlayerTurnEvent`, quindi una volta per round.
+  ⚠ **Feedback rosso**: quadrante e testo digitale passano a `_deadlineColor` quando
+  `LVLManager.IsDeadlineRound` è vero, cioè **quando l'orario corrente ha raggiunto la
+  scadenza** — non un round prima.
+- **`ObjectiveHUDView`** scrive nome dell'obiettivo dichiarato e ora limite, letti da
+  `LVLManager.DeclaredObjectiveData` (`ObjectiveSO` esposto apposta accanto al Runtime).
+  ⚠ **Il testo è calcolato una sola volta, in `Start`**: non è iscritto a nessun evento.
+  Oggi va bene perché l'obiettivo dichiarato non cambia in partita; il giorno che lo deciderà
+  il volantino a runtime, questa riga diventa stantia.
+- **`HexGridRenderer` evidenzia l'obiettivo dichiarato** con `_declaredObjectiveColor`.
+  ⚠ **La priorità dei colori è l'ordine delle righe in `BaseColorOf`**: *rivendicato* vince
+  su tutto (`return` immediato), poi *dichiarato* sostituisce il colore base, e infine
+  *occupato* **scurisce** quello che c'è (moltiplicazione, con l'alpha ripristinato a mano
+  perché il prodotto scurirebbe anche quello). Quindi una cella dichiarata e occupata è blu
+  scuro, non blu.
 
 ## Manager
 GameManager (reset/quit) / LVLManager (setup unità, score, win/lose, celle
@@ -2255,6 +2366,33 @@ adesso, non da quando sarà lunga.
 03/08/26. Il Documento di Progetto lo dava ancora come "testo non inserito" —
 quella voce è obsoleta.)
 
+## Changelog sessione 43 (09/09/26) — il livello ha un orologio, e i pannelli bloccano il gioco
+*Come sempre: ogni cosa sta nella sezione che la riguarda, qui l'elenco e dove guardare.*
+Quindici commit da `9e5fccea4` a **`d1a60c97`**. 112 → **118 file**, 158 → **170 casi di test**.
+
+- 🟢 **Tempo del livello e scadenza dell'obiettivo** → sezione dedicata in PARTE 1.
+  `LevelTimeRules` (statica pura, 6 test), orario iniziale di fallback 12:00, round da 15
+  minuti, scadenza **sull'`ObjectiveSO`** e non sul livello. **Chiude il parcheggio del
+  limite di turni** aperto il 13/08.
+- 🟢 **`GameplayInputGate`** → sezione dedicata. `HashSet<EntityId>`, sei test sul contratto
+  pubblico, consultato da `InputHandler` e `CameraManager`, acquisito da minimappa e pannelli.
+- 🟢 **Minimappa** con seconda camera ortografica su RenderTexture → sezione dedicata.
+- 🟢 **Orologio analogico + digitale nella HUD**, testo dinamico dell'obiettivo con l'ora
+  limite, ed evidenziazione dell'obiettivo dichiarato sulla griglia.
+- 📖 **`LVLManager` ha smesso di ascoltare `EndPlayerTurnEvent`**: `CompleteRound()` è
+  chiamato **direttamente** da `TurnCycleCoordinator`. ⚠ Non è un abbandono degli event
+  channel: è un'operazione la cui **posizione nel ciclo è una regola**, e un evento la
+  renderebbe dipendente dall'ordine di iscrizione.
+- 📖 **La precedenza degli esiti è ora esplicita**: Coesione → conquista → scadenza. Il round
+  della scadenza è giocabile, e alle 17:00 conquistare vince.
+
+⚠ **Il bilanciamento NON è chiuso, e non va dichiarato tale.** Nel playtest il livello è
+ancora facile: la polizia reagisce soprattutto quando il corteo **entra** nell'edificio
+dichiarato, quindi si può preparare l'occupazione nelle celle vicine indisturbati e poi
+entrare in massa. **Non è un numero da ritoccare**: tocca i trigger di reazione, il presidio
+e il comportamento della polizia. La scadenza dà al livello una forma, non ancora una
+difficoltà.
+
 ## Changelog sessione 42 (02/09/26) — rientro della polizia, e un check dopo venti giorni
 ⚠ **Numerazione**: sess.40 = 23/08, sess.41 = 24-25/08, sess.42 = 02/09. In questo file le
 sessioni **40 e 41 non hanno un blocco changelog proprio**: il lavoro del 23/08
@@ -2500,7 +2638,12 @@ Solo GDD. Il codice non è stato toccato.
   turni: **si vince completando l'obiettivo dichiarato nel volantino, e fallirlo fa perdere
   il livello.** Gli obiettivi secondari valgono solo Punti Reclutamento per l'Assemblea
   successiva. Le condizioni di sconfitta diventano due: obiettivo fallito e Coesione a zero.
-- ⏸ **Il limite di turni è PARCHEGGIATO: per ora si sviluppa SENZA.** Il contatore in
+- ⏸ ✅ **SUPERATO il 09/09/26** — vedi "Tempo del livello e scadenza dell'obiettivo" in
+  PARTE 1. La scadenza esiste, appartiene all'obiettivo (non al livello) ed è espressa in
+  **orario**, non in numero di turni: è la forma annotata in GDD 20.4-bis, adottata.
+  Il testo storico resta qui perché il *perché* del parcheggio è ancora la miglior
+  spiegazione di cosa quella scadenza deve risolvere.
+  ⏸ **Il limite di turni è PARCHEGGIATO: per ora si sviluppa SENZA.** Il contatore in
   `LVLManager` resta ma non deve far perdere. ⚠ È un buco noto, non una svista: senza
   orologio niente obbliga ad avanzare, e la Repressione non copre il vuoto perché sale con
   le **azioni**, non col tempo — quindi il problema colpisce proprio la strada non violenta.
