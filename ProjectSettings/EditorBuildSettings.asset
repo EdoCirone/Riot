@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/LVLTest.unity
     guid: f5b6b95e4b8a1ad4d93670cb2f799b06
+  - enabled: 1
+    path: Assets/Scenes/Assembly.unity
+    guid: e84d0b4d150fee74f940b1c61b7cb24a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
