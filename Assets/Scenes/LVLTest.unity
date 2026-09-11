@@ -15637,6 +15637,7 @@ MonoBehaviour:
   _turnManager: {fileID: 736496568}
   _map: {fileID: 1144096843}
   _unitsRenderer: {fileID: 1693072225}
+  _flyerSelection: {fileID: 11400000, guid: 7535afc03d3839947a035c3c9d754ba6, type: 2}
   _declaredObjective: {fileID: 11400000, guid: 388b404d1c3d4514b964b58ee5cfbcde, type: 2}
   _meetingPoint: {fileID: 11400000, guid: d03132b7d922c514b947e757cef1178a, type: 2}
   _defaultStartHour: 12

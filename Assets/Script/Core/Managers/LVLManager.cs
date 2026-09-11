@@ -9,10 +9,11 @@ public class LVLManager : MonoBehaviour
     [SerializeField] private HexGrid _map;
     [SerializeField] private UnitsRenderer _unitsRenderer;
 
-    [Header("LVL Settings")]
-    // L'obiettivo che il corteo ha dichiarato di voler prendere: è la condizione di
-    // vittoria del livello (GDD 20.4). Oggi lo decide il livello; domani lo deciderà il
-    // volantino scritto in Assemblea, e questo campo verrà scritto da fuori.
+    [Header("Flyer selection")]
+    [Tooltip("Selection confirmed by the Assembly. If missing or invalid, the level uses its fallback settings.")]
+    [SerializeField] private FlyerSelectionSO _flyerSelection;
+
+    [Header("LVL Settings fallback")]
     [Tooltip("L'obiettivo dichiarato dal corteo: da qui parte la vittoria. Oggi lo decide " +
              "il livello, domani lo deciderà l'Assemblea.")]
     [SerializeField] private ObjectiveSO _declaredObjective;
@@ -83,6 +84,9 @@ public class LVLManager : MonoBehaviour
 
     private LevelTension _tension;
     private ObjectiveRuntime _declared;
+    private ObjectiveSO _resolvedDeclaredObjective;
+    private MeetingPointSO _resolvedMeetingPoint;
+    private int _resolvedStartMinutesFromMidnight;
 
     private bool _gameOver = false;
     private int _currentTurn;
@@ -109,23 +113,42 @@ public class LVLManager : MonoBehaviour
     /// </summary>
     public int CurrentTurn => _currentTurn;
     public int CurrentTimeMinutes => LevelTimeRules.CalculateCurrentMinutes(
-            (_defaultStartHour * 60) + _defaultStartMinute,
-            _currentTurn,
-            _minutesPerTurn);
+     _resolvedStartMinutesFromMidnight,
+     _currentTurn,
+     _minutesPerTurn);
+
     public bool IsDeadlineRound =>
-    _declaredObjective != null
-    && LevelTimeRules.HasReachedDeadline(
-        CurrentTimeMinutes,
-        _declaredObjective.DeadlineMinutesFromMidnight);
+        _resolvedDeclaredObjective != null
+        && LevelTimeRules.HasReachedDeadline(
+            CurrentTimeMinutes,
+            _resolvedDeclaredObjective.DeadlineMinutesFromMidnight);
 
     public ObjectiveRuntime DeclaredObjective => _declared;
-    public ObjectiveSO DeclaredObjectiveData => _declaredObjective;
+    public ObjectiveSO DeclaredObjectiveData => _resolvedDeclaredObjective;
+
     public IReadOnlyList<ObjectiveRuntime> Objectives => _map != null ? _map.Objectives : null;
 
     public int Cohesion { get; private set; }
 
+    private void ResolveLaunchConfiguration()
+    {
+        _resolvedDeclaredObjective = _declaredObjective;
+        _resolvedMeetingPoint = _meetingPoint;
+        _resolvedStartMinutesFromMidnight =
+            (_defaultStartHour * 60) + _defaultStartMinute;
+
+        if (_flyerSelection == null || !_flyerSelection.HasSelection)
+            return;
+
+        _resolvedDeclaredObjective = _flyerSelection.DeclaredObjective;
+        _resolvedMeetingPoint = _flyerSelection.MeetingPoint;
+        _resolvedStartMinutesFromMidnight =
+            _flyerSelection.StartMinutesFromMidnight;
+    }
+
     private void Awake()
     {
+        ResolveLaunchConfiguration();
         _isConfigured = ValidateReferences();
 
         if (!_isConfigured)
@@ -175,7 +198,7 @@ public class LVLManager : MonoBehaviour
         if (_unitsRenderer == null)
             errors.Add("UnitsRenderer non assegnato");
 
-        if (_declaredObjective == null)
+        if (_resolvedDeclaredObjective == null)
             errors.Add("Obiettivo dichiarato non assegnato");
 
         if (_winEvent == null)
@@ -186,7 +209,7 @@ public class LVLManager : MonoBehaviour
 
         if (_startingRoster != null && _startingRoster.Length > 0)
         {
-            if (_meetingPoint == null)
+            if (_resolvedMeetingPoint == null)
                 errors.Add("Roster presente ma MeetingPoint non assegnato");
 
             for (int i = 0; i < _startingRoster.Length; i++)
@@ -265,7 +288,7 @@ public class LVLManager : MonoBehaviour
     {
         if (_startingRoster == null || _startingRoster.Length == 0) return;
 
-        if (_meetingPoint == null)
+        if (_resolvedMeetingPoint == null)
         {
             Debug.LogError("[LVL] Roster declared but no meeting point: the corteo has nowhere to gather");
             return;
@@ -273,11 +296,11 @@ public class LVLManager : MonoBehaviour
 
         MeetingPointRuntime meeting = null;
         foreach (MeetingPointRuntime candidate in _map.MeetingPoints)
-            if (candidate.Data == _meetingPoint) { meeting = candidate; break; }
+            if (candidate.Data == _resolvedMeetingPoint) { meeting = candidate; break; }
 
         if (meeting == null)
         {
-            Debug.LogError($"[LVL] Meeting point '{_meetingPoint.name}' is not on this map: check the Meeting Points array on HexMapSO");
+            Debug.LogError($"[LVL] Meeting point '{_resolvedMeetingPoint.name}' is not on this map: check the Meeting Points array on HexMapSO");
             return;
         }
 
@@ -366,23 +389,28 @@ public class LVLManager : MonoBehaviour
     {
         _declared = null;
 
-        if (_declaredObjective == null)
+        if (_resolvedDeclaredObjective == null)
         {
-            Debug.LogWarning("[LVL] No declared objective on this level: the level cannot be won");
+            Debug.LogWarning(
+                "[LVL] No declared objective on this level: the level cannot be won");
             return;
         }
 
         foreach (ObjectiveRuntime objective in _map.Objectives)
         {
-            if (objective.Data == _declaredObjective)
+            if (objective.Data == _resolvedDeclaredObjective)
             {
                 _declared = objective;
-                Debug.Log($"[LVL] Declared objective: {_declared} ({_declared.Required} cell-turn(s) needed)");
+                Debug.Log(
+                    $"[LVL] Declared objective: {_declared} " +
+                    $"({_declared.Required} cell-turn(s) needed)");
                 return;
             }
         }
 
-        Debug.LogError($"[LVL] Declared objective '{_declaredObjective.name}' is not on this map: check the Objectives array on HexMapSO");
+        Debug.LogError(
+            $"[LVL] Declared objective '{_resolvedDeclaredObjective.name}' " +
+            "is not on this map: check the Objectives array on HexMapSO");
     }
 
     public void CompleteRound()
@@ -402,10 +430,10 @@ public class LVLManager : MonoBehaviour
 
         // Il round della scadenza è giocabile: la conquista ha priorità
         // sulla sconfitta per tempo.
-        if (_declared != null
+        if (_resolvedDeclaredObjective != null
             && LevelTimeRules.HasReachedDeadline(
                 CurrentTimeMinutes,
-                _declared.Data.DeadlineMinutesFromMidnight))
+                _resolvedDeclaredObjective.DeadlineMinutesFromMidnight))
         {
             LoseByDeadline();
             return;
@@ -545,7 +573,12 @@ public class LVLManager : MonoBehaviour
     [ContextMenu("Log coverage diagnostics")]
     public void LogCoverageDiagnostics()
     {
-        string report = LevelCoverageDiagnostics.Build(_map, _meetingPoint, _declared, _spezzoniOfLVL, _policeOfLVL);
+        string report = LevelCoverageDiagnostics.Build(
+                         _map,
+                         _resolvedMeetingPoint,
+                         _declared,
+                         _spezzoniOfLVL,
+                         _policeOfLVL);
 
         if (!string.IsNullOrEmpty(report))
             Debug.Log(report);
