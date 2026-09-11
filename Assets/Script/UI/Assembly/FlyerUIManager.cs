@@ -2,7 +2,7 @@
 using TMPro;
 using UnityEngine;
 
-public sealed class AssemblyUIManager : MonoBehaviour
+public sealed class FlyerUIManager : MonoBehaviour
 {
     [Header("Data")]
     [SerializeField] private HexMapSO _mapData;
@@ -16,8 +16,15 @@ public sealed class AssemblyUIManager : MonoBehaviour
     [Header("Start Time UI")]
     [SerializeField] private TMP_Dropdown _startTimeDropdown;
 
+    [Header("Panels")]
+    [SerializeField] private GameObject _flyerPanel;
+
     [Header("Flow")]
     [SerializeField] private FlyerSelectionController _selectionController;
+
+    [Header("Budget")]
+    [SerializeField] private AssemblyBudgetState _budgetState;
+    [SerializeField] private AssemblyBudgetView _budgetView;
 
     private readonly List<int> _startTimeOptions = new();
 
@@ -246,6 +253,7 @@ public sealed class AssemblyUIManager : MonoBehaviour
         }
 
         SelectedStartMinutesFromMidnight = _startTimeOptions[index];
+        RefreshBudget();
 
         Debug.Log(
             $"[ASSEMBLY UI] Start time selected: " +
@@ -271,9 +279,46 @@ public sealed class AssemblyUIManager : MonoBehaviour
             return;
         }
 
-        _selectionController.TryConfirmFlyer(
-            SelectedObjective,
-            SelectedMeetingPoint,
-            SelectedStartMinutesFromMidnight);
+        if (_flyerPanel == null)
+        {
+            Debug.LogError(
+                "[ASSEMBLY UI] Flyer panel not assigned",
+                this);
+            return;
+        }
+
+        bool confirmed =
+            _selectionController.TryConfirmFlyer(
+                SelectedObjective,
+                SelectedMeetingPoint,
+                SelectedStartMinutesFromMidnight);
+
+        if (!confirmed)
+            return;
+
+        _flyerPanel.SetActive(false);
     }
+    private void RefreshBudget()
+    {
+        if (_budgetState == null || _budgetView == null)
+        {
+            Debug.LogError(
+                "[ASSEMBLY UI] Budget state or view not assigned",
+                this);
+            return;
+        }
+
+        if (!_budgetState.TrySetFlyerBonus(
+                SelectedObjective,
+                SelectedStartMinutesFromMidnight))
+        {
+            _budgetView.ShowUnavailable();
+            return;
+        }
+
+        _budgetView.ShowBudget(
+            _budgetState.BasePoints,
+            _budgetState.TemporaryPoints);
+    }
+
 }

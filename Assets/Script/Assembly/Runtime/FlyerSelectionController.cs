@@ -1,14 +1,12 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public sealed class FlyerSelectionController : MonoBehaviour
 {
     [Header("Runtime state")]
     [SerializeField] private FlyerSelectionSO _selection;
 
-    [Header("Level")]
+    [Header("Map")]
     [SerializeField] private HexMapSO _mapData;
-    [SerializeField] private string _levelSceneName = "LVLTest";
 
     private void Awake()
     {
@@ -81,15 +79,6 @@ public sealed class FlyerSelectionController : MonoBehaviour
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(_levelSceneName)
-            || !Application.CanStreamedLevelBeLoaded(_levelSceneName))
-        {
-            Debug.LogError(
-                $"[ASSEMBLY] Scene '{_levelSceneName}' cannot be loaded",
-                this);
-            return false;
-        }
-
         if (!_selection.TrySetSelection(
                 declaredObjective,
                 meetingPoint,
@@ -106,7 +95,6 @@ public sealed class FlyerSelectionController : MonoBehaviour
             $"{meetingPoint}, {FormatTime(startMinutesFromMidnight)}",
             this);
 
-        SceneManager.LoadScene(_levelSceneName);
         return true;
     }
 
