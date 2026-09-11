@@ -64,6 +64,18 @@ public sealed class CorteoSelectionSO : ScriptableObject
         return count;
     }
 
+    public int TotalActivationCost
+    {
+        get
+        {
+            int total = 0;
+
+            foreach (SpezzoneSO unit in MutableSelectedUnits)
+                total += unit.ActivationCost;
+
+            return total;
+        }
+    }
     public void ClearSelection()
     {
         MutableSelectedUnits.Clear();
