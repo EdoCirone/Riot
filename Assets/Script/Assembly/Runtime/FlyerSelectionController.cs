@@ -6,17 +6,8 @@ public sealed class FlyerSelectionController : MonoBehaviour
     [Header("Runtime state")]
     [SerializeField] private FlyerSelectionSO _selection;
 
-    [Header("MVP flyer")]
-    [SerializeField] private ObjectiveSO _declaredObjective;
-    [SerializeField] private MeetingPointSO _meetingPoint;
-
-    [Range(0, 23)]
-    [SerializeField] private int _startHour = 12;
-
-    [Range(0, 59)]
-    [SerializeField] private int _startMinute;
-
-    [Header("Scene transition")]
+    [Header("Level")]
+    [SerializeField] private HexMapSO _mapData;
     [SerializeField] private string _levelSceneName = "LVLTest";
 
     private void Awake()
@@ -25,31 +16,69 @@ public sealed class FlyerSelectionController : MonoBehaviour
             _selection.ClearSelection();
     }
 
-    [ContextMenu("Confirm flyer")]
-    public void ConfirmFlyer()
+    public bool TryConfirmFlyer(
+        ObjectiveSO declaredObjective,
+        MeetingPointSO meetingPoint,
+        int startMinutesFromMidnight)
     {
         if (!Application.isPlaying)
         {
             Debug.LogWarning(
                 "[ASSEMBLY] The flyer can only be confirmed in Play Mode",
                 this);
-            return;
+            return false;
         }
 
-        if (_selection == null)
+        if (_selection == null || _mapData == null)
         {
             Debug.LogError(
-                "[ASSEMBLY] Current flyer selection not assigned",
+                "[ASSEMBLY] Selection state or map data not assigned",
                 this);
-            return;
+            return false;
         }
 
-        if (_startMinute % 15 != 0)
+        if (declaredObjective == null || meetingPoint == null)
         {
             Debug.LogError(
-                "[ASSEMBLY] Start time must use 15-minute intervals",
+                "[ASSEMBLY] Objective or meeting point not selected",
                 this);
-            return;
+            return false;
+        }
+
+        if (_mapData.Objectives == null
+            || System.Array.IndexOf(
+                _mapData.Objectives,
+                declaredObjective) < 0)
+        {
+            Debug.LogError(
+                $"[ASSEMBLY] Objective '{declaredObjective}' " +
+                "is not available on this map",
+                this);
+            return false;
+        }
+
+        if (_mapData.MeetingPoints == null
+            || System.Array.IndexOf(
+                _mapData.MeetingPoints,
+                meetingPoint) < 0)
+        {
+            Debug.LogError(
+                $"[ASSEMBLY] Meeting point '{meetingPoint}' " +
+                "is not available on this map",
+                this);
+            return false;
+        }
+
+        if (!FlyerTimeRules.IsValidStartTime(
+                startMinutesFromMidnight,
+                declaredObjective.DeadlineMinutesFromMidnight))
+        {
+            Debug.LogError(
+                $"[ASSEMBLY] Start time " +
+                $"{FormatTime(startMinutesFromMidnight)} is not valid " +
+                $"for objective '{declaredObjective}'",
+                this);
+            return false;
         }
 
         if (string.IsNullOrWhiteSpace(_levelSceneName)
@@ -58,27 +87,34 @@ public sealed class FlyerSelectionController : MonoBehaviour
             Debug.LogError(
                 $"[ASSEMBLY] Scene '{_levelSceneName}' cannot be loaded",
                 this);
-            return;
+            return false;
         }
 
-        int startMinutesFromMidnight =
-            (_startHour * 60) + _startMinute;
-
         if (!_selection.TrySetSelection(
-                _declaredObjective,
-                _meetingPoint,
+                declaredObjective,
+                meetingPoint,
                 startMinutesFromMidnight))
         {
             Debug.LogError(
-                "[ASSEMBLY] Flyer incomplete or invalid",
+                "[ASSEMBLY] Flyer selection could not be saved",
                 this);
-            return;
+            return false;
         }
 
         Debug.Log(
-            $"[ASSEMBLY] Flyer confirmed: {_declaredObjective}, " +
-            $"{_meetingPoint}, {_startHour:00}:{_startMinute:00}");
+            $"[ASSEMBLY] Flyer confirmed: {declaredObjective}, " +
+            $"{meetingPoint}, {FormatTime(startMinutesFromMidnight)}",
+            this);
 
         SceneManager.LoadScene(_levelSceneName);
+        return true;
+    }
+
+    private static string FormatTime(int minutesFromMidnight)
+    {
+        int hours = minutesFromMidnight / 60;
+        int minutes = minutesFromMidnight % 60;
+
+        return $"{hours:00}:{minutes:00}";
     }
 }
