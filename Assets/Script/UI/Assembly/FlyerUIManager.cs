@@ -308,9 +308,10 @@ public sealed class FlyerUIManager : MonoBehaviour
             return;
         }
 
-        if (!_budgetState.TrySetFlyerBonus(
-                SelectedObjective,
-                SelectedStartMinutesFromMidnight))
+        if (SelectedObjective == null
+            || !_budgetState.TrySetFlyerBonus(
+         SelectedStartMinutesFromMidnight,
+         SelectedObjective.DeadlineMinutesFromMidnight))
         {
             _budgetView.ShowUnavailable();
             return;

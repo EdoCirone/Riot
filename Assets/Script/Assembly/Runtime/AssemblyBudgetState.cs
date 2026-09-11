@@ -9,17 +9,14 @@ public sealed class AssemblyBudgetState : MonoBehaviour
     public int AvailablePoints => BasePoints + TemporaryPoints;
 
     public bool TrySetFlyerBonus(
-        ObjectiveSO objective,
-        int startMinutesFromMidnight)
+     int startMinutesFromMidnight,
+     int objectiveDeadlineMinutes)
     {
         TemporaryPoints = 0;
 
-        if (objective == null)
-            return false;
-
         if (!AssemblyBudgetRules.TryCalculateTemporaryBonus(
                 startMinutesFromMidnight,
-                objective.DeadlineMinutesFromMidnight,
+                objectiveDeadlineMinutes,
                 out int temporaryBonus))
         {
             return false;
